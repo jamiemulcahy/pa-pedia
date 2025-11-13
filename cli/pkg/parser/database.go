@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/planetaryannihilation/pa-pedia/pkg/loader"
-	"github.com/planetaryannihilation/pa-pedia/pkg/models"
+	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
+	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
 // Database manages unit parsing and relationship building

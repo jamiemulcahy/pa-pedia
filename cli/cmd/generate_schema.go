@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/invopop/jsonschema"
-	"github.com/planetaryannihilation/pa-pedia/pkg/models"
+	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 	"github.com/spf13/cobra"
 )
 

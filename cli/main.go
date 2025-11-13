@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/planetaryannihilation/pa-pedia/cmd"
+	"github.com/jamiemulcahy/pa-pedia/cmd"
 )
 
 func main() {

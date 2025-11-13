@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/planetaryannihilation/pa-pedia/pkg/exporter"
-	"github.com/planetaryannihilation/pa-pedia/pkg/loader"
-	"github.com/planetaryannihilation/pa-pedia/pkg/parser"
+	"github.com/jamiemulcahy/pa-pedia/pkg/exporter"
+	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
+	"github.com/jamiemulcahy/pa-pedia/pkg/parser"
 	"github.com/spf13/cobra"
 )
 

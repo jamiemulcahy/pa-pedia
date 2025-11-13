@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/planetaryannihilation/pa-pedia/pkg/models"
+	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
 // FactionExporter handles exporting faction data to folder structure

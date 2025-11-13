@@ -5,8 +5,8 @@ import (
 	"math"
 	"strings"
 
-	"github.com/planetaryannihilation/pa-pedia/pkg/loader"
-	"github.com/planetaryannihilation/pa-pedia/pkg/models"
+	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
+	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
 // ParseUnit parses a unit specification from JSON with base_spec inheritance

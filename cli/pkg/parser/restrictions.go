@@ -3,7 +3,7 @@ package parser
 import (
 	"strings"
 
-	"github.com/planetaryannihilation/pa-pedia/pkg/models"
+	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
 // Restriction represents a buildable type restriction
