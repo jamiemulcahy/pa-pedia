@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/planetaryannihilation/pa-pedia/pkg/models/faction-database",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/faction-database",
   "$ref": "#/$defs/FactionDatabase",
   "$defs": {
     "Ammo": {
