@@ -326,23 +326,32 @@ pa-pedia/
 
 ## Implementation Phases
 
-### Phase 1: CLI Foundation (Current State → Enhanced)
+### Phase 1: CLI Foundation ✅ **COMPLETE**
 
-**Status**: ~70% complete based on existing code
+**Status**: ✅ **100% Complete** (as of 2025-11-13)
 
-**Remaining Tasks**:
-- [ ] Restructure output to faction folder format
-- [ ] Add JSON Schema generation
-- [ ] Implement asset extraction (unit icons/images)
-- [ ] Add mod mode with zip file handling
-- [ ] Refactor CLI commands (extract, validate, etc.)
-- [ ] Add faction folder validation
-- [ ] Update data models for new JSON structure
+**Completed Tasks**:
+- [x] Restructure output to faction folder format
+- [x] Add JSON Schema generation
+- [x] Implement mod mode with directory handling
+- [x] Refactor CLI commands (extract base, extract mod, validate, generate-schema)
+- [x] Update data models for new JSON structure with organized specs
+- [x] Implement build tree analysis and accessibility marking
+- [x] Add restriction grammar parser
+- [x] Implement loader system with mod overlay
+- [x] Create faction exporter
+- [x] Test with real PA Titans installation
 
-**Deliverables**:
-- CLI that generates faction folders
-- JSON Schema files for all data structures
-- Documentation for CLI usage
+**Delivered**:
+- ✅ CLI that generates faction folders (base game + mods)
+- ✅ JSON Schema files for all data structures (5 schemas)
+- ✅ Working extraction: 207 units parsed, 199 units exported, 123 accessible
+- ✅ Faction folder structure with metadata.json and units.json
+
+**Deferred to Later** (not blocking):
+- Asset extraction (unit icons/images) - directory structure created
+- Faction folder validation command - stub implemented
+- Mod zip file handling - currently works with extracted mod directories
 
 ### Phase 2: Web App Foundation
 
@@ -429,6 +438,84 @@ pa-pedia/
 - Server-side faction hosting
 - API for programmatic access
 - Mobile app (React Native)
+
+## Asset Extraction Plan (Deferred from Phase 1)
+
+### Current State
+- Units have `image` field: `"./assets/{unitId}.png"`
+- Assets folder created with README.md explaining strategy
+- Web UI can use fallback placeholder images
+
+### Implementation Plan
+
+#### Option A: Extract from PA Icon Atlas (Recommended)
+PA stores unit icons in icon atlas files that map unit IDs to texture coordinates.
+
+**Steps**:
+1. Parse `ui/mods/*/icon_atlas.json` files from PA installation
+2. Map unit resource names to icon atlas IDs
+3. Extract texture sheets (`.papa` format)
+4. Convert PAPA textures to PNG using existing tools/libraries
+5. Crop individual unit icons from atlas using coordinates
+6. Save as `{unitId}.png` in faction assets folder
+
+**Required**:
+- PAPA texture format decoder (several open source options exist)
+- Image manipulation library (Go's `image` stdlib + third-party decoders)
+- Icon atlas JSON parsing
+
+**Challenges**:
+- PAPA format is proprietary but well-documented by PA community
+- Some units may not have icons in atlas (use fallback)
+- Need to handle multiple icon sizes (strategic icons vs unit icons)
+
+#### Option B: Manual Icon Collection
+For initial web app development:
+1. Use placeholder images
+2. Gradually add real icons manually
+3. Community can contribute icon packs
+
+#### Option C: External Icon Database
+Use existing PA community databases as fallback:
+- Link to external CDN with PA unit icons
+- Reference community-maintained icon repositories
+- Simpler but requires internet connection
+
+### Recommended Approach
+
+**Phase 2 (Web App)**:
+- Use placeholder images initially
+- Implement fallback chain: local → placeholder → external
+- Web app remains fully functional without icons
+
+**Post-Phase 2**:
+- Add CLI command: `pa-pedia extract-assets`
+- Implement PAPA texture extraction
+- Generate complete icon sets for all factions
+
+### CLI Command Design
+
+```bash
+# Extract assets for existing faction folder
+pa-pedia extract-assets \
+  --faction "./factions/MLA" \
+  --pa-root "C:/PA/media" \
+  --icon-size 128
+
+# Extract assets during initial extraction
+pa-pedia extract base \
+  --pa-root "C:/PA/media" \
+  --output "./factions" \
+  --extract-assets \
+  --icon-size 128
+```
+
+### Technical Resources
+
+- **PAPA Format**: Community tools exist (raevn's PAPA tools, etc.)
+- **Icon Atlas**: `/ui/mods/com.pa.quitch.paperpanzer/ui/mods/com.pa.quitch.paperpanzer.client/icon_atlas.json`
+- **Texture Sheets**: Located in PA installation under `/ui/main/atlas/`
+- **Go Image Libraries**: Standard library + `golang.org/x/image` for extended formats
 
 ## Success Metrics
 

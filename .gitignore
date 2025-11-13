@@ -1,0 +1,41 @@
+# Binaries
+cli/pa-pedia
+cli/pa-pedia.exe
+cli/*.exe
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# CLI output directories (temporary/testing)
+factions/
+output/
+
+# Exception: web app pre-bundled factions should be committed
+!web/public/factions/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
+
+# Web app (to be added later)
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+
+# Logs
+*.log

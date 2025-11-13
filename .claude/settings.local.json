@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(dir \"C:\\Users\\jamie\\Dev\\PA\\pa-pedia\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(mkdir:*)",
+      "Bash(go build:*)",
+      "Bash(./pa-pedia.exe generate-schema:*)",
+      "Bash(./pa-pedia.exe extract base:*)",
+      "Bash(./pa-pedia.exe extract mod:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
