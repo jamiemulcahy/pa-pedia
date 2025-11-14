@@ -473,6 +473,10 @@ func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[s
 		for _, entry := range entries {
 			if !entry.IsDir() {
 				filename := entry.Name()
+				// Skip .papa files (3D models/textures - too large)
+				if strings.HasSuffix(strings.ToLower(filename), ".papa") {
+					continue
+				}
 				files[filename] = &UnitFileInfo{
 					RelativePath: filename,
 					FullPath:     filepath.Join(fullUnitDir, filename),
@@ -527,6 +531,10 @@ func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[s
 			// Skip subdirectories
 			if !strings.Contains(relPath, "/") && relPath != "" {
 				filename := filepath.Base(file.Name)
+				// Skip .papa files (3D models/textures - too large)
+				if strings.HasSuffix(strings.ToLower(filename), ".papa") {
+					continue
+				}
 				files[filename] = &UnitFileInfo{
 					RelativePath: filename,
 					FullPath:     file.Name,
