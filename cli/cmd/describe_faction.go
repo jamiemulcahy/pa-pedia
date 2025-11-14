@@ -27,23 +27,24 @@ var (
 // describeFactionCmd represents the describe-faction command
 var describeFactionCmd = &cobra.Command{
 	Use:   "describe-faction",
-	Short: "Describe a faction by extracting and merging data from base game and mods",
-	Long: `Describe a faction by discovering and merging unit data from the base game
-and/or multiple mods. Supports both extracted directories and zip files.
+	Short: "Generate a faction data folder for the PA-Pedia web app",
+	Long: `Generate a complete faction data folder containing unit information, metadata,
+and assets from Planetary Annihilation Titans.
 
-This command replaces the old 'extract base' and 'extract mod' commands with a
-unified approach that handles multi-source factions (e.g., a faction composed
-of multiple mods).
+This command extracts faction data from your PA installation and creates a
+portable folder that can be:
+  - Uploaded to the PA-Pedia web app for browsing
+  - Shared with other players
+  - Used for mod development and analysis
 
-The command will:
-  - Search for mods in server_mods, client_mods, and download folders
-  - Read zip files directly without extraction
-  - Merge unit lists from all sources
-  - Track file provenance (which mod provided each file)
-  - Generate a lightweight index with detailed unit folders
+The tool automatically discovers and merges unit data from:
+  - Base game files (MLA faction)
+  - Installed server mods
+  - Client mods
+  - Downloaded mod zip files
 
-For base game only, use --name mla (without --mod flags).
-For custom factions, provide a name and one or more --mod flags.`,
+For the base game, use --name mla (or --name base/titans).
+For modded factions, provide a faction name and one or more --mod identifiers.`,
 	Example: `  # Base game (MLA) faction
   pa-pedia describe-faction --name mla --pa-root "C:/PA/media" --output "./factions"
 

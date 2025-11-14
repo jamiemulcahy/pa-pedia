@@ -1,47 +1,31 @@
-package cmd
+package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/invopop/jsonschema"
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
-	"github.com/spf13/cobra"
 )
 
-var (
-	schemaOutputDir string
-)
+func main() {
+	// Parse command-line flags
+	outputDir := flag.String("output", "./schema", "Output directory for schema files")
+	verbose := flag.Bool("verbose", false, "Enable verbose logging")
+	flag.Parse()
 
-// generateSchemaCmd represents the generate-schema command
-var generateSchemaCmd = &cobra.Command{
-	Use:   "generate-schema",
-	Short: "Generate JSON Schema files from Go models",
-	Long: `Generate JSON Schema files from Go data structures.
-
-These schemas are used to:
-- Validate faction folder data
-- Generate TypeScript types for the web application
-- Document the data format`,
-	Example: `  pa-pedia generate-schema
-  pa-pedia generate-schema --output ./custom-schema-dir`,
-	RunE: runGenerateSchema,
-}
-
-func init() {
-	rootCmd.AddCommand(generateSchemaCmd)
-	generateSchemaCmd.Flags().StringVarP(&schemaOutputDir, "output", "o", "./schema", "Output directory for schema files")
-}
-
-func runGenerateSchema(cmd *cobra.Command, args []string) error {
-	logVerbose("Generating JSON schemas")
-	logVerbose("Output directory: %s", schemaOutputDir)
+	if *verbose {
+		fmt.Printf("Generating JSON schemas\n")
+		fmt.Printf("Output directory: %s\n\n", *outputDir)
+	}
 
 	// Create schema directory if it doesn't exist
-	if err := os.MkdirAll(schemaOutputDir, 0755); err != nil {
-		return fmt.Errorf("failed to create schema directory: %w", err)
+	if err := os.MkdirAll(*outputDir, 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: failed to create schema directory: %v\n", err)
+		os.Exit(1)
 	}
 
 	// Generate schemas for each type
@@ -57,18 +41,20 @@ func runGenerateSchema(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, s := range schemas {
-		if err := generateSchema(schemaOutputDir, s.name, s.typ); err != nil {
-			return fmt.Errorf("failed to generate schema for %s: %w", s.name, err)
+		if err := generateSchema(*outputDir, s.name, s.typ, *verbose); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: failed to generate schema for %s: %v\n", s.name, err)
+			os.Exit(1)
 		}
 		fmt.Printf("✓ Generated: %s.schema.json\n", s.name)
 	}
 
 	fmt.Println("\nSchema generation complete!")
-	return nil
 }
 
-func generateSchema(outputDir, name string, typ interface{}) error {
-	logVerbose("Generating schema for: %s", name)
+func generateSchema(outputDir, name string, typ interface{}, verbose bool) error {
+	if verbose {
+		fmt.Printf("Generating schema for: %s\n", name)
+	}
 
 	// Create reflector with configuration
 	reflector := &jsonschema.Reflector{
