@@ -27,43 +27,60 @@ PA-Pedia is a complete rewrite and modernization of the Planetary Annihilation u
 - Fast execution
 - Easy for non-developers to use
 
-#### Operation Modes
+#### Operation Modes (UPDATED - Phase 1.5)
 
-##### Base Game Mode
+##### Describe Faction Command
 ```bash
-pa-pedia extract base --pa-root "C:/PA/media" --output "./factions"
-```
+# Base game faction (MLA - Machine Liquid Army)
+pa-pedia describe-faction --name mla \
+  --pa-root "C:/PA/media" \
+  --output "./factions"
 
-**Behavior**:
-- Generates faction folder for base game (Titans expansion assumed)
-- Output: `./factions/base-game/`
-
-##### Mod Mode
-```bash
-pa-pedia extract mod --mod-id "com.pa.legion-expansion" \
-  --mods-folder "C:/Users/.../server_mods" \
+# Custom faction with multiple mods
+pa-pedia describe-faction --name "Legion Enhanced" \
+  --pa-root "C:/PA/media" \
+  --mod com.pa.legion-expansion \
+  --mod com.pa.legion-client \
   --output "./factions"
 ```
 
 **Behavior**:
-- Locates mod in `download/` subfolder by matching identifier
-- Extracts mod zip file
-- Reads `modinfo.json` for metadata
-- Processes mod files with base game override logic
-- Output: `./factions/legion-expansion/`
+- Discovers mods from server_mods, client_mods, download folders
+- Reads zip files directly (no temp extraction)
+- Merges unit lists from all sources (mods + pa_ex1 + pa)
+- Applies first-in-list priority for file conflicts
+- Tracks provenance for all discovered files
+- Output: `./factions/{faction-name}/` with lightweight index + units/ folders
 
-#### Faction Folder Structure
+**Mod Discovery Priority**:
+1. server_mods/ (user-installed server mods)
+2. client_mods/ (user-installed client mods)
+3. download/ (PA-managed zip files)
+
+**File Priority** (when same file exists in multiple sources):
+1. First mod in --mod list
+2. Second mod in --mod list
+3. ...
+4. pa_ex1/ (Titans expansion)
+5. pa/ (base game)
+
+#### Faction Folder Structure (UPDATED - Phase 1.5)
 
 Each faction folder contains:
 
 ```
 faction-name/
-├── metadata.json          # Faction metadata (name, version, author, etc.)
-├── units.json             # Complete unit database with specs
-└── assets/               # Unit images
-    ├── commander.png
-    ├── dox.png
-    ├── tank.png
+├── metadata.json          # Faction metadata (name, version, author, mods used)
+├── units.json             # Lightweight index (identifier, displayName, unitTypes, source, files[])
+└── units/                 # All discovered unit files organized by unit identifier
+    ├── tank/
+    │   ├── tank.json                    # Primary unit definition
+    │   ├── tank_tool_weapon.json        # Weapon specifications
+    │   ├── tank_ammo.json               # Ammo specifications
+    │   ├── tank_icon_buildbar.png       # Build bar icon (original filename)
+    │   └── ... (all discovered files for this unit)
+    ├── commander/
+    │   └── ...
     └── ...
 ```
 
@@ -81,57 +98,84 @@ faction-name/
 }
 ```
 
-##### units.json
+##### units.json (UPDATED - Phase 1.5)
+
+**Purpose**: Lightweight index for quick unit browsing without loading all unit data.
+
 ```json
 {
   "units": [
     {
-      "id": "tank",
-      "resourceName": "/pa/units/land/tank/tank.json",
+      "identifier": "tank",
       "displayName": "Ant",
-      "description": "Light Assault Tank - Fast unit that counters most other land units",
-      "image": "./assets/tank.png",  // relative path
-      "tier": 1,
       "unitTypes": ["Mobile", "Tank", "Basic", "Land"],
-      "accessible": true,
-      "specs": {
-        "combat": {
-          "health": 200,
-          "dps": 20,
-          "weapons": [...]
+      "source": "pa",
+      "files": [
+        {
+          "path": "tank.json",
+          "source": "pa"
         },
-        "economy": {
-          "buildCost": 90,
-          "production": {...},
-          "consumption": {...}
+        {
+          "path": "tank_tool_weapon.json",
+          "source": "pa"
         },
-        "mobility": {
-          "moveSpeed": 15,
-          "turnSpeed": 720
+        {
+          "path": "tank_ammo.json",
+          "source": "pa"
         },
-        "recon": {
-          "visionRadius": 100
+        {
+          "path": "tank_icon_buildbar.png",
+          "source": "pa_ex1"
         }
-      },
-      "buildRelationships": {
-        "builds": [],
-        "builtBy": ["vehicle_factory"]
-      }
+      ]
+    },
+    {
+      "identifier": "advanced_tank",
+      "displayName": "Vanguard",
+      "unitTypes": ["Mobile", "Tank", "Advanced", "Land"],
+      "source": "com.pa.legion-expansion",
+      "files": [
+        {
+          "path": "advanced_tank.json",
+          "source": "com.pa.legion-expansion"
+        },
+        {
+          "path": "advanced_tank_tool_weapon.json",
+          "source": "com.pa.legion-expansion"
+        },
+        {
+          "path": "advanced_tank_icon_buildbar.png",
+          "source": "com.pa.legion-client"
+        }
+      ]
     }
   ]
 }
 ```
 
-#### CLI Commands Structure
+**Changes from Phase 1.0**:
+- Reduced from ~1.2MB (full data) to ~50KB (index only)
+- Added `source` field showing which mod/base defined the unit
+- Added `files[]` array listing all discovered files with their sources
+- Removed full specs (now in individual unit files)
+- Web app can load index quickly, then lazy-load full unit data as needed
+
+#### CLI Commands Structure (UPDATED - Phase 1.5)
 
 ```
 pa-pedia
-├── extract
-│   ├── base    # Extract base game faction
-│   └── mod     # Extract mod faction
-├── validate    # Validate a faction folder
-└── version     # Show version info
+├── describe-faction  # Describe a faction (base game or custom with mods)
+│   Flags:
+│     --name string     (required) Faction display name
+│     --pa-root string  (required) Path to PA media directory
+│     --output string   (required) Output directory for faction folder
+│     --mod strings     (repeatable, optional) Mod identifiers to include
+├── generate-schema   # Generate JSON schemas from Go models
+├── validate          # Validate a faction folder structure
+└── version           # Show version info
 ```
+
+**Note**: The old `extract base` and `extract mod` commands are replaced by the unified `describe-faction` command.
 
 ### 2. Web Application (React/TypeScript)
 
@@ -352,6 +396,234 @@ pa-pedia/
 - Asset extraction (unit icons/images) - directory structure created
 - Faction folder validation command - stub implemented
 - Mod zip file handling - currently works with extracted mod directories
+
+### Phase 1.5: CLI Refactoring (In Progress) 🔄
+
+**Status**: 🔄 **In Progress** (started 2025-11-14)
+
+**Reason**: After Phase 1 completion and testing with real mods, new requirements emerged that necessitate architectural changes.
+
+#### Key Insights from Real-World Testing
+
+1. **Factions vs Mods**: We're extracting *factions* (e.g., "Legion"), not individual *mods*
+   - A faction may span multiple mods (e.g., legion-server + legion-client)
+   - A faction may include modified base game units
+   - Users think in terms of "play Legion" not "install these 3 mods"
+
+2. **Multi-Source Unit Definitions**: A single unit can have files in multiple locations
+   - Base definition in pa/ (vanilla MLA)
+   - Modified in pa_ex1/ (Titans expansion)
+   - Further modified in mod1/ (faction mod)
+   - Icon in mod2/ (client assets mod)
+
+3. **Unit List Merging**: Each source may have its own `unit_list.json`
+   - Mods can add new units
+   - Mods can hide existing units
+   - Must merge lists while maintaining provenance
+
+4. **File Provenance is Critical**: Users need to know which mod provided which file
+   - For debugging mod conflicts
+   - For understanding faction composition
+   - For verifying mod installation
+
+5. **Multiple Mod Locations**: PA installs mods in different folders
+   - server_mods/ (server-side, extracted)
+   - client_mods/ (client-side, extracted)
+   - download/ (zip files managed by PA)
+   - Need to search all with priority
+
+#### Architectural Changes
+
+**Before (Phase 1.0)**:
+- Two separate commands: `extract base` and `extract mod`
+- Single mod at a time
+- Only searched server_mods directory
+- Required mods to be extracted
+- Output: metadata.json + units.json (full unit data) + empty assets/
+
+**After (Phase 1.5)**:
+- Single command: `describe-faction`
+- Multiple mods support (`--mod` flag repeatable)
+- Searches server_mods, client_mods, download with priority
+- Reads zip files directly (no extraction needed)
+- Output: metadata.json + units.json (lightweight index) + units/{id}/ (all files)
+
+#### New Command Structure
+
+```bash
+# Base game faction (MLA)
+pa-pedia describe-faction --name mla \
+  --pa-root "C:/PA/media" \
+  --output "./factions"
+
+# Custom faction with multiple mods
+pa-pedia describe-faction --name "Legion Enhanced" \
+  --pa-root "C:/PA/media" \
+  --mod com.pa.legion-expansion \
+  --mod com.pa.legion-client \
+  --output "./factions"
+```
+
+#### New Output Structure
+
+```
+faction-name/
+├── metadata.json          # Faction metadata
+├── units.json             # Lightweight index with provenance
+└── units/
+    ├── tank/
+    │   ├── tank.json                    # Primary unit file
+    │   ├── tank_tool_weapon.json        # Weapon specs
+    │   ├── tank_ammo.json               # Ammo specs
+    │   ├── tank_icon_buildbar.png       # Icon (original filename)
+    │   └── ... (all discovered files)
+    └── ...
+```
+
+#### New units.json Format
+
+**Old (Phase 1.0)**: Full unit data in single file (~1.2MB for 199 units)
+```json
+{
+  "units": [
+    { "id": "tank", "displayName": "Ant", ...ALL SPECS... }
+  ]
+}
+```
+
+**New (Phase 1.5)**: Lightweight index with file listings (~50KB for 199 units)
+```json
+{
+  "units": [
+    {
+      "identifier": "tank",
+      "displayName": "Ant",
+      "unitTypes": ["Mobile", "Tank", "Basic", "Land"],
+      "source": "pa",
+      "files": [
+        { "path": "tank.json", "source": "pa" },
+        { "path": "tank_tool_weapon.json", "source": "pa" },
+        { "path": "tank_icon_buildbar.png", "source": "pa_ex1" }
+      ]
+    }
+  ]
+}
+```
+
+#### Implementation Tasks
+
+**Documentation**:
+- [x] Update CLAUDE.md with new requirements and patterns
+- [ ] Update PROJECT_PLAN.md with Phase 1.5 details
+- [ ] Update README with new command examples
+
+**Loader Enhancements**:
+- [ ] Add `FindAllMods(paRoot)` - searches server_mods, client_mods, download
+- [ ] Implement zip file reading (archive/zip, no temp extraction)
+- [ ] Add `LoadMergedUnitList()` - merges unit lists from all sources
+- [ ] Add `GetAllFilesForUnit(unitID)` - discovers all files with provenance
+- [ ] Track `ModSource` (which folder provided each mod)
+
+**Data Models**:
+- [ ] Create `UnitIndexEntry` model (identifier, displayName, unitTypes, source, files[])
+- [ ] Create `UnitFile` model (path, source)
+- [ ] Update `FactionMetadata` to track mods used
+
+**Commands**:
+- [ ] Create `describe-faction` command (replace extract base/mod)
+- [ ] Implement `--name` flag (faction name, "mla" for base game)
+- [ ] Implement repeatable `--mod` flag
+- [ ] Validate: --mod cannot be used with --name=mla
+
+**Exporter Refactoring**:
+- [ ] Rewrite exporter for units/ folder structure
+- [ ] Implement file discovery and copying per unit
+- [ ] Generate lightweight units.json index
+- [ ] Implement icon extraction with original filenames
+- [ ] Apply first-wins priority for file selection
+- [ ] Track provenance for all files
+
+**Parser Updates**:
+- [ ] Add source tracking to parser
+- [ ] Handle merged unit lists
+- [ ] Track which source defined each unit
+
+**Schema Generation**:
+- [ ] Generate schemas for new models (UnitIndexEntry, UnitFile)
+- [ ] Update existing schemas as needed
+
+**Validation**:
+- [ ] Implement validation command for new structure
+- [ ] Verify units/ folders match index
+- [ ] Check file references and provenance
+
+**Testing**:
+- [ ] Add tests for multi-location mod discovery
+- [ ] Add tests for zip file reading
+- [ ] Add tests for unit list merging
+- [ ] Add tests for file discovery and provenance
+- [ ] Integration test: base game only
+- [ ] Integration test: multiple mods with zips
+- [ ] Integration test: faction with modified base units
+
+#### Priority Decisions (from user requirements)
+
+1. **Zip Handling**: Read directly from zip (no temp extraction)
+   - Use Go's archive/zip package
+   - Read files on demand
+   - No cleanup needed
+
+2. **Mod Priority**: First-in-list wins
+   - `--mod A --mod B` means A > B
+   - Matches user mental model (primary mod first)
+   - Clear, predictable behavior
+
+3. **Icon Extraction**: Implement now with original filenames
+   - Extract `{unit-id}_icon_buildbar.png` from all sources
+   - Keep original filename (don't rename to "icon.png")
+   - Search all sources (may be in different mod than unit JSON)
+
+4. **Provenance Tracking**: Track source for ALL files
+   - units.json includes files[] array
+   - Each file tagged with source (pa, pa_ex1, or mod identifier)
+   - Critical for debugging and transparency
+
+#### Benefits of Refactoring
+
+1. **Better User Experience**:
+   - Single command for all scenarios
+   - No need to track which mods to install
+   - Clearer "faction" concept
+
+2. **Better Performance**:
+   - Lightweight index for quick browsing
+   - Load full unit data only when needed
+   - Smaller initial payload for web app
+
+3. **Better Transparency**:
+   - See which mod provided each file
+   - Understand faction composition
+   - Debug mod conflicts easily
+
+4. **Better Maintainability**:
+   - Clearer separation (index vs full data)
+   - Easier to update individual units
+   - More granular file organization
+
+#### Success Criteria
+
+- ✅ Single `describe-faction` command works for base + mods
+- ✅ Discovers mods from server_mods, client_mods, download
+- ✅ Reads zip files directly without extraction
+- ✅ First-in-list priority working correctly
+- ✅ units.json contains lightweight index with provenance
+- ✅ units/ folders contain all discovered files
+- ✅ Icons extracted with original filenames
+- ✅ Validation command verifies output structure
+- ✅ Tests passing for all new functionality
+- ✅ Documentation updated
+
+**Timeline**: 1-2 weeks (depending on complexity of zip handling and file discovery)
 
 ### Phase 2: Web App Foundation
 
