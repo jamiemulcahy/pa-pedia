@@ -375,7 +375,16 @@ func (l *Loader) loadJSONFromZip(src Source, resourcePath string) (map[string]in
 
 // loadJSONFromDir loads a JSON file from a directory
 func (l *Loader) loadJSONFromDir(src Source, resourcePath string) (map[string]interface{}, error) {
-	fullPath := filepath.Join(src.Path, filepath.FromSlash(resourcePath))
+	// Strip leading /pa/ or /pa_ex1/ prefix since source path already includes it
+	trimmedPath := resourcePath
+	if strings.HasPrefix(resourcePath, "/"+src.Identifier+"/") {
+		trimmedPath = strings.TrimPrefix(resourcePath, "/"+src.Identifier+"/")
+	} else if strings.HasPrefix(resourcePath, "/pa/") && src.Identifier == "pa_ex1" {
+		// For expansion, also try pa paths
+		trimmedPath = strings.TrimPrefix(resourcePath, "/pa/")
+	}
+
+	fullPath := filepath.Join(src.Path, filepath.FromSlash(trimmedPath))
 
 	if _, err := os.Stat(fullPath); err != nil {
 		return nil, err
@@ -407,9 +416,16 @@ type UnitFileInfo struct {
 func (l *Loader) GetAllFilesForUnit(unitPath string) (map[string]*UnitFileInfo, error) {
 	files := make(map[string]*UnitFileInfo)
 
-	// Extract unit directory from unit path
+	// Extract unit directory from unit path (use path package, not filepath, to keep forward slashes)
 	// e.g., "/pa/units/land/tank/tank.json" -> "pa/units/land/tank"
-	unitDir := filepath.Dir(strings.TrimPrefix(unitPath, "/"))
+	trimmed := strings.TrimPrefix(unitPath, "/")
+	lastSlash := strings.LastIndex(trimmed, "/")
+	var unitDir string
+	if lastSlash >= 0 {
+		unitDir = trimmed[:lastSlash]
+	} else {
+		unitDir = ""
+	}
 
 	// Extract unit identifier for icon search
 	// e.g., "tank.json" -> "tank"
@@ -443,8 +459,16 @@ func (l *Loader) GetAllFilesForUnit(unitPath string) (map[string]*UnitFileInfo, 
 func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[string]*UnitFileInfo {
 	files := make(map[string]*UnitFileInfo)
 
+	// Strip leading pa/ or pa_ex1/ from unitDir since src.Path already includes it
+	trimmedUnitDir := unitDir
+	if strings.HasPrefix(unitDir, src.Identifier+"/") {
+		trimmedUnitDir = strings.TrimPrefix(unitDir, src.Identifier+"/")
+	} else if strings.HasPrefix(unitDir, "pa/") && src.Identifier == "pa_ex1" {
+		trimmedUnitDir = strings.TrimPrefix(unitDir, "pa/")
+	}
+
 	// Check unit directory
-	fullUnitDir := filepath.Join(src.Path, filepath.FromSlash(unitDir))
+	fullUnitDir := filepath.Join(src.Path, filepath.FromSlash(trimmedUnitDir))
 	if entries, err := os.ReadDir(fullUnitDir); err == nil {
 		for _, entry := range entries {
 			if !entry.IsDir() {
@@ -462,9 +486,9 @@ func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[s
 	// Also search for icon in common locations (may be in different directory)
 	iconName := unitID + "_icon_buildbar.png"
 	iconPaths := []string{
-		filepath.Join(unitDir, iconName),                                    // Same directory as unit
-		filepath.Join(filepath.Dir(unitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
-		filepath.Join("ui", "mods", filepath.Base(unitDir), iconName),      // UI mods directory
+		filepath.Join(trimmedUnitDir, iconName),                                    // Same directory as unit
+		filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
+		filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName),      // UI mods directory
 	}
 
 	for _, iconPath := range iconPaths {
