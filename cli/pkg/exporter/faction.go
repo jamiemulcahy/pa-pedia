@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
@@ -171,6 +172,65 @@ func CreateModMetadata(identifier, displayName, version, author, description, da
 		DateCreated: date,
 		Build:       build,
 		Type:        "mod",
+	}
+}
+
+// CreateCustomFactionMetadata creates metadata for a custom faction composed of multiple mods
+func CreateCustomFactionMetadata(factionName string, modIDs []string, mods []*loader.ModInfo) models.FactionMetadata {
+	// Generate identifier from faction name
+	identifier := "custom." + sanitizeFolderName(factionName)
+
+	// Combine authors from all mods
+	authors := make(map[string]bool)
+	for _, mod := range mods {
+		if mod.Author != "" {
+			authors[mod.Author] = true
+		}
+	}
+	authorList := make([]string, 0, len(authors))
+	for author := range authors {
+		authorList = append(authorList, author)
+	}
+
+	var authorStr string
+	if len(authorList) > 0 {
+		if len(authorList) == 1 {
+			authorStr = authorList[0]
+		} else {
+			authorStr = fmt.Sprintf("%s and others", authorList[0])
+		}
+	} else {
+		authorStr = "Community"
+	}
+
+	// Create description
+	description := fmt.Sprintf("Custom faction combining: %s", modIDs[0])
+	if len(modIDs) > 1 {
+		description += fmt.Sprintf(" and %d other mod(s)", len(modIDs)-1)
+	}
+
+	// Use latest version from mods
+	version := "1.0.0"
+	if len(mods) > 0 && mods[0].Version != "" {
+		version = mods[0].Version
+	}
+
+	// Use latest build from mods
+	build := ""
+	if len(mods) > 0 && mods[0].Build != "" {
+		build = mods[0].Build
+	}
+
+	return models.FactionMetadata{
+		Identifier:  identifier,
+		DisplayName: factionName,
+		Version:     version,
+		Author:      authorStr,
+		Description: description,
+		DateCreated: time.Now().Format("2006-01-02"),
+		Build:       build,
+		Type:        "mod",
+		Mods:        modIDs,
 	}
 }
 
