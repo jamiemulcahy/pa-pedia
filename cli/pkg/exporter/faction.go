@@ -150,6 +150,12 @@ func (e *FactionExporter) copyFile(fileInfo *loader.UnitFileInfo, destDir string
 	return e.copyFromFilesystem(fileInfo.FullPath, destPath)
 }
 
+// Security limits for zip extraction
+const (
+	maxFileSize  = 100 * 1024 * 1024 // 100MB per file
+	maxTotalSize = 500 * 1024 * 1024 // 500MB total (tracked elsewhere if needed)
+)
+
 // copyFromZip extracts a file from a zip archive
 func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath string) error {
 	// Find the source in the loader
@@ -165,25 +171,49 @@ func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath st
 		return fmt.Errorf("zip reader not found for source %s", fileInfo.Source)
 	}
 
+	// Normalize paths for comparison
+	normalizedFullPath := strings.TrimPrefix(filepath.ToSlash(fileInfo.FullPath), "/")
+
 	// Find file in zip
 	for _, file := range zipReader.File {
-		if file.Name == fileInfo.FullPath || strings.HasSuffix(file.Name, fileInfo.FullPath) {
-			rc, err := file.Open()
-			if err != nil {
-				return fmt.Errorf("failed to open file in zip: %w", err)
-			}
-			defer rc.Close()
+		// Validate path to prevent path traversal attacks
+		if strings.Contains(file.Name, "..") {
+			return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+		}
 
-			// Create destination file
-			destFile, err := os.Create(destPath)
-			if err != nil {
-				return fmt.Errorf("failed to create destination file: %w", err)
-			}
-			defer destFile.Close()
+		normalizedZipPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
 
-			// Copy data
-			if _, err := io.Copy(destFile, rc); err != nil {
-				return fmt.Errorf("failed to copy file data: %w", err)
+		if normalizedZipPath == normalizedFullPath {
+			// Check file size to prevent zip bomb attacks
+			if file.UncompressedSize64 > maxFileSize {
+				return fmt.Errorf("file too large: %s (%d bytes, max %d bytes)", file.Name, file.UncompressedSize64, maxFileSize)
+			}
+
+			// Use anonymous function to ensure deferred closes happen immediately
+			err := func() error {
+				rc, err := file.Open()
+				if err != nil {
+					return fmt.Errorf("failed to open file in zip: %w", err)
+				}
+				defer rc.Close()
+
+				// Create destination file
+				destFile, err := os.Create(destPath)
+				if err != nil {
+					return fmt.Errorf("failed to create destination file: %w", err)
+				}
+				defer destFile.Close()
+
+				// Copy data
+				if _, err := io.Copy(destFile, rc); err != nil {
+					return fmt.Errorf("failed to copy file data: %w", err)
+				}
+
+				return nil
+			}()
+
+			if err != nil {
+				return err
 			}
 
 			return nil
@@ -255,6 +285,11 @@ func (e *FactionExporter) writeIndex(factionDir string, index *models.FactionInd
 }
 
 // determineUnitSource extracts the source from a unit's resource name
+// This provides a fallback source identifier based on the resource path prefix.
+// For base game and expansion units, this correctly identifies the source from the path.
+// For modded units, the actual source tracking via GetAllFilesForUnit provides more
+// accurate provenance information since mods can modify base game paths.
+// This function is primarily used as a simple heuristic when detailed provenance is unavailable.
 func determineUnitSource(resourceName string) string {
 	if strings.HasPrefix(resourceName, "/pa_ex1/") {
 		return "pa_ex1"
@@ -318,8 +353,16 @@ func CreateModMetadata(modInfo *loader.ModInfo) models.FactionMetadata {
 
 // CreateCustomFactionMetadata creates metadata for a custom faction composed of multiple mods
 func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mods []*loader.ModInfo) models.FactionMetadata {
-	// Build description from mod list
-	description := fmt.Sprintf("Custom faction composed of: %s", strings.Join(modIdentifiers, ", "))
+	// Build description with mod names instead of just IDs
+	var description string
+	if len(mods) > 0 {
+		description = fmt.Sprintf("Custom faction combining %s", mods[0].DisplayName)
+		if len(modIdentifiers) > 1 {
+			description += fmt.Sprintf(" and %d other mod(s): %s", len(modIdentifiers)-1, strings.Join(modIdentifiers[1:], ", "))
+		}
+	} else {
+		description = fmt.Sprintf("Custom faction: %s", displayName)
+	}
 
 	// Use first mod's identifier as base, or generate one
 	identifier := displayName
@@ -344,5 +387,6 @@ func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mo
 		Author:      strings.Join(authors, ", "),
 		Description: description,
 		Type:        "custom",
+		Mods:        modIdentifiers,
 	}
 }

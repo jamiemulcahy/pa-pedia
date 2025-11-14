@@ -286,6 +286,11 @@ func Delocalize(text string) string {
 // LoadMergedUnitList loads and merges unit_list.json from all sources (Phase 1.5+)
 // Returns deduplicated list of unit paths with provenance tracking
 func (l *Loader) LoadMergedUnitList() ([]string, map[string]string, error) {
+	// Check that sources are configured
+	if len(l.sources) == 0 {
+		return nil, nil, fmt.Errorf("no sources configured in loader")
+	}
+
 	unitPaths := make([]string, 0)
 	seenUnits := make(map[string]bool)
 	provenance := make(map[string]string) // unit path -> source identifier
@@ -344,12 +349,14 @@ func (l *Loader) loadJSONFromZip(src Source, resourcePath string) (map[string]in
 		return nil, fmt.Errorf("zip reader is nil")
 	}
 
-	// Convert resource path to zip entry path (remove leading slash)
-	entryPath := strings.TrimPrefix(resourcePath, "/")
+	// Normalize resource path for comparison (remove leading slash)
+	normalizedResourcePath := strings.TrimPrefix(filepath.ToSlash(resourcePath), "/")
 
 	// Search for the file in the zip
 	for _, file := range src.ZipReader.File {
-		if file.Name == entryPath || strings.HasSuffix(file.Name, entryPath) {
+		normalizedZipPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
+
+		if normalizedZipPath == normalizedResourcePath {
 			rc, err := file.Open()
 			if err != nil {
 				return nil, fmt.Errorf("failed to open file in zip: %w", err)
@@ -528,7 +535,8 @@ func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[s
 		// Check if file is in unit directory
 		if strings.HasPrefix(file.Name, unitDirNorm+"/") {
 			relPath := strings.TrimPrefix(file.Name, unitDirNorm+"/")
-			// Skip subdirectories
+			// Skip subdirectories - we only want files directly in the unit directory
+			// (not nested directories). relPath should not contain "/" for direct children.
 			if !strings.Contains(relPath, "/") && relPath != "" {
 				filename := filepath.Base(file.Name)
 				// Skip .papa files (3D models/textures - too large)

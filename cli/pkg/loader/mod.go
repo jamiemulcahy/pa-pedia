@@ -38,6 +38,16 @@ type ModInfo struct {
 
 // FindAllMods searches for mods across all three locations (server_mods, client_mods, download)
 // and returns a deduplicated map with priority: server_mods > client_mods > download
+//
+// IMPORTANT: This function assumes paRoot points to the PA installation's media directory.
+// The directory structure is expected to be:
+//   {PA_DATA_ROOT}/Planetary Annihilation/
+//     ├── media/                          (this is paRoot)
+//     ├── server_mods/{mod-identifier}/   (user-installed server mods, highest priority)
+//     ├── client_mods/{mod-identifier}/   (user-installed client mods, medium priority)
+//     └── download/{mod-identifier}.zip   (PA-managed mod downloads, lowest priority)
+//
+// We calculate PA_DATA_ROOT as paRoot/../.. to find the mod directories.
 func FindAllMods(paRoot string) (map[string]*ModInfo, error) {
 	allMods := make(map[string]*ModInfo)
 
@@ -64,11 +74,12 @@ func FindAllMods(paRoot string) (map[string]*ModInfo, error) {
 			continue
 		}
 
-		// Add mods to map (earlier sources have priority, so don't overwrite)
+		// Add mods to map with first-wins priority
+		// (Earlier sources have higher priority, so don't overwrite existing entries)
 		for identifier, modInfo := range mods {
 			if _, exists := allMods[identifier]; !exists {
 				allMods[identifier] = modInfo
-			}
+			} // else: mod already found in higher-priority location, skip this duplicate
 		}
 	}
 

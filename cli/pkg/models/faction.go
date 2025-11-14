@@ -13,8 +13,11 @@ type FactionMetadata struct {
 	Mods        []string `json:"mods,omitempty" jsonschema:"description=List of mod identifiers that compose this faction"`
 }
 
-// FactionDatabase represents the units.json file for a faction folder (DEPRECATED in Phase 1.5)
-// This is kept for backward compatibility but new code should use FactionIndex
+// FactionDatabase represents the units.json file for a faction folder
+// DEPRECATED in Phase 1.5: Use FactionIndex for new implementations.
+// This format is kept for backward compatibility with Phase 1.0 exporters.
+// The old format embedded all unit data in a single large file, whereas
+// FactionIndex provides a lightweight index with references to individual unit files.
 type FactionDatabase struct {
 	Units []Unit `json:"units" jsonschema:"required,description=Complete list of units in this faction"`
 }
@@ -29,7 +32,7 @@ type UnitIndexEntry struct {
 	Identifier  string     `json:"identifier" jsonschema:"required,description=Unit identifier (e.g. tank, commander)"`
 	DisplayName string     `json:"displayName" jsonschema:"required,description=Human-readable unit name (e.g. Ant, Commander)"`
 	UnitTypes   []string   `json:"unitTypes" jsonschema:"required,description=Unit type tags (e.g. Mobile, Tank, Basic, Land)"`
-	Source      string     `json:"source" jsonschema:"required,description=Primary source that defined this unit (e.g. pa, pa_ex1, com.pa.legion-expansion)"`
+	Source      string     `json:"source" jsonschema:"required,description=Primary source that first defined this unit (e.g. pa, pa_ex1, com.pa.legion-expansion). For base game units modified by mods, this reflects the original source. See Files array for complete provenance of all unit files including modifications."`
 	Files       []UnitFile `json:"files" jsonschema:"required,description=All discovered files for this unit with provenance"`
 }
 

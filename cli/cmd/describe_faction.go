@@ -77,9 +77,10 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 
 	// Validate: mods cannot be used with base game
-	isMLA := strings.ToLower(factionNameFlag) == "mla"
+	factionNameLower := strings.ToLower(factionNameFlag)
+	isMLA := factionNameLower == "mla" || factionNameLower == "base" || factionNameLower == "titans"
 	if isMLA && len(modIDs) > 0 {
-		return fmt.Errorf("cannot use --mod flags with base game faction (mla)")
+		return fmt.Errorf("cannot use --mod flags with base game faction (mla/base/titans)")
 	}
 
 	// Determine if this is base game or custom faction
@@ -156,11 +157,7 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 		modInfo, ok := allMods[modID]
 		if !ok {
 			// Mod not found, show available options
-			fmt.Printf("\nError: Mod '%s' not found\n\n", modID)
-			fmt.Println("Available mods:")
-			for id, info := range allMods {
-				fmt.Printf("  - %s (%s)\n", id, info.DisplayName)
-			}
+			showAvailableMods(modID, allMods)
 			return fmt.Errorf("mod not found: %s", modID)
 		}
 
@@ -234,4 +231,14 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 	fmt.Println("\n✓ Custom faction extraction complete!")
 	fmt.Printf("Faction '%s' exported to: %s\n", name, outputDir)
 	return nil
+}
+
+// showAvailableMods displays a helpful list of available mods when a requested mod is not found
+func showAvailableMods(missingModID string, allMods map[string]*loader.ModInfo) {
+	fmt.Printf("\nError: Mod '%s' not found\n\n", missingModID)
+	fmt.Println("Available mods:")
+	for id, info := range allMods {
+		fmt.Printf("  - %s (%s)\n", id, info.DisplayName)
+	}
+	fmt.Println()
 }
