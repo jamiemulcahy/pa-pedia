@@ -30,6 +30,11 @@ type Loader struct {
 
 // NewMultiSourceLoader creates a loader from ModInfo array
 // Supports both directory and zip file sources
+//
+// IMPORTANT: Callers MUST call Close() to release zip file resources:
+//   l, err := loader.NewMultiSourceLoader(...)
+//   if err != nil { return err }
+//   defer l.Close()  // Essential for zip resource cleanup
 func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
 	sources := make([]Source, 0, len(mods)+2)
 
@@ -298,6 +303,10 @@ func Delocalize(text string) string {
 
 // LoadMergedUnitList loads and merges unit_list.json from all sources (Phase 1.5+)
 // Returns deduplicated list of unit paths with provenance tracking
+//
+// Memory usage: Maintains two maps (seenUnits, provenance) with one entry per unique unit.
+// For PA Titans with ~200-300 units across all sources, this is ~20-30KB total.
+// The maps are small because they only store unit paths (strings), not full unit data.
 func (l *Loader) LoadMergedUnitList() ([]string, map[string]string, error) {
 	// Check that sources are configured
 	if len(l.sources) == 0 {
@@ -508,23 +517,25 @@ func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[s
 	}
 
 	// Also search for icon in common locations (may be in different directory)
+	// Break after finding first icon to avoid unnecessary filesystem checks
 	iconName := unitID + "_icon_buildbar.png"
-	iconPaths := []string{
-		filepath.Join(trimmedUnitDir, iconName),                                    // Same directory as unit
-		filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
-		filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName),      // UI mods directory
-	}
+	if _, exists := files[iconName]; !exists {
+		iconPaths := []string{
+			filepath.Join(trimmedUnitDir, iconName),                                    // Same directory as unit
+			filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
+			filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName),      // UI mods directory
+		}
 
-	for _, iconPath := range iconPaths {
-		fullIconPath := filepath.Join(src.Path, filepath.FromSlash(iconPath))
-		if _, err := os.Stat(fullIconPath); err == nil {
-			if _, exists := files[iconName]; !exists {
+		for _, iconPath := range iconPaths {
+			fullIconPath := filepath.Join(src.Path, filepath.FromSlash(iconPath))
+			if _, err := os.Stat(fullIconPath); err == nil {
 				files[iconName] = &UnitFileInfo{
 					RelativePath: iconName,
 					FullPath:     fullIconPath,
 					Source:       src.Identifier,
 					IsFromZip:    false,
 				}
+				break // Stop searching once icon is found
 			}
 		}
 	}

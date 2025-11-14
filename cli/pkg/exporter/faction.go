@@ -80,6 +80,8 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 		Units: make([]models.UnitIndexEntry, 0, len(units)),
 	}
 
+	var criticalFailures []string // Track units that failed to export their primary JSON
+
 	for i, unit := range units {
 		// Report progress at 10% intervals or on completion for smoother feedback
 		if e.Verbose {
@@ -109,12 +111,24 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 
 		// Copy all discovered files to unit directory
 		indexFiles := make([]models.UnitFile, 0, len(unitFiles))
+		primaryJSONName := unit.ID + ".json"
+		primaryJSONFound := false
+
 		for filename, fileInfo := range unitFiles {
 			if err := e.copyFile(fileInfo, unitDir); err != nil {
-				if e.Verbose {
+				// Always log critical failures (primary unit JSON), even in non-verbose mode
+				if filename == primaryJSONName {
+					fmt.Fprintf(os.Stderr, "\nError: Failed to copy primary file %s for unit %s: %v\n", filename, unit.ID, err)
+					criticalFailures = append(criticalFailures, unit.ID)
+				} else if e.Verbose {
 					fmt.Printf("\nWarning: Failed to copy %s for unit %s: %v\n", filename, unit.ID, err)
 				}
 				continue
+			}
+
+			// Track if primary JSON was successfully copied
+			if filename == primaryJSONName {
+				primaryJSONFound = true
 			}
 
 			// Add to index
@@ -122,6 +136,11 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 				Path:   filename,
 				Source: fileInfo.Source,
 			})
+		}
+
+		// Warn if primary JSON wasn't found (even if copy didn't fail, it might not exist)
+		if !primaryJSONFound && len(unitFiles) > 0 {
+			fmt.Fprintf(os.Stderr, "\nWarning: Primary file %s not found for unit %s\n", primaryJSONName, unit.ID)
 		}
 
 		// Create index entry
@@ -138,6 +157,15 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 
 	if e.Verbose {
 		fmt.Println() // New line after progress indicator
+	}
+
+	// Report critical failures summary if any
+	if len(criticalFailures) > 0 {
+		fmt.Fprintf(os.Stderr, "\n⚠️  Warning: %d unit(s) failed to export their primary JSON file:\n", len(criticalFailures))
+		for _, unitID := range criticalFailures {
+			fmt.Fprintf(os.Stderr, "  - %s\n", unitID)
+		}
+		fmt.Fprintln(os.Stderr)
 	}
 
 	return index, nil
@@ -400,7 +428,7 @@ func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mo
 		Version:     "1.0.0",
 		Author:      strings.Join(authors, ", "),
 		Description: description,
-		Type:        "custom",
+		Type:        "mod", // Use "mod" type; custom factions are distinguished by presence of Mods field
 		Mods:        modIdentifiers,
 	}
 }

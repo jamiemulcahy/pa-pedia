@@ -53,7 +53,12 @@ func FindAllMods(paRoot string, verbose bool) (map[string]*ModInfo, error) {
 
 	// Determine base path (PA Data Root is parent of parent of media folder)
 	// e.g., C:/PA/media -> C:/Users/.../AppData/Local/Uber Entertainment/Planetary Annihilation
-	paDataRoot := filepath.Join(paRoot, "..", "..")
+	// Use absolute path to handle symlinks and validate path safety
+	absRoot, err := filepath.Abs(paRoot)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve absolute path for paRoot: %w", err)
+	}
+	paDataRoot := filepath.Clean(filepath.Join(absRoot, "..", ".."))
 
 	// Search priority locations
 	searchPaths := []struct {
