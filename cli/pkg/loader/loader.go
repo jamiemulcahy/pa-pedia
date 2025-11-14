@@ -22,49 +22,13 @@ type Source struct {
 // Loader handles loading and caching JSON files from PA installation and mods
 type Loader struct {
 	sources   []Source                        // Priority-ordered sources to search
-	dataDirs  []string                        // Legacy: Priority-ordered directories to search
 	jsonCache map[string]map[string]interface{} // Cached JSON data
 	safeNames map[string]string               // resource path -> safe name
 	fullNames map[string]string               // safe name -> resource path
 	expansion string                          // Expansion directory (e.g., "pa_ex1")
 }
 
-// NewLoader creates a new loader for the base game
-func NewLoader(paRoot string, expansion string) *Loader {
-	return &Loader{
-		dataDirs:  []string{paRoot},
-		jsonCache: make(map[string]map[string]interface{}),
-		safeNames: make(map[string]string),
-		fullNames: make(map[string]string),
-		expansion: expansion,
-	}
-}
-
-// NewModLoader creates a new loader with mod overlay support
-func NewModLoader(paRoot string, expansion string, modDirs []string) *Loader {
-	// Build priority list: mods first (highest priority), then base game
-	dataDirs := make([]string, 0, len(modDirs)+1)
-
-	// Add mod directories in order (first mod has highest priority)
-	for _, modDir := range modDirs {
-		if info, err := os.Stat(modDir); err == nil && info.IsDir() {
-			dataDirs = append(dataDirs, modDir)
-		}
-	}
-
-	// Add base game last (lowest priority)
-	dataDirs = append(dataDirs, paRoot)
-
-	return &Loader{
-		dataDirs:  dataDirs,
-		jsonCache: make(map[string]map[string]interface{}),
-		safeNames: make(map[string]string),
-		fullNames: make(map[string]string),
-		expansion: expansion,
-	}
-}
-
-// NewMultiSourceLoader creates a loader from ModInfo array (Phase 1.5+)
+// NewMultiSourceLoader creates a loader from ModInfo array
 // Supports both directory and zip file sources
 func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
 	sources := make([]Source, 0, len(mods)+2)
@@ -120,17 +84,8 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 		})
 	}
 
-	// Build legacy dataDirs for compatibility
-	dataDirs := make([]string, 0, len(sources))
-	for _, src := range sources {
-		if !src.IsZip {
-			dataDirs = append(dataDirs, src.Path)
-		}
-	}
-
 	return &Loader{
 		sources:   sources,
-		dataDirs:  dataDirs,
 		jsonCache: make(map[string]map[string]interface{}),
 		safeNames: make(map[string]string),
 		fullNames: make(map[string]string),
@@ -173,29 +128,24 @@ func (l *Loader) GetJSON(resourceName string) (map[string]interface{}, error) {
 	}
 	paths = append(paths, resourceName)
 
-	// Try each data directory (mods first, then base)
-	for _, dataDir := range l.dataDirs {
+	// Try each source in priority order
+	for _, src := range l.sources {
 		for _, resPath := range paths {
-			fullPath := filepath.Join(dataDir, filepath.FromSlash(resPath))
+			var data map[string]interface{}
+			var err error
 
-			if _, err := os.Stat(fullPath); err == nil {
-				// File exists, load it
-				data, err := os.ReadFile(fullPath)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read %s: %w", fullPath, err)
-				}
+			if src.IsZip {
+				data, err = l.loadJSONFromZip(src, resPath)
+			} else {
+				data, err = l.loadJSONFromDir(src, resPath)
+			}
 
-				var result map[string]interface{}
-				if err := json.Unmarshal(data, &result); err != nil {
-					return nil, fmt.Errorf("failed to parse JSON in %s: %w", fullPath, err)
-				}
-
+			if err == nil {
 				// Cache under all possible names
 				for _, p := range paths {
-					l.jsonCache[p] = result
+					l.jsonCache[p] = data
 				}
-
-				return result, nil
+				return data, nil
 			}
 		}
 	}
@@ -246,35 +196,6 @@ func (l *Loader) GetSafeName(resourceName string) string {
 			return safeName
 		}
 	}
-}
-
-// LoadUnitList loads the main unit_list.json file
-func (l *Loader) LoadUnitList() ([]string, error) {
-	unitListPath := "/pa/units/unit_list.json"
-
-	data, err := l.GetJSON(unitListPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load unit list: %w", err)
-	}
-
-	unitsInterface, ok := data["units"]
-	if !ok {
-		return nil, fmt.Errorf("unit_list.json missing 'units' key")
-	}
-
-	unitsList, ok := unitsInterface.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("units field is not an array")
-	}
-
-	units := make([]string, 0, len(unitsList))
-	for _, u := range unitsList {
-		if unitPath, ok := u.(string); ok {
-			units = append(units, unitPath)
-		}
-	}
-
-	return units, nil
 }
 
 // Helper functions for extracting typed values from JSON maps

@@ -13,6 +13,8 @@ import (
 var (
 	factionNameFlag string
 	modIDs          []string
+	paRoot          string
+	outputDir       string
 )
 
 // describeFactionCmd represents the describe-faction command
@@ -93,9 +95,13 @@ func describeMLA(name string) error {
 	fmt.Println("Extracting base game faction (MLA)...")
 	fmt.Println()
 
-	// Create loader for base game only
+	// Create loader for base game only (use MultiSourceLoader for consistency)
 	fmt.Println("Initializing loader...")
-	l := loader.NewLoader(paRoot, "pa_ex1")
+	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
+	if err != nil {
+		return fmt.Errorf("failed to create loader: %w", err)
+	}
+	defer l.Close()
 
 	// Create database parser
 	fmt.Println("Loading units...")
@@ -111,9 +117,9 @@ func describeMLA(name string) error {
 	// Create metadata
 	metadata := exporter.CreateBaseGameMetadata(name, "PA Titans")
 
-	// Export faction (using old exporter for now - will be updated)
+	// Export faction
 	fmt.Println("\nExporting faction folder...")
-	exp := exporter.NewFactionExporter(outputDir, verbose)
+	exp := exporter.NewFactionExporter(outputDir, l, verbose)
 	if err := exp.ExportFaction(metadata, units); err != nil {
 		return fmt.Errorf("failed to export faction: %w", err)
 	}
@@ -218,18 +224,14 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 		resolvedMods,
 	)
 
-	// Export faction using new V2 exporter (Phase 1.5 structure)
-	fmt.Println("\nExporting faction folder with new structure...")
-	exp := exporter.NewFactionExporterV2(outputDir, l, verbose)
-	if err := exp.ExportFactionV2(metadata, units); err != nil {
+	// Export faction
+	fmt.Println("\nExporting faction folder...")
+	exp := exporter.NewFactionExporter(outputDir, l, verbose)
+	if err := exp.ExportFaction(metadata, units); err != nil {
 		return fmt.Errorf("failed to export faction: %w", err)
 	}
 
 	fmt.Println("\n✓ Custom faction extraction complete!")
 	fmt.Printf("Faction '%s' exported to: %s\n", name, outputDir)
-	fmt.Println("\nNew structure:")
-	fmt.Println("  - metadata.json (faction info)")
-	fmt.Println("  - units.json (lightweight index with provenance)")
-	fmt.Println("  - units/ (directory with all unit files)")
 	return nil
 }

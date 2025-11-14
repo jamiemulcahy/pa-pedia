@@ -24,8 +24,8 @@ func NewDatabase(l *loader.Loader) *Database {
 
 // LoadUnits loads all units from the PA installation
 func (db *Database) LoadUnits(verbose bool) error {
-	// Load unit list
-	unitPaths, err := db.Loader.LoadUnitList()
+	// Load merged unit list from all sources
+	unitPaths, _, err := db.Loader.LoadMergedUnitList()
 	if err != nil {
 		return fmt.Errorf("failed to load unit list: %w", err)
 	}
