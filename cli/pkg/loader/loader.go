@@ -13,11 +13,18 @@ import (
 
 // Source represents a data source (directory or zip file)
 type Source struct {
-	Type       ModSourceType  // Type of source (pa, pa_ex1, server_mods, etc.)
-	Path       string         // Directory path or zip file path
-	IsZip      bool           // Whether this is a zip file
-	ZipReader  *zip.ReadCloser // Zip reader if IsZip is true
-	Identifier string         // Source identifier (pa, pa_ex1, or mod identifier)
+	Type       ModSourceType         // Type of source (pa, pa_ex1, server_mods, etc.)
+	Path       string                // Directory path or zip file path
+	IsZip      bool                  // Whether this is a zip file
+	ZipReader  *zip.ReadCloser       // Zip reader if IsZip is true
+	Identifier string                // Source identifier (pa, pa_ex1, or mod identifier)
+	zipIndex   map[string]*zip.File  // Index of zip files by normalized path (populated once on open)
+}
+
+// ZipIndex returns the zip file index for this source (O(1) file lookups)
+// Returns nil if this is not a zip source
+func (s *Source) ZipIndex() map[string]*zip.File {
+	return s.zipIndex
 }
 
 // Loader handles loading and caching JSON files from PA installation and mods
@@ -62,12 +69,23 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 				return nil, fmt.Errorf("failed to open zip %s: %w", mod.ZipPath, err)
 			}
 
+			// Build zip file index for O(1) lookups (populated once per zip)
+			// For typical PA mods with ~100-500 files, this index uses ~10-50KB of memory
+			// but saves O(n) scans on every file copy, making extraction much faster
+			zipIndex := make(map[string]*zip.File, len(zipReader.File))
+			for _, file := range zipReader.File {
+				// Normalize path for consistent lookups (remove leading slash, convert to forward slashes)
+				normalizedPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
+				zipIndex[normalizedPath] = file
+			}
+
 			l.sources = append(l.sources, Source{
 				Type:       mod.SourceType,
 				Path:       mod.ZipPath,
 				IsZip:      true,
 				ZipReader:  zipReader,
 				Identifier: mod.Identifier,
+				zipIndex:   zipIndex,
 			})
 		} else {
 			// Regular directory
@@ -374,32 +392,29 @@ func (l *Loader) loadJSONFromZip(src Source, resourcePath string) (map[string]in
 	// Normalize resource path for comparison (remove leading slash)
 	normalizedResourcePath := strings.TrimPrefix(filepath.ToSlash(resourcePath), "/")
 
-	// Search for the file in the zip
-	for _, file := range src.ZipReader.File {
-		normalizedZipPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
-
-		if normalizedZipPath == normalizedResourcePath {
-			rc, err := file.Open()
-			if err != nil {
-				return nil, fmt.Errorf("failed to open file in zip: %w", err)
-			}
-			defer rc.Close()
-
-			data, err := io.ReadAll(rc)
-			if err != nil {
-				return nil, fmt.Errorf("failed to read file from zip: %w", err)
-			}
-
-			var result map[string]interface{}
-			if err := json.Unmarshal(data, &result); err != nil {
-				return nil, fmt.Errorf("failed to parse JSON: %w", err)
-			}
-
-			return result, nil
-		}
+	// Use zip index for O(1) lookup instead of O(n) scan
+	file, found := src.zipIndex[normalizedResourcePath]
+	if !found {
+		return nil, fmt.Errorf("file not found in zip: %s", resourcePath)
 	}
 
-	return nil, fmt.Errorf("file not found in zip: %s", resourcePath)
+	rc, err := file.Open()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file in zip: %w", err)
+	}
+	defer rc.Close()
+
+	data, err := io.ReadAll(rc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file from zip: %w", err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return result, nil
 }
 
 // loadJSONFromDir loads a JSON file from a directory

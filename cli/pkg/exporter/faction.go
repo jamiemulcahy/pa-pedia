@@ -1,7 +1,6 @@
 package exporter
 
 import (
-	"archive/zip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -201,15 +200,16 @@ const (
 // copyFromZip extracts a file from a zip archive
 func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath string) error {
 	// Find the source in the loader
-	var zipReader *zip.ReadCloser
+	var source *loader.Source
 	for _, src := range e.Loader.Sources() {
 		if src.IsZip && src.Identifier == fileInfo.Source {
-			zipReader = src.ZipReader
+			s := src // Create a copy to take address of
+			source = &s
 			break
 		}
 	}
 
-	if zipReader == nil {
+	if source == nil || source.ZipReader == nil {
 		return fmt.Errorf("zip reader not found for source %s", fileInfo.Source)
 	}
 
@@ -217,53 +217,50 @@ func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath st
 	// Clean path first to ensure consistent separators, then convert to forward slashes
 	normalizedFullPath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(fileInfo.FullPath)), "/")
 
-	// Find file in zip
-	for _, file := range zipReader.File {
-		// Validate path to prevent path traversal attacks
-		if strings.Contains(file.Name, "..") {
-			return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
-		}
-
-		normalizedZipPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
-
-		if normalizedZipPath == normalizedFullPath {
-			// Check file size to prevent zip bomb attacks
-			if file.UncompressedSize64 > maxFileSize {
-				return fmt.Errorf("file too large: %s (%d bytes, max %d bytes)", file.Name, file.UncompressedSize64, maxFileSize)
-			}
-
-			// Use anonymous function to ensure deferred closes happen immediately
-			err := func() error {
-				rc, err := file.Open()
-				if err != nil {
-					return fmt.Errorf("failed to open file in zip: %w", err)
-				}
-				defer rc.Close()
-
-				// Create destination file
-				destFile, err := os.Create(destPath)
-				if err != nil {
-					return fmt.Errorf("failed to create destination file: %w", err)
-				}
-				defer destFile.Close()
-
-				// Copy data
-				if _, err := io.Copy(destFile, rc); err != nil {
-					return fmt.Errorf("failed to copy file data: %w", err)
-				}
-
-				return nil
-			}()
-
-			if err != nil {
-				return err
-			}
-
-			return nil
-		}
+	// Use zip index for O(1) lookup instead of O(n) scan
+	file, found := source.ZipIndex()[normalizedFullPath]
+	if !found {
+		return fmt.Errorf("file not found in zip: %s", fileInfo.FullPath)
 	}
 
-	return fmt.Errorf("file not found in zip: %s", fileInfo.FullPath)
+	// Validate path to prevent path traversal attacks
+	if strings.Contains(file.Name, "..") {
+		return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+	}
+
+	// Check file size to prevent zip bomb attacks
+	if file.UncompressedSize64 > maxFileSize {
+		return fmt.Errorf("file too large: %s (%d bytes, max %d bytes)", file.Name, file.UncompressedSize64, maxFileSize)
+	}
+
+	// Use anonymous function to ensure deferred closes happen immediately
+	err := func() error {
+		rc, err := file.Open()
+		if err != nil {
+			return fmt.Errorf("failed to open file in zip: %w", err)
+		}
+		defer rc.Close()
+
+		// Create destination file
+		destFile, err := os.Create(destPath)
+		if err != nil {
+			return fmt.Errorf("failed to create destination file: %w", err)
+		}
+		defer destFile.Close()
+
+		// Copy data
+		if _, err := io.Copy(destFile, rc); err != nil {
+			return fmt.Errorf("failed to copy file data: %w", err)
+		}
+
+		return nil
+	}()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // copyFromFilesystem copies a file from the filesystem
