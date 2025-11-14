@@ -10,3 +10,7 @@ if %errorlevel% neq 0 (
 
 echo Running schema generator...
 generate-schema.exe --output ../../schema %*
+if %errorlevel% neq 0 (
+    echo Schema generation failed!
+    exit /b 1
+)

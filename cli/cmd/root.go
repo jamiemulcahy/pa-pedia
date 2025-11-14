@@ -34,7 +34,7 @@ func Execute() error {
 }
 
 func init() {
-	// Disable auto-generated completion command (not needed for end users)
+	// Disable auto-generated completion command
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	// Global flags
