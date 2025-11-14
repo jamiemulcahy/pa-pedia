@@ -104,7 +104,7 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 		if err != nil {
 			// Log warning but continue
 			if e.Verbose {
-				fmt.Printf("\nWarning: Failed to discover files for %s: %v\n", unit.ID, err)
+				fmt.Fprintf(os.Stderr, "\nWarning: Failed to discover files for %s: %v\n", unit.ID, err)
 			}
 			unitFiles = make(map[string]*loader.UnitFileInfo)
 		}
@@ -121,7 +121,7 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 					fmt.Fprintf(os.Stderr, "\nError: Failed to copy primary file %s for unit %s: %v\n", filename, unit.ID, err)
 					criticalFailures = append(criticalFailures, unit.ID)
 				} else if e.Verbose {
-					fmt.Printf("\nWarning: Failed to copy %s for unit %s: %v\n", filename, unit.ID, err)
+					fmt.Fprintf(os.Stderr, "\nWarning: Failed to copy %s for unit %s: %v\n", filename, unit.ID, err)
 				}
 				continue
 			}

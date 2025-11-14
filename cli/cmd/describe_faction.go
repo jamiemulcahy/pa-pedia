@@ -100,6 +100,10 @@ func describeMLA(name string) error {
 	fmt.Println("Initializing loader...")
 	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
 	if err != nil {
+		// Even on error, l might have some resources open
+		if l != nil {
+			l.Close()
+		}
 		return fmt.Errorf("failed to create loader: %w", err)
 	}
 	defer l.Close()
@@ -175,6 +179,10 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 	fmt.Println("Initializing multi-source loader...")
 	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", resolvedMods)
 	if err != nil {
+		// Even on error, l might have some resources open
+		if l != nil {
+			l.Close()
+		}
 		return fmt.Errorf("failed to create loader: %w", err)
 	}
 	defer l.Close() // Close any open zip readers

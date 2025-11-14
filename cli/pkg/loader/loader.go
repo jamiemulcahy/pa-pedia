@@ -33,10 +33,23 @@ type Loader struct {
 //
 // IMPORTANT: Callers MUST call Close() to release zip file resources:
 //   l, err := loader.NewMultiSourceLoader(...)
-//   if err != nil { return err }
+//   if err != nil {
+//     if l != nil { l.Close() }
+//     return err
+//   }
 //   defer l.Close()  // Essential for zip resource cleanup
+//
+// Note: This function cleans up any opened resources before returning an error,
+// but callers should still call Close() on the returned loader if non-nil to ensure
+// proper cleanup in all cases.
 func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
-	sources := make([]Source, 0, len(mods)+2)
+	l := &Loader{
+		sources:   make([]Source, 0, len(mods)+2),
+		jsonCache: make(map[string]map[string]interface{}),
+		safeNames: make(map[string]string),
+		fullNames: make(map[string]string),
+		expansion: expansion,
+	}
 
 	// Add mods in order (first has highest priority)
 	for _, mod := range mods {
@@ -44,10 +57,12 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 			// Open zip file
 			zipReader, err := zip.OpenReader(mod.ZipPath)
 			if err != nil {
+				// Clean up already-opened zips before returning error
+				l.Close()
 				return nil, fmt.Errorf("failed to open zip %s: %w", mod.ZipPath, err)
 			}
 
-			sources = append(sources, Source{
+			l.sources = append(l.sources, Source{
 				Type:       mod.SourceType,
 				Path:       mod.ZipPath,
 				IsZip:      true,
@@ -56,7 +71,7 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 			})
 		} else {
 			// Regular directory
-			sources = append(sources, Source{
+			l.sources = append(l.sources, Source{
 				Type:       mod.SourceType,
 				Path:       mod.Directory,
 				IsZip:      false,
@@ -69,7 +84,7 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 	if expansion != "" {
 		expPath := filepath.Join(paRoot, expansion)
 		if _, err := os.Stat(expPath); err == nil {
-			sources = append(sources, Source{
+			l.sources = append(l.sources, Source{
 				Type:       ModSourceExpansion,
 				Path:       expPath,
 				IsZip:      false,
@@ -81,7 +96,7 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 	// Add base game last (lowest priority)
 	paPath := filepath.Join(paRoot, "pa")
 	if _, err := os.Stat(paPath); err == nil {
-		sources = append(sources, Source{
+		l.sources = append(l.sources, Source{
 			Type:       ModSourceBaseGame,
 			Path:       paPath,
 			IsZip:      false,
@@ -89,13 +104,7 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 		})
 	}
 
-	return &Loader{
-		sources:   sources,
-		jsonCache: make(map[string]map[string]interface{}),
-		safeNames: make(map[string]string),
-		fullNames: make(map[string]string),
-		expansion: expansion,
-	}, nil
+	return l, nil
 }
 
 // Close closes any open zip readers
