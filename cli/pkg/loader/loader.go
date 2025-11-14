@@ -94,14 +94,27 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 }
 
 // Close closes any open zip readers
+// Collects all errors instead of returning on first error to ensure all resources are cleaned up
 func (l *Loader) Close() error {
+	var errs []error
 	for _, src := range l.sources {
 		if src.IsZip && src.ZipReader != nil {
 			if err := src.ZipReader.Close(); err != nil {
-				return err
+				errs = append(errs, fmt.Errorf("failed to close %s: %w", src.Path, err))
 			}
 		}
 	}
+
+	// If there were any errors, return them combined
+	if len(errs) > 0 {
+		// Combine all error messages
+		errMsg := "errors closing resources:"
+		for _, err := range errs {
+			errMsg += "\n  - " + err.Error()
+		}
+		return fmt.Errorf(errMsg)
+	}
+
 	return nil
 }
 

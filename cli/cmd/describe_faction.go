@@ -137,7 +137,7 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 
 	// Discover all available mods
 	fmt.Println("Discovering mods from all locations...")
-	allMods, err := loader.FindAllMods(paRoot)
+	allMods, err := loader.FindAllMods(paRoot, verbose)
 	if err != nil {
 		return fmt.Errorf("failed to discover mods: %w", err)
 	}

@@ -48,7 +48,7 @@ type ModInfo struct {
 //     └── download/{mod-identifier}.zip   (PA-managed mod downloads, lowest priority)
 //
 // We calculate PA_DATA_ROOT as paRoot/../.. to find the mod directories.
-func FindAllMods(paRoot string) (map[string]*ModInfo, error) {
+func FindAllMods(paRoot string, verbose bool) (map[string]*ModInfo, error) {
 	allMods := make(map[string]*ModInfo)
 
 	// Determine base path (PA Data Root is parent of parent of media folder)
@@ -67,10 +67,12 @@ func FindAllMods(paRoot string) (map[string]*ModInfo, error) {
 
 	// Search each location in priority order
 	for _, search := range searchPaths {
-		mods, err := discoverModsInLocation(search.path, search.sourceType)
+		mods, err := discoverModsInLocation(search.path, search.sourceType, verbose)
 		if err != nil {
-			// Log warning but continue (location might not exist)
-			fmt.Printf("Warning: Failed to search %s: %v\n", search.path, err)
+			// Log warning to stderr but continue (location might not exist)
+			if verbose {
+				fmt.Fprintf(os.Stderr, "Warning: Failed to search %s: %v\n", search.path, err)
+			}
 			continue
 		}
 
@@ -87,7 +89,7 @@ func FindAllMods(paRoot string) (map[string]*ModInfo, error) {
 }
 
 // discoverModsInLocation scans a specific directory for mods (both extracted and zipped)
-func discoverModsInLocation(locationPath string, sourceType ModSourceType) (map[string]*ModInfo, error) {
+func discoverModsInLocation(locationPath string, sourceType ModSourceType, verbose bool) (map[string]*ModInfo, error) {
 	mods := make(map[string]*ModInfo)
 
 	// Check if location exists
@@ -117,7 +119,10 @@ func discoverModsInLocation(locationPath string, sourceType ModSourceType) (map[
 		}
 
 		if err != nil {
-			fmt.Printf("Warning: Failed to load mod from %s: %v\n", entry.Name(), err)
+			// Log warning to stderr only if verbose
+			if verbose {
+				fmt.Fprintf(os.Stderr, "Warning: Failed to load mod from %s: %v\n", entry.Name(), err)
+			}
 			continue
 		}
 

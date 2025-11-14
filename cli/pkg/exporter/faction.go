@@ -81,8 +81,14 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 	}
 
 	for i, unit := range units {
-		if e.Verbose && (i%50 == 0 || i == len(units)-1) {
-			fmt.Printf("  Processing units: %d/%d\r", i+1, len(units))
+		// Report progress at 10% intervals or on completion for smoother feedback
+		if e.Verbose {
+			progress := float64(i+1) / float64(len(units)) * 100
+			prevProgress := float64(i) / float64(len(units)) * 100
+			// Update when crossing a 10% threshold or on last unit
+			if int(progress/10) > int(prevProgress/10) || i == len(units)-1 {
+				fmt.Printf("  Processing units: %d/%d (%.0f%%)\r", i+1, len(units), progress)
+			}
 		}
 
 		// Create unit directory
@@ -150,9 +156,17 @@ func (e *FactionExporter) copyFile(fileInfo *loader.UnitFileInfo, destDir string
 	return e.copyFromFilesystem(fileInfo.FullPath, destPath)
 }
 
-// Security limits for zip extraction
+// Security limits for zip extraction to prevent zip bomb attacks
+// These limits protect against malicious archives that could expand to consume excessive disk space
 const (
-	maxFileSize  = 100 * 1024 * 1024 // 100MB per file
+	// maxFileSize limits individual file extraction to 100MB
+	// PA unit files are typically small (JSON ~1-50KB, icons ~10-100KB, models ~1-5MB)
+	// This limit is generous while preventing decompression bombs
+	maxFileSize = 100 * 1024 * 1024 // 100MB per file
+
+	// maxTotalSize provides a ceiling for total extraction size (500MB)
+	// Currently not enforced but reserved for future total extraction tracking
+	// A typical faction with 200 units should be well under this limit (~50-100MB total)
 	maxTotalSize = 500 * 1024 * 1024 // 500MB total (tracked elsewhere if needed)
 )
 
