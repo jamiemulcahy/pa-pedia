@@ -18,20 +18,13 @@ Planetary Annihilation has a rich modding ecosystem with multiple faction mods (
 - Make informed decisions about mod installations
 - Analyze faction balance and differences
 
-## Project Status: Phase 1 Complete ✅
+## Project Status: Phase 1 - Major Refactoring in Progress 🔄
 
-**Last Updated**: 2025-11-13
+**Last Updated**: 2025-11-14
 
-### What Exists ✅
-- **Project Plan**: Complete architecture and roadmap in `C:\Users\jamie\Dev\PA\pa-pedia\PROJECT_PLAN.md`
-- **Working CLI**: Fully functional Go CLI that extracts PA faction data to portable folders
-- **JSON Schemas**: Auto-generated schemas for all data structures
-- **Test Data**: Successfully extracted base game (199 units from PA Titans)
-- **Clean Architecture**: Migrated and improved logic from old codebase
-
-### Phase 1 Achievements (CLI Foundation)
-- ✅ Complete CLI with Cobra framework (extract, validate, generate-schema commands)
-- ✅ Modern data models with organized spec categories (Combat, Economy, Mobility, etc.)
+### Phase 1.0 Complete ✅ (Initial Implementation)
+- ✅ Complete CLI with Cobra framework (extract base/mod commands)
+- ✅ Modern data models with organized spec categories
 - ✅ JSON Schema generation from Go structs (5 schema files)
 - ✅ Complete loader system with mod overlay support
 - ✅ Full parser implementation (units, weapons, build arms, ammo)
@@ -42,20 +35,30 @@ Planetary Annihilation has a rich modding ecosystem with multiple faction mods (
 - ✅ Working mod extraction (with mod discovery and overlay)
 - ✅ Hardcoded corrections for PA data inconsistencies
 
+### Phase 1.5 - Major Refactoring (In Progress) 🔄
+**Reason**: New requirements emerged after testing with real-world mod scenarios.
+
+**Key Insights from Testing**:
+1. We're extracting **factions**, not individual mods
+2. A faction's files can span multiple folders (base game + multiple mods)
+3. Mods can modify base game units or add completely new units
+4. Multiple unit_list.json files must be merged
+5. All unit files (not just the primary json) should be preserved with provenance tracking
+6. Icons may be defined in different mods than the unit itself
+
+**New Requirements**:
+- ✅ Single `describe-faction` command (replacing separate extract base/mod)
+- 🔄 Multi-location mod discovery (server_mods → client_mods → download)
+- 🔄 Direct zip file reading (no temp extraction)
+- 🔄 Multi-mod priority system (first-in-list wins)
+- 🔄 Provenance tracking (which source provided each file)
+- 🔄 New output structure with units/ folders containing all discovered files
+- 🔄 Lightweight units.json index with file listings
+- 🔄 Icon extraction with original filenames
+
 ### What Does NOT Exist Yet
 - Web application (Phase 2)
-- Asset extraction for unit icons (deferred)
-- Faction validation implementation (stub exists)
-- Mod zip file handling (currently works with extracted directories)
 - Build pipelines and CI/CD
-
-### Migration Accomplishments
-Successfully rewrote old codebase with improvements:
-- ✅ New output format (faction folders instead of single JSON)
-- ✅ Type-safe schema generation (Go → JSON Schema → TypeScript ready)
-- ⏳ Enhanced mod support (directory overlay working, zip handling deferred)
-- ✅ Better data organization (specs grouped by category)
-- ✅ Better separation of concerns (CLI and web as distinct applications)
 
 ## Architecture
 
@@ -75,23 +78,33 @@ Successfully rewrote old codebase with improvements:
 
 **Operation Modes**:
 ```bash
-# Base game extraction
-pa-pedia extract base --pa-root "C:/PA/media" --output "./factions"
+# Base game (MLA) faction extraction
+pa-pedia describe-faction --name mla \
+  --pa-root "C:/PA/media" \
+  --output "./factions"
 
-# Mod extraction
-pa-pedia extract mod --mod-id "com.pa.legion-expansion" \
-  --mods-folder "C:/Users/.../server_mods" \
+# Custom faction with multiple mods (first in list wins priority)
+pa-pedia describe-faction --name "Legion Enhanced" \
+  --pa-root "C:/PA/media" \
+  --mod com.pa.legion-expansion \
+  --mod com.pa.legion-client \
   --output "./factions"
 ```
 
-**Output**: Faction folders with standardized structure:
+**Output**: Faction folders with complete file provenance:
 ```
 faction-name/
-├── metadata.json          # Faction info (name, version, author)
-├── units.json             # Complete unit database
-└── assets/               # Unit images
-    ├── commander.png
-    ├── tank.png
+├── metadata.json          # Faction info (name, version, author, mods used)
+├── units.json             # Lightweight index (identifier, displayName, unitTypes, source, files[])
+└── units/                 # All discovered unit files organized by unit
+    ├── tank/
+    │   ├── tank.json                    # Primary unit definition
+    │   ├── tank_tool_weapon.json        # Weapon specs
+    │   ├── tank_ammo.json               # Ammo specs
+    │   ├── tank_icon_buildbar.png       # Build bar icon
+    │   └── ... (all discovered files for this unit)
+    ├── commander/
+    │   └── ...
     └── ...
 ```
 
@@ -259,33 +272,59 @@ pa-pedia/
 }
 ```
 
-### Unit Database (`units.json`)
+### Unit Index (`units.json`) - NEW FORMAT
 ```json
 {
   "units": [
     {
-      "id": "tank",
-      "resourceName": "/pa/units/land/tank/tank.json",
+      "identifier": "tank",
       "displayName": "Ant",
-      "description": "Light Assault Tank",
-      "image": "./assets/tank.png",
-      "tier": 1,
       "unitTypes": ["Mobile", "Tank", "Basic", "Land"],
-      "accessible": true,
-      "specs": {
-        "combat": { "health": 200, "dps": 20, "weapons": [...] },
-        "economy": { "buildCost": 90, "production": {...} },
-        "mobility": { "moveSpeed": 15, "turnSpeed": 720 },
-        "recon": { "visionRadius": 100 }
-      },
-      "buildRelationships": {
-        "builds": [],
-        "builtBy": ["vehicle_factory"]
-      }
+      "source": "pa",
+      "files": [
+        {
+          "path": "tank.json",
+          "source": "pa"
+        },
+        {
+          "path": "tank_tool_weapon.json",
+          "source": "pa"
+        },
+        {
+          "path": "tank_ammo.json",
+          "source": "pa"
+        },
+        {
+          "path": "tank_icon_buildbar.png",
+          "source": "pa_ex1"
+        }
+      ]
+    },
+    {
+      "identifier": "advanced_tank",
+      "displayName": "Vanguard",
+      "unitTypes": ["Mobile", "Tank", "Advanced", "Land"],
+      "source": "com.pa.legion-expansion",
+      "files": [
+        {
+          "path": "advanced_tank.json",
+          "source": "com.pa.legion-expansion"
+        },
+        {
+          "path": "advanced_tank_tool_weapon.json",
+          "source": "com.pa.legion-expansion"
+        },
+        {
+          "path": "advanced_tank_icon_buildbar.png",
+          "source": "com.pa.legion-client"
+        }
+      ]
     }
   ]
 }
 ```
+
+**Purpose**: Lightweight index for quick unit browsing without loading all unit data. Includes provenance tracking to show which mod/base game provided each file.
 
 ### Go Models (from old codebase)
 The old codebase has well-defined structs in `models/types.go`:
@@ -471,6 +510,78 @@ ls src/types/generated/*.ts
 - Power users can script faction generation
 - Single binary easy to distribute
 
+### 8. Faction-Centric vs Mod-Centric (UPDATED - Phase 1.5)
+**Decision**: Extract factions (which may span multiple mods), not individual mods.
+
+**Rationale**:
+- A "faction" is the actual playable unit set (e.g., "Legion", "MLA")
+- A faction may require multiple mods (e.g., legion-server + legion-client)
+- A faction may extend base game units (MLA units with modifications)
+- Users care about "Can I play Legion?" not "What's in legion-server mod?"
+- Web app should show factions, not mods
+
+**Implementation**: Single `describe-faction` command that accepts multiple `--mod` flags.
+
+### 9. Multi-Location Mod Discovery (NEW - Phase 1.5)
+**Decision**: Search server_mods, client_mods, and download folders with priority.
+
+**Rationale**:
+- PA installs mods to different locations based on type
+- Server mods go to server_mods/ (highest priority - user installed)
+- Client mods go to client_mods/ (medium priority - user installed)
+- Downloaded mods go to download/ as zips (lowest priority - game managed)
+- Users may have same mod in multiple locations (prefer user-installed)
+
+**Priority Order**: server_mods → client_mods → download
+
+### 10. Direct Zip Reading (NEW - Phase 1.5)
+**Decision**: Read mod files directly from zip archives without extraction.
+
+**Rationale**:
+- No temp directory cleanup needed
+- No disk space usage for temporary files
+- Simpler cross-platform implementation
+- Faster for small file reads
+- Go's archive/zip package handles this well
+
+**Trade-off**: Slightly more complex code vs cleaner execution.
+
+### 11. First-Wins Priority (NEW - Phase 1.5)
+**Decision**: When multiple mods specified, first in list takes precedence.
+
+**Rationale**:
+- User specifies `--mod A --mod B` meaning "A is my primary mod, B supplements it"
+- Intuitive left-to-right priority (like CSS cascading or shell PATH)
+- Matches user mental model: list most important mod first
+- Clear, predictable behavior
+
+**Example**: `--mod legion-server --mod legion-client` means legion-server files win over legion-client files.
+
+### 12. Complete File Preservation with Provenance (NEW - Phase 1.5)
+**Decision**: Track and save ALL discovered files for each unit with source attribution.
+
+**Rationale**:
+- Debugging: Users can see which mod provided each file
+- Transparency: Clear visibility into faction composition
+- Completeness: Don't lose any data from the discovery process
+- Web app can show provenance information
+- Helps identify mod conflicts and overrides
+
+**Implementation**: `units.json` includes `files[]` array with source for each file.
+
+### 13. Lightweight Index Format (NEW - Phase 1.5)
+**Decision**: Split units.json into lightweight index + full unit files.
+
+**Rationale**:
+- Old format: Single 1.2MB file for 199 units (all data in one file)
+- New format: Small index (~50KB) + individual unit folders
+- Web app can load index quickly to show unit list
+- Load full unit data only when needed (lazy loading)
+- Better performance for browsing large factions
+- Easier to update individual units
+
+**Trade-off**: More files vs better performance and granularity.
+
 ## Important Patterns and Conventions
 
 ### 1. Resource Names
@@ -479,11 +590,22 @@ PA uses resource names as unique identifiers:
 - Always forward slashes, starts with `/pa/` or `/pa_ex1/`
 - Used as primary keys throughout system
 
-### 2. Safe Names
-Short identifiers derived from resource names:
+### 2. Safe Names (Unit Identifiers)
+Short identifiers derived from resource names or filenames:
 - Example: `/pa/units/land/tank/tank.json` → `"tank"`
 - Priority: filename > directory name > directory + numeric suffix
 - Used for human-readable references and relationships
+- **NEW**: Can also be inferred from `unit_list.json` entries or direct file paths
+- The identifier is the filename without path and `.json` extension
+- Example: `/path/to/units/artillery_long.json` → identifier is `"artillery_long"`
+
+### 2a. Icon File Naming Convention (NEW)
+Build bar icons follow a strict naming pattern:
+- Pattern: `{unit_identifier}_icon_buildbar.png`
+- Example: For unit "tank", icon is `tank_icon_buildbar.png`
+- **Important**: Icon may be defined in a different mod than the unit's JSON
+- Must search all sources (mods + pa_ex1 + pa) to find icons
+- Keep original filename in output (don't rename to generic "icon.png")
 
 ### 3. Unit Types
 PA units have type tags (with `UNITTYPE_` prefix removed):
@@ -520,17 +642,44 @@ Weapons and build arms are in the `tools` array:
 - Or by `tool_type: "TOOL_Weapon"` field
 - Death weapons flagged with `death_weapon: true`
 
-### 7. Mod Overlay System
-**File Priority** (highest to lowest):
-1. Active mods (in order specified)
-2. Expansion directory (`/pa_ex1/`)
-3. Base game (`/pa/`)
+### 7. Mod Overlay System (UPDATED - Phase 1.5)
+
+**New Understanding**: A faction may be defined across multiple sources (base game + multiple mods).
+
+**Mod Discovery Priority** (where to look for mods):
+1. `{pa_root}/../../server_mods/` - Installed server-side mods
+2. `{pa_root}/../../client_mods/` - Installed client-side mods
+3. `{pa_root}/../../download/` - Downloaded mod zip files
+
+**File Priority** (first-in-list wins - when multiple sources provide the same file):
+1. First mod specified (e.g., `--mod legion-server`)
+2. Second mod specified (e.g., `--mod legion-client`)
+3. ...additional mods in order...
+4. Expansion directory (`/pa_ex1/`)
+5. Base game (`/pa/`)
+
+**Important**: First wins, not last! This means `--mod A --mod B` gives A higher priority than B.
 
 **Process**: When loading `/pa/units/land/tank/tank.json`:
-1. Check each mod's `pa/units/land/tank/tank.json`
-2. Check `pa_root/pa_ex1/units/land/tank/tank.json`
-3. Check `pa_root/pa/units/land/tank/tank.json`
-4. Use first one found
+1. Check first mod's `pa/units/land/tank/tank.json` (or inside zip if zipped)
+2. Check second mod's `pa/units/land/tank/tank.json`
+3. Check `{pa_root}/pa_ex1/units/land/tank/tank.json`
+4. Check `{pa_root}/pa/units/land/tank/tank.json`
+5. Use first one found, but **track ALL found files** with provenance
+
+**Unit List Merging**: Each source may have its own `unit_list.json`:
+- Load from all sources (mods + pa_ex1 + pa)
+- Merge into deduplicated list
+- Maintain discovery order
+- Track which source first defined each unit
+
+**File Preservation**: For each unit, discover ALL related files:
+- Primary unit JSON (e.g., `tank.json`)
+- Weapon JSONs (e.g., `tank_tool_weapon.json`)
+- Ammo JSONs (e.g., `tank_ammo.json`)
+- Build bar icons (e.g., `tank_icon_buildbar.png`)
+- Any other files in the unit's directory
+- Copy all to output with source tracking
 
 ### 8. Accessibility
 Units marked `accessible: true` if buildable from commander:
@@ -781,9 +930,15 @@ if strings.Contains(unitPath, "problematic_unit") {
 
 ### PA Installation Paths (Windows)
 - **Game Files**: `C:\Program Files (x86)\Steam\steamapps\common\Planetary Annihilation Titans\media`
-- **Server Mods**: `C:\Users\<username>\AppData\Local\Uber Entertainment\Planetary Annihilation\server_mods`
-- **Unit List**: `{media}/pa/units/unit_list.json`
+- **PA Data Root**: `C:\Users\<username>\AppData\Local\Uber Entertainment\Planetary Annihilation`
+- **Server Mods** (Priority 1): `{PA Data Root}\server_mods\{mod-identifier}\` (extracted directories)
+- **Client Mods** (Priority 2): `{PA Data Root}\client_mods\{mod-identifier}\` (extracted directories)
+- **Downloaded Mods** (Priority 3): `{PA Data Root}\download\` (zip files like `{mod-identifier}.zip`)
+- **Unit List**: `{media}/pa/units/unit_list.json` (and `{media}/pa_ex1/units/unit_list.json`)
 - **Expansion**: `{media}/pa_ex1/units/...`
+- **Base Game**: `{media}/pa/units/...`
+
+**Note**: For given `--pa-root "C:/.../media"`, mod folders are at `../../server_mods`, `../../client_mods`, `../../download`
 
 ### Development Paths
 - **New Project**: `C:\Users\jamie\Dev\PA\pa-pedia`

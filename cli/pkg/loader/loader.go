@@ -1,55 +1,149 @@
 package loader
 
 import (
+	"archive/zip"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-// Loader handles loading and caching JSON files from PA installation and mods
-type Loader struct {
-	dataDirs  []string                       // Priority-ordered directories to search
-	jsonCache map[string]map[string]interface{} // Cached JSON data
-	safeNames map[string]string              // resource path -> safe name
-	fullNames map[string]string              // safe name -> resource path
-	expansion string                         // Expansion directory (e.g., "pa_ex1")
+// Source represents a data source (directory or zip file)
+type Source struct {
+	Type       ModSourceType         // Type of source (pa, pa_ex1, server_mods, etc.)
+	Path       string                // Directory path or zip file path
+	IsZip      bool                  // Whether this is a zip file
+	ZipReader  *zip.ReadCloser       // Zip reader if IsZip is true
+	Identifier string                // Source identifier (pa, pa_ex1, or mod identifier)
+	zipIndex   map[string]*zip.File  // Index of zip files by normalized path (populated once on open)
 }
 
-// NewLoader creates a new loader for the base game
-func NewLoader(paRoot string, expansion string) *Loader {
-	return &Loader{
-		dataDirs:  []string{paRoot},
+// ZipIndex returns the zip file index for this source (O(1) file lookups)
+// Returns nil if this is not a zip source
+func (s *Source) ZipIndex() map[string]*zip.File {
+	return s.zipIndex
+}
+
+// Loader handles loading and caching JSON files from PA installation and mods
+type Loader struct {
+	sources   []Source                        // Priority-ordered sources to search
+	jsonCache map[string]map[string]interface{} // Cached JSON data
+	safeNames map[string]string               // resource path -> safe name
+	fullNames map[string]string               // safe name -> resource path
+	expansion string                          // Expansion directory (e.g., "pa_ex1")
+}
+
+// NewMultiSourceLoader creates a loader from ModInfo array
+// Supports both directory and zip file sources
+//
+// IMPORTANT: Callers MUST call Close() to release zip file resources:
+//   l, err := loader.NewMultiSourceLoader(...)
+//   if err != nil {
+//     return err  // Resources already cleaned up
+//   }
+//   defer l.Close()  // Essential for zip resource cleanup
+//
+// Note: This function automatically cleans up any opened resources before returning an error,
+// so callers do NOT need to call Close() on error. On success, the returned loader must be
+// closed by the caller using defer.
+func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
+	l := &Loader{
+		sources:   make([]Source, 0, len(mods)+2),
 		jsonCache: make(map[string]map[string]interface{}),
 		safeNames: make(map[string]string),
 		fullNames: make(map[string]string),
 		expansion: expansion,
 	}
-}
 
-// NewModLoader creates a new loader with mod overlay support
-func NewModLoader(paRoot string, expansion string, modDirs []string) *Loader {
-	// Build priority list: mods first (highest priority), then base game
-	dataDirs := make([]string, 0, len(modDirs)+1)
+	// Add mods in order (first has highest priority)
+	for _, mod := range mods {
+		if mod.IsZipped {
+			// Open zip file
+			zipReader, err := zip.OpenReader(mod.ZipPath)
+			if err != nil {
+				// Clean up already-opened zips before returning error
+				l.Close()
+				return nil, fmt.Errorf("failed to open zip %s: %w", mod.ZipPath, err)
+			}
 
-	// Add mod directories in order (first mod has highest priority)
-	for _, modDir := range modDirs {
-		if info, err := os.Stat(modDir); err == nil && info.IsDir() {
-			dataDirs = append(dataDirs, modDir)
+			// Build zip file index for O(1) lookups (populated once per zip)
+			// For typical PA mods with ~100-500 files, this index uses ~10-50KB of memory
+			// but saves O(n) scans on every file copy, making extraction much faster
+			zipIndex := make(map[string]*zip.File, len(zipReader.File))
+			for _, file := range zipReader.File {
+				// Normalize path for consistent lookups (remove leading slash, convert to forward slashes)
+				normalizedPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
+				zipIndex[normalizedPath] = file
+			}
+
+			l.sources = append(l.sources, Source{
+				Type:       mod.SourceType,
+				Path:       mod.ZipPath,
+				IsZip:      true,
+				ZipReader:  zipReader,
+				Identifier: mod.Identifier,
+				zipIndex:   zipIndex,
+			})
+		} else {
+			// Regular directory
+			l.sources = append(l.sources, Source{
+				Type:       mod.SourceType,
+				Path:       mod.Directory,
+				IsZip:      false,
+				Identifier: mod.Identifier,
+			})
+		}
+	}
+
+	// Add expansion if it exists
+	if expansion != "" {
+		expPath := filepath.Join(paRoot, expansion)
+		if _, err := os.Stat(expPath); err == nil {
+			l.sources = append(l.sources, Source{
+				Type:       ModSourceExpansion,
+				Path:       expPath,
+				IsZip:      false,
+				Identifier: expansion,
+			})
 		}
 	}
 
 	// Add base game last (lowest priority)
-	dataDirs = append(dataDirs, paRoot)
-
-	return &Loader{
-		dataDirs:  dataDirs,
-		jsonCache: make(map[string]map[string]interface{}),
-		safeNames: make(map[string]string),
-		fullNames: make(map[string]string),
-		expansion: expansion,
+	paPath := filepath.Join(paRoot, "pa")
+	if _, err := os.Stat(paPath); err == nil {
+		l.sources = append(l.sources, Source{
+			Type:       ModSourceBaseGame,
+			Path:       paPath,
+			IsZip:      false,
+			Identifier: "pa",
+		})
 	}
+
+	return l, nil
+}
+
+// Close closes any open zip readers
+// Collects all errors instead of returning on first error to ensure all resources are cleaned up
+func (l *Loader) Close() error {
+	var errs []error
+	for _, src := range l.sources {
+		if src.IsZip && src.ZipReader != nil {
+			if err := src.ZipReader.Close(); err != nil {
+				errs = append(errs, fmt.Errorf("failed to close %s: %w", src.Path, err))
+			}
+		}
+	}
+
+	// Use errors.Join to properly combine errors with unwrapping support
+	return errors.Join(errs...)
+}
+
+// Sources returns the loader's sources for external access
+func (l *Loader) Sources() []Source {
+	return l.sources
 }
 
 // GetJSON loads and caches a JSON file by resource name
@@ -70,29 +164,24 @@ func (l *Loader) GetJSON(resourceName string) (map[string]interface{}, error) {
 	}
 	paths = append(paths, resourceName)
 
-	// Try each data directory (mods first, then base)
-	for _, dataDir := range l.dataDirs {
+	// Try each source in priority order
+	for _, src := range l.sources {
 		for _, resPath := range paths {
-			fullPath := filepath.Join(dataDir, filepath.FromSlash(resPath))
+			var data map[string]interface{}
+			var err error
 
-			if _, err := os.Stat(fullPath); err == nil {
-				// File exists, load it
-				data, err := os.ReadFile(fullPath)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read %s: %w", fullPath, err)
-				}
+			if src.IsZip {
+				data, err = l.loadJSONFromZip(src, resPath)
+			} else {
+				data, err = l.loadJSONFromDir(src, resPath)
+			}
 
-				var result map[string]interface{}
-				if err := json.Unmarshal(data, &result); err != nil {
-					return nil, fmt.Errorf("failed to parse JSON in %s: %w", fullPath, err)
-				}
-
+			if err == nil {
 				// Cache under all possible names
 				for _, p := range paths {
-					l.jsonCache[p] = result
+					l.jsonCache[p] = data
 				}
-
-				return result, nil
+				return data, nil
 			}
 		}
 	}
@@ -143,35 +232,6 @@ func (l *Loader) GetSafeName(resourceName string) string {
 			return safeName
 		}
 	}
-}
-
-// LoadUnitList loads the main unit_list.json file
-func (l *Loader) LoadUnitList() ([]string, error) {
-	unitListPath := "/pa/units/unit_list.json"
-
-	data, err := l.GetJSON(unitListPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load unit list: %w", err)
-	}
-
-	unitsInterface, ok := data["units"]
-	if !ok {
-		return nil, fmt.Errorf("unit_list.json missing 'units' key")
-	}
-
-	unitsList, ok := unitsInterface.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("units field is not an array")
-	}
-
-	units := make([]string, 0, len(unitsList))
-	for _, u := range unitsList {
-		if unitPath, ok := u.(string); ok {
-			units = append(units, unitPath)
-		}
-	}
-
-	return units, nil
 }
 
 // Helper functions for extracting typed values from JSON maps
@@ -257,4 +317,293 @@ func Delocalize(text string) string {
 	}
 
 	return text
+}
+
+// LoadMergedUnitList loads and merges unit_list.json from all sources (Phase 1.5+)
+// Returns deduplicated list of unit paths with provenance tracking
+//
+// Memory usage: Maintains two maps (seenUnits, provenance) with one entry per unique unit.
+// For PA Titans with ~200-300 units across all sources, this is ~20-30KB total.
+// The maps are small because they only store unit paths (strings), not full unit data.
+func (l *Loader) LoadMergedUnitList() ([]string, map[string]string, error) {
+	// Check that sources are configured
+	if len(l.sources) == 0 {
+		return nil, nil, fmt.Errorf("no sources configured in loader")
+	}
+
+	unitPaths := make([]string, 0)
+	seenUnits := make(map[string]bool)
+	provenance := make(map[string]string) // unit path -> source identifier
+
+	// Process sources in priority order
+	for _, src := range l.sources {
+		unitListPath := "/pa/units/unit_list.json"
+
+		var data map[string]interface{}
+		var err error
+
+		if src.IsZip {
+			data, err = l.loadJSONFromZip(src, unitListPath)
+		} else {
+			data, err = l.loadJSONFromDir(src, unitListPath)
+		}
+
+		if err != nil {
+			// Unit list might not exist in this source, continue
+			continue
+		}
+
+		// Parse units array
+		unitsInterface, ok := data["units"]
+		if !ok {
+			continue
+		}
+
+		unitsList, ok := unitsInterface.([]interface{})
+		if !ok {
+			continue
+		}
+
+		// Add units to merged list (skip duplicates)
+		for _, u := range unitsList {
+			if unitPath, ok := u.(string); ok {
+				if !seenUnits[unitPath] {
+					unitPaths = append(unitPaths, unitPath)
+					seenUnits[unitPath] = true
+					provenance[unitPath] = src.Identifier
+				}
+			}
+		}
+	}
+
+	if len(unitPaths) == 0 {
+		return nil, nil, fmt.Errorf("no unit_list.json found in any source")
+	}
+
+	return unitPaths, provenance, nil
+}
+
+// loadJSONFromZip loads a JSON file from a zip archive
+func (l *Loader) loadJSONFromZip(src Source, resourcePath string) (map[string]interface{}, error) {
+	if src.ZipReader == nil {
+		return nil, fmt.Errorf("zip reader is nil")
+	}
+
+	// Normalize resource path for comparison (remove leading slash)
+	normalizedResourcePath := strings.TrimPrefix(filepath.ToSlash(resourcePath), "/")
+
+	// Use zip index for O(1) lookup instead of O(n) scan
+	file, found := src.zipIndex[normalizedResourcePath]
+	if !found {
+		return nil, fmt.Errorf("file not found in zip: %s", resourcePath)
+	}
+
+	rc, err := file.Open()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file in zip: %w", err)
+	}
+	defer rc.Close()
+
+	data, err := io.ReadAll(rc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file from zip: %w", err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return result, nil
+}
+
+// loadJSONFromDir loads a JSON file from a directory
+func (l *Loader) loadJSONFromDir(src Source, resourcePath string) (map[string]interface{}, error) {
+	// Strip leading /pa/ or /pa_ex1/ prefix since source path already includes it
+	trimmedPath := resourcePath
+	if strings.HasPrefix(resourcePath, "/"+src.Identifier+"/") {
+		trimmedPath = strings.TrimPrefix(resourcePath, "/"+src.Identifier+"/")
+	} else if strings.HasPrefix(resourcePath, "/pa/") && src.Identifier == "pa_ex1" {
+		// For expansion, also try pa paths
+		trimmedPath = strings.TrimPrefix(resourcePath, "/pa/")
+	}
+
+	fullPath := filepath.Join(src.Path, filepath.FromSlash(trimmedPath))
+
+	if _, err := os.Stat(fullPath); err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(fullPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return result, nil
+}
+
+// UnitFileInfo represents a discovered file for a unit with its source
+type UnitFileInfo struct {
+	RelativePath string // Relative path within unit folder (e.g., "tank.json", "tank_icon_buildbar.png")
+	FullPath     string // Full filesystem path or zip entry path
+	Source       string // Source identifier (pa, pa_ex1, mod identifier)
+	IsFromZip    bool   // Whether this file comes from a zip
+}
+
+// GetAllFilesForUnit discovers all files related to a unit across all sources
+// Returns map of filename -> UnitFileInfo with first-wins priority
+func (l *Loader) GetAllFilesForUnit(unitPath string) (map[string]*UnitFileInfo, error) {
+	files := make(map[string]*UnitFileInfo)
+
+	// Extract unit directory from unit path (use path package, not filepath, to keep forward slashes)
+	// e.g., "/pa/units/land/tank/tank.json" -> "pa/units/land/tank"
+	trimmed := strings.TrimPrefix(unitPath, "/")
+	lastSlash := strings.LastIndex(trimmed, "/")
+	var unitDir string
+	if lastSlash >= 0 {
+		unitDir = trimmed[:lastSlash]
+	} else {
+		unitDir = ""
+	}
+
+	// Extract unit identifier for icon search
+	// e.g., "tank.json" -> "tank"
+	unitID := strings.TrimSuffix(filepath.Base(unitPath), ".json")
+
+	// Search all sources for files in the unit directory
+	for _, src := range l.sources {
+		if src.IsZip {
+			// Search in zip file
+			filesInZip := l.findFilesInZip(src, unitDir, unitID)
+			for filename, fileInfo := range filesInZip {
+				if _, exists := files[filename]; !exists {
+					files[filename] = fileInfo
+				}
+			}
+		} else {
+			// Search in directory
+			filesInDir := l.findFilesInDir(src, unitDir, unitID)
+			for filename, fileInfo := range filesInDir {
+				if _, exists := files[filename]; !exists {
+					files[filename] = fileInfo
+				}
+			}
+		}
+	}
+
+	return files, nil
+}
+
+// findFilesInDir finds all files in a unit directory from a directory source
+func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[string]*UnitFileInfo {
+	files := make(map[string]*UnitFileInfo)
+
+	// Strip leading pa/ or pa_ex1/ from unitDir since src.Path already includes it
+	trimmedUnitDir := unitDir
+	if strings.HasPrefix(unitDir, src.Identifier+"/") {
+		trimmedUnitDir = strings.TrimPrefix(unitDir, src.Identifier+"/")
+	} else if strings.HasPrefix(unitDir, "pa/") && src.Identifier == "pa_ex1" {
+		trimmedUnitDir = strings.TrimPrefix(unitDir, "pa/")
+	}
+
+	// Check unit directory
+	fullUnitDir := filepath.Join(src.Path, filepath.FromSlash(trimmedUnitDir))
+	if entries, err := os.ReadDir(fullUnitDir); err == nil {
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				filename := entry.Name()
+				// Skip .papa files (3D models/textures - too large)
+				if strings.HasSuffix(strings.ToLower(filename), ".papa") {
+					continue
+				}
+				files[filename] = &UnitFileInfo{
+					RelativePath: filename,
+					FullPath:     filepath.Join(fullUnitDir, filename),
+					Source:       src.Identifier,
+					IsFromZip:    false,
+				}
+			}
+		}
+	}
+
+	// Also search for icon in common locations (may be in different directory)
+	// Break after finding first icon to avoid unnecessary filesystem checks
+	iconName := unitID + "_icon_buildbar.png"
+	if _, exists := files[iconName]; !exists {
+		iconPaths := []string{
+			filepath.Join(trimmedUnitDir, iconName),                                    // Same directory as unit
+			filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
+			filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName),      // UI mods directory
+		}
+
+		for _, iconPath := range iconPaths {
+			fullIconPath := filepath.Join(src.Path, filepath.FromSlash(iconPath))
+			if _, err := os.Stat(fullIconPath); err == nil {
+				files[iconName] = &UnitFileInfo{
+					RelativePath: iconName,
+					FullPath:     fullIconPath,
+					Source:       src.Identifier,
+					IsFromZip:    false,
+				}
+				break // Stop searching once icon is found
+			}
+		}
+	}
+
+	return files
+}
+
+// findFilesInZip finds all files in a unit directory from a zip source
+func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[string]*UnitFileInfo {
+	files := make(map[string]*UnitFileInfo)
+
+	if src.ZipReader == nil {
+		return files
+	}
+
+	// Normalize unit directory for zip entries
+	unitDirNorm := strings.TrimPrefix(unitDir, "/")
+
+	// Search zip entries
+	for _, file := range src.ZipReader.File {
+		// Check if file is in unit directory
+		if strings.HasPrefix(file.Name, unitDirNorm+"/") {
+			relPath := strings.TrimPrefix(file.Name, unitDirNorm+"/")
+			// Skip subdirectories - we only want files directly in the unit directory
+			// (not nested directories). relPath should not contain "/" for direct children.
+			if !strings.Contains(relPath, "/") && relPath != "" {
+				filename := filepath.Base(file.Name)
+				// Skip .papa files (3D models/textures - too large)
+				if strings.HasSuffix(strings.ToLower(filename), ".papa") {
+					continue
+				}
+				files[filename] = &UnitFileInfo{
+					RelativePath: filename,
+					FullPath:     file.Name,
+					Source:       src.Identifier,
+					IsFromZip:    true,
+				}
+			}
+		}
+
+		// Also check for icon files (may be in different locations)
+		iconName := unitID + "_icon_buildbar.png"
+		if strings.HasSuffix(file.Name, iconName) {
+			if _, exists := files[iconName]; !exists {
+				files[iconName] = &UnitFileInfo{
+					RelativePath: iconName,
+					FullPath:     file.Name,
+					Source:       src.Identifier,
+					IsFromZip:    true,
+				}
+			}
+		}
+	}
+
+	return files
 }
