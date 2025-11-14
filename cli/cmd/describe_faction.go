@@ -10,6 +10,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	// Base game faction name aliases
+	FactionNameMLA    = "mla"
+	FactionNameBase   = "base"
+	FactionNameTitans = "titans"
+)
+
 var (
 	factionNameFlag string
 	modIDs          []string
@@ -78,9 +85,9 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 
 	// Validate: mods cannot be used with base game
 	factionNameLower := strings.ToLower(factionNameFlag)
-	isMLA := factionNameLower == "mla" || factionNameLower == "base" || factionNameLower == "titans"
+	isMLA := factionNameLower == FactionNameMLA || factionNameLower == FactionNameBase || factionNameLower == FactionNameTitans
 	if isMLA && len(modIDs) > 0 {
-		return fmt.Errorf("cannot use --mod flags with base game faction (mla/base/titans)")
+		return fmt.Errorf("cannot use --mod flags with base game faction (%s/%s/%s)", FactionNameMLA, FactionNameBase, FactionNameTitans)
 	}
 
 	// Determine if this is base game or custom faction
@@ -100,10 +107,6 @@ func describeMLA(name string) error {
 	fmt.Println("Initializing loader...")
 	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
 	if err != nil {
-		// Even on error, l might have some resources open
-		if l != nil {
-			l.Close()
-		}
 		return fmt.Errorf("failed to create loader: %w", err)
 	}
 	defer l.Close()
@@ -179,13 +182,9 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 	fmt.Println("Initializing multi-source loader...")
 	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", resolvedMods)
 	if err != nil {
-		// Even on error, l might have some resources open
-		if l != nil {
-			l.Close()
-		}
 		return fmt.Errorf("failed to create loader: %w", err)
 	}
-	defer l.Close() // Close any open zip readers
+	defer l.Close()
 
 	// Load merged unit list
 	fmt.Println("Loading and merging unit lists...")

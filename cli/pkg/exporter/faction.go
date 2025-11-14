@@ -214,7 +214,8 @@ func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath st
 	}
 
 	// Normalize paths for comparison
-	normalizedFullPath := strings.TrimPrefix(filepath.ToSlash(fileInfo.FullPath), "/")
+	// Clean path first to ensure consistent separators, then convert to forward slashes
+	normalizedFullPath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(fileInfo.FullPath)), "/")
 
 	// Find file in zip
 	for _, file := range zipReader.File {

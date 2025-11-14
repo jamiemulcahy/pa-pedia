@@ -3,6 +3,7 @@ package loader
 import (
 	"archive/zip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -34,14 +35,13 @@ type Loader struct {
 // IMPORTANT: Callers MUST call Close() to release zip file resources:
 //   l, err := loader.NewMultiSourceLoader(...)
 //   if err != nil {
-//     if l != nil { l.Close() }
-//     return err
+//     return err  // Resources already cleaned up
 //   }
 //   defer l.Close()  // Essential for zip resource cleanup
 //
-// Note: This function cleans up any opened resources before returning an error,
-// but callers should still call Close() on the returned loader if non-nil to ensure
-// proper cleanup in all cases.
+// Note: This function automatically cleans up any opened resources before returning an error,
+// so callers do NOT need to call Close() on error. On success, the returned loader must be
+// closed by the caller using defer.
 func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
 	l := &Loader{
 		sources:   make([]Source, 0, len(mods)+2),
@@ -119,17 +119,8 @@ func (l *Loader) Close() error {
 		}
 	}
 
-	// If there were any errors, return them combined
-	if len(errs) > 0 {
-		// Combine all error messages
-		errMsg := "errors closing resources:"
-		for _, err := range errs {
-			errMsg += "\n  - " + err.Error()
-		}
-		return fmt.Errorf(errMsg)
-	}
-
-	return nil
+	// Use errors.Join to properly combine errors with unwrapping support
+	return errors.Join(errs...)
 }
 
 // Sources returns the loader's sources for external access
