@@ -170,12 +170,13 @@ pa-pedia
 │     --pa-root string  (required) Path to PA media directory
 │     --output string   (required) Output directory for faction folder
 │     --mod strings     (repeatable, optional) Mod identifiers to include
-├── generate-schema   # Generate JSON schemas from Go models
-├── validate          # Validate a faction folder structure
-└── version           # Show version info
+└── help              # Help about any command
 ```
 
-**Note**: The old `extract base` and `extract mod` commands are replaced by the unified `describe-faction` command.
+**Notes**:
+- The old `extract base` and `extract mod` commands are replaced by the unified `describe-faction` command
+- Schema generation moved to build tool: `cli/tools/generate-schema/`
+- Validation functionality (if needed) will be integrated into `describe-faction`
 
 ### 2. Web Application (React/TypeScript)
 
@@ -287,9 +288,10 @@ npx json-schema-to-typescript schema/faction.schema.json > src/types/faction.ts
 
 **Step 3**: Automate in build process
 
-**Go side** (generate schema during build):
-```go
-//go:generate go run ./cmd/generate-schema
+**Go side** (run build tool before releases):
+```bash
+cd cli/tools/generate-schema
+./build-and-run.bat  # or ./build-and-run.sh on Unix
 ```
 
 **TypeScript side** (package.json):
@@ -322,16 +324,15 @@ npx json-schema-to-typescript schema/faction.schema.json > src/types/faction.ts
 pa-pedia/
 ├── cli/                       # Go CLI application
 │   ├── cmd/
-│   │   ├── root.go
-│   │   ├── extract.go
-│   │   ├── validate.go
-│   │   └── generate-schema/  # Schema generator
+│   │   ├── root.go           # Root command setup
+│   │   └── describe_faction.go  # Main faction extraction command
+│   ├── tools/
+│   │   └── generate-schema/  # Build tool for JSON schema generation
 │   ├── pkg/
 │   │   ├── models/           # Go structs with JSON tags
 │   │   ├── parser/           # Unit parsing logic
 │   │   ├── exporter/         # Faction folder generation
-│   │   ├── assets/           # Asset extraction
-│   │   └── validator/        # Faction validation
+│   │   └── loader/           # Multi-source file loading
 │   ├── go.mod
 │   └── main.go
 ├── web/                       # React web application

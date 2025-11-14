@@ -198,15 +198,14 @@ pa-pedia/
 ├── cli/                       # Go CLI application
 │   ├── cmd/
 │   │   ├── root.go           # Root command setup
-│   │   ├── extract.go        # Extract command (base/mod)
-│   │   ├── validate.go       # Validate faction folders
-│   │   └── generate-schema/  # Schema generation tool
+│   │   └── describe_faction.go  # Main faction extraction command
+│   ├── tools/
+│   │   └── generate-schema/  # Build tool for JSON schema generation
 │   ├── pkg/
 │   │   ├── models/           # Go structs with JSON tags
 │   │   ├── parser/           # Unit parsing logic
 │   │   ├── exporter/         # Faction folder generation
-│   │   ├── assets/           # Asset extraction
-│   │   └── validator/        # Faction validation
+│   │   └── loader/           # Multi-source file loading
 │   ├── go.mod
 │   ├── go.sum
 │   └── main.go               # Entry point
@@ -403,20 +402,20 @@ npm test
 npm run lint
 ```
 
-### Schema Generation Workflow (To Be Implemented)
+### Schema Generation Workflow
 
-**Step 1**: Add `//go:generate` directive in Go code
-```go
-//go:generate go run ./cmd/generate-schema
-```
-
-**Step 2**: Run schema generation
+**Step 1**: Run schema generation build tool
 ```bash
-cd cli
-go generate ./...
+cd cli/tools/generate-schema
+
+# Windows
+.\build-and-run.bat
+
+# Unix/Mac
+./build-and-run.sh
 ```
 
-**Step 3**: Generate TypeScript types
+**Step 2**: Generate TypeScript types
 ```bash
 cd web
 npm run generate-types
@@ -788,14 +787,13 @@ Units that need manual fixes due to PA JSON inconsistencies:
 
 ### Migration Strategy
 
-1. **Phase 1**: Set up new CLI structure with Cobra commands
-2. **Phase 2**: Migrate models with JSON Schema tags
-3. **Phase 3**: Migrate parser logic (unit, tools, restrictions)
-4. **Phase 4**: Migrate loader with zip extraction
-5. **Phase 5**: Implement new exporter for faction folders
-6. **Phase 6**: Add schema generation
-7. **Phase 7**: Add asset extraction (new feature)
-8. **Phase 8**: Add validation command
+1. **Phase 1**: Set up new CLI structure with Cobra commands ✅
+2. **Phase 2**: Migrate models with JSON Schema tags ✅
+3. **Phase 3**: Migrate parser logic (unit, tools, restrictions) ✅
+4. **Phase 4**: Migrate loader with zip extraction ✅
+5. **Phase 5**: Implement new exporter for faction folders ✅
+6. **Phase 6**: Add schema generation (moved to build tool) ✅
+7. **Phase 7**: Add asset extraction (new feature) ✅
 
 ## Common Development Tasks
 
@@ -816,8 +814,8 @@ unit.Specs.NewField = loader.GetFloat(data, "json_key_name", defaultValue)
 
 3. **Regenerate schema**:
 ```bash
-cd cli
-go generate ./...
+cd cli/tools/generate-schema
+./build-and-run.bat  # or ./build-and-run.sh on Unix
 ```
 
 4. **Regenerate TypeScript types**:

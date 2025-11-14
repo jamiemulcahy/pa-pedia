@@ -34,6 +34,9 @@ func Execute() error {
 }
 
 func init() {
+	// Disable auto-generated completion command (not needed for end users)
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
 	// Global flags
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose logging")
 }
