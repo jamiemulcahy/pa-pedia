@@ -218,14 +218,18 @@ func describeCustomFaction(name string, modIdentifiers []string) error {
 		resolvedMods,
 	)
 
-	// Export faction (using old exporter for now - will be updated)
-	fmt.Println("\nExporting faction folder...")
-	exp := exporter.NewFactionExporter(outputDir, verbose)
-	if err := exp.ExportFaction(metadata, units); err != nil {
+	// Export faction using new V2 exporter (Phase 1.5 structure)
+	fmt.Println("\nExporting faction folder with new structure...")
+	exp := exporter.NewFactionExporterV2(outputDir, l, verbose)
+	if err := exp.ExportFactionV2(metadata, units); err != nil {
 		return fmt.Errorf("failed to export faction: %w", err)
 	}
 
 	fmt.Println("\n✓ Custom faction extraction complete!")
 	fmt.Printf("Faction '%s' exported to: %s\n", name, outputDir)
+	fmt.Println("\nNew structure:")
+	fmt.Println("  - metadata.json (faction info)")
+	fmt.Println("  - units.json (lightweight index with provenance)")
+	fmt.Println("  - units/ (directory with all unit files)")
 	return nil
 }

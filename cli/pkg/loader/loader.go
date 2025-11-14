@@ -150,6 +150,11 @@ func (l *Loader) Close() error {
 	return nil
 }
 
+// Sources returns the loader's sources for external access
+func (l *Loader) Sources() []Source {
+	return l.sources
+}
+
 // GetJSON loads and caches a JSON file by resource name
 // Handles expansion shadowing (pa_ex1 overrides pa files)
 func (l *Loader) GetJSON(resourceName string) (map[string]interface{}, error) {
