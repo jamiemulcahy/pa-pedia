@@ -6,8 +6,6 @@
       "Bash(mkdir:*)",
       "Bash(go build:*)",
       "Bash(./pa-pedia.exe generate-schema:*)",
-      "Bash(./pa-pedia.exe extract base:*)",
-      "Bash(./pa-pedia.exe extract mod:*)",
       "Bash(cat:*)",
       "Bash(./pa-pedia.exe:*)",
       "Bash(dir:*)",
