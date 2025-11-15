@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/faction-index",
+  "$ref": "#/$defs/FactionIndex",
+  "$defs": {
+    "FactionIndex": {
+      "properties": {
+        "units": {
+          "items": {
+            "$ref": "#/$defs/UnitIndexEntry"
+          },
+          "type": "array",
+          "description": "Lightweight unit index with file provenance"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "units"
+      ]
+    },
+    "UnitFile": {
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative path within the unit folder such as tank.json or tank_icon_buildbar.png"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source that provided this file such as pa"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "path",
+        "source"
+      ]
+    },
+    "UnitIndexEntry": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unit identifier such as tank or commander"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable unit name such as Ant or Commander"
+        },
+        "unitTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Unit type tags such as Mobile"
+        },
+        "source": {
+          "type": "string",
+          "description": "Primary source that first defined this unit such as pa"
+        },
+        "files": {
+          "items": {
+            "$ref": "#/$defs/UnitFile"
+          },
+          "type": "array",
+          "description": "All discovered files for this unit with provenance"
+        },
+        "resolvedFile": {
+          "type": "string",
+          "description": "Filename of the resolved unit specification with base_spec inheritance merged and all calculations complete such as tank_resolved.json. This file contains the complete parsed Unit object ready for consumption by the web app."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "identifier",
+        "displayName",
+        "unitTypes",
+        "source",
+        "files"
+      ]
+    }
+  },
+  "title": "faction-index"
+}
