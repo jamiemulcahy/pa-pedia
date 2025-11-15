@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/faction-metadata",
+  "$ref": "#/$defs/FactionMetadata",
+  "$defs": {
+    "FactionMetadata": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier for the faction (e.g. com.pa.legion-expansion)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable name for the faction"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version of the faction data (e.g. 1.2.0)"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author or organization that created this faction"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the faction"
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "ISO 8601 date when faction was created (YYYY-MM-DD)"
+        },
+        "build": {
+          "type": "string",
+          "description": "PA game build number this faction targets"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "base-game",
+            "mod"
+          ],
+          "description": "Type of faction (base-game or mod)"
+        },
+        "mods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "List of mod identifiers that compose this faction"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "identifier",
+        "displayName",
+        "version",
+        "type"
+      ]
+    }
+  },
+  "title": "faction-metadata"
+}

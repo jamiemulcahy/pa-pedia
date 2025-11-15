@@ -110,6 +110,23 @@ faction-name/
     └── ...
 ```
 
+**Typical File Sizes** (MLA faction with 199 units):
+- `metadata.json`: ~1 KB (faction metadata)
+- `units.json`: ~165 KB (lightweight index with file listings)
+- Individual unit files:
+  - Raw JSON files (`{unit}.json`): ~1-50 KB each (PA game data with base_spec references)
+  - Resolved JSON files (`{unit}_resolved.json`): ~2-80 KB each (complete parsed data, typically larger than raw)
+  - Weapon/ammo JSON files: ~1-10 KB each
+  - Icon PNG files: ~10-100 KB each
+- **Total faction size**: ~50-100 MB for a typical 200-unit faction (including all JSON files, resolved specs, and icons)
+
+**Performance Benefits**:
+- Old format: Single 1.2 MB units.json with all unit data embedded
+- New format: 165 KB index + lazy-loaded unit files
+- Web apps can load the index quickly (~165 KB) to display unit lists
+- Full unit details (resolved specs) loaded on-demand when user clicks a unit
+- No client-side parsing needed - resolved files have all calculations pre-computed
+
 #### 2. Web Application (React/TypeScript)
 **Location**: `C:\Users\jamie\Dev\PA\pa-pedia\web\`
 

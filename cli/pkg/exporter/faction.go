@@ -144,12 +144,15 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 
 		// Write resolved unit specs (fully parsed with base_spec inheritance merged)
 		resolvedFilename := unit.ID + "_resolved.json"
+		resolvedFileWritten := false
+
 		if err := e.writeResolvedUnit(unitDir, unit); err != nil {
 			// Log warning but continue - resolved specs are supplementary
 			if e.Verbose {
 				fmt.Fprintf(os.Stderr, "\nWarning: Failed to write resolved specs for %s: %v\n", unit.ID, err)
 			}
 		} else {
+			resolvedFileWritten = true
 			// Add resolved file to index files list
 			indexFiles = append(indexFiles, models.UnitFile{
 				Path:   resolvedFilename,
@@ -158,13 +161,19 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 		}
 
 		// Create index entry
+		// Only set ResolvedFile if the write succeeded to avoid pointing to non-existent files
 		indexEntry := models.UnitIndexEntry{
-			Identifier:   unit.ID,
-			DisplayName:  unit.DisplayName,
-			UnitTypes:    unit.UnitTypes,
-			Source:       determineUnitSource(unit.ResourceName),
-			Files:        indexFiles,
-			ResolvedFile: resolvedFilename,
+			Identifier:  unit.ID,
+			DisplayName: unit.DisplayName,
+			UnitTypes:   unit.UnitTypes,
+			Source:      determineUnitSource(unit.ResourceName),
+			Files:       indexFiles,
+			ResolvedFile: func() string {
+				if resolvedFileWritten {
+					return resolvedFilename
+				}
+				return ""
+			}(),
 		}
 
 		index.Units = append(index.Units, indexEntry)

@@ -23,11 +23,11 @@
       "properties": {
         "path": {
           "type": "string",
-          "description": "Relative path within the unit folder such as tank.json or tank_icon_buildbar.png"
+          "description": "Relative path within the unit folder (e.g. tank.json"
         },
         "source": {
           "type": "string",
-          "description": "Source that provided this file such as pa"
+          "description": "Source that provided this file (e.g. pa"
         }
       },
       "additionalProperties": false,
@@ -41,22 +41,22 @@
       "properties": {
         "identifier": {
           "type": "string",
-          "description": "Unit identifier such as tank or commander"
+          "description": "Unit identifier (e.g. tank"
         },
         "displayName": {
           "type": "string",
-          "description": "Human-readable unit name such as Ant or Commander"
+          "description": "Human-readable unit name (e.g. Ant"
         },
         "unitTypes": {
           "items": {
             "type": "string"
           },
           "type": "array",
-          "description": "Unit type tags such as Mobile"
+          "description": "Unit type tags (e.g. Mobile"
         },
         "source": {
           "type": "string",
-          "description": "Primary source that first defined this unit such as pa"
+          "description": "Primary source that first defined this unit (e.g. pa"
         },
         "files": {
           "items": {
@@ -67,7 +67,7 @@
         },
         "resolvedFile": {
           "type": "string",
-          "description": "Filename of the resolved unit specification with base_spec inheritance merged and all calculations complete such as tank_resolved.json. This file contains the complete parsed Unit object ready for consumption by the web app."
+          "description": "Filename of the resolved unit specification with base_spec inheritance merged and all calculations complete (e.g. tank_resolved.json). This file contains the complete parsed Unit object ready for consumption by the web app."
         }
       },
       "additionalProperties": false,
