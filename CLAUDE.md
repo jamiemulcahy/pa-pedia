@@ -8,10 +8,16 @@ AI assistant context for the PA-Pedia project.
 ## Quick Context
 
 PA-Pedia extracts Planetary Annihilation faction data (base game + mods) into portable faction folders. Two-component architecture:
-1. **CLI (Go)**: Data extraction tool (current focus)
-2. **Web (React)**: Browsing interface (planned Phase 2)
+1. **CLI (Go)**: Data extraction tool (Phase 1 & 1.5 - Complete)
+2. **Web (React)**: Browsing interface (Phase 2 - Complete)
 
-**Current Phase**: 1.5 - Refactoring for multi-mod support and provenance tracking
+**Current Phase**: 3 - Advanced Features (Planned)
+
+**Completed**:
+- CLI faction extraction with multi-mod support
+- Web app with faction/unit browsing
+- Three-tier lazy loading system
+- Search and filtering functionality
 
 ## Data Models & Output
 
@@ -128,13 +134,90 @@ npm run generate-types
 
 **Schemas**: See `schema/` directory (5 files currently)
 
+## Web App Development
+
+### Project Structure
+```
+web/src/
+├── components/       # React components
+│   └── ErrorBoundary.tsx  # Error boundary wrapper
+├── pages/           # Page components
+│   ├── Home.tsx          # Faction selection
+│   ├── FactionDetail.tsx # Unit browser
+│   └── UnitDetail.tsx    # Unit specifications
+├── contexts/        # React Context
+│   └── FactionContext.tsx  # Global state
+├── hooks/           # Custom hooks
+│   ├── useFactions.ts  # All factions
+│   ├── useFaction.ts   # Single faction
+│   └── useUnit.ts      # Single unit
+├── services/        # Data loading
+│   └── factionLoader.ts  # Fetch functions
+└── types/           # TypeScript types
+    └── faction.ts   # Data models
+```
+
+### Data Loading Strategy
+
+**Three-Tier Lazy Loading**:
+1. **App Load** (immediate): All faction metadata from `metadata.json`
+2. **Faction View** (on-demand): Unit index from `units.json` when viewing faction
+3. **Unit View** (on-demand): Full unit data from `{unit}_resolved.json` when viewing unit
+
+All data cached in FactionContext to avoid redundant fetches.
+
+**Key Functions** (`factionLoader.ts`):
+- `discoverFactions()`: Returns list of available faction IDs
+- `loadFactionMetadata(id)`: Loads faction metadata
+- `loadFactionIndex(id)`: Loads unit index
+- `loadUnitResolved(factionId, unitId)`: Loads resolved unit data
+- `getUnitIconPath(factionId, unitId, filename)`: Returns icon URL
+
+### Custom Hooks Usage
+
+```typescript
+// In a component - access all factions
+const { factions, loading, error } = useFactions();
+
+// Access specific faction (auto-loads index)
+const { faction, units, loading, error } = useFaction('MLA');
+
+// Access specific unit (auto-loads resolved data)
+const { unit, loading, error } = useUnit('MLA', 'tank');
+```
+
+### Routing
+
+```
+/ → Home (faction selection)
+/faction/:factionId → FactionDetail (unit browser)
+/faction/:factionId/unit/:unitId → UnitDetail (specifications)
+```
+
+### Styling
+
+Tailwind CSS v3 with custom theme:
+- **MLA colors**: `mla-blue`, `mla-cyan` (blue/cyan palette)
+- **Legion colors**: `legion-orange`, `legion-red` (orange/red palette)
+- **Dark mode**: CSS variables configured (`:root` and `.dark` selectors)
+- **Responsive**: Mobile-first breakpoints (sm, md, lg, xl)
+
+### Type Safety
+
+TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
+- `FactionMetadata`, `FactionIndex`, `UnitIndexEntry`
+- `Unit`, `Weapon`, `BuildArm`, `BuildRelationships`
+- `CombatSpecs`, `EconomySpecs`, `MobilitySpecs`
+
+**Important**: Schemas in `schema/` are the source of truth. When schemas change, update TypeScript types manually (auto-generation not yet implemented).
+
 ## Common Development Tasks
 
 ### Add New Unit Field
 1. Update Go struct in `cli/pkg/models/` with JSON tags
 2. Update parser in `cli/pkg/parser/unit.go`
 3. Regenerate schema (run generate-schema tool)
-4. Regenerate TS types (Phase 2: `npm run generate-types`)
+4. Update TypeScript types in `web/src/types/faction.ts` manually
 
 ### Debug Parsing Issues
 ```go
@@ -153,6 +236,29 @@ if strings.Contains(unitPath, "problematic_unit") {
 - Type mismatches → PA uses float64, cast as needed
 - Nested inheritance → check base_spec recursion depth
 - Tool detection → check both name patterns AND `tool_type` field
+
+### Debug Web App Issues
+
+**Check browser console**: Most errors appear in browser dev tools console
+
+**Common issues**:
+- **404 errors**: Faction data not in `public/factions/` → Copy faction folders
+- **Type errors**: TypeScript types out of sync with schemas → Update `types/faction.ts`
+- **Infinite re-renders**: Dependency arrays in hooks → Check useEffect dependencies
+- **Context not updating**: Missing provider → Ensure FactionProvider wraps app
+- **Icons not loading**: Wrong path or missing files → Check console network tab
+
+**Dev tools**:
+```bash
+# Run dev server with hot reload
+npm run dev
+
+# Check TypeScript errors
+npm run build
+
+# Lint code
+npm run lint
+```
 
 ## Migration from Old Codebase
 
@@ -219,12 +325,21 @@ Use agents when their expertise matches the task. For complex Go work, defer to 
 - **React**: Functional components with hooks
 - **Naming**: kebab-case files, PascalCase components
 - **Comments**: Explain "why", not "what"
+- **Imports**: Use `@/` alias for absolute imports in web app
 
 ### When Adding Dependencies
-1. Update `go.mod` or `package.json`
-2. Document why needed
-3. Consider bundle size (web) or binary size (CLI)
+
+**CLI (Go)**:
+1. Update `go.mod` with required package
+2. Document why needed in code or comments
+3. Consider binary size impact
 4. Verify cross-platform compatibility
+
+**Web (npm)**:
+1. Add to `package.json` (use `npm install <pkg>`)
+2. Document why needed
+3. Check bundle size impact (`npm run build` and check dist/)
+4. Verify browser compatibility
 
 ## Resources
 
@@ -237,4 +352,8 @@ Use agents when their expertise matches the task. For complex Go work, defer to 
 - JSON Schema: https://json-schema.org/
 - Go jsonschema: https://github.com/invopop/jsonschema
 - Cobra CLI: https://github.com/spf13/cobra
+- React: https://react.dev/
+- React Router: https://reactrouter.com/
+- Tailwind CSS: https://tailwindcss.com/
+- Vite: https://vitejs.dev/
 - PA Mod Forum: https://forums.planetaryannihilation.com/forums/mods.93/
