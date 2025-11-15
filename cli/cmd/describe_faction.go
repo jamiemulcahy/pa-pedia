@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/exporter"
@@ -21,6 +23,7 @@ var (
 	factionNameFlag string
 	modIDs          []string
 	paRoot          string
+	paDataRoot      string
 	outputDir       string
 )
 
@@ -51,13 +54,15 @@ For modded factions, provide a faction name and one or more --mod identifiers.`,
   # Custom faction with multiple mods (first in list has priority)
   pa-pedia describe-faction --name "Legion Enhanced" \
     --pa-root "C:/PA/media" \
-    --mod com.pa.legion-expansion \
-    --mod com.pa.legion-client \
+    --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation" \
+    --mod com.pa.legion-expansion-server \
+    --mod com.pa.legion-expansion-client \
     --output "./factions"
 
   # Single mod faction
   pa-pedia describe-faction --name "Queller AI" \
     --pa-root "C:/PA/media" \
+    --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation" \
     --mod com.pa.queller \
     --output "./factions"`,
 	RunE: runDescribeFaction,
@@ -68,6 +73,7 @@ func init() {
 
 	describeFactionCmd.Flags().StringVar(&factionNameFlag, "name", "", "Faction display name (required)")
 	describeFactionCmd.Flags().StringVar(&paRoot, "pa-root", "", "Path to PA Titans media directory (required)")
+	describeFactionCmd.Flags().StringVar(&paDataRoot, "data-root", "", "Path to PA data directory (required for modded factions)")
 	describeFactionCmd.Flags().StringVar(&outputDir, "output", "./factions", "Output directory for faction folders")
 	describeFactionCmd.Flags().StringArrayVar(&modIDs, "mod", []string{}, "Mod identifier(s) to include (repeatable, first has priority)")
 
@@ -91,12 +97,57 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("cannot use --mod flags with base game faction (%s/%s/%s)", FactionNameMLA, FactionNameBase, FactionNameTitans)
 	}
 
+	// Validate: modded factions require data-root
+	if !isMLA && len(modIDs) > 0 && paDataRoot == "" {
+		return fmt.Errorf("--data-root is required for modded factions\n\nCommon locations:\n  Windows: %%LOCALAPPDATA%%\\Uber Entertainment\\Planetary Annihilation\n  macOS: ~/Library/Application Support/Uber Entertainment/Planetary Annihilation\n  Linux: ~/.local/Uber Entertainment/Planetary Annihilation")
+	}
+
+	// Validate data-root structure if provided
+	if paDataRoot != "" {
+		if err := validateDataRoot(paDataRoot); err != nil {
+			return fmt.Errorf("invalid --data-root: %w", err)
+		}
+	}
+
 	// Determine if this is base game or custom faction
 	if isMLA {
 		return describeMLA(factionNameFlag)
 	}
 
-	return describeCustomFaction(factionNameFlag, modIDs)
+	return describeCustomFaction(factionNameFlag, modIDs, paDataRoot)
+}
+
+// validateDataRoot checks if the provided data root looks like a valid PA data directory
+func validateDataRoot(dataRoot string) error {
+	// Check if directory exists
+	info, err := os.Stat(dataRoot)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("directory does not exist: %s", dataRoot)
+		}
+		return fmt.Errorf("cannot access directory: %w", err)
+	}
+
+	if !info.IsDir() {
+		return fmt.Errorf("path is not a directory: %s", dataRoot)
+	}
+
+	// Check for expected subdirectories (at least one should exist for a valid PA data root)
+	expectedDirs := []string{"server_mods", "client_mods", "download"}
+	foundAny := false
+	for _, dir := range expectedDirs {
+		dirPath := filepath.Join(dataRoot, dir)
+		if _, err := os.Stat(dirPath); err == nil {
+			foundAny = true
+			break
+		}
+	}
+
+	if !foundAny {
+		return fmt.Errorf("directory does not appear to be a PA data directory (missing server_mods, client_mods, and download subdirectories): %s", dataRoot)
+	}
+
+	return nil
 }
 
 // describeMLA extracts the base game (MLA) faction
@@ -138,14 +189,14 @@ func describeMLA(name string) error {
 }
 
 // describeCustomFaction extracts a custom faction from multiple mods
-func describeCustomFaction(name string, modIdentifiers []string) error {
+func describeCustomFaction(name string, modIdentifiers []string, dataRoot string) error {
 	fmt.Printf("Describing custom faction: %s\n", name)
 	fmt.Printf("Mods to merge: %v\n", modIdentifiers)
 	fmt.Println()
 
 	// Discover all available mods
 	fmt.Println("Discovering mods from all locations...")
-	allMods, err := loader.FindAllMods(paRoot, verbose)
+	allMods, err := loader.FindAllMods(dataRoot, verbose)
 	if err != nil {
 		return fmt.Errorf("failed to discover mods: %w", err)
 	}

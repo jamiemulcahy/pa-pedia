@@ -9,7 +9,8 @@
       "Bash(cat:*)",
       "Bash(./pa-pedia.exe:*)",
       "Bash(dir:*)",
-      "Bash(./generate-schema.exe:*)"
+      "Bash(./generate-schema.exe:*)",
+      "Bash(go test:*)"
     ],
     "deny": [],
     "ask": []

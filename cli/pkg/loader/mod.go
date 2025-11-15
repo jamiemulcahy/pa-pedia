@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -36,31 +37,51 @@ type ModInfo struct {
 	IsZipped    bool          `json:"-"` // Whether this mod is in a zip file
 }
 
+// GetDefaultPADataRoot returns the platform-specific default PA data directory
+func GetDefaultPADataRoot() (string, error) {
+	var dataDir string
+
+	switch runtime.GOOS {
+	case "windows":
+		localAppData := os.Getenv("LOCALAPPDATA")
+		if localAppData == "" {
+			return "", fmt.Errorf("LOCALAPPDATA environment variable not set")
+		}
+		dataDir = filepath.Join(localAppData, "Uber Entertainment", "Planetary Annihilation")
+	case "darwin": // macOS
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user home directory: %w", err)
+		}
+		dataDir = filepath.Join(home, "Library", "Application Support", "Uber Entertainment", "Planetary Annihilation")
+	case "linux":
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user home directory: %w", err)
+		}
+		dataDir = filepath.Join(home, ".local", "Uber Entertainment", "Planetary Annihilation")
+	default:
+		return "", fmt.Errorf("unsupported platform: %s", runtime.GOOS)
+	}
+
+	return dataDir, nil
+}
+
 // FindAllMods searches for mods across all three locations (server_mods, client_mods, download)
 // and returns a deduplicated map with priority: server_mods > client_mods > download
 //
-// IMPORTANT: This function assumes paRoot points to the PA installation's media directory.
+// IMPORTANT: paDataRoot should point to the PA data directory (NOT the installation media directory).
 // The directory structure is expected to be:
-//   {PA_DATA_ROOT}/Planetary Annihilation/
-//     ├── media/                          (this is paRoot)
+//   {paDataRoot}/
 //     ├── server_mods/{mod-identifier}/   (user-installed server mods, highest priority)
 //     ├── client_mods/{mod-identifier}/   (user-installed client mods, medium priority)
 //     └── download/{mod-identifier}.zip   (PA-managed mod downloads, lowest priority)
 //
-// We calculate PA_DATA_ROOT as paRoot/../.. to find the mod directories.
-func FindAllMods(paRoot string, verbose bool) (map[string]*ModInfo, error) {
+// On Windows, this is typically: %LOCALAPPDATA%\Uber Entertainment\Planetary Annihilation
+func FindAllMods(paDataRoot string, verbose bool) (map[string]*ModInfo, error) {
 	allMods := make(map[string]*ModInfo)
 
-	// Determine base path (PA Data Root is parent of parent of media folder)
-	// e.g., C:/PA/media -> C:/Users/.../AppData/Local/Uber Entertainment/Planetary Annihilation
-	// Use absolute path to handle symlinks and validate path safety
-	absRoot, err := filepath.Abs(paRoot)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve absolute path for paRoot: %w", err)
-	}
-	paDataRoot := filepath.Clean(filepath.Join(absRoot, "..", ".."))
-
-	// Search priority locations
+	// Search priority locations in the PA data directory
 	searchPaths := []struct {
 		path       string
 		sourceType ModSourceType
