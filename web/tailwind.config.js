@@ -7,6 +7,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'display': ['Orbitron', 'sans-serif'],    // Futuristic headings
+        'sans': ['Rajdhani', 'sans-serif'],       // Clean, military-style body text
+        'mono': ['JetBrains Mono', 'monospace'],  // Stats and technical data
+      },
       colors: {
         // MLA theme colors (blue/cyan)
         mla: {

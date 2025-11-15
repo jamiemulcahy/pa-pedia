@@ -8,7 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-types": "json2ts -i ../schema/*.schema.json -o src/types/generated --unreachableDefinitions"
+    "generate-types": "json2ts -i ../schema/*.schema.json -o src/types/generated --unreachableDefinitions",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@rollup/rollup-win32-x64-msvc": "^4.53.2",
@@ -27,6 +31,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^4.0.9",
     "@vitest/ui": "^4.0.9",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",

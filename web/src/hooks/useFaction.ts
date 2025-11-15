@@ -7,7 +7,7 @@ import type { FactionMetadata, FactionIndex } from '@/types/faction'
  * Lazy-loads the faction index on first access
  */
 export function useFaction(factionId: string) {
-  const { getFaction, getFactionIndex, loadFaction } = useFactionContext()
+  const { getFaction, getFactionIndex, loadFaction, factionsLoading } = useFactionContext()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -37,6 +37,7 @@ export function useFaction(factionId: string) {
     units: index?.units || [],
     loading,
     error,
-    exists: !!metadata
+    exists: !!metadata,
+    factionsLoading
   }
 }

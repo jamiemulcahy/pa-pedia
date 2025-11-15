@@ -1,6 +1,10 @@
 import { useFactionContext } from '@/contexts/FactionContext'
 import type { FactionMetadata } from '@/types/faction'
 
+export interface FactionWithFolder extends FactionMetadata {
+  folderName: string
+}
+
 /**
  * Hook to access all factions metadata
  * Automatically loaded on app start
@@ -8,7 +12,11 @@ import type { FactionMetadata } from '@/types/faction'
 export function useFactions() {
   const { factions, factionsLoading, factionsError } = useFactionContext()
 
-  const factionsList: FactionMetadata[] = Array.from(factions.values())
+  // Convert Map entries to array with folder names attached
+  const factionsList: FactionWithFolder[] = Array.from(factions.entries()).map(([folderName, metadata]) => ({
+    ...metadata,
+    folderName
+  }))
 
   return {
     factions: factionsList,

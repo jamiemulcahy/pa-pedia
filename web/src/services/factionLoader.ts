@@ -70,22 +70,32 @@ export function getUnitIconPath(factionId: string, unitId: string): string {
 
 /**
  * Loads all faction metadata at once for initial app load
+ * Maps by folder name (not metadata.identifier) since routes use folder names
  */
 export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetadata>> {
-  const factionIds = await discoverFactions()
+  const factionFolderNames = await discoverFactions()
   const metadataMap = new Map<string, FactionMetadata>()
 
   const results = await Promise.allSettled(
-    factionIds.map(id => loadFactionMetadata(id))
+    factionFolderNames.map(folderName => loadFactionMetadata(folderName))
   )
 
+  const errors: Error[] = []
   results.forEach((result, index) => {
     if (result.status === 'fulfilled') {
-      metadataMap.set(factionIds[index], result.value)
+      // Use folder name as key, not metadata.identifier
+      // This ensures routes like /faction/MLA match the map key
+      metadataMap.set(factionFolderNames[index], result.value)
     } else {
-      console.error(`Failed to load metadata for ${factionIds[index]}:`, result.reason)
+      console.error(`Failed to load metadata for ${factionFolderNames[index]}:`, result.reason)
+      errors.push(result.reason)
     }
   })
+
+  // If all factions failed to load, throw the first error
+  if (metadataMap.size === 0 && errors.length > 0) {
+    throw errors[0]
+  }
 
   return metadataMap
 }
