@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
 import {
   loadAllFactionMetadata,
@@ -15,8 +15,14 @@ interface FactionContextState {
   // Faction indexes (lazy-loaded per faction)
   factionIndexes: Map<string, FactionIndex>
 
+  // Faction-specific loading errors
+  factionErrors: Map<string, Error>
+
   // Unit cache (lazy-loaded per unit)
   unitsCache: Map<string, Unit>
+
+  // Unit-specific loading errors
+  unitErrors: Map<string, Error>
 
   // Actions
   loadFaction: (factionId: string) => Promise<void>
@@ -24,6 +30,8 @@ interface FactionContextState {
   getFaction: (factionId: string) => FactionMetadata | undefined
   getFactionIndex: (factionId: string) => FactionIndex | undefined
   getUnit: (cacheKey: string) => Unit | undefined
+  getFactionError: (factionId: string) => Error | undefined
+  getUnitError: (cacheKey: string) => Error | undefined
 }
 
 const FactionContext = createContext<FactionContextState | null>(null)
@@ -33,7 +41,22 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   const [factionsLoading, setFactionsLoading] = useState(true)
   const [factionsError, setFactionsError] = useState<Error | null>(null)
   const [factionIndexes, setFactionIndexes] = useState<Map<string, FactionIndex>>(new Map())
+  const [factionErrors, setFactionErrors] = useState<Map<string, Error>>(new Map())
   const [unitsCache, setUnitsCache] = useState<Map<string, Unit>>(new Map())
+  const [unitErrors, setUnitErrors] = useState<Map<string, Error>>(new Map())
+
+  // Use refs to avoid dependency issues in useCallback
+  const factionIndexesRef = useRef(factionIndexes)
+  const unitsCacheRef = useRef(unitsCache)
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    factionIndexesRef.current = factionIndexes
+  }, [factionIndexes])
+
+  useEffect(() => {
+    unitsCacheRef.current = unitsCache
+  }, [unitsCache])
 
   // Load all faction metadata on mount
   useEffect(() => {
@@ -57,25 +80,34 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   // Load a faction's unit index
   const loadFaction = useCallback(async (factionId: string) => {
     // Check if already loaded
-    if (factionIndexes.has(factionId)) {
+    if (factionIndexesRef.current.has(factionId)) {
       return
     }
 
     try {
       const index = await loadFactionIndex(factionId)
       setFactionIndexes(prev => new Map(prev).set(factionId, index))
+      // Clear any previous error for this faction
+      setFactionErrors(prev => {
+        const next = new Map(prev)
+        next.delete(factionId)
+        return next
+      })
     } catch (error) {
-      console.error(`Failed to load faction index for ${factionId}:`, error)
+      const err = error as Error
+      console.error(`Failed to load faction index for ${factionId}:`, err)
+      // Track faction-specific error
+      setFactionErrors(prev => new Map(prev).set(factionId, err))
       throw error
     }
-  }, [factionIndexes])
+  }, [])
 
   // Load a specific unit
   const loadUnit = useCallback(async (factionId: string, unitId: string): Promise<Unit> => {
     const cacheKey = `${factionId}:${unitId}`
 
     // Check cache first
-    const cached = unitsCache.get(cacheKey)
+    const cached = unitsCacheRef.current.get(cacheKey)
     if (cached) {
       return cached
     }
@@ -83,12 +115,21 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     try {
       const unit = await loadUnitResolved(factionId, unitId)
       setUnitsCache(prev => new Map(prev).set(cacheKey, unit))
+      // Clear any previous error for this unit
+      setUnitErrors(prev => {
+        const next = new Map(prev)
+        next.delete(cacheKey)
+        return next
+      })
       return unit
     } catch (error) {
-      console.error(`Failed to load unit ${unitId} for faction ${factionId}:`, error)
+      const err = error as Error
+      console.error(`Failed to load unit ${unitId} for faction ${factionId}:`, err)
+      // Track unit-specific error
+      setUnitErrors(prev => new Map(prev).set(cacheKey, err))
       throw error
     }
-  }, [unitsCache])
+  }, [])
 
   const getFaction = useCallback((factionId: string) => {
     return factions.get(factionId)
@@ -102,17 +143,29 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     return unitsCache.get(cacheKey)
   }, [unitsCache])
 
+  const getFactionError = useCallback((factionId: string) => {
+    return factionErrors.get(factionId)
+  }, [factionErrors])
+
+  const getUnitError = useCallback((cacheKey: string) => {
+    return unitErrors.get(cacheKey)
+  }, [unitErrors])
+
   const value: FactionContextState = {
     factions,
     factionsLoading,
     factionsError,
     factionIndexes,
+    factionErrors,
     unitsCache,
+    unitErrors,
     loadFaction,
     loadUnit,
     getFaction,
     getFactionIndex,
-    getUnit
+    getUnit,
+    getFactionError,
+    getUnitError
   }
 
   return <FactionContext.Provider value={value}>{children}</FactionContext.Provider>

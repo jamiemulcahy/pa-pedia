@@ -211,6 +211,22 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 
 **Important**: Schemas in `schema/` are the source of truth. When schemas change, update TypeScript types manually (auto-generation not yet implemented).
 
+### Security Considerations
+
+**XSS Prevention (Phase 3 Requirement)**:
+- **Current Risk**: Low - data comes from trusted local files only
+- **Phase 3 Requirement**: If user-uploaded faction data is implemented, ALL faction data MUST be sanitized before rendering
+- **Critical Fields to Sanitize**:
+  - Unit names and descriptions
+  - Faction metadata (name, description, author)
+  - Any user-generated content displayed in UI
+- **Implementation Notes**:
+  - Use DOMPurify or similar library for HTML sanitization
+  - Validate JSON schema compliance before accepting uploads
+  - Implement Content Security Policy (CSP) headers
+  - Never use `dangerouslySetInnerHTML` without sanitization
+- **Location**: Document this requirement in Phase 3 implementation plan
+
 ## Common Development Tasks
 
 ### Add New Unit Field

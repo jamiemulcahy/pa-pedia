@@ -7,8 +7,8 @@ import { UnitDetail } from '@/pages/UnitDetail'
 
 function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ErrorBoundary>
         <FactionProvider>
           <div className="min-h-screen bg-background text-foreground">
             <Routes>
@@ -18,8 +18,8 @@ function App() {
             </Routes>
           </div>
         </FactionProvider>
-      </BrowserRouter>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </BrowserRouter>
   )
 }
 

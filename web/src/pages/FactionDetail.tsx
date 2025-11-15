@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
 import { getUnitIconPath } from '@/services/factionLoader'
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
@@ -9,6 +9,28 @@ export function FactionDetail() {
   const { metadata, units, loading, error, exists, factionsLoading } = useFaction(factionId)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('')
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
+
+  const handleImageError = useCallback((unitId: string) => {
+    setBrokenImages(prev => new Set(prev).add(unitId))
+  }, [])
+
+  // Get all unique unit types for filter (memoized for performance)
+  // Must be called before any early returns to satisfy Rules of Hooks
+  const allTypes = useMemo(() =>
+    Array.from(new Set(units.flatMap(u => u.unitTypes))).sort(),
+    [units]
+  )
+
+  // Filter units (memoized for performance with large unit lists)
+  const filteredUnits = useMemo(() =>
+    units.filter(unit => {
+      const matchesSearch = unit.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesType = !typeFilter || unit.unitTypes.includes(typeFilter)
+      return matchesSearch && matchesType
+    }),
+    [units, searchQuery, typeFilter]
+  )
 
   // Show loading while factions metadata is being loaded
   if (factionsLoading) {
@@ -54,16 +76,6 @@ export function FactionDetail() {
     )
   }
 
-  // Get all unique unit types for filter
-  const allTypes = Array.from(new Set(units.flatMap(u => u.unitTypes))).sort()
-
-  // Filter units
-  const filteredUnits = units.filter(unit => {
-    const matchesSearch = unit.displayName.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = !typeFilter || unit.unitTypes.includes(typeFilter)
-    return matchesSearch && matchesType
-  })
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -82,11 +94,13 @@ export function FactionDetail() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="px-4 py-2 border rounded-md flex-1 min-w-[200px] bg-background font-medium"
+          aria-label="Search units by name"
         />
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
           className="px-4 py-2 border rounded-md bg-background font-medium"
+          aria-label="Filter units by type"
         >
           <option value="">All Types</option>
           {allTypes.map(type => (
@@ -95,23 +109,31 @@ export function FactionDetail() {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" role="list">
         {filteredUnits.map((unit) => (
           <Link
             key={unit.identifier}
             to={`/faction/${factionId}/unit/${unit.identifier}`}
             className="block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center"
+            role="listitem"
+            aria-label={`View ${unit.displayName} details`}
           >
             <div className="aspect-square mb-2 flex items-center justify-center">
-              <img
-                src={getUnitIconPath(factionId, unit.identifier)}
-                alt={unit.displayName}
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                }}
-              />
+              {brokenImages.has(unit.identifier) ? (
+                <div
+                  className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono"
+                  aria-label={`${unit.displayName} icon not available`}
+                >
+                  No Icon
+                </div>
+              ) : (
+                <img
+                  src={getUnitIconPath(factionId, unit.identifier)}
+                  alt={`${unit.displayName} icon`}
+                  className="max-w-full max-h-full object-contain"
+                  onError={() => handleImageError(unit.identifier)}
+                />
+              )}
             </div>
             <div className="text-sm font-semibold truncate">{unit.displayName}</div>
             <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
