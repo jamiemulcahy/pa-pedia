@@ -179,17 +179,33 @@ if strings.Contains(unitPath, "problematic_unit") {
 
 ## AI Assistant Guidelines
 
+### Use Specialized Agents
+This project has specialized agents configured. Use them proactively:
+
+- **go-expert-developer**: Go implementation, refactoring, debugging, concurrency
+- **docs-maintainer**: Update README.md, CLAUDE.md, or PROJECT_PLAN.md after code changes
+- **project-planner**: Create/update project plan, break down complex features, track progress
+- **git-source-control**: All git operations (commits, branches, PRs)
+- **react-ui-developer**: React/TypeScript work
+- **cli-design-architect**: CLI UX design decisions
+- **ux-design-consultant**: UI/UX design guidance
+- **team-lead-architect**: Multi-component features requiring coordination
+
+Use agents when their expertise matches the task. For complex Go work, defer to go-expert-developer. For documentation updates after features, use docs-maintainer. For git operations, use git-source-control.
+
 ### When Starting Features
 1. Check PROJECT_PLAN.md for current phase and tasks
 2. Review relevant patterns in this file
 3. Consider schema sync impact
 4. Plan for both CLI and web if applicable
+5. Use project-planner agent for complex multi-step features
 
 ### When Debugging
 1. Check which component (CLI or web)
 2. Review patterns section above
 3. Add verbose logging at problem points
 4. Validate against schemas if data-related
+5. Use go-expert-developer agent for complex Go debugging
 
 ### Code Style
 - **Go**: Standard conventions (gofmt, staticcheck clean)
