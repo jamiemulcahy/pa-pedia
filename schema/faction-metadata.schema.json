@@ -40,6 +40,13 @@
             "mod"
           ],
           "description": "Type of faction (base-game or mod)"
+        },
+        "mods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "List of mod identifiers that compose this faction"
         }
       },
       "additionalProperties": false,
