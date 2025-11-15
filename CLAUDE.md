@@ -42,10 +42,16 @@ See `cli/pkg/models/` for Go structs and `schema/` for JSON schemas.
 ### 1. Mod Overlay System (Phase 1.5)
 A faction may span multiple sources (base game + multiple mods).
 
-**Mod Discovery Locations** (search in order):
-1. `{pa_root}/../../server_mods/` - User-installed server mods
-2. `{pa_root}/../../client_mods/` - User-installed client mods
-3. `{pa_root}/../../download/` - PA-managed zip files
+**Mod Discovery Locations** (searched in PA data directory):
+The CLI auto-detects the PA data directory (or use `--data-root` flag to override):
+- Windows: `%LOCALAPPDATA%\Uber Entertainment\Planetary Annihilation`
+- macOS: `~/Library/Application Support/Uber Entertainment/Planetary Annihilation`
+- Linux: `~/.local/Uber Entertainment/Planetary Annihilation`
+
+Within this directory, mods are discovered in priority order:
+1. `server_mods/{mod-id}/` - User-installed server mods (highest priority)
+2. `client_mods/{mod-id}/` - User-installed client mods (medium priority)
+3. `download/{mod-id}.zip` - PA-managed zip files (lowest priority)
 
 **File Priority** (first-wins when same file in multiple sources):
 1. First `--mod` specified
