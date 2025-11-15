@@ -25,7 +25,7 @@ Planetary Annihilation has a rich modding ecosystem with multiple faction mods (
 ### Phase 1.0 Complete ✅ (Initial Implementation)
 - ✅ Complete CLI with Cobra framework (extract base/mod commands)
 - ✅ Modern data models with organized spec categories
-- ✅ JSON Schema generation from Go structs (5 schema files)
+- ✅ JSON Schema generation from Go structs (6 schema files)
 - ✅ Complete loader system with mod overlay support
 - ✅ Full parser implementation (units, weapons, build arms, ammo)
 - ✅ Build tree analysis with restriction grammar parser
@@ -48,13 +48,14 @@ Planetary Annihilation has a rich modding ecosystem with multiple faction mods (
 
 **New Requirements**:
 - ✅ Single `describe-faction` command (replacing separate extract base/mod)
-- 🔄 Multi-location mod discovery (server_mods → client_mods → download)
-- 🔄 Direct zip file reading (no temp extraction)
-- 🔄 Multi-mod priority system (first-in-list wins)
-- 🔄 Provenance tracking (which source provided each file)
-- 🔄 New output structure with units/ folders containing all discovered files
-- 🔄 Lightweight units.json index with file listings
-- 🔄 Icon extraction with original filenames
+- ✅ Multi-location mod discovery (server_mods → client_mods → download)
+- ✅ Direct zip file reading (no temp extraction)
+- ✅ Multi-mod priority system (first-in-list wins)
+- ✅ Provenance tracking (which source provided each file)
+- ✅ New output structure with units/ folders containing all discovered files
+- ✅ Lightweight units.json index with file listings
+- ✅ Icon extraction with original filenames
+- ✅ Resolved unit specifications ({unit}_resolved.json with base_spec merged)
 
 ### What Does NOT Exist Yet
 - Web application (Phase 2)
@@ -95,10 +96,11 @@ pa-pedia describe-faction --name "Legion Enhanced" \
 ```
 faction-name/
 ├── metadata.json          # Faction info (name, version, author, mods used)
-├── units.json             # Lightweight index (identifier, displayName, unitTypes, source, files[])
+├── units.json             # Lightweight index (identifier, displayName, unitTypes, source, files[], resolvedFile)
 └── units/                 # All discovered unit files organized by unit
     ├── tank/
-    │   ├── tank.json                    # Primary unit definition
+    │   ├── tank.json                    # Primary unit definition (raw PA data with base_spec)
+    │   ├── tank_resolved.json           # Complete parsed specifications (base_spec merged, all calculations done)
     │   ├── tank_tool_weapon.json        # Weapon specs
     │   ├── tank_ammo.json               # Ammo specs
     │   ├── tank_icon_buildbar.png       # Build bar icon
@@ -238,8 +240,11 @@ pa-pedia/
 │   └── tailwind.config.js
 ├── schema/                    # JSON Schema files (generated from Go)
 │   ├── faction-metadata.schema.json
-│   ├── units.schema.json
-│   └── unit.schema.json
+│   ├── faction-index.schema.json
+│   ├── faction-database.schema.json
+│   ├── unit.schema.json
+│   ├── weapon.schema.json
+│   └── build-arm.schema.json
 ├── docs/                      # Documentation
 │   ├── cli-usage.md
 │   ├── faction-format.md
@@ -280,10 +285,15 @@ pa-pedia/
       "displayName": "Ant",
       "unitTypes": ["Mobile", "Tank", "Basic", "Land"],
       "source": "pa",
+      "resolvedFile": "tank_resolved.json",
       "files": [
         {
           "path": "tank.json",
           "source": "pa"
+        },
+        {
+          "path": "tank_resolved.json",
+          "source": "resolved"
         },
         {
           "path": "tank_tool_weapon.json",
@@ -304,10 +314,15 @@ pa-pedia/
       "displayName": "Vanguard",
       "unitTypes": ["Mobile", "Tank", "Advanced", "Land"],
       "source": "com.pa.legion-expansion",
+      "resolvedFile": "advanced_tank_resolved.json",
       "files": [
         {
           "path": "advanced_tank.json",
           "source": "com.pa.legion-expansion"
+        },
+        {
+          "path": "advanced_tank_resolved.json",
+          "source": "resolved"
         },
         {
           "path": "advanced_tank_tool_weapon.json",
@@ -323,7 +338,7 @@ pa-pedia/
 }
 ```
 
-**Purpose**: Lightweight index for quick unit browsing without loading all unit data. Includes provenance tracking to show which mod/base game provided each file.
+**Purpose**: Lightweight index for quick unit browsing without loading all unit data. Includes provenance tracking to show which mod/base game provided each file. The `resolvedFile` field points to complete parsed specifications for instant access without re-parsing raw PA JSON or resolving base_spec inheritance.
 
 ### Go Models (from old codebase)
 The old codebase has well-defined structs in `models/types.go`:
@@ -606,6 +621,30 @@ Build bar icons follow a strict naming pattern:
 - Must search all sources (mods + pa_ex1 + pa) to find icons
 - Keep original filename in output (don't rename to generic "icon.png")
 
+### 2b. Resolved Unit Files (NEW)
+Each unit folder contains a resolved specification file with complete parsed data:
+- **Pattern**: `{unit_identifier}_resolved.json`
+- **Example**: For unit "tank", resolved file is `tank_resolved.json`
+- **Contains**: Complete parsed Unit struct from `models.Unit` with all computed fields
+- **Includes**:
+  - All base_spec inheritance fully merged (no base_spec references)
+  - DPS calculations for all weapons
+  - Net economy rates (production - consumption)
+  - Build relationships (builtBy, builds arrays)
+  - Accessibility flag (buildable from commander)
+  - Tier information (1=Basic, 2=Advanced, 3=Titan)
+  - Delocalized display names (no !LOC: prefix)
+- **Purpose**: Web app can load this directly without re-parsing raw PA JSON or resolving base_spec chains
+- **Generated**: By CLI exporter during faction extraction
+- **Schema**: Matches the Unit schema in `schema/unit.schema.json`
+- **Source tag**: Listed in files[] array with source "resolved" to indicate it's computed data
+
+**Usage Pattern**:
+1. Raw PA files (e.g., `tank.json`) contain base_spec references and raw game data
+2. Resolved files (`tank_resolved.json`) contain fully processed, ready-to-use data
+3. Web apps should prefer resolved files for display
+4. Advanced users/modders can reference raw files for PA data format
+
 ### 3. Unit Types
 PA units have type tags (with `UNITTYPE_` prefix removed):
 - `Mobile`, `Tank`, `Air`, `Naval`, `Orbital`, `Structure`
@@ -704,6 +743,68 @@ EnergyRate = Production - Consumption - ToolConsumption - WeaponConsumption
 ```
 
 **Use Case**: Determine if a unit is a net producer or consumer.
+
+### 11. Web App Data Loading Pattern (NEW)
+For optimal performance, the web app should follow this loading strategy:
+
+**Step 1: Load Faction Index**
+```typescript
+// Load lightweight units.json (165KB for 199 units)
+const response = await fetch('/factions/MLA/units.json');
+const index: FactionIndex = await response.json();
+```
+
+**Step 2: Display Unit List**
+```typescript
+// Show unit cards using index data only
+index.units.forEach(unit => {
+  displayUnitCard({
+    identifier: unit.identifier,
+    displayName: unit.displayName,
+    unitTypes: unit.unitTypes,
+    // No full specs needed yet - fast initial render
+  });
+});
+```
+
+**Step 3: Load Full Unit Details On Demand**
+```typescript
+// When user clicks a unit, load its resolved specs
+async function showUnitDetails(unitId: string) {
+  const unit = index.units.find(u => u.identifier === unitId);
+
+  // Load pre-parsed resolved file
+  const response = await fetch(`/factions/MLA/units/${unitId}/${unit.resolvedFile}`);
+  const fullUnit: Unit = await response.json();
+
+  // Display complete specs - no parsing needed!
+  displayUnitDetails({
+    health: fullUnit.specs.combat.health,
+    dps: fullUnit.specs.combat.dps,
+    buildCost: fullUnit.specs.economy.buildCost,
+    moveSpeed: fullUnit.specs.mobility.moveSpeed,
+    // All values pre-calculated and ready to use
+  });
+}
+```
+
+**Benefits of This Pattern**:
+- ✅ **Fast initial page load** - Small index file (165KB vs 1.2MB full data)
+- ✅ **Instant unit details** - Pre-parsed resolved files, no client-side processing
+- ✅ **No base_spec resolution needed** - All inheritance already merged
+- ✅ **No DPS calculations needed** - Already computed by CLI
+- ✅ **Lazy loading** - Only load full specs when needed
+- ✅ **Type safety** - Auto-generated TypeScript types from JSON schemas
+- ✅ **Complete provenance** - Files array shows which mod provided each file
+
+**Advanced Usage** (for modders/power users):
+```typescript
+// Access raw PA JSON if needed
+const rawFile = unit.files.find(f => f.path === `${unitId}.json`);
+const rawResponse = await fetch(`/factions/MLA/units/${unitId}/${rawFile.path}`);
+const rawData = await rawResponse.json();
+// rawData contains original PA format with base_spec references
+```
 
 ## Migration from Old Codebase
 
