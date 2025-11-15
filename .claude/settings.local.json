@@ -10,7 +10,8 @@
       "Bash(./pa-pedia.exe extract mod:*)",
       "Bash(cat:*)",
       "Bash(./pa-pedia.exe:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(./generate-schema.exe:*)"
     ],
     "deny": [],
     "ask": []
