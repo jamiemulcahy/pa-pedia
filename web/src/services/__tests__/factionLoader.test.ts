@@ -16,6 +16,8 @@ import {
   setupMockFetch
 } from '@/tests/mocks/factionData'
 
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+
 describe('factionLoader', () => {
   beforeEach(() => {
     setupMockFetch()
@@ -56,7 +58,7 @@ describe('factionLoader', () => {
     it('should throw error for failed fetch', async () => {
       global.fetch = vi.fn(() =>
         Promise.resolve(createMockFetchResponse(null, false))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadFactionMetadata('Invalid')).rejects.toThrow(
         'Failed to load faction metadata for Invalid'
@@ -66,7 +68,7 @@ describe('factionLoader', () => {
     it('should handle network errors', async () => {
       global.fetch = vi.fn(() =>
         Promise.reject(new Error('Network error'))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadFactionMetadata('MLA')).rejects.toThrow('Network error')
     })
@@ -92,7 +94,7 @@ describe('factionLoader', () => {
     it('should throw error for failed fetch', async () => {
       global.fetch = vi.fn(() =>
         Promise.resolve(createMockFetchResponse(null, false))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadFactionIndex('Invalid')).rejects.toThrow(
         'Failed to load faction index for Invalid'
@@ -102,7 +104,7 @@ describe('factionLoader', () => {
     it('should handle network errors', async () => {
       global.fetch = vi.fn(() =>
         Promise.reject(new Error('Network error'))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadFactionIndex('MLA')).rejects.toThrow('Network error')
     })
@@ -132,7 +134,7 @@ describe('factionLoader', () => {
     it('should throw error for failed fetch', async () => {
       global.fetch = vi.fn(() =>
         Promise.resolve(createMockFetchResponse(null, false))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadUnitResolved('MLA', 'invalid')).rejects.toThrow(
         'Failed to load unit invalid for faction MLA'
@@ -142,7 +144,7 @@ describe('factionLoader', () => {
     it('should handle network errors', async () => {
       global.fetch = vi.fn(() =>
         Promise.reject(new Error('Network error'))
-      ) as any
+      ) as unknown as MockFetch
 
       await expect(loadUnitResolved('MLA', 'tank')).rejects.toThrow('Network error')
     })
@@ -193,7 +195,7 @@ describe('factionLoader', () => {
           return Promise.resolve(createMockFetchResponse(mockMLAMetadata))
         }
         return Promise.resolve(createMockFetchResponse(null, false))
-      }) as any
+      }) as unknown as MockFetch
 
       const metadataMap = await loadAllFactionMetadata()
       expect(metadataMap.size).toBe(1)

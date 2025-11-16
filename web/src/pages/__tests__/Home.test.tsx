@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { Home } from '../Home'
-import { renderWithProviders, userEvent } from '@/tests/helpers'
+import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
-import { BrowserRouter } from 'react-router-dom'
+
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
 
 describe('Home', () => {
   beforeEach(() => {
@@ -71,8 +72,7 @@ describe('Home', () => {
     expect(legionLink).toHaveAttribute('href', '/faction/Legion')
   })
 
-  it('should navigate to faction detail on click', async () => {
-    const user = userEvent.setup()
+  it('should create links to faction detail pages', async () => {
     renderWithProviders(<Home />)
 
     await waitFor(() => {
@@ -82,12 +82,12 @@ describe('Home', () => {
     const mlaCard = screen.getByText('MLA').closest('a')
     expect(mlaCard).toBeTruthy()
 
-    // Click would navigate, but we just verify the link exists
+    // Verify the link exists and points to the correct faction
     expect(mlaCard?.getAttribute('href')).toBe('/faction/MLA')
   })
 
   it('should handle error state', async () => {
-    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as any
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as unknown as MockFetch
 
     renderWithProviders(<Home />)
 
@@ -99,7 +99,7 @@ describe('Home', () => {
   })
 
   it('should display error message', async () => {
-    global.fetch = vi.fn(() => Promise.reject(new Error('Failed to fetch'))) as any
+    global.fetch = vi.fn(() => Promise.reject(new Error('Failed to fetch'))) as unknown as MockFetch
 
     renderWithProviders(<Home />)
 
@@ -118,7 +118,7 @@ describe('Home', () => {
         status: 404,
         statusText: 'Not Found'
       } as Response)
-    ) as any
+    ) as unknown as MockFetch
 
     renderWithProviders(<Home />)
 

@@ -4,6 +4,9 @@ import { UnitDetail } from '../UnitDetail'
 import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch, mockTankUnit } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import type { Unit } from '@/types/faction'
+
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
 
 function renderUnitDetail(factionId: string, unitId: string) {
   return renderWithProviders(
@@ -185,7 +188,7 @@ describe('UnitDetail', () => {
   it('should show error message for failed load', async () => {
     global.fetch = vi.fn(() =>
       Promise.reject(new Error('Failed to load unit'))
-    ) as any
+    ) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 
@@ -208,7 +211,7 @@ describe('UnitDetail', () => {
 
   it('should not render mobility section for units without mobility', async () => {
     // Create a mock unit without mobility
-    const staticUnit = { ...mockTankUnit, specs: { ...mockTankUnit.specs, mobility: undefined } }
+    const staticUnit: Unit = { ...mockTankUnit, specs: { ...mockTankUnit.specs, mobility: undefined } }
 
     global.fetch = vi.fn((url: string | URL | Request) => {
       const urlString = typeof url === 'string' ? url : url.toString()
@@ -219,7 +222,7 @@ describe('UnitDetail', () => {
         } as Response)
       }
       return Promise.resolve({ ok: false } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 
@@ -232,7 +235,7 @@ describe('UnitDetail', () => {
   })
 
   it('should render production when available', async () => {
-    const producerUnit = {
+    const producerUnit: Unit = {
       ...mockTankUnit,
       specs: {
         ...mockTankUnit.specs,
@@ -252,7 +255,7 @@ describe('UnitDetail', () => {
         } as Response)
       }
       return Promise.resolve({ ok: false } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 
@@ -266,7 +269,7 @@ describe('UnitDetail', () => {
   })
 
   it('should not render build relationships if none exist', async () => {
-    const unitWithoutBuilds = {
+    const unitWithoutBuilds: Unit = {
       ...mockTankUnit,
       buildRelationships: undefined
     }
@@ -280,7 +283,7 @@ describe('UnitDetail', () => {
         } as Response)
       }
       return Promise.resolve({ ok: false } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 
@@ -292,7 +295,7 @@ describe('UnitDetail', () => {
   })
 
   it('should display multiple weapons correctly', async () => {
-    const multiWeaponUnit = {
+    const multiWeaponUnit: Unit = {
       ...mockTankUnit,
       weapons: [
         { identifier: 'weapon1', displayName: 'Cannon', dps: 50, range: 100 },
@@ -309,7 +312,7 @@ describe('UnitDetail', () => {
         } as Response)
       }
       return Promise.resolve({ ok: false } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 
@@ -321,7 +324,7 @@ describe('UnitDetail', () => {
   })
 
   it('should format large numbers with locale separators', async () => {
-    const expensiveUnit = {
+    const expensiveUnit: Unit = {
       ...mockTankUnit,
       specs: {
         ...mockTankUnit.specs,
@@ -342,7 +345,7 @@ describe('UnitDetail', () => {
         } as Response)
       }
       return Promise.resolve({ ok: false } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderUnitDetail('MLA', 'tank')
 

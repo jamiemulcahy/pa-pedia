@@ -7,6 +7,9 @@ import { Home } from '@/pages/Home'
 import { FactionDetail } from '@/pages/FactionDetail'
 import { UnitDetail } from '@/pages/UnitDetail'
 
+type FetchCallArgs = [input: string | URL | Request, init?: RequestInit];
+type MockFetch = jest.Mock<Promise<Response>, FetchCallArgs>;
+
 function renderApp(initialRoute = '/') {
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
@@ -41,8 +44,11 @@ describe('Data Flow Integration Tests', () => {
     expect(screen.getByText('Legion')).toBeInTheDocument()
 
     // Should have fetched metadata for both factions
-    const metadataFetches = (global.fetch as any).mock.calls.filter(
-      (call: any[]) => call[0].includes('metadata.json')
+    const metadataFetches = (global.fetch as MockFetch).mock.calls.filter(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('metadata.json');
+      }
     )
     expect(metadataFetches.length).toBe(2)
   })
@@ -55,7 +61,7 @@ describe('Data Flow Integration Tests', () => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
     }, { timeout: 3000 })
 
-    const metadataOnlyFetches = (global.fetch as any).mock.calls.length
+    const metadataOnlyFetches = (global.fetch as MockFetch).mock.calls.length
 
     // Navigate to faction detail (new render to simulate navigation)
     renderApp('/faction/MLA')
@@ -66,11 +72,14 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Should have made fetch for units.json
-    const totalFetches = (global.fetch as any).mock.calls.length
+    const totalFetches = (global.fetch as MockFetch).mock.calls.length
     expect(totalFetches).toBeGreaterThan(metadataOnlyFetches)
 
-    const unitsFetch = (global.fetch as any).mock.calls.find(
-      (call: any[]) => call[0].includes('units.json')
+    const unitsFetch = (global.fetch as MockFetch).mock.calls.find(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('units.json');
+      }
     )
     expect(unitsFetch).toBeDefined()
   })
@@ -84,7 +93,7 @@ describe('Data Flow Integration Tests', () => {
       expect(tanks.length).toBeGreaterThan(0)
     }, { timeout: 3000 })
 
-    const fetchesBeforeUnit = (global.fetch as any).mock.calls.length
+    const fetchesBeforeUnit = (global.fetch as MockFetch).mock.calls.length
 
     // Navigate to unit detail
     renderApp('/faction/MLA/unit/tank')
@@ -94,11 +103,14 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Should have made fetch for _resolved.json
-    const totalFetches = (global.fetch as any).mock.calls.length
+    const totalFetches = (global.fetch as MockFetch).mock.calls.length
     expect(totalFetches).toBeGreaterThan(fetchesBeforeUnit)
 
-    const resolvedFetch = (global.fetch as any).mock.calls.find(
-      (call: any[]) => call[0].includes('_resolved.json')
+    const resolvedFetch = (global.fetch as MockFetch).mock.calls.find(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('_resolved.json');
+      }
     )
     expect(resolvedFetch).toBeDefined()
   })
@@ -111,8 +123,11 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Verify metadata was fetched for both factions
-    const metadataFetches = (global.fetch as any).mock.calls.filter(
-      (call: any[]) => call[0].includes('metadata.json')
+    const metadataFetches = (global.fetch as MockFetch).mock.calls.filter(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('metadata.json');
+      }
     )
     // Should have fetched MLA and Legion metadata (2 factions)
     expect(metadataFetches.length).toBe(2)
@@ -131,7 +146,7 @@ describe('Data Flow Integration Tests', () => {
       expect(tanks.length).toBeGreaterThan(0)
     }, { timeout: 3000 })
 
-    const firstFetchCount = (global.fetch as any).mock.calls.length
+    const firstFetchCount = (global.fetch as MockFetch).mock.calls.length
 
     // Navigate away and back
     renderApp('/')
@@ -145,14 +160,12 @@ describe('Data Flow Integration Tests', () => {
       expect(tanks.length).toBeGreaterThan(0)
     }, { timeout: 3000 })
 
-    // Should not have made additional units.json fetch
-    const secondFetchCount = (global.fetch as any).mock.calls.length
-    const additionalFetches = secondFetchCount - firstFetchCount
-
     // Might have metadata fetch from home page reload, but not units.json
-    const unitsJsonFetches = (global.fetch as any).mock.calls.filter(
-      (call: any[], index: number) =>
-        index >= firstFetchCount && call[0].includes('units.json')
+    const unitsJsonFetches = (global.fetch as MockFetch).mock.calls.filter(
+      (call: FetchCallArgs, index: number) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
+        return index >= firstFetchCount && url.includes('units.json')
+      }
     )
     expect(unitsJsonFetches.length).toBe(0)
   })
@@ -166,8 +179,11 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Verify unit was fetched
-    const tankResolvedFetches = (global.fetch as any).mock.calls.filter(
-      (call: any[]) => call[0].includes('tank_resolved.json')
+    const tankResolvedFetches = (global.fetch as MockFetch).mock.calls.filter(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
+        return url.includes('tank_resolved.json')
+      }
     )
     expect(tankResolvedFetches.length).toBeGreaterThanOrEqual(1)
 
@@ -192,11 +208,17 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Should have fetched both units
-    const tankFetch = (global.fetch as any).mock.calls.find(
-      (call: any[]) => call[0].includes('tank_resolved.json')
+    const tankFetch = (global.fetch as MockFetch).mock.calls.find(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
+        return url.includes('tank_resolved.json')
+      }
     )
-    const botFetch = (global.fetch as any).mock.calls.find(
-      (call: any[]) => call[0].includes('bot_resolved.json')
+    const botFetch = (global.fetch as MockFetch).mock.calls.find(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
+        return url.includes('bot_resolved.json')
+      }
     )
 
     expect(tankFetch).toBeDefined()
@@ -205,8 +227,8 @@ describe('Data Flow Integration Tests', () => {
 
   it('should handle concurrent unit loads', async () => {
     // Simulate loading multiple units in quick succession
-    const app1 = renderApp('/faction/MLA/unit/tank')
-    const app2 = renderApp('/faction/MLA/unit/bot')
+    renderApp('/faction/MLA/unit/tank')
+    renderApp('/faction/MLA/unit/bot')
 
     // Both should load successfully
     await waitFor(() => {
@@ -232,8 +254,9 @@ describe('Data Flow Integration Tests', () => {
       }
 
       // Return mocked responses
-      return setupMockFetch() || Promise.resolve({ ok: false } as Response)
-    }) as any
+      const mockFn = setupMockFetch()
+      return mockFn ? mockFn(url, {}) : Promise.resolve({ ok: false } as Response)
+    }) as unknown as MockFetch
 
     // Setup mock properly
     setupMockFetch()
@@ -329,7 +352,7 @@ describe('Data Flow Integration Tests', () => {
       }
 
       return Promise.resolve({ ok: false, status: 404 } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderApp('/')
 
@@ -367,12 +390,10 @@ describe('Data Flow Integration Tests', () => {
     }, { timeout: 3000 })
 
     // Verify the necessary fetches were made
-    const allFetches = (global.fetch as any).mock.calls.map((call: any[]) =>
+    const allFetches = (global.fetch as MockFetch).mock.calls.map((call: FetchCallArgs) =>
       typeof call[0] === 'string' ? call[0] : call[0].toString()
     )
 
-    const metadataFetches = allFetches.filter((url: string) => url.includes('metadata.json'))
-    const unitIndexFetches = allFetches.filter((url: string) => url.includes('units.json'))
     const unitResolvedFetches = allFetches.filter((url: string) => url.includes('_resolved.json'))
 
     // With mock setup, these should all have been fetched

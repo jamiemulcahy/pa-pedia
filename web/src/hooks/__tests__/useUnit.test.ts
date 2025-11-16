@@ -4,6 +4,8 @@ import { useUnit } from '../useUnit'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { mockTankUnit, mockBotUnit, setupMockFetch } from '@/tests/mocks/factionData'
 
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+
 describe('useUnit', () => {
   beforeEach(() => {
     setupMockFetch()
@@ -70,7 +72,7 @@ describe('useUnit', () => {
       expect(result.current.unit).toBeDefined()
     })
 
-    const firstFetchCount = (global.fetch as any).mock.calls.length
+    const firstFetchCount = (global.fetch as MockFetch).mock.calls.length
 
     // Force a re-render by temporarily changing to a different unit
     rerender({ factionId: 'MLA', unitId: 'bot' })
@@ -86,7 +88,7 @@ describe('useUnit', () => {
       expect(result.current.unit?.identifier).toBe('tank')
     })
 
-    const secondFetchCount = (global.fetch as any).mock.calls.length
+    const secondFetchCount = (global.fetch as MockFetch).mock.calls.length
 
     // Should have fetched bot (1 additional) but not tank again
     // Initial: 2 metadata + 1 tank = 3

@@ -4,6 +4,8 @@ import { useFaction } from '../useFaction'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { mockMLAMetadata, mockMLAIndex, setupMockFetch } from '@/tests/mocks/factionData'
 
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+
 describe('useFaction', () => {
   beforeEach(() => {
     setupMockFetch()
@@ -120,7 +122,7 @@ describe('useFaction', () => {
         ok: true,
         json: async () => mockMLAMetadata
       } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     // Trigger re-render by changing faction
     const { result: result2 } = renderHook(() => useFaction('Legion'), {

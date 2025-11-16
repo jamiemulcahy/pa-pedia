@@ -371,5 +371,5 @@ export function setupMockFetch() {
 
     // Default 404
     return Promise.resolve(createMockFetchResponse(null, false))
-  }) as any
+  }) as unknown as typeof fetch
 }

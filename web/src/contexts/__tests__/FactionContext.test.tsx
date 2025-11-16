@@ -10,6 +10,8 @@ import {
   setupMockFetch
 } from '@/tests/mocks/factionData'
 
+type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+
 describe('FactionContext', () => {
   beforeEach(() => {
     setupMockFetch()
@@ -70,7 +72,7 @@ describe('FactionContext', () => {
     })
 
     it('should set error state on failure', async () => {
-      global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as any
+      global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as unknown as MockFetch
 
       const { result } = renderHook(() => useFactionContext(), {
         wrapper: FactionProvider
@@ -134,11 +136,11 @@ describe('FactionContext', () => {
         expect(result.current.factionIndexes.has('MLA')).toBe(true)
       })
 
-      const firstCallCount = (global.fetch as any).mock.calls.length
+      const firstCallCount = (global.fetch as MockFetch).mock.calls.length
 
       // Load again
       await result.current.loadFaction('MLA')
-      const secondCallCount = (global.fetch as any).mock.calls.length
+      const secondCallCount = (global.fetch as MockFetch).mock.calls.length
 
       // Should not have made additional fetch calls
       expect(secondCallCount).toBe(firstCallCount)
@@ -194,11 +196,11 @@ describe('FactionContext', () => {
         expect(result.current.unitsCache.has('MLA:tank')).toBe(true)
       })
 
-      const firstCallCount = (global.fetch as any).mock.calls.length
+      const firstCallCount = (global.fetch as MockFetch).mock.calls.length
 
       // Second load (should use cache)
       const unit2 = await result.current.loadUnit('MLA', 'tank')
-      const secondCallCount = (global.fetch as any).mock.calls.length
+      const secondCallCount = (global.fetch as MockFetch).mock.calls.length
 
       expect(unit1).toEqual(unit2)
       expect(secondCallCount).toBe(firstCallCount) // No additional fetch
