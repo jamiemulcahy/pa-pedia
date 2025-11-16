@@ -199,11 +199,11 @@ func TestGetString(t *testing.T) {
 
 func TestGetFloat(t *testing.T) {
 	data := map[string]interface{}{
-		"float":       123.45,
-		"int":         42.0,
-		"zero":        0.0,
-		"string":      "not a number",
-		"bool":        false,
+		"float":  123.45,
+		"int":    42.0,
+		"zero":   0.0,
+		"string": "not a number",
+		"bool":   false,
 	}
 
 	tests := []struct {

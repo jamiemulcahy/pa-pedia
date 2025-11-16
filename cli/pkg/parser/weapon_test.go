@@ -44,15 +44,15 @@ func TestCalculateDPS(t *testing.T) {
 			rateOfFire:         2.0,
 			damage:             20.0,
 			projectilesPerFire: 1,
-			count:              2, // 2 identical weapons
+			count:              2,    // 2 identical weapons
 			expectedDPS:        80.0, // 2 * 20 * 1 * 2 = 80
 		},
 		{
 			name:               "Complex: dual shotguns with high ROF",
-			rateOfFire:         5.0,  // 5 shots per second
+			rateOfFire:         5.0,   // 5 shots per second
 			damage:             8.0,   // 8 damage per pellet
-			projectilesPerFire: 3,    // 3 pellets per shot
-			count:              2,    // 2 weapons
+			projectilesPerFire: 3,     // 3 pellets per shot
+			count:              2,     // 2 weapons
 			expectedDPS:        240.0, // 5 * 8 * 3 * 2 = 240
 		},
 		{
@@ -157,24 +157,24 @@ func TestAmmoSystemCalculations(t *testing.T) {
 			ammoCapacity:     100.0,
 			ammoPerShot:      10.0,
 			rateOfFire:       1.0,
-			expectedShots:    10,     // 100 / 10 = 10 shots
-			expectedDrainSec: 10.0,   // 10 shots / 1 shot/sec = 10 sec
+			expectedShots:    10,   // 100 / 10 = 10 shots
+			expectedDrainSec: 10.0, // 10 shots / 1 shot/sec = 10 sec
 		},
 		{
 			name:             "Energy weapon: 1000 energy, 50 per shot, 2 shots/sec",
 			ammoCapacity:     1000.0,
 			ammoPerShot:      50.0,
 			rateOfFire:       2.0,
-			expectedShots:    20,    // 1000 / 50 = 20 shots
-			expectedDrainSec: 10.0,  // 20 shots / 2 shots/sec = 10 sec
+			expectedShots:    20,   // 1000 / 50 = 20 shots
+			expectedDrainSec: 10.0, // 20 shots / 2 shots/sec = 10 sec
 		},
 		{
 			name:             "Rapid fire: 500 ammo, 5 per shot, 10 shots/sec",
 			ammoCapacity:     500.0,
 			ammoPerShot:      5.0,
 			rateOfFire:       10.0,
-			expectedShots:    100,   // 500 / 5 = 100 shots
-			expectedDrainSec: 10.0,  // 100 shots / 10 shots/sec = 10 sec
+			expectedShots:    100,  // 500 / 5 = 100 shots
+			expectedDrainSec: 10.0, // 100 shots / 10 shots/sec = 10 sec
 		},
 	}
 

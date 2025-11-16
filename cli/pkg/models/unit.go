@@ -9,17 +9,17 @@ type Resources struct {
 // Unit represents a complete game unit with all specifications
 type Unit struct {
 	// Core Identification
-	ID           string   `json:"id" jsonschema:"required,description=Short identifier derived from resource name (e.g. 'tank')"`
-	ResourceName string   `json:"resourceName" jsonschema:"required,description=Full PA resource path (e.g. '/pa/units/land/tank/tank.json')"`
-	DisplayName  string   `json:"displayName" jsonschema:"required,description=Human-readable unit name (e.g. 'Ant')"`
-	Description  string   `json:"description,omitempty" jsonschema:"description=Brief unit description or role"`
-	Image        string   `json:"image,omitempty" jsonschema:"description=Relative path to unit icon (e.g. './assets/tank.png')"`
+	ID           string `json:"id" jsonschema:"required,description=Short identifier derived from resource name (e.g. 'tank')"`
+	ResourceName string `json:"resourceName" jsonschema:"required,description=Full PA resource path (e.g. '/pa/units/land/tank/tank.json')"`
+	DisplayName  string `json:"displayName" jsonschema:"required,description=Human-readable unit name (e.g. 'Ant')"`
+	Description  string `json:"description,omitempty" jsonschema:"description=Brief unit description or role"`
+	Image        string `json:"image,omitempty" jsonschema:"description=Relative path to unit icon (e.g. './assets/tank.png')"`
 
 	// Classification
-	Tier            int      `json:"tier" jsonschema:"required,minimum=1,maximum=3,description=Unit tier (1=Basic 2=Advanced 3=Titan)"`
-	UnitTypes       []string `json:"unitTypes,omitempty" jsonschema:"description=Unit type tags (e.g. ['Mobile' 'Tank' 'Land' 'Basic'])"`
-	Accessible      bool     `json:"accessible" jsonschema:"required,description=Whether unit is buildable from commander (excludes test/tutorial units)"`
-	BaseTemplate    bool     `json:"baseTemplate,omitempty" jsonschema:"description=Whether this is a base template file (not a real unit)"`
+	Tier         int      `json:"tier" jsonschema:"required,minimum=1,maximum=3,description=Unit tier (1=Basic 2=Advanced 3=Titan)"`
+	UnitTypes    []string `json:"unitTypes,omitempty" jsonschema:"description=Unit type tags (e.g. ['Mobile' 'Tank' 'Land' 'Basic'])"`
+	Accessible   bool     `json:"accessible" jsonschema:"required,description=Whether unit is buildable from commander (excludes test/tutorial units)"`
+	BaseTemplate bool     `json:"baseTemplate,omitempty" jsonschema:"description=Whether this is a base template file (not a real unit)"`
 
 	// Specifications (organized into logical groups)
 	Specs UnitSpecs `json:"specs" jsonschema:"required,description=Detailed unit specifications organized by category"`
@@ -52,18 +52,18 @@ type CombatSpecs struct {
 
 // EconomySpecs contains economic specifications
 type EconomySpecs struct {
-	BuildCost         float64   `json:"buildCost" jsonschema:"required,description=Total metal cost to build unit"`
-	Production        Resources `json:"production,omitempty" jsonschema:"description=Resources produced per second"`
-	Consumption       Resources `json:"consumption,omitempty" jsonschema:"description=Base resource consumption per second"`
-	Storage           Resources `json:"storage,omitempty" jsonschema:"description=Resource storage capacity"`
-	ToolConsumption   Resources `json:"toolConsumption,omitempty" jsonschema:"description=Resource consumption from build arms"`
-	WeaponConsumption Resources `json:"weaponConsumption,omitempty" jsonschema:"description=Resource consumption from weapons"`
-	BuildRate         float64   `json:"buildRate,omitempty" jsonschema:"description=Construction speed multiplier"`
-	BuildInefficiency float64   `json:"buildInefficiency,omitempty" jsonschema:"description=Resource efficiency penalty when building"`
-	MetalRate         float64   `json:"metalRate,omitempty" jsonschema:"description=Net metal production/consumption per second"`
-	EnergyRate        float64   `json:"energyRate,omitempty" jsonschema:"description=Net energy production/consumption per second"`
+	BuildCost         float64    `json:"buildCost" jsonschema:"required,description=Total metal cost to build unit"`
+	Production        Resources  `json:"production,omitempty" jsonschema:"description=Resources produced per second"`
+	Consumption       Resources  `json:"consumption,omitempty" jsonschema:"description=Base resource consumption per second"`
+	Storage           Resources  `json:"storage,omitempty" jsonschema:"description=Resource storage capacity"`
+	ToolConsumption   Resources  `json:"toolConsumption,omitempty" jsonschema:"description=Resource consumption from build arms"`
+	WeaponConsumption Resources  `json:"weaponConsumption,omitempty" jsonschema:"description=Resource consumption from weapons"`
+	BuildRate         float64    `json:"buildRate,omitempty" jsonschema:"description=Construction speed multiplier"`
+	BuildInefficiency float64    `json:"buildInefficiency,omitempty" jsonschema:"description=Resource efficiency penalty when building"`
+	MetalRate         float64    `json:"metalRate,omitempty" jsonschema:"description=Net metal production/consumption per second"`
+	EnergyRate        float64    `json:"energyRate,omitempty" jsonschema:"description=Net energy production/consumption per second"`
 	BuildArms         []BuildArm `json:"buildArms,omitempty" jsonschema:"description=Construction tools"`
-	BuildRange        float64   `json:"buildRange,omitempty" jsonschema:"description=Maximum construction range"`
+	BuildRange        float64    `json:"buildRange,omitempty" jsonschema:"description=Maximum construction range"`
 }
 
 // MobilitySpecs contains movement specifications

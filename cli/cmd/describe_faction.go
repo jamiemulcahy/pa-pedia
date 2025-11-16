@@ -20,13 +20,13 @@ const (
 )
 
 var (
-	factionNameFlag    string
+	factionNameFlag     string
 	factionUnitTypeFlag string
-	modIDs             []string
-	paRoot             string
-	paDataRoot         string
-	outputDir          string
-	allowEmpty         bool
+	modIDs              []string
+	paRoot              string
+	paDataRoot          string
+	outputDir           string
+	allowEmpty          bool
 )
 
 // describeFactionCmd represents the describe-faction command

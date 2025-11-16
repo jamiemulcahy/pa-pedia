@@ -60,7 +60,7 @@ func generateSchema(outputDir, name string, typ interface{}, verbose bool) error
 	// Create reflector with configuration
 	reflector := &jsonschema.Reflector{
 		AllowAdditionalProperties: false,
-		DoNotReference:           false,
+		DoNotReference:            false,
 	}
 
 	// Generate schema

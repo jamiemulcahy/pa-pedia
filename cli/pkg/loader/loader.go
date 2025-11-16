@@ -13,12 +13,12 @@ import (
 
 // Source represents a data source (directory or zip file)
 type Source struct {
-	Type       ModSourceType         // Type of source (pa, pa_ex1, server_mods, etc.)
-	Path       string                // Directory path or zip file path
-	IsZip      bool                  // Whether this is a zip file
-	ZipReader  *zip.ReadCloser       // Zip reader if IsZip is true
-	Identifier string                // Source identifier (pa, pa_ex1, or mod identifier)
-	zipIndex   map[string]*zip.File  // Index of zip files by normalized path (populated once on open)
+	Type       ModSourceType        // Type of source (pa, pa_ex1, server_mods, etc.)
+	Path       string               // Directory path or zip file path
+	IsZip      bool                 // Whether this is a zip file
+	ZipReader  *zip.ReadCloser      // Zip reader if IsZip is true
+	Identifier string               // Source identifier (pa, pa_ex1, or mod identifier)
+	zipIndex   map[string]*zip.File // Index of zip files by normalized path (populated once on open)
 }
 
 // ZipIndex returns the zip file index for this source (O(1) file lookups)
@@ -29,11 +29,11 @@ func (s *Source) ZipIndex() map[string]*zip.File {
 
 // Loader handles loading and caching JSON files from PA installation and mods
 type Loader struct {
-	sources   []Source                        // Priority-ordered sources to search
+	sources   []Source                          // Priority-ordered sources to search
 	jsonCache map[string]map[string]interface{} // Cached JSON data
-	safeNames map[string]string               // resource path -> safe name
-	fullNames map[string]string               // safe name -> resource path
-	expansion string                          // Expansion directory (e.g., "pa_ex1")
+	safeNames map[string]string                 // resource path -> safe name
+	fullNames map[string]string                 // safe name -> resource path
+	expansion string                            // Expansion directory (e.g., "pa_ex1")
 }
 
 // NewMultiSourceLoader creates a loader from ModInfo array
@@ -536,9 +536,9 @@ func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[s
 	iconName := unitID + "_icon_buildbar.png"
 	if _, exists := files[iconName]; !exists {
 		iconPaths := []string{
-			filepath.Join(trimmedUnitDir, iconName),                                    // Same directory as unit
-			filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),       // icon_atlas subdirectory
-			filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName),      // UI mods directory
+			filepath.Join(trimmedUnitDir, iconName),                              // Same directory as unit
+			filepath.Join(filepath.Dir(trimmedUnitDir), "icon_atlas", iconName),  // icon_atlas subdirectory
+			filepath.Join("ui", "mods", filepath.Base(trimmedUnitDir), iconName), // UI mods directory
 		}
 
 		for _, iconPath := range iconPaths {
