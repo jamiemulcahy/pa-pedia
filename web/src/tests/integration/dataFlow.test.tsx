@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { screen, waitFor, render } from '@testing-library/react'
 import { setupMockFetch } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -8,7 +9,7 @@ import { FactionDetail } from '@/pages/FactionDetail'
 import { UnitDetail } from '@/pages/UnitDetail'
 
 type FetchCallArgs = [input: string | URL | Request, init?: RequestInit];
-type MockFetch = jest.Mock<Promise<Response>, FetchCallArgs>;
+type MockFetch = Mock<FetchCallArgs, Promise<Response>>;
 
 function renderApp(initialRoute = '/') {
   return render(

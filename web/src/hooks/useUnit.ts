@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useRef } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
 import type { Unit } from '@/types/faction'
 
@@ -52,25 +52,36 @@ export function useUnit(factionId: string, unitId: string) {
     error: null
   })
 
+  // Track loading state with a ref to prevent race condition:
+  // Without this, if the component re-renders during an async load (before the promise resolves),
+  // the effect could trigger multiple fetches since `unit` is still undefined
+  const loadingRef = useRef(false)
+
   const cacheKey = `${factionId}:${unitId}`
   const unit: Unit | undefined = getUnit(cacheKey)
 
   useEffect(() => {
-    // Only load if we don't have the unit yet
-    if (!unit && factionId && unitId) {
+    // Only load if we don't have the unit yet and we're not already loading
+    if (!unit && factionId && unitId && !loadingRef.current) {
+      // Mark as loading to prevent duplicate fetches
+      loadingRef.current = true
+
       // Dispatch action to initiate loading - this is safe in useEffect
       // because dispatch is stable and doesn't cause re-renders itself
       dispatch({ type: 'LOAD_START' })
 
       loadUnit(factionId, unitId)
         .then(() => {
+          loadingRef.current = false
           dispatch({ type: 'LOAD_SUCCESS' })
         })
         .catch((err) => {
+          loadingRef.current = false
           dispatch({ type: 'LOAD_ERROR', error: err })
         })
     } else if (unit) {
       // Reset state if unit is already available (e.g., from cache)
+      loadingRef.current = false
       dispatch({ type: 'RESET' })
     }
   }, [factionId, unitId, unit, loadUnit])

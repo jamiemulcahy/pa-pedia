@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
@@ -293,7 +294,7 @@ describe('FactionDetail', () => {
   })
 
   it('should handle error when loading units', async () => {
-    type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+    type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
     global.fetch = vi.fn((url: string | URL | Request) => {
       const urlString = typeof url === 'string' ? url : url.toString()

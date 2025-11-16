@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useFaction } from '../useFaction'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { mockMLAMetadata, mockMLAIndex, setupMockFetch } from '@/tests/mocks/factionData'
 
-type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('useFaction', () => {
   beforeEach(() => {

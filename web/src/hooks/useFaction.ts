@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useRef } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
 
@@ -52,25 +52,36 @@ export function useFaction(factionId: string) {
     error: null
   })
 
+  // Track loading state with a ref to prevent race condition:
+  // Without this, if the component re-renders during an async load (before the promise resolves),
+  // the effect could trigger multiple fetches since `index` is still undefined
+  const loadingRef = useRef(false)
+
   const metadata: FactionMetadata | undefined = getFaction(factionId)
   const index: FactionIndex | undefined = getFactionIndex(factionId)
 
   useEffect(() => {
-    // Only load if we don't have the index yet
-    if (!index && metadata) {
+    // Only load if we don't have the index yet and we're not already loading
+    if (!index && metadata && !loadingRef.current) {
+      // Mark as loading to prevent duplicate fetches
+      loadingRef.current = true
+
       // Dispatch action to initiate loading - this is safe in useEffect
       // because dispatch is stable and doesn't cause re-renders itself
       dispatch({ type: 'LOAD_START' })
 
       loadFaction(factionId)
         .then(() => {
+          loadingRef.current = false
           dispatch({ type: 'LOAD_SUCCESS' })
         })
         .catch((err) => {
+          loadingRef.current = false
           dispatch({ type: 'LOAD_ERROR', error: err })
         })
     } else if (index) {
       // Reset state if index is already available (e.g., from cache)
+      loadingRef.current = false
       dispatch({ type: 'RESET' })
     }
   }, [factionId, index, metadata, loadFaction])

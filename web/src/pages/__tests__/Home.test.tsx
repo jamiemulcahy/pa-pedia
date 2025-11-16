@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { Home } from '../Home'
 import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
 
-type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('Home', () => {
   beforeEach(() => {

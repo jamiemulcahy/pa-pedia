@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { UnitDetail } from '../UnitDetail'
 import { renderWithProviders } from '@/tests/helpers'
@@ -6,7 +7,7 @@ import { setupMockFetch, mockTankUnit } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import type { Unit } from '@/types/faction'
 
-type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 function renderUnitDetail(factionId: string, unitId: string) {
   return renderWithProviders(

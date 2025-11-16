@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import {
   discoverFactions,
   loadFactionMetadata,
@@ -16,7 +17,7 @@ import {
   setupMockFetch
 } from '@/tests/mocks/factionData'
 
-type MockFetch = jest.Mock<Promise<Response>, [input: string | URL | Request, init?: RequestInit]>
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('factionLoader', () => {
   beforeEach(() => {
