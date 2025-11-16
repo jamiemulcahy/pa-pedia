@@ -8,8 +8,8 @@ AI assistant context for the PA-Pedia project.
 ## Quick Context
 
 PA-Pedia extracts Planetary Annihilation faction data (base game + mods) into portable faction folders. Two-component architecture:
-1. **CLI (Go)**: Data extraction tool (Phase 1 & 1.5 - Complete)
-2. **Web (React)**: Browsing interface (Phase 2 - Complete)
+1. **CLI (Go)**: Data extraction tool (Phase 1 & 1.5 - Complete) - See [cli/CLAUDE.md](cli/CLAUDE.md)
+2. **Web (React)**: Browsing interface (Phase 2 - Complete) - See Web App Development section
 
 **Current Phase**: 3 - Advanced Features (Planned)
 
@@ -45,28 +45,14 @@ See `cli/pkg/models/` for Go structs and `schema/` for JSON schemas.
 
 ## Critical Patterns
 
-### 1. Mod Overlay System (Phase 1.5)
-A faction may span multiple sources (base game + multiple mods).
+### 1. Mod Overlay System
+A faction may span multiple sources (base game + multiple mods). The CLI uses a **first-wins** priority system where earlier sources override later ones.
 
-**Mod Discovery Locations** (searched in PA data directory):
-The CLI auto-detects the PA data directory (or use `--data-root` flag to override):
-- Windows: `%LOCALAPPDATA%\Uber Entertainment\Planetary Annihilation`
-- macOS: `~/Library/Application Support/Uber Entertainment/Planetary Annihilation`
-- Linux: `~/.local/Uber Entertainment/Planetary Annihilation`
+**File Priority**: User mods → Expansion (`pa_ex1/`) → Base game (`pa/`)
 
-Within this directory, mods are discovered in priority order:
-1. `server_mods/{mod-id}/` - User-installed server mods (highest priority)
-2. `client_mods/{mod-id}/` - User-installed client mods (medium priority)
-3. `download/{mod-id}.zip` - PA-managed zip files (lowest priority)
+**Important**: First wins, not last! CLI tracks ALL discovered files with provenance.
 
-**File Priority** (first-wins when same file in multiple sources):
-1. First `--mod` specified
-2. Second `--mod` specified
-3. ...additional mods...
-4. `/pa_ex1/` (Titans expansion)
-5. `/pa/` (base game)
-
-**Important**: First wins, not last! Track ALL discovered files with provenance.
+For detailed mod discovery locations and CLI-specific implementation, see [cli/CLAUDE.md](cli/CLAUDE.md).
 
 ### 2. Unit Identifiers
 - Derived from filename: `/pa/units/land/tank/tank.json` → `"tank"`
@@ -90,8 +76,9 @@ Within this directory, mods are discovered in priority order:
 - Web app should use resolved files, not raw PA JSON
 
 ### 5. Base Spec Inheritance
-Units can inherit: `"base_spec": "/pa/units/land/base_vehicle/base_vehicle.json"`
-Recursively load base, copy fields, overlay current fields.
+Units can inherit from templates: `"base_spec": "/pa/units/land/base_vehicle/base_vehicle.json"`
+
+The CLI recursively loads and merges base specs. Web app uses pre-resolved files.
 
 ### 6. Build Restrictions Grammar
 - `&` (AND), `|` (OR), `-` (MINUS), `()` (grouping)
@@ -106,33 +93,22 @@ PA uses prefixed types; we strip `UNITTYPE_`:
 - Role: `Tank`, `Factory`, `Commander`, etc.
 
 ### 8. Hardcoded Corrections
-PA data has inconsistencies requiring manual fixes:
-- `tutorial_titan_commander` - Mark inaccessible
-- `sea_mine`, `land_mine` - Mark inaccessible
-- `titan_structure` - Fix tier=3, add Titan type
-- `teleporter` - Fix tier=1
-- `mining_platform` - Fix tier=2
+PA data has inconsistencies (wrong tiers, missing types, inaccessible units) that require manual fixes in the CLI.
 
-Document reasoning for each correction in code.
+See `cli/pkg/parser/database.go:applyCorrections()` for the complete list with reasoning.
 
 ## Schema Synchronization
 
 **Process**: Go Structs → JSON Schema → TypeScript Types
 
-### Generate Schemas
-```bash
-cd cli/tools/generate-schema
-./build-and-run.bat  # Windows
-./build-and-run.sh   # Unix/Mac
-```
+**Workflow**:
+1. Modify Go structs in `cli/pkg/models/`
+2. Generate schemas: `cd cli/tools/generate-schema && ./build-and-run.bat`
+3. Generate TypeScript types: `cd web && npm run generate-types`
 
-### Generate TypeScript Types (Web, Phase 2)
-```bash
-cd web
-npm run generate-types
-```
+**Important**: Never edit schemas in `schema/` directory directly - they are generated from Go structs.
 
-**Schemas**: See `schema/` directory (5 files currently)
+For detailed CLI schema generation process, see [cli/CLAUDE.md](cli/CLAUDE.md).
 
 ## Web App Development
 
@@ -232,26 +208,10 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 ### Add New Unit Field
 1. Update Go struct in `cli/pkg/models/` with JSON tags
 2. Update parser in `cli/pkg/parser/unit.go`
-3. Regenerate schema (run generate-schema tool)
+3. Regenerate schema: `cd cli/tools/generate-schema && ./build-and-run.bat`
 4. Update TypeScript types in `web/src/types/faction.ts` manually
 
-### Debug Parsing Issues
-```go
-// Enable verbose logging
-fmt.Printf("DEBUG: Parsing %s\n", unitPath)
-fmt.Printf("DEBUG: Data = %+v\n", data)
-
-// Target specific unit
-if strings.Contains(unitPath, "problematic_unit") {
-    log.Printf("Full JSON: %s", string(jsonBytes))
-}
-```
-
-**Common issues**:
-- Missing fields → use `omitempty` tag and zero defaults
-- Type mismatches → PA uses float64, cast as needed
-- Nested inheritance → check base_spec recursion depth
-- Tool detection → check both name patterns AND `tool_type` field
+For CLI-specific development tasks (debugging parsing, build issues, gotchas), see [cli/CLAUDE.md](cli/CLAUDE.md).
 
 ### Debug Web App Issues
 
@@ -276,34 +236,16 @@ npm run build
 npm run lint
 ```
 
-## Migration from Old Codebase
-
-**Location**: `C:\Users\jamie\Dev\PA\planetary-annihilation-db\cli\`
-
-**Reusing**:
-- ✅ Core parsing logic (unit, tools, restrictions, build tree)
-- ✅ Loader system (enhanced for Phase 1.5)
-- ✅ Data models (adapted with JSON Schema tags)
-- ✅ Hardcoded corrections
-
-**NOT Migrating**:
-- ❌ Config file system (use CLI flags)
-- ❌ Single JSON export (now faction folders)
-- ❌ Titans toggle (Titans-only now)
-- ❌ Old command structure (now `describe-faction`)
-
 ## File Paths (Windows)
 
 **PA Installation**:
 - Media: `C:\Program Files (x86)\Steam\steamapps\common\Planetary Annihilation Titans\media`
 - Data Root: `%LOCALAPPDATA%\Uber Entertainment\Planetary Annihilation`
-- Server Mods: `{Data Root}\server_mods\{mod-id}\`
-- Client Mods: `{Data Root}\client_mods\{mod-id}\`
-- Downloads: `{Data Root}\download\{mod-id}.zip`
+
+For detailed mod locations and CLI-specific paths, see [cli/CLAUDE.md](cli/CLAUDE.md).
 
 **Development**:
 - This Project: `C:\Users\jamie\Dev\PA\pa-pedia`
-- Old Project: `C:\Users\jamie\Dev\PA\planetary-annihilation-db`
 
 ## AI Assistant Guidelines
 
@@ -362,7 +304,7 @@ Use agents when their expertise matches the task. For complex Go work, defer to 
 **Internal**:
 - [PROJECT_PLAN.md](PROJECT_PLAN.md) - Architecture and roadmap
 - [README.md](README.md) - User-facing docs
-- Old CLI: `C:\Users\jamie\Dev\PA\planetary-annihilation-db\cli\CLAUDE.md`
+- [cli/CLAUDE.md](cli/CLAUDE.md) - CLI-specific development guide
 
 **External**:
 - JSON Schema: https://json-schema.org/
