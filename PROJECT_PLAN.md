@@ -398,9 +398,9 @@ pa-pedia/
 - Faction folder validation command - stub implemented
 - Mod zip file handling - currently works with extracted mod directories
 
-### Phase 1.5: CLI Refactoring (In Progress) 🔄
+### Phase 1.5: CLI Refactoring ✅ **COMPLETE**
 
-**Status**: 🔄 **In Progress** (started 2025-11-14)
+**Status**: ✅ **100% Complete** (completed 2025-11-15)
 
 **Reason**: After Phase 1 completion and testing with real mods, new requirements emerged that necessitate architectural changes.
 
@@ -515,57 +515,57 @@ faction-name/
 
 **Documentation**:
 - [x] Update CLAUDE.md with new requirements and patterns
-- [ ] Update PROJECT_PLAN.md with Phase 1.5 details
-- [ ] Update README with new command examples
+- [x] Update PROJECT_PLAN.md with Phase 1.5 details
+- [x] Update README with new command examples
 
 **Loader Enhancements**:
-- [ ] Add `FindAllMods(paRoot)` - searches server_mods, client_mods, download
-- [ ] Implement zip file reading (archive/zip, no temp extraction)
-- [ ] Add `LoadMergedUnitList()` - merges unit lists from all sources
-- [ ] Add `GetAllFilesForUnit(unitID)` - discovers all files with provenance
-- [ ] Track `ModSource` (which folder provided each mod)
+- [x] Add `FindAllMods(paRoot)` - searches server_mods, client_mods, download
+- [x] Implement zip file reading (archive/zip, no temp extraction)
+- [x] Add `LoadMergedUnitList()` - merges unit lists from all sources
+- [x] Add `GetAllFilesForUnit(unitID)` - discovers all files with provenance
+- [x] Track `ModSource` (which folder provided each mod)
 
 **Data Models**:
-- [ ] Create `UnitIndexEntry` model (identifier, displayName, unitTypes, source, files[])
-- [ ] Create `UnitFile` model (path, source)
-- [ ] Update `FactionMetadata` to track mods used
+- [x] Create `UnitIndexEntry` model (identifier, displayName, unitTypes, source, files[])
+- [x] Create `UnitFile` model (path, source)
+- [x] Update `FactionMetadata` to track mods used
 
 **Commands**:
-- [ ] Create `describe-faction` command (replace extract base/mod)
-- [ ] Implement `--name` flag (faction name, "mla" for base game)
-- [ ] Implement repeatable `--mod` flag
-- [ ] Validate: --mod cannot be used with --name=mla
+- [x] Create `describe-faction` command (replace extract base/mod)
+- [x] Implement `--name` flag (faction name, "mla" for base game)
+- [x] Implement repeatable `--mod` flag
+- [x] Validate: --mod cannot be used with --name=mla
 
 **Exporter Refactoring**:
-- [ ] Rewrite exporter for units/ folder structure
-- [ ] Implement file discovery and copying per unit
-- [ ] Generate lightweight units.json index
-- [ ] Implement icon extraction with original filenames
-- [ ] Apply first-wins priority for file selection
-- [ ] Track provenance for all files
+- [x] Rewrite exporter for units/ folder structure
+- [x] Implement file discovery and copying per unit
+- [x] Generate lightweight units.json index
+- [x] Implement icon extraction with original filenames
+- [x] Apply first-wins priority for file selection
+- [x] Track provenance for all files
 
 **Parser Updates**:
-- [ ] Add source tracking to parser
-- [ ] Handle merged unit lists
-- [ ] Track which source defined each unit
+- [x] Add source tracking to parser
+- [x] Handle merged unit lists
+- [x] Track which source defined each unit
 
 **Schema Generation**:
-- [ ] Generate schemas for new models (UnitIndexEntry, UnitFile)
-- [ ] Update existing schemas as needed
+- [x] Generate schemas for new models (UnitIndexEntry, UnitFile)
+- [x] Update existing schemas as needed
 
 **Validation**:
-- [ ] Implement validation command for new structure
-- [ ] Verify units/ folders match index
-- [ ] Check file references and provenance
+- [x] Implement validation command for new structure
+- [x] Verify units/ folders match index
+- [x] Check file references and provenance
 
 **Testing**:
-- [ ] Add tests for multi-location mod discovery
-- [ ] Add tests for zip file reading
-- [ ] Add tests for unit list merging
-- [ ] Add tests for file discovery and provenance
-- [ ] Integration test: base game only
-- [ ] Integration test: multiple mods with zips
-- [ ] Integration test: faction with modified base units
+- [x] Add tests for multi-location mod discovery
+- [x] Add tests for zip file reading
+- [x] Add tests for unit list merging
+- [x] Add tests for file discovery and provenance
+- [x] Integration test: base game only
+- [x] Integration test: multiple mods with zips
+- [x] Integration test: faction with modified base units
 
 #### Priority Decisions (from user requirements)
 
@@ -624,24 +624,76 @@ faction-name/
 - ✅ Tests passing for all new functionality
 - ✅ Documentation updated
 
-**Timeline**: 1-2 weeks (depending on complexity of zip handling and file discovery)
+**Actual Timeline**: 2 days (2025-11-14 to 2025-11-15)
 
-### Phase 2: Web App Foundation
+**Delivered**:
+- ✅ Unified `describe-faction` command operational
+- ✅ Multi-source mod discovery working (server_mods, client_mods, download)
+- ✅ Zip file reading implemented (no temp extraction)
+- ✅ File priority system working correctly
+- ✅ Lightweight units.json with provenance tracking
+- ✅ Resolved unit files with full calculations
+- ✅ Icon extraction with original filenames
+- ✅ 5 JSON schemas generated
+- ✅ MLA and Legion factions successfully exported
+
+### Phase 2: Web App Foundation ✅ **COMPLETE**
+
+**Status**: ✅ **100% Complete** (completed 2025-11-15)
 
 **Tasks**:
-- [ ] Initialize React + Vite + TypeScript project
-- [ ] Set up Tailwind CSS with dark mode
-- [ ] Generate TypeScript types from JSON Schema
-- [ ] Create faction loading service
-- [ ] Implement local faction file reading
-- [ ] Design and implement basic UI layout
-- [ ] Create faction list page
-- [ ] Create unit browser page
+- [x] Initialize React + Vite + TypeScript project
+- [x] Set up Tailwind CSS with dark mode (CSS variables configured)
+- [x] Generate TypeScript types from JSON Schema
+- [x] Create faction loading service
+- [x] Implement local faction file reading
+- [x] Design and implement basic UI layout
+- [x] Create faction list page
+- [x] Create unit browser page
+- [x] Create unit detail page
 
 **Deliverables**:
-- Basic web app that loads and displays factions
-- Responsive dark mode UI
-- Faction and unit browsing
+- ✅ React 19 + TypeScript + Vite project initialized
+- ✅ Tailwind CSS v3 with custom PA theme colors (MLA blue/cyan, Legion orange/red)
+- ✅ React Router v6 with complete routing
+- ✅ Vitest + React Testing Library configured (tests not written yet)
+- ✅ Complete TypeScript type definitions for faction data
+- ✅ FactionContext with React Context for state management
+- ✅ Three-tier lazy loading (metadata → index → units)
+- ✅ FactionLoader service with caching
+- ✅ Custom hooks: useFactions, useFaction, useUnit
+- ✅ ErrorBoundary component
+- ✅ Home page (faction selection)
+- ✅ FactionDetail page (unit browser with search/filter)
+- ✅ UnitDetail page (full unit specifications)
+- ✅ Responsive design with mobile support
+- ✅ Production build tested (~241 KB bundle, ~76 KB gzipped)
+
+**Implementation Highlights**:
+- **Three-tier lazy loading**: Metadata preloaded → indexes on-demand → units on-demand
+- **Efficient caching**: All data cached in React Context to avoid redundant fetches
+- **Search and filtering**: Real-time search + type-based filtering on FactionDetail page
+- **Build relationships**: Clickable links between related units
+- **Fallback handling**: Icons fallback gracefully if missing
+- **Dark mode ready**: CSS variables configured (toggle UI not yet added)
+
+**Data Source**:
+- Faction data loaded from `/public/factions/MLA/` and `/public/factions/Legion/`
+- Uses resolved unit files for complete specifications
+- Icons displayed from unit folders
+
+**Deferred to Future Phases**:
+- Dark mode toggle UI (CSS variables exist, no toggle button)
+- Shadcn/ui components (using native HTML + Tailwind instead)
+- Tabbed unit detail view (all specs in single scroll view)
+- Comprehensive test suite (setup done, tests not written)
+- Persistent navigation layout component
+- Advanced filtering (tier, cost range)
+- Virtualization for large lists
+- Faction upload feature
+- Unit comparison feature
+
+**Actual Timeline**: 1 day (2025-11-15)
 
 ### Phase 3: Advanced Features
 

@@ -178,6 +178,21 @@ with Bearer token instead of relying on cookies.
 3. Ensure PR title follows conventional commit format
 4. Write clear PR description following the structure above
 
+### Requesting Claude PR Reviews
+
+**IMPORTANT**: Claude PR reviews are **opt-in** to reduce token usage.
+
+After creating a PR, if you want Claude to review it:
+1. Add a comment to the PR containing: `@claude review`
+2. Claude will then perform a comprehensive code review covering:
+   - Code quality and best practices
+   - Potential bugs or issues
+   - Performance considerations
+   - Security concerns
+   - Test coverage
+
+**Do NOT** expect automatic reviews - they only trigger when explicitly requested via the `@claude review` comment.
+
 ## Quality Checks
 
 Before any commit or PR:

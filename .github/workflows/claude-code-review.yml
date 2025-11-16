@@ -1,22 +1,17 @@
 name: Claude Code Review
+# Triggers when someone comments '@claude review' on a PR
+# This prevents automatic reviews on every PR to reduce token usage
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+  issue_comment:
+    types: [created]
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    # Only run on PR comments that contain '@claude review'
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@claude review')
 
     runs-on: ubuntu-latest
     permissions:
@@ -38,7 +33,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR NUMBER: ${{ github.event.issue.number }}
 
             Please review this pull request and provide feedback on:
             - Code quality and best practices

@@ -104,6 +104,99 @@ See `cli/pkg/parser/database.go:applyCorrections()` for the complete list with r
 
 For detailed CLI schema generation process, see [cli/CLAUDE.md](cli/CLAUDE.md).
 
+## Web App Development
+
+### Project Structure
+```
+web/src/
+├── components/       # React components
+│   └── ErrorBoundary.tsx  # Error boundary wrapper
+├── pages/           # Page components
+│   ├── Home.tsx          # Faction selection
+│   ├── FactionDetail.tsx # Unit browser
+│   └── UnitDetail.tsx    # Unit specifications
+├── contexts/        # React Context
+│   └── FactionContext.tsx  # Global state
+├── hooks/           # Custom hooks
+│   ├── useFactions.ts  # All factions
+│   ├── useFaction.ts   # Single faction
+│   └── useUnit.ts      # Single unit
+├── services/        # Data loading
+│   └── factionLoader.ts  # Fetch functions
+└── types/           # TypeScript types
+    └── faction.ts   # Data models
+```
+
+### Data Loading Strategy
+
+**Three-Tier Lazy Loading**:
+1. **App Load** (immediate): All faction metadata from `metadata.json`
+2. **Faction View** (on-demand): Unit index from `units.json` when viewing faction
+3. **Unit View** (on-demand): Full unit data from `{unit}_resolved.json` when viewing unit
+
+All data cached in FactionContext to avoid redundant fetches.
+
+**Key Functions** (`factionLoader.ts`):
+- `discoverFactions()`: Returns list of available faction IDs
+- `loadFactionMetadata(id)`: Loads faction metadata
+- `loadFactionIndex(id)`: Loads unit index
+- `loadUnitResolved(factionId, unitId)`: Loads resolved unit data
+- `getUnitIconPath(factionId, unitId, filename)`: Returns icon URL
+
+### Custom Hooks Usage
+
+```typescript
+// In a component - access all factions
+const { factions, loading, error } = useFactions();
+
+// Access specific faction (auto-loads index)
+const { faction, units, loading, error } = useFaction('MLA');
+
+// Access specific unit (auto-loads resolved data)
+const { unit, loading, error } = useUnit('MLA', 'tank');
+```
+
+### Routing
+
+```
+/ → Home (faction selection)
+/faction/:factionId → FactionDetail (unit browser)
+/faction/:factionId/unit/:unitId → UnitDetail (specifications)
+```
+
+### Styling
+
+Tailwind CSS v3 with custom theme:
+- **MLA colors**: `mla-blue`, `mla-cyan` (blue/cyan palette)
+- **Legion colors**: `legion-orange`, `legion-red` (orange/red palette)
+- **Dark mode**: CSS variables configured (`:root` and `.dark` selectors)
+- **Responsive**: Mobile-first breakpoints (sm, md, lg, xl)
+
+### Type Safety
+
+TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
+- `FactionMetadata`, `FactionIndex`, `UnitIndexEntry`
+- `Unit`, `Weapon`, `BuildArm`, `BuildRelationships`
+- `CombatSpecs`, `EconomySpecs`, `MobilitySpecs`
+
+**Important**: Schemas in `schema/` are the source of truth. When schemas change, update TypeScript types manually (auto-generation not yet implemented).
+
+### Security Considerations
+
+**XSS Prevention (Phase 3 Requirement)**:
+- **Current Risk**: Low - data comes from trusted local files only
+- **Phase 3 Requirement**: If user-uploaded faction data is implemented, ALL faction data MUST be sanitized before rendering
+- **Critical Fields to Sanitize**:
+  - Unit names and descriptions
+  - Faction metadata (name, description, author)
+  - Any user-generated content displayed in UI
+- **Implementation Notes**:
+  - Use DOMPurify or similar library for HTML sanitization
+  - Validate JSON schema compliance before accepting uploads
+  - Implement Content Security Policy (CSP) headers
+  - Never use `dangerouslySetInnerHTML` without sanitization
+- **Location**: Document this requirement in Phase 3 implementation plan
+
 ## Common Development Tasks
 
 ### Add New Unit Field
@@ -206,6 +299,17 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
   - Implement Content Security Policy (CSP) headers
   - Never use `dangerouslySetInnerHTML` without sanitization
 - **Location**: Document this requirement in Phase 3 implementation plan
+
+### Debug Web App Issues
+
+**Check browser console**: Most errors appear in browser dev tools console
+
+**Common issues**:
+- **404 errors**: Faction data not in `public/factions/` → Copy faction folders
+- **Type errors**: TypeScript types out of sync with schemas → Update `types/faction.ts`
+- **Infinite re-renders**: Dependency arrays in hooks → Check useEffect dependencies
+- **Context not updating**: Missing provider → Ensure FactionProvider wraps app
+- **Icons not loading**: Wrong path or missing files → Check console network tab
 
 ### Debug Web App Issues
 

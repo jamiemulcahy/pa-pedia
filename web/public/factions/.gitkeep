@@ -1,0 +1,3 @@
+# This directory holds faction data
+# Actual faction folders are excluded via .gitignore
+# Generate faction data using: cli/pa-pedia describe-faction <faction-name>
