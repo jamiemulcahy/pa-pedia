@@ -7,7 +7,7 @@ const originalError = console.error
 const originalWarn = console.warn
 
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     const message = typeof args[0] === 'string' ? args[0] : ''
 
     // Suppress expected errors
@@ -25,7 +25,7 @@ beforeAll(() => {
     originalError(...args)
   }
 
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     const message = typeof args[0] === 'string' ? args[0] : ''
 
     // Suppress expected warnings

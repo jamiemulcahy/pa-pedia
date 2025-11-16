@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useFaction } from '../useFaction'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { mockMLAMetadata, mockMLAIndex, setupMockFetch } from '@/tests/mocks/factionData'
+
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('useFaction', () => {
   beforeEach(() => {
@@ -120,7 +123,7 @@ describe('useFaction', () => {
         ok: true,
         json: async () => mockMLAMetadata
       } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     // Trigger re-render by changing faction
     const { result: result2 } = renderHook(() => useFaction('Legion'), {
