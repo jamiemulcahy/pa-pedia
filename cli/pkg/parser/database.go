@@ -23,7 +23,14 @@ func NewDatabase(l *loader.Loader) *Database {
 }
 
 // LoadUnits loads all units from the PA installation
-func (db *Database) LoadUnits(verbose bool) error {
+// factionUnitType filters units to only those matching the specified faction unit type (case-insensitive)
+// factionUnitType must be provided - there is no fallback to loading all units
+func (db *Database) LoadUnits(verbose bool, factionUnitType string) error {
+	// Validate that factionUnitType is provided
+	if factionUnitType == "" {
+		return fmt.Errorf("faction unit type is required for filtering units")
+	}
+
 	// Load merged unit list from all sources
 	unitPaths, _, err := db.Loader.LoadMergedUnitList()
 	if err != nil {
@@ -36,6 +43,7 @@ func (db *Database) LoadUnits(verbose bool) error {
 
 	// Parse each unit
 	allUnits := make([]*models.Unit, 0, len(unitPaths))
+	filteredCount := 0
 	for i, unitPath := range unitPaths {
 		if verbose && i%10 == 0 {
 			fmt.Printf("  Parsing unit %d/%d...\r", i+1, len(unitPaths))
@@ -47,11 +55,27 @@ func (db *Database) LoadUnits(verbose bool) error {
 			}
 			continue
 		}
+
+		// Filter by faction unit type (required)
+		if !unitMatchesFactionType(unit, factionUnitType) {
+			filteredCount++
+			continue
+		}
+
 		allUnits = append(allUnits, unit)
 	}
 
 	if verbose {
 		fmt.Printf("\n  Parsed %d units successfully\n", len(allUnits))
+		fmt.Printf("  Filtered out %d units not matching UNITTYPE_%s\n", filteredCount, factionUnitType)
+	}
+
+	// Warn if no units were found matching the faction type
+	if len(allUnits) == 0 {
+		fmt.Printf("\n⚠ WARNING: No units found matching faction unit type 'UNITTYPE_%s'\n", factionUnitType)
+		fmt.Printf("   This means the faction export will contain 0 units.\n")
+		fmt.Printf("   Please verify the --faction-unit-type value is correct.\n")
+		fmt.Printf("   Common values: 'Custom58' (MLA), 'Custom1' (Legion)\n\n")
 	}
 
 	// Build the build tree (establish build relationships)
@@ -63,6 +87,39 @@ func (db *Database) LoadUnits(verbose bool) error {
 	db.applyCorrections()
 
 	return nil
+}
+
+// unitMatchesFactionType checks if a unit's unit_types array contains the factionUnitType
+// Note: Unit.UnitTypes has UNITTYPE_ prefix already stripped during parsing
+// Comparison is case-insensitive
+func unitMatchesFactionType(unit *models.Unit, factionUnitType string) bool {
+	for _, unitType := range unit.UnitTypes {
+		if equalsFold(unitType, factionUnitType) {
+			return true
+		}
+	}
+	return false
+}
+
+// equalsFold performs case-insensitive string comparison
+func equalsFold(a, b string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := 0; i < len(a); i++ {
+		ca := a[i]
+		cb := b[i]
+		if ca >= 'A' && ca <= 'Z' {
+			ca += 'a' - 'A'
+		}
+		if cb >= 'A' && cb <= 'Z' {
+			cb += 'a' - 'A'
+		}
+		if ca != cb {
+			return false
+		}
+	}
+	return true
 }
 
 // buildBuildTree establishes build relationships between units

@@ -20,11 +20,12 @@ const (
 )
 
 var (
-	factionNameFlag string
-	modIDs          []string
-	paRoot          string
-	paDataRoot      string
-	outputDir       string
+	factionNameFlag    string
+	factionUnitTypeFlag string
+	modIDs             []string
+	paRoot             string
+	paDataRoot         string
+	outputDir          string
 )
 
 // describeFactionCmd represents the describe-faction command
@@ -72,6 +73,7 @@ func init() {
 	rootCmd.AddCommand(describeFactionCmd)
 
 	describeFactionCmd.Flags().StringVar(&factionNameFlag, "name", "", "Faction display name (required)")
+	describeFactionCmd.Flags().StringVar(&factionUnitTypeFlag, "faction-unit-type", "", "Faction unit type identifier (e.g., 'Custom1' for Legion, 'Custom58' for MLA). Defaults to 'Custom58' for MLA faction.")
 	describeFactionCmd.Flags().StringVar(&paRoot, "pa-root", "", "Path to PA Titans media directory (required)")
 	describeFactionCmd.Flags().StringVar(&paDataRoot, "data-root", "", "Path to PA data directory (required for modded factions)")
 	describeFactionCmd.Flags().StringVar(&outputDir, "output", "./factions", "Output directory for faction folders")
@@ -109,12 +111,25 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Determine if this is base game or custom faction
-	if isMLA {
-		return describeMLA(factionNameFlag)
+	// Determine faction unit type (default to Custom58 for MLA)
+	factionUnitType := factionUnitTypeFlag
+	if factionUnitType == "" && isMLA {
+		factionUnitType = "Custom58"
 	}
 
-	return describeCustomFaction(factionNameFlag, modIDs, paDataRoot)
+	// Validate: faction-unit-type is required for non-MLA factions
+	if !isMLA && factionUnitType == "" {
+		return fmt.Errorf("--faction-unit-type is required for non-MLA factions (e.g., 'Custom1' for Legion)")
+	}
+
+	logVerbose("Faction Unit Type: %s", factionUnitType)
+
+	// Determine if this is base game or custom faction
+	if isMLA {
+		return describeMLA(factionNameFlag, factionUnitType)
+	}
+
+	return describeCustomFaction(factionNameFlag, modIDs, paDataRoot, factionUnitType)
 }
 
 // validateDataRoot checks if the provided data root looks like a valid PA data directory
@@ -151,8 +166,9 @@ func validateDataRoot(dataRoot string) error {
 }
 
 // describeMLA extracts the base game (MLA) faction
-func describeMLA(name string) error {
+func describeMLA(name string, factionUnitType string) error {
 	fmt.Println("Extracting base game faction (MLA)...")
+	fmt.Printf("Filtering for faction unit type: UNITTYPE_%s\n", factionUnitType)
 	fmt.Println()
 
 	// Create loader for base game only (use MultiSourceLoader for consistency)
@@ -166,13 +182,13 @@ func describeMLA(name string) error {
 	// Create database parser
 	fmt.Println("Loading units...")
 	db := parser.NewDatabase(l)
-	if err := db.LoadUnits(verbose); err != nil {
+	if err := db.LoadUnits(verbose, factionUnitType); err != nil {
 		return fmt.Errorf("failed to load units: %w", err)
 	}
 
 	// Get units array
 	units := db.GetUnitsArray()
-	fmt.Printf("\nLoaded %d units\n", len(units))
+	fmt.Printf("\nLoaded %d units (filtered by UNITTYPE_%s)\n", len(units), factionUnitType)
 
 	// Create metadata
 	metadata := exporter.CreateBaseGameMetadata(name, "PA Titans")
@@ -189,9 +205,10 @@ func describeMLA(name string) error {
 }
 
 // describeCustomFaction extracts a custom faction from multiple mods
-func describeCustomFaction(name string, modIdentifiers []string, dataRoot string) error {
+func describeCustomFaction(name string, modIdentifiers []string, dataRoot string, factionUnitType string) error {
 	fmt.Printf("Describing custom faction: %s\n", name)
 	fmt.Printf("Mods to merge: %v\n", modIdentifiers)
+	fmt.Printf("Filtering for faction unit type: UNITTYPE_%s\n", factionUnitType)
 	fmt.Println()
 
 	// Discover all available mods
@@ -262,13 +279,13 @@ func describeCustomFaction(name string, modIdentifiers []string, dataRoot string
 	// Create database parser
 	fmt.Println("Parsing units...")
 	db := parser.NewDatabase(l)
-	if err := db.LoadUnits(verbose); err != nil {
+	if err := db.LoadUnits(verbose, factionUnitType); err != nil {
 		return fmt.Errorf("failed to load units: %w", err)
 	}
 
 	// Get units array
 	units := db.GetUnitsArray()
-	fmt.Printf("\nParsed %d units\n", len(units))
+	fmt.Printf("\nParsed %d units (filtered by UNITTYPE_%s)\n", len(units), factionUnitType)
 
 	// Create metadata for custom faction
 	modList := make([]string, len(modIdentifiers))
