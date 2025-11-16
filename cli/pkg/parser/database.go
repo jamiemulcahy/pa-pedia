@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
@@ -23,7 +24,10 @@ func NewDatabase(l *loader.Loader) *Database {
 }
 
 // LoadUnits loads all units from the PA installation
-func (db *Database) LoadUnits(verbose bool) error {
+// factionUnitType filters units to only those matching the specified faction unit type (case-insensitive)
+// factionUnitType must be provided by the caller - validation happens at CLI layer
+// allowEmpty controls whether 0 matching units is an error or just a warning
+func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty bool) error {
 	// Load merged unit list from all sources
 	unitPaths, _, err := db.Loader.LoadMergedUnitList()
 	if err != nil {
@@ -36,6 +40,7 @@ func (db *Database) LoadUnits(verbose bool) error {
 
 	// Parse each unit
 	allUnits := make([]*models.Unit, 0, len(unitPaths))
+	filteredCount := 0
 	for i, unitPath := range unitPaths {
 		if verbose && i%10 == 0 {
 			fmt.Printf("  Parsing unit %d/%d...\r", i+1, len(unitPaths))
@@ -47,11 +52,30 @@ func (db *Database) LoadUnits(verbose bool) error {
 			}
 			continue
 		}
+
+		// Filter by faction unit type (required)
+		if !unitMatchesFactionType(unit, factionUnitType) {
+			filteredCount++
+			continue
+		}
+
 		allUnits = append(allUnits, unit)
 	}
 
 	if verbose {
 		fmt.Printf("\n  Parsed %d units successfully\n", len(allUnits))
+		fmt.Printf("  Filtered out %d units not matching UNITTYPE_%s\n", filteredCount, factionUnitType)
+	}
+
+	// Error if no units were found matching the faction type (unless allowed)
+	if len(allUnits) == 0 {
+		if allowEmpty {
+			fmt.Printf("\n⚠ WARNING: No units found matching faction unit type 'UNITTYPE_%s'\n", factionUnitType)
+			fmt.Printf("   The faction export will contain 0 units (--allow-empty is set).\n")
+			fmt.Printf("   Common values: 'Custom58' (MLA), 'Custom1' (Legion)\n\n")
+		} else {
+			return fmt.Errorf("no units found matching faction unit type 'UNITTYPE_%s'\n\nThis means the faction export would contain 0 units.\nPlease verify the --faction-unit-type value is correct.\nCommon values: 'Custom58' (MLA), 'Custom1' (Legion)\n\nTo allow empty exports, use the --allow-empty flag", factionUnitType)
+		}
 	}
 
 	// Build the build tree (establish build relationships)
@@ -63,6 +87,22 @@ func (db *Database) LoadUnits(verbose bool) error {
 	db.applyCorrections()
 
 	return nil
+}
+
+// unitMatchesFactionType checks if a unit's unit_types array contains the factionUnitType
+// Note: Unit.UnitTypes has UNITTYPE_ prefix already stripped during parsing
+// Comparison is case-insensitive
+//
+// Example: For Legion units with UnitTypes=["Custom1", "Land", "Tank"],
+// unitMatchesFactionType(unit, "Custom1") returns true
+// unitMatchesFactionType(unit, "custom1") returns true (case-insensitive)
+func unitMatchesFactionType(unit *models.Unit, factionUnitType string) bool {
+	for _, unitType := range unit.UnitTypes {
+		if strings.EqualFold(unitType, factionUnitType) {
+			return true
+		}
+	}
+	return false
 }
 
 // buildBuildTree establishes build relationships between units
