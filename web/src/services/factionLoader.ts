@@ -18,10 +18,29 @@ export async function loadFactionMetadata(factionId: string): Promise<FactionMet
   try {
     const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
     if (!response.ok) {
+      // 404 means faction doesn't exist
+      if (response.status === 404) {
+        throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
+      }
       throw new Error(`Failed to load faction metadata for ${factionId}: ${response.statusText}`)
     }
+
+    // Check if we got HTML instead of JSON (common when server returns error pages)
+    const contentType = response.headers.get('content-type')
+    if (contentType && !contentType.includes('application/json')) {
+      throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
+    }
+
     return await response.json()
   } catch (error) {
+    // Re-throw our custom errors as-is
+    if (error instanceof Error && error.message.includes('not found')) {
+      throw error
+    }
+    // For JSON parse errors, provide a better message
+    if (error instanceof SyntaxError) {
+      throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
+    }
     console.error(`Error loading faction metadata for ${factionId}:`, error)
     throw error
   }
@@ -87,14 +106,23 @@ export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetad
       // This ensures routes like /faction/MLA match the map key
       metadataMap.set(factionFolderNames[index], result.value)
     } else {
-      console.error(`Failed to load metadata for ${factionFolderNames[index]}:`, result.reason)
+      console.warn(`Skipping faction ${factionFolderNames[index]}: ${result.reason.message}`)
       errors.push(result.reason)
     }
   })
 
-  // If all factions failed to load, throw the first error
+  // If no factions were loaded, that's okay - return empty map
+  // The UI will show a "no factions found" message
+  // Only throw an error if we got unexpected errors (not 404s)
   if (metadataMap.size === 0 && errors.length > 0) {
-    throw errors[0]
+    // Check if all errors are "not found" errors
+    const allNotFound = errors.every(e => e.message.includes('not found'))
+    if (!allNotFound) {
+      // We have some unexpected errors, throw the first one
+      throw errors[0]
+    }
+    // All errors are "not found" - this is expected when no factions exist
+    // Return empty map and let the UI handle it
   }
 
   return metadataMap

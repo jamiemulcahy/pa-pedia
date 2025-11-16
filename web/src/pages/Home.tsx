@@ -29,9 +29,19 @@ export function Home() {
   if (factions.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-3xl font-display font-bold mb-4">PA-PEDIA</div>
-          <div className="text-muted-foreground">No factions found</div>
+        <div className="text-center max-w-2xl px-4">
+          <div className="text-6xl font-display font-bold mb-4 tracking-wider">PA-PEDIA</div>
+          <div className="text-xl text-muted-foreground mb-6">No factions available</div>
+          <div className="text-sm text-muted-foreground font-mono bg-muted/50 p-4 rounded-lg border border-border">
+            <div className="mb-2 font-bold">To generate faction data:</div>
+            <div className="text-left">
+              <div className="mb-1">1. Use the CLI tool to extract faction data:</div>
+              <div className="ml-4 mb-3 text-muted-foreground/80">
+                <code>pa-pedia extract --faction MLA --output ./web/public/factions/MLA</code>
+              </div>
+              <div className="mb-1">2. Refresh this page</div>
+            </div>
+          </div>
         </div>
       </div>
     )
