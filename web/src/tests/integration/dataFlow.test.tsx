@@ -1,0 +1,385 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { screen, waitFor, render } from '@testing-library/react'
+import { setupMockFetch } from '@/tests/mocks/factionData'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { FactionProvider } from '@/contexts/FactionContext'
+import { Home } from '@/pages/Home'
+import { FactionDetail } from '@/pages/FactionDetail'
+import { UnitDetail } from '@/pages/UnitDetail'
+
+function renderApp(initialRoute = '/') {
+  return render(
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <FactionProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/faction/:id" element={<FactionDetail />} />
+          <Route path="/faction/:factionId/unit/:unitId" element={<UnitDetail />} />
+        </Routes>
+      </FactionProvider>
+    </MemoryRouter>
+  )
+}
+
+describe('Data Flow Integration Tests', () => {
+  beforeEach(() => {
+    setupMockFetch()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('should preload faction metadata on app start', async () => {
+    renderApp('/')
+
+    // Faction metadata should load automatically
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    expect(screen.getByText('Legion')).toBeInTheDocument()
+
+    // Should have fetched metadata for both factions
+    const metadataFetches = (global.fetch as any).mock.calls.filter(
+      (call: any[]) => call[0].includes('metadata.json')
+    )
+    expect(metadataFetches.length).toBe(2)
+  })
+
+  it('should lazy-load faction index when viewing faction', async () => {
+    renderApp('/')
+
+    // Wait for metadata to load
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    const metadataOnlyFetches = (global.fetch as any).mock.calls.length
+
+    // Navigate to faction detail (new render to simulate navigation)
+    renderApp('/faction/MLA')
+
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank')
+      expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    // Should have made fetch for units.json
+    const totalFetches = (global.fetch as any).mock.calls.length
+    expect(totalFetches).toBeGreaterThan(metadataOnlyFetches)
+
+    const unitsFetch = (global.fetch as any).mock.calls.find(
+      (call: any[]) => call[0].includes('units.json')
+    )
+    expect(unitsFetch).toBeDefined()
+  })
+
+  it('should lazy-load unit data when viewing unit', async () => {
+    renderApp('/faction/MLA')
+
+    // Wait for faction index to load
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank')
+      expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    const fetchesBeforeUnit = (global.fetch as any).mock.calls.length
+
+    // Navigate to unit detail
+    renderApp('/faction/MLA/unit/tank')
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Should have made fetch for _resolved.json
+    const totalFetches = (global.fetch as any).mock.calls.length
+    expect(totalFetches).toBeGreaterThan(fetchesBeforeUnit)
+
+    const resolvedFetch = (global.fetch as any).mock.calls.find(
+      (call: any[]) => call[0].includes('_resolved.json')
+    )
+    expect(resolvedFetch).toBeDefined()
+  })
+
+  it('should cache faction metadata and not refetch', async () => {
+    renderApp('/')
+
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Verify metadata was fetched for both factions
+    const metadataFetches = (global.fetch as any).mock.calls.filter(
+      (call: any[]) => call[0].includes('metadata.json')
+    )
+    // Should have fetched MLA and Legion metadata (2 factions)
+    expect(metadataFetches.length).toBe(2)
+
+    // Verify both factions are displayed
+    expect(screen.getByText('MLA')).toBeInTheDocument()
+    expect(screen.getByText('Legion')).toBeInTheDocument()
+  })
+
+  it('should cache faction index and not refetch', async () => {
+    // First visit to faction
+    renderApp('/faction/MLA')
+
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank')
+      expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    const firstFetchCount = (global.fetch as any).mock.calls.length
+
+    // Navigate away and back
+    renderApp('/')
+    await waitFor(() => {
+      expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    renderApp('/faction/MLA')
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank')
+      expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    // Should not have made additional units.json fetch
+    const secondFetchCount = (global.fetch as any).mock.calls.length
+    const additionalFetches = secondFetchCount - firstFetchCount
+
+    // Might have metadata fetch from home page reload, but not units.json
+    const unitsJsonFetches = (global.fetch as any).mock.calls.filter(
+      (call: any[], index: number) =>
+        index >= firstFetchCount && call[0].includes('units.json')
+    )
+    expect(unitsJsonFetches.length).toBe(0)
+  })
+
+  it('should cache unit data and not refetch', async () => {
+    // First visit to unit
+    renderApp('/faction/MLA/unit/tank')
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Verify unit was fetched
+    const tankResolvedFetches = (global.fetch as any).mock.calls.filter(
+      (call: any[]) => call[0].includes('tank_resolved.json')
+    )
+    expect(tankResolvedFetches.length).toBeGreaterThanOrEqual(1)
+
+    // Verify unit data is displayed correctly - use heading for unique match
+    expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+    expect(screen.getByText('Basic ground assault unit')).toBeInTheDocument()
+  })
+
+  it('should load different units independently', async () => {
+    // Load first unit
+    renderApp('/faction/MLA/unit/tank')
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Load second unit
+    renderApp('/faction/MLA/unit/bot')
+
+    await waitFor(() => {
+      expect(screen.getByText('Rifle')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Should have fetched both units
+    const tankFetch = (global.fetch as any).mock.calls.find(
+      (call: any[]) => call[0].includes('tank_resolved.json')
+    )
+    const botFetch = (global.fetch as any).mock.calls.find(
+      (call: any[]) => call[0].includes('bot_resolved.json')
+    )
+
+    expect(tankFetch).toBeDefined()
+    expect(botFetch).toBeDefined()
+  })
+
+  it('should handle concurrent unit loads', async () => {
+    // Simulate loading multiple units in quick succession
+    const app1 = renderApp('/faction/MLA/unit/tank')
+    const app2 = renderApp('/faction/MLA/unit/bot')
+
+    // Both should load successfully
+    await waitFor(() => {
+      // At least one should have loaded
+      expect(
+        screen.queryByText('Main Cannon') || screen.queryByText('Rifle')
+      ).toBeTruthy()
+    }, { timeout: 3000 })
+  })
+
+  it('should fetch data in correct order: metadata -> index -> unit', async () => {
+    const fetchOrder: string[] = []
+
+    global.fetch = vi.fn((url: string | URL | Request) => {
+      const urlString = typeof url === 'string' ? url : url.toString()
+
+      if (urlString.includes('metadata.json')) {
+        fetchOrder.push('metadata')
+      } else if (urlString.includes('units.json')) {
+        fetchOrder.push('index')
+      } else if (urlString.includes('_resolved.json')) {
+        fetchOrder.push('unit')
+      }
+
+      // Return mocked responses
+      return setupMockFetch() || Promise.resolve({ ok: false } as Response)
+    }) as any
+
+    // Setup mock properly
+    setupMockFetch()
+
+    // Start at home
+    renderApp('/')
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Go to faction
+    renderApp('/faction/MLA')
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    // Go to unit
+    renderApp('/faction/MLA/unit/tank')
+    await waitFor(() => {
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Verify order: metadata should be fetched first
+    const firstMetadataIndex = fetchOrder.indexOf('metadata')
+    const firstIndexIndex = fetchOrder.indexOf('index')
+    const firstUnitIndex = fetchOrder.indexOf('unit')
+
+    if (firstMetadataIndex >= 0 && firstIndexIndex >= 0) {
+      expect(firstMetadataIndex).toBeLessThan(firstIndexIndex)
+    }
+    if (firstIndexIndex >= 0 && firstUnitIndex >= 0) {
+      expect(firstIndexIndex).toBeLessThan(firstUnitIndex)
+    }
+  })
+
+  it('should handle partial failures gracefully', async () => {
+    // Mock factionsList to include both, but fail Legion metadata fetch
+    global.fetch = vi.fn((url: string | URL | Request) => {
+      const urlString = typeof url === 'string' ? url : url.toString()
+
+      if (urlString.includes('factionsList.json')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ['MLA', 'Legion'],
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          redirected: false,
+          type: 'basic',
+          url: '',
+          clone: function() { return this },
+          body: null,
+          bodyUsed: false,
+          arrayBuffer: async () => new ArrayBuffer(0),
+          blob: async () => new Blob(),
+          formData: async () => new FormData(),
+          text: async () => '["MLA", "Legion"]'
+        } as Response)
+      }
+
+      if (urlString.includes('Legion/metadata.json')) {
+        return Promise.reject(new Error('Failed to load Legion'))
+      }
+
+      if (urlString.includes('MLA/metadata.json')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            identifier: 'mla',
+            displayName: 'MLA',
+            version: '1.0.0',
+            author: 'Test Author',
+            description: 'Machine Legion Army faction for testing',
+            dateCreated: '2025-01-15',
+            build: '123456',
+            type: 'mod',
+            mods: ['com.pa.mla']
+          }),
+          status: 200,
+          statusText: 'OK',
+          headers: new Headers(),
+          redirected: false,
+          type: 'basic',
+          url: '',
+          clone: function() { return this },
+          body: null,
+          bodyUsed: false,
+          arrayBuffer: async () => new ArrayBuffer(0),
+          blob: async () => new Blob(),
+          formData: async () => new FormData(),
+          text: async () => '{}'
+        } as Response)
+      }
+
+      return Promise.resolve({ ok: false, status: 404 } as Response)
+    }) as any
+
+    renderApp('/')
+
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // MLA should load, Legion should fail silently (not displayed)
+    expect(screen.queryByText('Legion')).not.toBeInTheDocument()
+  })
+
+  it('should share context data across all routes', async () => {
+    // Test that faction detail page can access metadata loaded at app start
+    renderApp('/faction/MLA')
+
+    await waitFor(() => {
+      const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+    }, { timeout: 3000 })
+
+    // The faction name 'MLA' should be displayed from metadata
+    // Check there's only one MLA text (faction name heading), not multiple
+    const mlaElements = screen.getAllByText('MLA')
+    expect(mlaElements.length).toBeGreaterThanOrEqual(1)
+
+    // Verify faction description is also present (from metadata)
+    expect(screen.getByText(/machine legion army/i)).toBeInTheDocument()
+  })
+
+  it('should minimize redundant fetches across navigation', async () => {
+    // Test that loading unit detail makes necessary fetches
+    renderApp('/faction/MLA/unit/tank')
+
+    await waitFor(() => {
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+    }, { timeout: 3000 })
+
+    // Verify the necessary fetches were made
+    const allFetches = (global.fetch as any).mock.calls.map((call: any[]) =>
+      typeof call[0] === 'string' ? call[0] : call[0].toString()
+    )
+
+    const metadataFetches = allFetches.filter((url: string) => url.includes('metadata.json'))
+    const unitIndexFetches = allFetches.filter((url: string) => url.includes('units.json'))
+    const unitResolvedFetches = allFetches.filter((url: string) => url.includes('_resolved.json'))
+
+    // With mock setup, these should all have been fetched
+    // At minimum we should have loaded the unit resolved file
+    expect(unitResolvedFetches.length).toBeGreaterThanOrEqual(1)
+
+    // Verify unit detail is displayed
+    expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+  })
+})

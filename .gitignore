@@ -11,11 +11,8 @@ cli/*.exe
 *.test
 
 # CLI output directories (temporary/testing)
-factions/
-output/
-
-# Exception: web app pre-bundled factions should be committed
-!web/public/factions/
+/factions/
+/output/
 
 # IDE
 .vscode/

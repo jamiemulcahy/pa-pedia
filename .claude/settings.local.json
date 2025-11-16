@@ -10,7 +10,9 @@
       "Bash(./pa-pedia.exe:*)",
       "Bash(dir:*)",
       "Bash(./generate-schema.exe:*)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run test:run:*)"
     ],
     "deny": [],
     "ask": []

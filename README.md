@@ -9,7 +9,7 @@ PA-Pedia extracts unit data from Planetary Annihilation: Titans installations (i
 ### Components
 
 1. **CLI Tool (Go)**: Extract faction data from PA installations
-2. **Web App (React)**: Browse and compare factions (planned)
+2. **Web App (React)**: Browse and compare faction units
 
 ## Quick Start
 
@@ -35,6 +35,50 @@ Each faction folder contains:
 - `metadata.json` - Faction information
 - `units.json` - Lightweight unit index with file listings
 - `units/` - Individual unit folders with all discovered files
+
+### Web App Usage
+
+The web app provides a modern interface for browsing faction data.
+
+```bash
+# Navigate to web directory
+cd web
+
+# Install dependencies (first time only)
+npm install
+
+# Start development server
+npm run dev
+
+# Open http://localhost:5173 in your browser
+```
+
+**Available Factions**: MLA (Machine Liquid Army) and Legion
+
+**Features**:
+- Browse all units in each faction
+- Search units by name
+- Filter units by type (Tank, Factory, etc.)
+- View detailed unit specifications (combat, economy, mobility)
+- Navigate build relationships between units
+- Responsive design for mobile and desktop
+
+#### Production Build
+
+```bash
+# Build optimized production bundle
+cd web
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+Production build is highly optimized:
+- Bundle size: ~241 KB (~76 KB gzipped)
+- CSS size: ~10 KB (~3 KB gzipped)
+- Three-tier lazy loading for fast initial load
+- Cached data to avoid redundant requests
 
 ## Installation
 
@@ -68,7 +112,12 @@ npm run generate-types
 
 See [PROJECT_PLAN.md](PROJECT_PLAN.md) for detailed roadmap and current phase status.
 
-**Current Phase**: Phase 1.5 - CLI Refactoring (In Progress)
+**Completed Phases**:
+- Phase 1: CLI Foundation (100% Complete)
+- Phase 1.5: CLI Refactoring (100% Complete)
+- Phase 2: Web App Foundation (100% Complete)
+
+**Current Phase**: Phase 3 - Advanced Features (Planned)
 
 ## FAQ
 
@@ -98,11 +147,14 @@ go run main.go describe-faction --name test --pa-root "C:/PA/media" --output "./
 go test ./...
 ```
 
-### Web Development (planned)
+### Web Development
 ```bash
 cd web
 npm install
-npm run dev
+npm run dev  # Starts dev server at http://localhost:5173
+npm run build  # Production build
+npm run preview  # Preview production build
+npm run lint  # Run ESLint
 ```
 
 ## PA Installation Paths
