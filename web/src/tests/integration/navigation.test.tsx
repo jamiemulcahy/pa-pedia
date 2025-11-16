@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
-import { userEvent } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { FactionProvider } from '@/contexts/FactionContext'
@@ -33,7 +32,6 @@ describe('Navigation Integration Tests', () => {
   })
 
   it('should navigate from Home to Faction Detail', async () => {
-    const user = userEvent.setup()
     renderApp('/')
 
     // Wait for factions to load
@@ -50,7 +48,6 @@ describe('Navigation Integration Tests', () => {
   })
 
   it('should navigate from Faction Detail back to Home', async () => {
-    const user = userEvent.setup()
     renderApp('/faction/MLA')
 
     // Wait for faction detail to load

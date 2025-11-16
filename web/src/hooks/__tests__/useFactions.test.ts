@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useFactions } from '../useFactions'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { mockMLAMetadata, mockLegionMetadata, setupMockFetch } from '@/tests/mocks/factionData'
+
+type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('useFactions', () => {
   beforeEach(() => {
@@ -78,7 +81,7 @@ describe('useFactions', () => {
   })
 
   it('should handle errors gracefully', async () => {
-    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as any
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as unknown as MockFetch
 
     const { result } = renderHook(() => useFactions(), {
       wrapper: FactionProvider

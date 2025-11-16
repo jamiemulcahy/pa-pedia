@@ -36,6 +36,14 @@ interface FactionContextState {
 
 const FactionContext = createContext<FactionContextState | null>(null)
 
+/**
+ * Provider component for faction data management.
+ *
+ * Note: This file exports both the provider component and a custom hook.
+ * This is a standard React context pattern and is acceptable for Fast Refresh.
+ * The hook is not a component but a utility function for accessing the context.
+ */
+/* eslint-disable react-refresh/only-export-components */
 export function FactionProvider({ children }: { children: React.ReactNode }) {
   const [factions, setFactions] = useState<Map<string, FactionMetadata>>(new Map())
   const [factionsLoading, setFactionsLoading] = useState(true)
@@ -171,6 +179,12 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   return <FactionContext.Provider value={value}>{children}</FactionContext.Provider>
 }
 
+/**
+ * Custom hook to access the FactionContext.
+ * Must be used within a FactionProvider component.
+ *
+ * @throws {Error} If used outside of FactionProvider
+ */
 export function useFactionContext() {
   const context = useContext(FactionContext)
   if (!context) {
@@ -178,3 +192,4 @@ export function useFactionContext() {
   }
   return context
 }
+/* eslint-enable react-refresh/only-export-components */

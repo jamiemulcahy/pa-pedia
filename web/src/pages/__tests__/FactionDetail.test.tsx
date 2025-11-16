@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Mock } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
-import { setupMockFetch, mockMLAIndex } from '@/tests/mocks/factionData'
+import { setupMockFetch } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { FactionProvider } from '@/contexts/FactionContext'
 
 function renderFactionDetail(factionId: string) {
   return renderWithProviders(
@@ -294,6 +294,8 @@ describe('FactionDetail', () => {
   })
 
   it('should handle error when loading units', async () => {
+    type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
+
     global.fetch = vi.fn((url: string | URL | Request) => {
       const urlString = typeof url === 'string' ? url : url.toString()
       if (urlString.includes('units.json')) {
@@ -304,7 +306,7 @@ describe('FactionDetail', () => {
         ok: true,
         json: async () => ({ identifier: 'mla', displayName: 'MLA' })
       } as Response)
-    }) as any
+    }) as unknown as MockFetch
 
     renderFactionDetail('MLA')
 
