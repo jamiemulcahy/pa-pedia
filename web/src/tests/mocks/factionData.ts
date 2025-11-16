@@ -312,10 +312,11 @@ export const mockLegionTankUnit: Unit = {
 /**
  * Factory function to create mock fetch responses
  */
-export function createMockFetchResponse<T>(data: T, ok = true): Response {
+export function createMockFetchResponse<T>(data: T, ok = true, status?: number): Response {
+  const responseStatus = status ?? (ok ? 200 : 404)
   return {
     ok,
-    status: ok ? 200 : 404,
+    status: responseStatus,
     statusText: ok ? 'OK' : 'Not Found',
     json: async () => data,
     text: async () => JSON.stringify(data),

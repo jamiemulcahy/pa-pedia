@@ -56,13 +56,13 @@ describe('factionLoader', () => {
       expect(global.fetch).toHaveBeenCalledWith('/factions/MLA/metadata.json')
     })
 
-    it('should throw error for failed fetch', async () => {
+    it('should throw error for 404 with helpful message', async () => {
       global.fetch = vi.fn(() =>
-        Promise.resolve(createMockFetchResponse(null, false))
+        Promise.resolve(createMockFetchResponse(null, false, 404))
       ) as unknown as MockFetch
 
       await expect(loadFactionMetadata('Invalid')).rejects.toThrow(
-        'Failed to load faction metadata for Invalid'
+        "Faction 'Invalid' not found. Please generate faction data using the CLI."
       )
     })
 
@@ -212,6 +212,24 @@ describe('factionLoader', () => {
     it('should call fetch for each faction', async () => {
       await loadAllFactionMetadata()
       expect(global.fetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('should return empty map when all factions are not found (404)', async () => {
+      global.fetch = vi.fn(() =>
+        Promise.resolve(createMockFetchResponse(null, false, 404))
+      ) as unknown as MockFetch
+
+      const metadataMap = await loadAllFactionMetadata()
+      expect(metadataMap.size).toBe(0)
+      expect(metadataMap instanceof Map).toBe(true)
+    })
+
+    it('should throw error for unexpected errors (not 404)', async () => {
+      global.fetch = vi.fn(() =>
+        Promise.resolve(createMockFetchResponse(null, false, 500))
+      ) as unknown as MockFetch
+
+      await expect(loadAllFactionMetadata()).rejects.toThrow()
     })
   })
 })

@@ -111,8 +111,8 @@ describe('Home', () => {
 
   it('should show message when no factions available', async () => {
     // Note: discoverFactions() is hardcoded to return ['MLA', 'Legion']
-    // So we test the scenario where all metadata fetches fail
-    // This results in an empty factions map, which shows "no factions found"
+    // So we test the scenario where all metadata fetches return 404
+    // This results in an empty factions map, which shows "no factions available"
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: false,
@@ -123,13 +123,13 @@ describe('Home', () => {
 
     renderWithProviders(<Home />)
 
-    // When all faction metadata fails to load, we get an error state
-    // In a real scenario with discoverFactions fetching from a manifest,
-    // an empty manifest would show "no factions found"
+    // When all faction metadata returns 404, we show a helpful "no factions" message
     await waitFor(() => {
-      // With current implementation, failed metadata loads show error
-      expect(screen.getByText(/error loading factions/i)).toBeInTheDocument()
+      expect(screen.getByText(/no factions available/i)).toBeInTheDocument()
     }, { timeout: 3000 })
+
+    // Should show instructions on how to generate faction data
+    expect(screen.getByText(/to generate faction data/i)).toBeInTheDocument()
   })
 
   it('should render multiple faction cards', async () => {
