@@ -1,0 +1,100 @@
+{
+  "display_name": "!LOC:Archer",
+  "description": "!LOC:Advanced Anti-Air Turret - Fires homing rockets which deal splash damage. Only attacks air targets.",
+  "TEMP_texelinfo": 21.7624,
+  "area_build_separation": 18,
+  "atrophy_cool_down": 15,
+  "atrophy_rate": 26.66667,
+  "base_spec": "/pa/units/land/base_structure/base_structure.json",
+  "build_metal_cost": 900,
+  "command_caps": [
+    "ORDER_Attack"
+  ],
+  "events": {
+    "build_complete": {
+      "audio_cue": "/SE/Build_Complete/structure_small"
+    },
+    "died": {
+      "audio_cue": "/SE/Death/structure_small",
+      "effect_scale": 0.5
+    },
+    "fired": {
+      "audio_cue": "/SE/Weapons/structure/tact_mis_launcher_catapult_fire",
+      "effect_spec": "/pa/units/land/l_air_defense_adv/launch_smoke.pfx socket_exhaustRight001 /pa/units/land/l_air_defense_adv/launch_smoke.pfx socket_exhaustRight002 /pa/units/land/l_air_defense_adv/launch_smoke.pfx socket_exhaustLeft001 /pa/units/land/l_air_defense_adv/launch_smoke.pfx socket_exhaustLeft002"
+    }
+  },
+  "guard_layer": "WL_Air",
+  "max_health": 3000,
+  "mesh_bounds": [
+    14.4,
+    14.4,
+    14
+  ],
+  "model": [
+    {
+      "animtree": "/pa/anim/anim_trees/air_defense_adv_anim_tree.json",
+      "filename": "/pa/units/land/l_air_defense_adv/l_air_defense_adv.papa",
+      "layer": "WL_LandHorizontal",
+      "skirt_decal": "/pa/effects/specs/skirt_air_defense_adv.json"
+    },
+    {
+      "animtree": "/pa/anim/anim_trees/fabrication_turret_anim_tree.json",
+      "filename": "/pa/units/land/l_air_defense_adv/l_air_defense_adv.papa",
+      "layer": "WL_WaterSurface"
+    }
+  ],
+  "nearby_target_tick_update_interval": 3,
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 155,
+          "shape": "capsule"
+        },
+        {
+          "channel": "sight",
+          "layer": "underwater",
+          "radius": 155,
+          "shape": "capsule"
+        }
+      ]
+    }
+  },
+  "selection_icon": {
+    "diameter": -30
+  },
+  "spawn_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+  "tools": [
+    {
+      "aim_bone": "bone_pitch",
+      "fire_event": "fired",
+      "muzzle_bone": [
+        "socket_muzzleRight001",
+        "socket_muzzleLeft001",
+        "socket_muzzleRight002",
+        "socket_muzzleLeft002",
+        "socket_muzzleRight003",
+        "socket_muzzleLeft003",
+        "socket_muzzleRight004",
+        "socket_muzzleLeft004",
+        "socket_muzzleRight005",
+        "socket_muzzleLeft005",
+        "socket_muzzleRight006",
+        "socket_muzzleLeft006"
+      ],
+      "projectiles_per_fire": 4,
+      "spec_id": "/pa/units/land/l_air_defense_adv/l_air_defense_adv_tool_weapon.json"
+    }
+  ],
+  "unit_types": [
+    "UNITTYPE_Structure",
+    "UNITTYPE_Advanced",
+    "UNITTYPE_Land",
+    "UNITTYPE_AirDefense",
+    "UNITTYPE_Defense",
+    "UNITTYPE_FabAdvBuild",
+    "UNITTYPE_Custom1"
+  ]
+}
