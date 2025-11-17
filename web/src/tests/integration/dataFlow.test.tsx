@@ -40,7 +40,7 @@ describe('Data Flow Integration Tests', () => {
     // Faction metadata should load automatically
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText('Legion')).toBeInTheDocument()
 
@@ -60,7 +60,7 @@ describe('Data Flow Integration Tests', () => {
     // Wait for metadata to load
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     const metadataOnlyFetches = (global.fetch as MockFetch).mock.calls.length
 
@@ -70,7 +70,7 @@ describe('Data Flow Integration Tests', () => {
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank')
       expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Should have made fetch for units.json
     const totalFetches = (global.fetch as MockFetch).mock.calls.length
@@ -92,28 +92,18 @@ describe('Data Flow Integration Tests', () => {
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank')
       expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
-
-    const fetchesBeforeUnit = (global.fetch as MockFetch).mock.calls.length
+    })
 
     // Navigate to unit detail
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
-    // Should have made fetch for _resolved.json
-    const totalFetches = (global.fetch as MockFetch).mock.calls.length
-    expect(totalFetches).toBeGreaterThan(fetchesBeforeUnit)
-
-    const resolvedFetch = (global.fetch as MockFetch).mock.calls.find(
-      (call: FetchCallArgs) => {
-        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
-        return url.includes('_resolved.json');
-      }
-    )
-    expect(resolvedFetch).toBeDefined()
+    // Unit data comes from the index, so no additional fetch is needed
+    // Verify unit details are displayed correctly
+    expect(screen.getByText('Basic ground assault unit')).toBeInTheDocument()
   })
 
   it('should cache faction metadata and not refetch', async () => {
@@ -121,7 +111,7 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Verify metadata was fetched for both factions
     const metadataFetches = (global.fetch as MockFetch).mock.calls.filter(
@@ -145,7 +135,7 @@ describe('Data Flow Integration Tests', () => {
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank')
       expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     const firstFetchCount = (global.fetch as MockFetch).mock.calls.length
 
@@ -153,13 +143,13 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/')
     await waitFor(() => {
       expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     renderApp('/faction/MLA')
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank')
       expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Might have metadata fetch from home page reload, but not units.json
     const unitsJsonFetches = (global.fetch as MockFetch).mock.calls.filter(
@@ -177,20 +167,21 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
-
-    // Verify unit was fetched
-    const tankResolvedFetches = (global.fetch as MockFetch).mock.calls.filter(
-      (call: FetchCallArgs) => {
-        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
-        return url.includes('tank_resolved.json')
-      }
-    )
-    expect(tankResolvedFetches.length).toBeGreaterThanOrEqual(1)
+    })
 
     // Verify unit data is displayed correctly - use heading for unique match
     expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
     expect(screen.getByText('Basic ground assault unit')).toBeInTheDocument()
+
+    // Unit data is cached in the index, so subsequent views don't need additional fetches
+    const unitsFetches = (global.fetch as MockFetch).mock.calls.filter(
+      (call: FetchCallArgs) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
+        return url.includes('units.json')
+      }
+    )
+    // Should have fetched units.json which contains the tank unit
+    expect(unitsFetches.length).toBeGreaterThanOrEqual(1)
   })
 
   it('should load different units independently', async () => {
@@ -199,31 +190,24 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Load second unit
     renderApp('/faction/MLA/unit/bot')
 
     await waitFor(() => {
       expect(screen.getByText('Rifle')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
-    // Should have fetched both units
-    const tankFetch = (global.fetch as MockFetch).mock.calls.find(
+    // Both units come from the same units.json fetch
+    const unitsFetches = (global.fetch as MockFetch).mock.calls.filter(
       (call: FetchCallArgs) => {
         const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
-        return url.includes('tank_resolved.json')
+        return url.includes('units.json')
       }
     )
-    const botFetch = (global.fetch as MockFetch).mock.calls.find(
-      (call: FetchCallArgs) => {
-        const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
-        return url.includes('bot_resolved.json')
-      }
-    )
-
-    expect(tankFetch).toBeDefined()
-    expect(botFetch).toBeDefined()
+    // Should have fetched units.json which contains all units
+    expect(unitsFetches.length).toBeGreaterThanOrEqual(1)
   })
 
   it('should handle concurrent unit loads', async () => {
@@ -237,10 +221,10 @@ describe('Data Flow Integration Tests', () => {
       expect(
         screen.queryByText('Main Cannon') || screen.queryByText('Rifle')
       ).toBeTruthy()
-    }, { timeout: 3000 })
+    })
   })
 
-  it('should fetch data in correct order: metadata -> index -> unit', async () => {
+  it('should fetch data in correct order: metadata -> index', async () => {
     const fetchOrder: string[] = []
 
     global.fetch = vi.fn((url: string | URL | Request) => {
@@ -250,8 +234,6 @@ describe('Data Flow Integration Tests', () => {
         fetchOrder.push('metadata')
       } else if (urlString.includes('units.json')) {
         fetchOrder.push('index')
-      } else if (urlString.includes('_resolved.json')) {
-        fetchOrder.push('unit')
       }
 
       // Return mocked responses
@@ -266,30 +248,26 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/')
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Go to faction
     renderApp('/faction/MLA')
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
-    // Go to unit
+    // Go to unit (unit data is in the index, no additional fetch)
     renderApp('/faction/MLA/unit/tank')
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
-    // Verify order: metadata should be fetched first
+    // Verify order: metadata should be fetched before index
     const firstMetadataIndex = fetchOrder.indexOf('metadata')
     const firstIndexIndex = fetchOrder.indexOf('index')
-    const firstUnitIndex = fetchOrder.indexOf('unit')
 
     if (firstMetadataIndex >= 0 && firstIndexIndex >= 0) {
       expect(firstMetadataIndex).toBeLessThan(firstIndexIndex)
-    }
-    if (firstIndexIndex >= 0 && firstUnitIndex >= 0) {
-      expect(firstIndexIndex).toBeLessThan(firstUnitIndex)
     }
   })
 
@@ -359,7 +337,7 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // MLA should load, Legion should fail silently (not displayed)
     expect(screen.queryByText('Legion')).not.toBeInTheDocument()
@@ -371,7 +349,7 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // The faction name 'MLA' should be displayed from metadata
     // Check there's only one MLA text (faction name heading), not multiple
@@ -388,18 +366,17 @@ describe('Data Flow Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Verify the necessary fetches were made
     const allFetches = (global.fetch as MockFetch).mock.calls.map((call: FetchCallArgs) =>
       typeof call[0] === 'string' ? call[0] : call[0].toString()
     )
 
-    const unitResolvedFetches = allFetches.filter((url: string) => url.includes('_resolved.json'))
+    const unitsFetches = allFetches.filter((url: string) => url.includes('units.json'))
 
-    // With mock setup, these should all have been fetched
-    // At minimum we should have loaded the unit resolved file
-    expect(unitResolvedFetches.length).toBeGreaterThanOrEqual(1)
+    // Should have loaded the units.json file which contains all unit data
+    expect(unitsFetches.length).toBeGreaterThanOrEqual(1)
 
     // Verify unit detail is displayed
     expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()

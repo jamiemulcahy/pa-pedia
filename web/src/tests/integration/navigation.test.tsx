@@ -37,7 +37,7 @@ describe('Navigation Integration Tests', () => {
     // Wait for factions to load
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Click on MLA faction
     const mlaCard = screen.getByText('MLA').closest('a')
@@ -53,7 +53,7 @@ describe('Navigation Integration Tests', () => {
     // Wait for faction detail to load
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Click back to factions link
     const backLink = screen.getByText(/back to factions/i).closest('a')
@@ -66,7 +66,7 @@ describe('Navigation Integration Tests', () => {
     // Wait for units to load
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Verify unit cards have correct links - find link elements that contain Tank text
     const tankCards = screen.getAllByText('Tank').map(el => el.closest('a')).filter(Boolean)
@@ -79,7 +79,7 @@ describe('Navigation Integration Tests', () => {
     // Wait for unit to load
     await waitFor(() => {
       expect(screen.getByText('Basic ground assault unit')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Click back to faction link
     const backLink = screen.getByText(/back to faction/i).closest('a')
@@ -93,13 +93,13 @@ describe('Navigation Integration Tests', () => {
     await waitFor(() => {
       expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Step 2: Faction detail route (separate render to test route works)
     const { unmount } = renderApp('/faction/MLA')
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
     unmount()
 
     // Step 3: Unit detail route (separate render to test route works)
@@ -107,7 +107,7 @@ describe('Navigation Integration Tests', () => {
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
       expect(screen.getByText(/back to faction/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should navigate between different factions', async () => {
@@ -116,14 +116,14 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Navigate to Legion faction
     renderApp('/faction/Legion')
 
     await waitFor(() => {
       expect(screen.getByText('Legion Tank')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should navigate between different units in same faction', async () => {
@@ -132,14 +132,14 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Navigate to Bot unit
     renderApp('/faction/MLA/unit/bot')
 
     await waitFor(() => {
       expect(screen.getByText('Rifle')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should handle invalid faction route', async () => {
@@ -147,7 +147,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/faction not found/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Should have link back to home
     const homeLink = screen.getByText(/go back home/i).closest('a')
@@ -159,7 +159,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/error loading unit/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Should have link back to faction
     const factionLink = screen.getByText(/back to faction/i).closest('a')
@@ -173,7 +173,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Verify that faction data loaded correctly with metadata
     expect(screen.getByText('MLA')).toBeInTheDocument()
@@ -186,7 +186,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Check unit links - need to find the actual unit card links, not badges
     const unitCards = screen.getAllByText('Tank').map(el => el.closest('a')).filter(Boolean)
@@ -207,7 +207,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Build Relationships')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Tank is built by vehicle_factory
     const factoryLink = screen.getByText('vehicle_factory').closest('a')
@@ -221,7 +221,7 @@ describe('Navigation Integration Tests', () => {
 
     await waitFor(() => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    }, { timeout: 3000 })
+    })
 
     // Search input should be present
     const searchInput = screen.getByPlaceholderText(/search units/i)

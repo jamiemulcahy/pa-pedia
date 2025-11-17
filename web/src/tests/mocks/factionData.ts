@@ -28,7 +28,201 @@ export const mockLegionMetadata: FactionMetadata = {
 }
 
 /**
- * Mock faction indexes
+ * Mock resolved units (defined before index since index references them)
+ */
+export const mockTankUnit: Unit = {
+  id: 'tank',
+  resourceName: '/pa/units/land/tank/tank.json',
+  displayName: 'Tank',
+  description: 'Basic ground assault unit',
+  unitTypes: ['Mobile', 'Land', 'Basic', 'Tank'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 200,
+      weapons: [
+        {
+          resourceName: '/pa/units/land/tank/tank_weapon.json',
+          safeName: 'main_weapon',
+          name: 'Main Cannon',
+          count: 1,
+          rateOfFire: 1.0,
+          damage: 50,
+          dps: 50,
+          maxRange: 100,
+          targetLayers: ['WL_LandHorizontal']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 150,
+      consumption: {
+        energy: 5
+      }
+    },
+    mobility: {
+      moveSpeed: 10,
+      acceleration: 50,
+      brake: 50,
+      turnSpeed: 120
+    },
+    recon: {
+      visionRadius: 100
+    }
+  },
+  buildRelationships: {
+    builtBy: ['vehicle_factory'],
+    builds: []
+  }
+}
+
+export const mockBotUnit: Unit = {
+  id: 'bot',
+  resourceName: '/pa/units/land/bot/bot.json',
+  displayName: 'Bot',
+  description: 'Basic infantry unit',
+  unitTypes: ['Mobile', 'Land', 'Basic', 'Bot'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 80,
+      weapons: [
+        {
+          resourceName: '/pa/units/land/bot/bot_weapon.json',
+          safeName: 'rifle',
+          name: 'Rifle',
+          count: 1,
+          rateOfFire: 2.0,
+          damage: 10,
+          dps: 20,
+          maxRange: 80,
+          targetLayers: ['WL_LandHorizontal']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 45,
+      consumption: {
+        energy: 2
+      }
+    },
+    mobility: {
+      moveSpeed: 12,
+      acceleration: 60,
+      brake: 60,
+      turnSpeed: 180
+    },
+    recon: {
+      visionRadius: 80
+    }
+  },
+  buildRelationships: {
+    builtBy: ['bot_factory'],
+    builds: []
+  }
+}
+
+export const mockFighterUnit: Unit = {
+  id: 'air_fighter',
+  resourceName: '/pa/units/air/fighter/fighter.json',
+  displayName: 'Fighter',
+  description: 'Basic air superiority fighter',
+  unitTypes: ['Mobile', 'Air', 'Basic', 'Fighter'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 60,
+      weapons: [
+        {
+          resourceName: '/pa/units/air/fighter/fighter_weapon.json',
+          safeName: 'missiles',
+          name: 'Air-to-Air Missiles',
+          count: 1,
+          rateOfFire: 0.5,
+          damage: 150,
+          dps: 75,
+          maxRange: 120,
+          targetLayers: ['WL_Air']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 200,
+      consumption: {
+        energy: 10
+      }
+    },
+    mobility: {
+      moveSpeed: 100,
+      acceleration: 100,
+      brake: 100,
+      turnSpeed: 90
+    },
+    recon: {
+      visionRadius: 150
+    }
+  },
+  buildRelationships: {
+    builtBy: ['air_factory'],
+    builds: []
+  }
+}
+
+export const mockLegionTankUnit: Unit = {
+  id: 'legion_tank',
+  resourceName: '/pa_ex1/units/land/tank/tank.json',
+  displayName: 'Legion Tank',
+  description: 'Advanced Legion assault tank',
+  unitTypes: ['Mobile', 'Land', 'Advanced', 'Tank'],
+  tier: 2,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 500,
+      weapons: [
+        {
+          resourceName: '/pa_ex1/units/land/tank/tank_weapon.json',
+          safeName: 'heavy_cannon',
+          name: 'Heavy Cannon',
+          count: 1,
+          rateOfFire: 0.5,
+          damage: 250,
+          dps: 125,
+          maxRange: 150,
+          splashDamage: 100,
+          splashRadius: 20,
+          fullDamageRadius: 5,
+          targetLayers: ['WL_LandHorizontal']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 450,
+      consumption: {
+        energy: 15
+      }
+    },
+    mobility: {
+      moveSpeed: 8,
+      acceleration: 40,
+      brake: 40,
+      turnSpeed: 90
+    },
+    recon: {
+      visionRadius: 120
+    }
+  },
+  buildRelationships: {
+    builtBy: ['advanced_vehicle_factory'],
+    builds: []
+  }
+}
+
+/**
+ * Mock faction indexes (now embedding unit objects)
  */
 export const mockMLAIndex: FactionIndex = {
   units: [
@@ -47,7 +241,7 @@ export const mockMLAIndex: FactionIndex = {
           source: 'pa'
         }
       ],
-      resolvedFile: '/pa/units/land/tank/tank_resolved.json'
+      unit: mockTankUnit
     },
     {
       identifier: 'bot',
@@ -60,7 +254,7 @@ export const mockMLAIndex: FactionIndex = {
           source: 'pa'
         }
       ],
-      resolvedFile: '/pa/units/land/bot/bot_resolved.json'
+      unit: mockBotUnit
     },
     {
       identifier: 'air_fighter',
@@ -73,7 +267,7 @@ export const mockMLAIndex: FactionIndex = {
           source: 'pa'
         }
       ],
-      resolvedFile: '/pa/units/air/fighter/fighter_resolved.json'
+      unit: mockFighterUnit
     }
   ]
 }
@@ -91,222 +285,9 @@ export const mockLegionIndex: FactionIndex = {
           source: 'pa_ex1'
         }
       ],
-      resolvedFile: '/pa_ex1/units/land/tank/tank_resolved.json'
+      unit: mockLegionTankUnit
     }
   ]
-}
-
-/**
- * Mock resolved units
- */
-export const mockTankUnit: Unit = {
-  identifier: 'tank',
-  displayName: 'Tank',
-  description: 'Basic ground assault unit',
-  unitTypes: ['Mobile', 'Land', 'Basic', 'Tank'],
-  tier: 1,
-  source: '/pa/units/land/tank/tank.json',
-  accessible: true,
-  specs: {
-    combat: {
-      health: 200,
-      armor: 10,
-      armorType: 'light'
-    },
-    economy: {
-      buildCost: {
-        metal: 150,
-        energy: 0
-      },
-      buildTime: 12,
-      consumption: {
-        energy: 5
-      }
-    },
-    mobility: {
-      moveSpeed: 10,
-      acceleration: 50,
-      brakeRate: 50,
-      turnSpeed: 120
-    },
-    recon: {
-      visionRadius: 100
-    }
-  },
-  weapons: [
-    {
-      identifier: 'main_weapon',
-      displayName: 'Main Cannon',
-      dps: 50,
-      range: 100,
-      rateOfFire: 1.0,
-      damage: 50,
-      damageType: 'standard',
-      targetLayers: ['WL_LandHorizontal']
-    }
-  ],
-  buildRelationships: {
-    builtBy: ['vehicle_factory'],
-    builds: []
-  }
-}
-
-export const mockBotUnit: Unit = {
-  identifier: 'bot',
-  displayName: 'Bot',
-  description: 'Basic infantry unit',
-  unitTypes: ['Mobile', 'Land', 'Basic', 'Bot'],
-  tier: 1,
-  source: '/pa/units/land/bot/bot.json',
-  accessible: true,
-  specs: {
-    combat: {
-      health: 80,
-      armorType: 'light'
-    },
-    economy: {
-      buildCost: {
-        metal: 45,
-        energy: 0
-      },
-      buildTime: 6,
-      consumption: {
-        energy: 2
-      }
-    },
-    mobility: {
-      moveSpeed: 12,
-      acceleration: 60,
-      brakeRate: 60,
-      turnSpeed: 180
-    },
-    recon: {
-      visionRadius: 80
-    }
-  },
-  weapons: [
-    {
-      identifier: 'rifle',
-      displayName: 'Rifle',
-      dps: 20,
-      range: 80,
-      rateOfFire: 2.0,
-      damage: 10,
-      damageType: 'standard',
-      targetLayers: ['WL_LandHorizontal']
-    }
-  ],
-  buildRelationships: {
-    builtBy: ['bot_factory'],
-    builds: []
-  }
-}
-
-export const mockFighterUnit: Unit = {
-  identifier: 'air_fighter',
-  displayName: 'Fighter',
-  description: 'Basic air superiority fighter',
-  unitTypes: ['Mobile', 'Air', 'Basic', 'Fighter'],
-  tier: 1,
-  source: '/pa/units/air/fighter/fighter.json',
-  accessible: true,
-  specs: {
-    combat: {
-      health: 60
-    },
-    economy: {
-      buildCost: {
-        metal: 200,
-        energy: 0
-      },
-      buildTime: 15,
-      consumption: {
-        energy: 10
-      }
-    },
-    mobility: {
-      moveSpeed: 100,
-      acceleration: 100,
-      brakeRate: 100,
-      turnSpeed: 90
-    },
-    recon: {
-      visionRadius: 150
-    }
-  },
-  weapons: [
-    {
-      identifier: 'missiles',
-      displayName: 'Air-to-Air Missiles',
-      dps: 75,
-      range: 120,
-      rateOfFire: 0.5,
-      damage: 150,
-      damageType: 'explosive',
-      targetLayers: ['WL_Air']
-    }
-  ],
-  buildRelationships: {
-    builtBy: ['air_factory'],
-    builds: []
-  }
-}
-
-export const mockLegionTankUnit: Unit = {
-  identifier: 'legion_tank',
-  displayName: 'Legion Tank',
-  description: 'Advanced Legion assault tank',
-  unitTypes: ['Mobile', 'Land', 'Advanced', 'Tank'],
-  tier: 2,
-  source: '/pa_ex1/units/land/tank/tank.json',
-  accessible: true,
-  specs: {
-    combat: {
-      health: 500,
-      armor: 20,
-      armorType: 'medium'
-    },
-    economy: {
-      buildCost: {
-        metal: 450,
-        energy: 0
-      },
-      buildTime: 30,
-      consumption: {
-        energy: 15
-      }
-    },
-    mobility: {
-      moveSpeed: 8,
-      acceleration: 40,
-      brakeRate: 40,
-      turnSpeed: 90
-    },
-    recon: {
-      visionRadius: 120
-    }
-  },
-  weapons: [
-    {
-      identifier: 'heavy_cannon',
-      displayName: 'Heavy Cannon',
-      dps: 125,
-      range: 150,
-      rateOfFire: 0.5,
-      damage: 250,
-      damageType: 'heavy',
-      targetLayers: ['WL_LandHorizontal'],
-      splash: {
-        radius: 20,
-        damage: 100,
-        fullDamageRadius: 5
-      }
-    }
-  ],
-  buildRelationships: {
-    builtBy: ['advanced_vehicle_factory'],
-    builds: []
-  }
 }
 
 /**
@@ -337,7 +318,7 @@ export function createMockFetchResponse<T>(data: T, ok = true, status?: number):
  * Setup mock fetch for all faction data
  */
 export function setupMockFetch() {
-  global.fetch = vi.fn((url: string | URL | Request) => {
+  const mockFn = vi.fn((url: string | URL | Request) => {
     const urlString = typeof url === 'string' ? url : url.toString()
 
     // Faction metadata
@@ -348,7 +329,7 @@ export function setupMockFetch() {
       return Promise.resolve(createMockFetchResponse(mockLegionMetadata))
     }
 
-    // Faction indexes
+    // Faction indexes (now include embedded units, no need for separate resolved files)
     if (urlString.includes('/factions/MLA/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockMLAIndex))
     }
@@ -356,21 +337,10 @@ export function setupMockFetch() {
       return Promise.resolve(createMockFetchResponse(mockLegionIndex))
     }
 
-    // Unit resolved files
-    if (urlString.includes('/tank/tank_resolved.json')) {
-      return Promise.resolve(createMockFetchResponse(mockTankUnit))
-    }
-    if (urlString.includes('/bot/bot_resolved.json')) {
-      return Promise.resolve(createMockFetchResponse(mockBotUnit))
-    }
-    if (urlString.includes('/fighter/fighter_resolved.json')) {
-      return Promise.resolve(createMockFetchResponse(mockFighterUnit))
-    }
-    if (urlString.includes('/legion_tank') || urlString.includes('Legion/units/legion_tank')) {
-      return Promise.resolve(createMockFetchResponse(mockLegionTankUnit))
-    }
-
     // Default 404
     return Promise.resolve(createMockFetchResponse(null, false))
   }) as unknown as typeof fetch
+
+  global.fetch = mockFn
+  return mockFn
 }

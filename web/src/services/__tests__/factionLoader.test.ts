@@ -4,7 +4,6 @@ import {
   discoverFactions,
   loadFactionMetadata,
   loadFactionIndex,
-  loadUnitResolved,
   getUnitIconPath,
   loadAllFactionMetadata
 } from '../factionLoader'
@@ -12,7 +11,6 @@ import {
   mockMLAMetadata,
   mockLegionMetadata,
   mockMLAIndex,
-  mockTankUnit,
   createMockFetchResponse,
   setupMockFetch
 } from '@/tests/mocks/factionData'
@@ -108,46 +106,6 @@ describe('factionLoader', () => {
       ) as unknown as MockFetch
 
       await expect(loadFactionIndex('MLA')).rejects.toThrow('Network error')
-    })
-  })
-
-  describe('loadUnitResolved', () => {
-    it('should fetch and parse unit resolved data', async () => {
-      const unit = await loadUnitResolved('MLA', 'tank')
-      expect(unit).toEqual(mockTankUnit)
-    })
-
-    it('should fetch from correct URL', async () => {
-      await loadUnitResolved('MLA', 'tank')
-      expect(global.fetch).toHaveBeenCalledWith(
-        '/factions/MLA/units/tank/tank_resolved.json'
-      )
-    })
-
-    it('should return complete unit specification', async () => {
-      const unit = await loadUnitResolved('MLA', 'tank')
-      expect(unit).toHaveProperty('identifier')
-      expect(unit).toHaveProperty('displayName')
-      expect(unit).toHaveProperty('specs')
-      expect(unit).toHaveProperty('unitTypes')
-    })
-
-    it('should throw error for failed fetch', async () => {
-      global.fetch = vi.fn(() =>
-        Promise.resolve(createMockFetchResponse(null, false))
-      ) as unknown as MockFetch
-
-      await expect(loadUnitResolved('MLA', 'invalid')).rejects.toThrow(
-        'Failed to load unit invalid for faction MLA'
-      )
-    })
-
-    it('should handle network errors', async () => {
-      global.fetch = vi.fn(() =>
-        Promise.reject(new Error('Network error'))
-      ) as unknown as MockFetch
-
-      await expect(loadUnitResolved('MLA', 'tank')).rejects.toThrow('Network error')
     })
   })
 

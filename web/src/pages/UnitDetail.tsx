@@ -30,7 +30,8 @@ export function UnitDetail() {
     )
   }
 
-  const { specs, weapons, buildRelationships } = unit
+  const { specs, buildRelationships } = unit
+  const weapons = specs.combat.weapons
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -74,10 +75,10 @@ export function UnitDetail() {
                 <dt className="text-sm text-muted-foreground">Health</dt>
                 <dd className="text-lg font-semibold">{specs.combat.health.toLocaleString()}</dd>
               </div>
-              {specs.combat.armor !== undefined && (
+              {specs.combat.dps !== undefined && (
                 <div>
-                  <dt className="text-sm text-muted-foreground">Armor</dt>
-                  <dd className="text-lg font-semibold">{specs.combat.armor}</dd>
+                  <dt className="text-sm text-muted-foreground">Total DPS</dt>
+                  <dd className="text-lg font-semibold">{specs.combat.dps.toFixed(1)}</dd>
                 </div>
               )}
             </dl>
@@ -88,10 +89,10 @@ export function UnitDetail() {
                 <div className="space-y-2">
                   {weapons.map((weapon, idx) => (
                     <div key={idx} className="text-sm border-l-2 border-primary/20 pl-3">
-                      {weapon.displayName && <div className="font-medium">{weapon.displayName}</div>}
+                      {weapon.name && <div className="font-medium">{weapon.name}</div>}
                       <div className="text-muted-foreground grid grid-cols-2 gap-2 mt-1">
                         {weapon.dps !== undefined && <div>DPS: {weapon.dps.toFixed(1)}</div>}
-                        {weapon.range !== undefined && <div>Range: {weapon.range}</div>}
+                        {weapon.maxRange !== undefined && <div>Range: {weapon.maxRange}</div>}
                       </div>
                     </div>
                   ))}
@@ -106,19 +107,15 @@ export function UnitDetail() {
               <div>
                 <dt className="text-sm text-muted-foreground">Metal Cost</dt>
                 <dd className="text-lg font-semibold">
-                  {specs.economy.buildCost.metal?.toLocaleString() || 0}
+                  {specs.economy.buildCost.toLocaleString()}
                 </dd>
               </div>
-              <div>
-                <dt className="text-sm text-muted-foreground">Energy Cost</dt>
-                <dd className="text-lg font-semibold">
-                  {specs.economy.buildCost.energy?.toLocaleString() || 0}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm text-muted-foreground">Build Time</dt>
-                <dd className="text-lg font-semibold">{specs.economy.buildTime}s</dd>
-              </div>
+              {specs.economy.buildRate !== undefined && (
+                <div>
+                  <dt className="text-sm text-muted-foreground">Build Rate</dt>
+                  <dd className="text-lg font-semibold">{specs.economy.buildRate}</dd>
+                </div>
+              )}
             </dl>
 
             {(specs.economy.production || specs.economy.consumption) && (

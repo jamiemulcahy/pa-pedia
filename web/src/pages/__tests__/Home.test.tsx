@@ -26,7 +26,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText('Legion')).toBeInTheDocument()
   })
@@ -36,7 +36,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should display page description', async () => {
@@ -44,7 +44,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/browse planetary annihilation titans faction data/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should render faction metadata correctly', async () => {
@@ -52,7 +52,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText(/machine legion army faction for testing/i)).toBeInTheDocument()
     expect(screen.getByText(/test author/i)).toBeInTheDocument()
@@ -64,7 +64,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     const mlaLink = screen.getByText('MLA').closest('a')
     expect(mlaLink).toHaveAttribute('href', '/faction/MLA')
@@ -78,7 +78,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     const mlaCard = screen.getByText('MLA').closest('a')
     expect(mlaCard).toBeTruthy()
@@ -94,7 +94,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/error loading factions/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText(/network error/i)).toBeInTheDocument()
   })
@@ -106,7 +106,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/failed to fetch/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
   })
 
   it('should show message when no factions available', async () => {
@@ -126,7 +126,7 @@ describe('Home', () => {
     // When all faction metadata returns 404, we show a helpful "no factions" message
     await waitFor(() => {
       expect(screen.getByText(/no factions available/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     // Should show instructions on how to generate faction data
     expect(screen.getByText(/to generate faction data/i)).toBeInTheDocument()
@@ -137,7 +137,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getAllByRole('link').length).toBeGreaterThanOrEqual(2)
-    }, { timeout: 3000 })
+    })
   })
 
   it('should display faction descriptions', async () => {
@@ -145,7 +145,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/machine legion army/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText(/legion expansion/i)).toBeInTheDocument()
   })
@@ -155,7 +155,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/version 1.0.0/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText(/version 2.0.0/i)).toBeInTheDocument()
   })
@@ -165,7 +165,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/by test author/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     expect(screen.getByText(/by legion team/i)).toBeInTheDocument()
   })
@@ -175,7 +175,7 @@ describe('Home', () => {
 
     await waitFor(() => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
-    }, { timeout: 3000 })
+    })
 
     const grid = screen.getByText('MLA').closest('div.grid')?.parentElement
     expect(grid?.className).toContain('grid')
