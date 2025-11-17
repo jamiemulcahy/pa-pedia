@@ -142,38 +142,14 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 			fmt.Fprintf(os.Stderr, "\nWarning: Primary file %s not found for unit %s\n", primaryJSONName, unit.ID)
 		}
 
-		// Write resolved unit specs (fully parsed with base_spec inheritance merged)
-		resolvedFilename := unit.ID + "_resolved.json"
-		resolvedFileWritten := false
-
-		if err := e.writeResolvedUnit(unitDir, unit); err != nil {
-			// Log warning but continue - resolved specs are supplementary
-			if e.Verbose {
-				fmt.Fprintf(os.Stderr, "\nWarning: Failed to write resolved specs for %s: %v\n", unit.ID, err)
-			}
-		} else {
-			resolvedFileWritten = true
-			// Add resolved file to index files list
-			indexFiles = append(indexFiles, models.UnitFile{
-				Path:   resolvedFilename,
-				Source: "resolved", // Special source tag for computed data
-			})
-		}
-
-		// Create index entry
-		// Only set ResolvedFile if the write succeeded to avoid pointing to non-existent files
+		// Create index entry with embedded unit data
 		indexEntry := models.UnitIndexEntry{
 			Identifier:  unit.ID,
 			DisplayName: unit.DisplayName,
 			UnitTypes:   unit.UnitTypes,
 			Source:      determineUnitSource(unit.ResourceName),
 			Files:       indexFiles,
-			ResolvedFile: func() string {
-				if resolvedFileWritten {
-					return resolvedFilename
-				}
-				return ""
-			}(),
+			Unit:        unit,
 		}
 
 		index.Units = append(index.Units, indexEntry)
@@ -304,24 +280,6 @@ func (e *FactionExporter) copyFromFilesystem(srcPath, destPath string) error {
 
 	if _, err := io.Copy(destFile, srcFile); err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
-	}
-
-	return nil
-}
-
-// writeResolvedUnit writes the fully resolved unit specification to a JSON file
-// This includes all base_spec inheritance merged, calculated values (DPS, tier, etc.),
-// and build relationships - everything the parser computed.
-func (e *FactionExporter) writeResolvedUnit(unitDir string, unit models.Unit) error {
-	resolvedPath := filepath.Join(unitDir, unit.ID+"_resolved.json")
-
-	data, err := json.MarshalIndent(unit, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal resolved unit: %w", err)
-	}
-
-	if err := os.WriteFile(resolvedPath, data, 0644); err != nil {
-		return fmt.Errorf("failed to write resolved unit file: %w", err)
 	}
 
 	return nil

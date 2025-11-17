@@ -71,6 +71,7 @@ describe('useUnit', () => {
 
     await waitFor(() => {
       expect(result.current.unit).toBeDefined()
+      expect(result.current.loading).toBe(false)
     })
 
     const firstFetchCount = (global.fetch as MockFetch).mock.calls.length
@@ -79,23 +80,28 @@ describe('useUnit', () => {
     rerender({ factionId: 'MLA', unitId: 'bot' })
 
     await waitFor(() => {
-      expect(result.current.unit?.identifier).toBe('bot')
-    })
-
-    // Change back to tank (should use cache)
-    rerender({ factionId: 'MLA', unitId: 'tank' })
-
-    await waitFor(() => {
-      expect(result.current.unit?.identifier).toBe('tank')
+      expect(result.current.unit?.id).toBe('bot')
+      expect(result.current.loading).toBe(false)
     })
 
     const secondFetchCount = (global.fetch as MockFetch).mock.calls.length
 
-    // Should have fetched bot (1 additional) but not tank again
-    // Initial: 2 metadata + 1 tank = 3
-    // After bot: +1 = 4
-    // After back to tank: 0 (cached) = 4
-    expect(secondFetchCount).toBe(firstFetchCount + 1) // Only bot was fetched
+    // Change back to tank (should use cache, no additional fetch)
+    rerender({ factionId: 'MLA', unitId: 'tank' })
+
+    await waitFor(() => {
+      expect(result.current.unit?.id).toBe('tank')
+    })
+
+    const thirdFetchCount = (global.fetch as MockFetch).mock.calls.length
+
+    // Units are now embedded in the faction index, so all units are loaded when the index is fetched.
+    // Therefore, switching between units doesn't trigger additional fetches.
+    // Initial state: discovery + MLA metadata + MLA index (with all units embedded) = 3 fetches
+    // After bot: 0 (already cached from index load) = 3 fetches
+    // After back to tank: 0 (already cached from index load) = 3 fetches
+    expect(secondFetchCount).toBe(firstFetchCount) // Bot was already cached
+    expect(thirdFetchCount).toBe(secondFetchCount) // Tank was already cached
     expect(result.current.unit).toEqual(mockTankUnit)
   })
 
@@ -127,7 +133,7 @@ describe('useUnit', () => {
 
     await waitFor(() => {
       expect(result.current.error).toBeDefined()
-    }, { timeout: 3000 })
+    })
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -146,14 +152,14 @@ describe('useUnit', () => {
     )
 
     await waitFor(() => {
-      expect(result.current.unit?.identifier).toBe('tank')
+      expect(result.current.unit?.id).toBe('tank')
     })
 
     // Change to different unit
     rerender({ factionId: 'MLA', unitId: 'bot' })
 
     await waitFor(() => {
-      expect(result.current.unit?.identifier).toBe('bot')
+      expect(result.current.unit?.id).toBe('bot')
     })
   })
 
@@ -176,7 +182,7 @@ describe('useUnit', () => {
     })
 
     const unit = result.current.unit!
-    expect(unit).toHaveProperty('identifier')
+    expect(unit).toHaveProperty('id')
     expect(unit).toHaveProperty('displayName')
     expect(unit).toHaveProperty('specs')
     expect(unit).toHaveProperty('unitTypes')
@@ -184,7 +190,7 @@ describe('useUnit', () => {
     expect(unit.specs).toHaveProperty('economy')
   })
 
-  it('should include weapons if available', async () => {
+  it('should include weapons in combat specs if available', async () => {
     const { result } = renderHook(() => useUnit('MLA', 'tank'), {
       wrapper: FactionProvider
     })
@@ -193,9 +199,9 @@ describe('useUnit', () => {
       expect(result.current.unit).toBeDefined()
     })
 
-    expect(result.current.unit?.weapons).toBeDefined()
-    expect(Array.isArray(result.current.unit?.weapons)).toBe(true)
-    expect(result.current.unit?.weapons?.length).toBeGreaterThan(0)
+    expect(result.current.unit?.specs.combat.weapons).toBeDefined()
+    expect(Array.isArray(result.current.unit?.specs.combat.weapons)).toBe(true)
+    expect(result.current.unit?.specs.combat.weapons?.length).toBeGreaterThan(0)
   })
 
   it('should clear error on successful load', async () => {

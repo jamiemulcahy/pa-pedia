@@ -29,12 +29,12 @@ type FactionIndex struct {
 
 // UnitIndexEntry represents a single unit in the faction index
 type UnitIndexEntry struct {
-	Identifier   string     `json:"identifier" jsonschema:"required,description=Unit identifier such as tank or commander"`
-	DisplayName  string     `json:"displayName" jsonschema:"required,description=Human-readable unit name such as Ant or Commander"`
-	UnitTypes    []string   `json:"unitTypes" jsonschema:"required,description=Unit type tags such as Mobile, Tank, Basic, Land"`
-	Source       string     `json:"source" jsonschema:"required,description=Primary source that first defined this unit such as pa, pa_ex1, or com.pa.legion-expansion. For base game units modified by mods, this reflects the original source. See Files array for complete provenance of all unit files including modifications."`
-	Files        []UnitFile `json:"files" jsonschema:"required,description=All discovered files for this unit with provenance"`
-	ResolvedFile string     `json:"resolvedFile,omitempty" jsonschema:"description=Filename of the resolved unit specification with base_spec inheritance merged and all calculations complete such as tank_resolved.json. This file contains the complete parsed Unit object ready for consumption by the web app."`
+	Identifier  string     `json:"identifier" jsonschema:"required,description=Unit identifier such as tank or commander"`
+	DisplayName string     `json:"displayName" jsonschema:"required,description=Human-readable unit name such as Ant or Commander"`
+	UnitTypes   []string   `json:"unitTypes" jsonschema:"required,description=Unit type tags such as Mobile, Tank, Basic, Land"`
+	Source      string     `json:"source" jsonschema:"required,description=Primary source that first defined this unit such as pa, pa_ex1, or com.pa.legion-expansion. For base game units modified by mods, this reflects the original source. See Files array for complete provenance of all unit files including modifications."`
+	Files       []UnitFile `json:"files" jsonschema:"required,description=All discovered files for this unit with provenance"`
+	Unit        Unit       `json:"unit" jsonschema:"required,description=Complete resolved unit specification with base_spec inheritance merged and all calculations complete. This contains the full parsed Unit object ready for consumption by the web app."`
 }
 
 // UnitFile represents a single file associated with a unit

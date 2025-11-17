@@ -42,8 +42,8 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 	role := loader.Delocalize(loader.GetString(data, "unit_name", unit.DisplayName))
 	description := loader.Delocalize(loader.GetString(data, "description", ""))
 
-	// Set image path (relative to faction folder)
-	unit.Image = fmt.Sprintf("./assets/%s.png", unit.ID)
+	// Set image path (relative to faction folder, pointing to icon in unit folder)
+	unit.Image = fmt.Sprintf("units/%s/%s_icon_buildbar.png", unit.ID, unit.ID)
 
 	// Combine role and description
 	if role != unit.DisplayName && description != "" {

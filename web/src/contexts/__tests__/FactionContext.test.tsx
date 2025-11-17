@@ -170,6 +170,14 @@ describe('FactionContext', () => {
         expect(result.current.factionsLoading).toBe(false)
       })
 
+      // Load faction index first (required before loadUnit)
+      await result.current.loadFaction('MLA')
+
+      // Wait for units cache to be populated
+      await waitFor(() => {
+        expect(result.current.unitsCache.size).toBeGreaterThan(0)
+      })
+
       const unit = await result.current.loadUnit('MLA', 'tank')
 
       expect(unit).toEqual(mockTankUnit)
@@ -187,6 +195,14 @@ describe('FactionContext', () => {
 
       await waitFor(() => {
         expect(result.current.factionsLoading).toBe(false)
+      })
+
+      // Load faction index first (required before loadUnit)
+      await result.current.loadFaction('MLA')
+
+      // Wait for units cache to be populated
+      await waitFor(() => {
+        expect(result.current.unitsCache.size).toBeGreaterThan(0)
       })
 
       // First load
@@ -216,14 +232,24 @@ describe('FactionContext', () => {
         expect(result.current.factionsLoading).toBe(false)
       })
 
+      // Load faction index first (required before loadUnit)
+      await result.current.loadFaction('MLA')
+
+      // Wait for units cache to be populated
+      await waitFor(() => {
+        expect(result.current.unitsCache.size).toBeGreaterThan(0)
+      })
+
       await result.current.loadUnit('MLA', 'tank')
       await result.current.loadUnit('MLA', 'bot')
 
-      // Wait for both units to be cached
+      // All units from the index are cached (tank, bot, air_fighter = 3 units)
+      // The units are embedded in the index, so all are cached when index loads
       await waitFor(() => {
-        expect(result.current.unitsCache.size).toBe(2)
+        expect(result.current.unitsCache.size).toBe(3)
       })
 
+      // Verify specific units are accessible
       expect(result.current.unitsCache.get('MLA:tank')).toEqual(mockTankUnit)
       expect(result.current.unitsCache.get('MLA:bot')).toEqual(mockBotUnit)
     })
@@ -310,6 +336,14 @@ describe('FactionContext', () => {
 
       await waitFor(() => {
         expect(result.current.factionsLoading).toBe(false)
+      })
+
+      // Load faction index first (required before loadUnit)
+      await result.current.loadFaction('MLA')
+
+      // Wait for units cache to be populated
+      await waitFor(() => {
+        expect(result.current.unitsCache.size).toBeGreaterThan(0)
       })
 
       await result.current.loadUnit('MLA', 'tank')

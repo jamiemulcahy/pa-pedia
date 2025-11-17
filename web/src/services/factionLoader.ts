@@ -1,4 +1,4 @@
-import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
+import type { FactionMetadata, FactionIndex } from '@/types/faction'
 
 const FACTIONS_BASE_PATH = '/factions'
 
@@ -58,24 +58,6 @@ export async function loadFactionIndex(factionId: string): Promise<FactionIndex>
     return await response.json()
   } catch (error) {
     console.error(`Error loading faction index for ${factionId}:`, error)
-    throw error
-  }
-}
-
-/**
- * Loads a specific unit's resolved data
- */
-export async function loadUnitResolved(factionId: string, unitId: string): Promise<Unit> {
-  try {
-    const response = await fetch(
-      `${FACTIONS_BASE_PATH}/${factionId}/units/${unitId}/${unitId}_resolved.json`
-    )
-    if (!response.ok) {
-      throw new Error(`Failed to load unit ${unitId} for faction ${factionId}: ${response.statusText}`)
-    }
-    return await response.json()
-  } catch (error) {
-    console.error(`Error loading unit ${unitId} for faction ${factionId}:`, error)
     throw error
   }
 }

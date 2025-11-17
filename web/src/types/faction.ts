@@ -25,7 +25,7 @@ export interface UnitIndexEntry {
   unitTypes: string[];
   source: string;
   files: UnitFile[];
-  resolvedFile?: string;
+  unit: Unit;
 }
 
 export interface FactionIndex {
@@ -38,47 +38,113 @@ export interface Resources {
   energy?: number;
 }
 
+export interface Ammo {
+  resourceName: string;
+  safeName: string;
+  name?: string;
+  damage?: number;
+  fullDamageRadius?: number;
+  splashDamage?: number;
+  splashRadius?: number;
+  muzzleVelocity?: number;
+  maxVelocity?: number;
+  lifetime?: number;
+  metalCost?: number;
+}
+
+export interface Weapon {
+  resourceName: string;
+  safeName: string;
+  name?: string;
+  count: number;
+  rateOfFire: number;
+  damage: number;
+  dps: number;
+  projectilesPerFire?: number;
+  muzzleVelocity?: number;
+  maxRange?: number;
+  splashDamage?: number;
+  splashRadius?: number;
+  fullDamageRadius?: number;
+  selfDestruct?: boolean;
+  deathExplosion?: boolean;
+  ammoSource?: string;
+  ammoDemand?: number;
+  ammoPerShot?: number;
+  ammoCapacity?: number;
+  ammoDrainTime?: number;
+  ammoRechargeTime?: number;
+  ammoShotsToDrain?: number;
+  metalRate?: number;
+  energyRate?: number;
+  metalPerShot?: number;
+  energyPerShot?: number;
+  targetLayers?: string[];
+  yawRange?: number;
+  yawRate?: number;
+  pitchRange?: number;
+  pitchRate?: number;
+  ammoDetails?: Ammo;
+}
+
 export interface CombatSpecs {
   health: number;
-  armor?: number;
-  armorType?: string;
+  dps?: number;
+  salvoDamage?: number;
+  weapons?: Weapon[];
+}
+
+export interface BuildArm {
+  resourceName: string;
+  safeName: string;
+  name?: string;
+  count: number;
+  metalConsumption: number;
+  energyConsumption: number;
+  range?: number;
 }
 
 export interface EconomySpecs {
-  buildCost: Resources;
-  buildTime: number;
-  buildRate?: number;
+  buildCost: number;
   production?: Resources;
   consumption?: Resources;
   storage?: Resources;
-  netProduction?: Resources;
+  toolConsumption?: Resources;
+  weaponConsumption?: Resources;
+  buildRate?: number;
+  buildInefficiency?: number;
+  metalRate?: number;
+  energyRate?: number;
+  buildArms?: BuildArm[];
+  buildRange?: number;
 }
 
 export interface MobilitySpecs {
   moveSpeed?: number;
-  acceleration?: number;
-  brakeRate?: number;
   turnSpeed?: number;
-  turnAcceleration?: number;
+  acceleration?: number;
+  brake?: number;
 }
 
 export interface ReconSpecs {
   visionRadius?: number;
+  underwaterVisionRadius?: number;
+  orbitalVisionRadius?: number;
+  mineVisionRadius?: number;
   radarRadius?: number;
   sonarRadius?: number;
-  observableDistance?: number;
+  orbitalRadarRadius?: number;
 }
 
 export interface StorageSpecs {
-  metal?: number;
-  energy?: number;
+  unitStorage?: number;
+  storedUnitType?: string;
 }
 
 export interface SpecialSpecs {
-  hasNuke?: boolean;
-  hasAntiNuke?: boolean;
-  hasTeleporter?: boolean;
-  isCommander?: boolean;
+  spawnLayers?: string[];
+  amphibious?: boolean;
+  hover?: boolean;
 }
 
 export interface UnitSpecs {
@@ -90,43 +156,23 @@ export interface UnitSpecs {
   special?: SpecialSpecs;
 }
 
-export interface Weapon {
-  identifier: string;
-  displayName?: string;
-  dps?: number;
-  range?: number;
-  rateOfFire?: number;
-  damage?: number;
-  damageType?: string;
-  targetLayers?: string[];
-  maxVelocity?: number;
-  splash?: {
-    radius?: number;
-    damage?: number;
-    fullDamageRadius?: number;
-  };
-}
-
-export interface BuildArm {
-  identifier: string;
-  buildRate: number;
-}
-
 export interface BuildRelationships {
   builtBy?: string[];
   builds?: string[];
 }
 
 export interface Unit {
-  identifier: string;
+  id: string;
+  resourceName: string;
   displayName: string;
   description?: string;
-  unitTypes: string[];
+  image?: string;
   tier: number;
-  source: string;
+  unitTypes: string[];
   accessible: boolean;
+  baseTemplate?: boolean;
   specs: UnitSpecs;
-  weapons?: Weapon[];
-  tools?: BuildArm[];
   buildRelationships?: BuildRelationships;
+  buildableTypes?: string;
+  assistBuildableOnly?: boolean;
 }

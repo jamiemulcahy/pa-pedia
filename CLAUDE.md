@@ -19,20 +19,17 @@ PA-Pedia extracts Planetary Annihilation faction data (base game + mods) into po
 ```
 faction-name/
 ├── metadata.json          # Faction info
-├── units.json             # Lightweight index (~165KB for 199 units)
-└── units/{id}/            # All files per unit
+├── units.json             # Complete unit index with embedded resolved data (~452KB for 199 units)
+└── units/{id}/            # Essential files per unit
     ├── {id}.json          # Raw PA data
-    ├── {id}_resolved.json # Parsed specs (base_spec merged, DPS calculated)
-    ├── {id}_tool_weapon.json
-    ├── {id}_ammo.json
     └── {id}_icon_buildbar.png
 ```
 
 ### Key Data Structures
 - **FactionMetadata**: Faction info (name, version, author, mods used)
-- **FactionIndex** (`units.json`): Lightweight array of unit entries with file listings
-- **UnitIndexEntry**: identifier, displayName, unitTypes, source, files[], resolvedFile
-- **Unit** (resolved files): Complete parsed specs with all calculations done
+- **FactionIndex** (`units.json`): Unit index with embedded resolved Unit data
+- **UnitIndexEntry**: identifier, displayName, unitTypes, source, files[], unit (embedded)
+- **Unit**: Complete parsed specs with all calculations done
 - **Weapon**, **Ammo**, **BuildArm**: Tool specifications
 
 See `cli/pkg/models/` for Go structs and `schema/` for JSON schemas.
@@ -58,21 +55,21 @@ For detailed mod discovery locations and CLI-specific implementation, see [cli/C
 - Icon may be in different mod than unit JSON
 - Search all sources, keep original filename
 
-### 4. Resolved Files (NEW in Phase 1.5)
-- Pattern: `{unit_identifier}_resolved.json`
-- Contains complete Unit struct with:
+### 4. Embedded Resolved Data (Phase 1.5+)
+- Resolved unit data is embedded directly in `units.json`
+- Each `UnitIndexEntry` contains a complete `Unit` object with:
   - All base_spec inheritance merged
   - DPS calculations complete
   - Net economy rates calculated
   - Build relationships established
   - Accessibility flag set
   - Display names delocalized
-- Web app should use resolved files, not raw PA JSON
+- Web app loads all unit data when loading faction index
 
 ### 5. Base Spec Inheritance
 Units can inherit from templates: `"base_spec": "/pa/units/land/base_vehicle/base_vehicle.json"`
 
-The CLI recursively loads and merges base specs. Web app uses pre-resolved files.
+The CLI recursively loads and merges base specs. Web app uses pre-resolved data embedded in the unit index.
 
 ### 6. Build Restrictions Grammar
 - `&` (AND), `|` (OR), `-` (MINUS), `()` (grouping)
@@ -129,18 +126,16 @@ web/src/
 
 ### Data Loading Strategy
 
-**Three-Tier Lazy Loading**:
+**Two-Tier Lazy Loading**:
 1. **App Load** (immediate): All faction metadata from `metadata.json`
-2. **Faction View** (on-demand): Unit index from `units.json` when viewing faction
-3. **Unit View** (on-demand): Full unit data from `{unit}_resolved.json` when viewing unit
+2. **Faction View** (on-demand): Complete unit data from `units.json` when viewing faction
 
 All data cached in FactionContext to avoid redundant fetches.
 
 **Key Functions** (`factionLoader.ts`):
 - `discoverFactions()`: Returns list of available faction IDs
 - `loadFactionMetadata(id)`: Loads faction metadata
-- `loadFactionIndex(id)`: Loads unit index
-- `loadUnitResolved(factionId, unitId)`: Loads resolved unit data
+- `loadFactionIndex(id)`: Loads unit index with embedded unit data
 - `getUnitIconPath(factionId, unitId, filename)`: Returns icon URL
 
 ### Custom Hooks Usage
@@ -149,10 +144,10 @@ All data cached in FactionContext to avoid redundant fetches.
 // In a component - access all factions
 const { factions, loading, error } = useFactions();
 
-// Access specific faction (auto-loads index)
+// Access specific faction (auto-loads index with embedded unit data)
 const { faction, units, loading, error } = useFaction('MLA');
 
-// Access specific unit (auto-loads resolved data)
+// Access specific unit (data already loaded with faction index)
 const { unit, loading, error } = useUnit('MLA', 'tank');
 ```
 

@@ -2,8 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
 import {
   loadAllFactionMetadata,
-  loadFactionIndex,
-  loadUnitResolved
+  loadFactionIndex
 } from '@/services/factionLoader'
 
 interface FactionContextState {
@@ -85,7 +84,7 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     loadFactions()
   }, [])
 
-  // Load a faction's unit index
+  // Load a faction's unit index and populate units cache
   const loadFaction = useCallback(async (factionId: string) => {
     // Check if already loaded
     if (factionIndexesRef.current.has(factionId)) {
@@ -95,6 +94,18 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     try {
       const index = await loadFactionIndex(factionId)
       setFactionIndexes(prev => new Map(prev).set(factionId, index))
+
+      // Populate units cache from the index
+      // Each unit is now embedded in the index entry
+      setUnitsCache(prev => {
+        const next = new Map(prev)
+        index.units.forEach(entry => {
+          const cacheKey = `${factionId}:${entry.identifier}`
+          next.set(cacheKey, entry.unit)
+        })
+        return next
+      })
+
       // Clear any previous error for this faction
       setFactionErrors(prev => {
         const next = new Map(prev)
@@ -110,34 +121,34 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Load a specific unit
+  // Load a specific unit (now just retrieves from cache after faction index is loaded)
   const loadUnit = useCallback(async (factionId: string, unitId: string): Promise<Unit> => {
     const cacheKey = `${factionId}:${unitId}`
 
-    // Check cache first
+    // Check cache first - units are now loaded with the faction index
     const cached = unitsCacheRef.current.get(cacheKey)
     if (cached) {
       return cached
     }
 
-    try {
-      const unit = await loadUnitResolved(factionId, unitId)
-      setUnitsCache(prev => new Map(prev).set(cacheKey, unit))
-      // Clear any previous error for this unit
-      setUnitErrors(prev => {
-        const next = new Map(prev)
-        next.delete(cacheKey)
-        return next
-      })
-      return unit
-    } catch (error) {
-      const err = error as Error
-      console.error(`Failed to load unit ${unitId} for faction ${factionId}:`, err)
-      // Track unit-specific error
-      setUnitErrors(prev => new Map(prev).set(cacheKey, err))
-      throw error
+    // If not in cache, we need to load the faction index first
+    // This can happen when navigating directly to a unit page
+    if (!factionIndexesRef.current.has(factionId)) {
+      await loadFaction(factionId)
     }
-  }, [])
+
+    // Check cache again after loading faction
+    const cachedAfterLoad = unitsCacheRef.current.get(cacheKey)
+    if (cachedAfterLoad) {
+      return cachedAfterLoad
+    }
+
+    // If still not found, the unit doesn't exist
+    const err = new Error(`Unit ${unitId} not found for faction ${factionId}.`)
+    console.error(err.message)
+    setUnitErrors(prev => new Map(prev).set(cacheKey, err))
+    throw err
+  }, [loadFaction])
 
   const getFaction = useCallback((factionId: string) => {
     return factions.get(factionId)
