@@ -59,12 +59,27 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       try {
         const response = await fetch(blueprintPath);
         if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
+          }
           throw new Error(`Failed to load blueprint: ${response.statusText}`);
         }
+
+        // Check if response is actually JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Blueprint file not found or invalid format.');
+        }
+
         const json = await response.json();
         setBlueprintContent(JSON.stringify(json, null, 2));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load blueprint');
+        // Improve JSON parse error messages
+        if (err instanceof Error && err.message.includes('JSON')) {
+          setError('Blueprint file not found or contains invalid data.');
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to load blueprint');
+        }
         setBlueprintContent('');
       } finally {
         setLoading(false);
