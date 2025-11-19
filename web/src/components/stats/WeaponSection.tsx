@@ -1,14 +1,17 @@
 import React from 'react';
 import { StatSection } from '../StatSection';
-import { StatRow, StatLink } from '../StatRow';
+import { StatRow } from '../StatRow';
+import { BlueprintLink } from '../BlueprintLink';
 import type { Weapon } from '@/types/faction';
 
 interface WeaponSectionProps {
   weapon: Weapon;
   index: number;
+  factionId: string;
+  unitId: string;
 }
 
-export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
+export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, factionId, unitId }) => {
   const title = 'Weapon';
 
   // Format target layers
@@ -25,19 +28,14 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
       <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
         {weaponId}
       </h3>
-      <StatLink
-        label="Blueprint"
-        value={
-          <a
-            href={`https://padb.dgz.nu/${weapon.resourceName}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            {weapon.resourceName}
-          </a>
-        }
-      />
+      <div className="py-1">
+        <BlueprintLink
+          factionId={factionId}
+          unitId={unitId}
+          resourceName={weapon.resourceName}
+          displayName="View Blueprint"
+        />
+      </div>
       {weapon.maxRange !== undefined && (
         <StatRow label="Range" value={weapon.maxRange} />
       )}

@@ -1,28 +1,26 @@
 import React from 'react';
 import { StatSection } from '../StatSection';
-import { StatRow, StatLink } from '../StatRow';
+import { StatRow } from '../StatRow';
+import { BlueprintLink } from '../BlueprintLink';
 import type { Ammo } from '@/types/faction';
 
 interface AmmoSectionProps {
   ammo: Ammo;
+  factionId: string;
+  unitId: string;
 }
 
-export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo }) => {
+export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId, unitId }) => {
   return (
     <StatSection title="Ammo">
-      <StatLink
-        label="Blueprint"
-        value={
-          <a
-            href={`https://padb.dgz.nu/${ammo.resourceName}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            {ammo.resourceName}
-          </a>
-        }
-      />
+      <div className="py-1">
+        <BlueprintLink
+          factionId={factionId}
+          unitId={unitId}
+          resourceName={ammo.resourceName}
+          displayName="View Blueprint"
+        />
+      </div>
       <StatRow label="Type" value="Projectile" />
       <StatRow label="Flight type" value="Ballistic" />
       <StatRow label="Damage target" value="HitPoints" />

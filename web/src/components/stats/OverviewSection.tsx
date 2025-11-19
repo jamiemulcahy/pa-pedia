@@ -1,6 +1,7 @@
 import React from 'react';
 import { StatSection } from '../StatSection';
-import { StatRow, StatLink } from '../StatRow';
+import { StatRow } from '../StatRow';
+import { BlueprintLink } from '../BlueprintLink';
 import type { Unit } from '@/types/faction';
 
 interface OverviewSectionProps {
@@ -8,7 +9,7 @@ interface OverviewSectionProps {
   factionId: string;
 }
 
-export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit }) => {
+export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, factionId }) => {
   const { specs } = unit;
   const maxRange = specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -24,19 +25,14 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit }) => {
 
   return (
     <StatSection title="Overview">
-      <StatLink
-        label="Blueprint"
-        value={
-          <a
-            href={`https://padb.dgz.nu/${unit.resourceName}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            {unit.resourceName}
-          </a>
-        }
-      />
+      <div className="py-1">
+        <BlueprintLink
+          factionId={factionId}
+          unitId={unit.id}
+          resourceName={unit.resourceName}
+          displayName="View Blueprint"
+        />
+      </div>
       <StatRow label="HP" value={specs.combat.health.toLocaleString()} />
       <StatRow label="Build cost" value={`${specs.economy.buildCost.toLocaleString()} metal`} />
       {maxRange !== undefined && maxRange > 0 && (

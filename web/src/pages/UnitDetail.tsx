@@ -93,25 +93,54 @@ export function UnitDetail() {
 
           {regularWeapons.map((weapon, idx) => (
             <React.Fragment key={idx}>
-              <WeaponSection weapon={weapon} index={idx} />
-              {weapon.ammoDetails && <AmmoSection ammo={weapon.ammoDetails} />}
+              <WeaponSection
+                weapon={weapon}
+                index={idx}
+                factionId={factionId || ''}
+                unitId={unitId || ''}
+              />
+              {weapon.ammoDetails && (
+                <AmmoSection
+                  ammo={weapon.ammoDetails}
+                  factionId={factionId || ''}
+                  unitId={unitId || ''}
+                />
+              )}
             </React.Fragment>
           ))}
 
           {selfDestructWeapon && (
             <>
-              <WeaponSection weapon={selfDestructWeapon} index={0} />
+              <WeaponSection
+                weapon={selfDestructWeapon}
+                index={0}
+                factionId={factionId || ''}
+                unitId={unitId || ''}
+              />
               {selfDestructWeapon.ammoDetails && (
-                <AmmoSection ammo={selfDestructWeapon.ammoDetails} />
+                <AmmoSection
+                  ammo={selfDestructWeapon.ammoDetails}
+                  factionId={factionId || ''}
+                  unitId={unitId || ''}
+                />
               )}
             </>
           )}
 
           {deathExplosionWeapon && (
             <>
-              <WeaponSection weapon={deathExplosionWeapon} index={0} />
+              <WeaponSection
+                weapon={deathExplosionWeapon}
+                index={0}
+                factionId={factionId || ''}
+                unitId={unitId || ''}
+              />
               {deathExplosionWeapon.ammoDetails && (
-                <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />
+                <AmmoSection
+                  ammo={deathExplosionWeapon.ammoDetails}
+                  factionId={factionId || ''}
+                  unitId={unitId || ''}
+                />
               )}
             </>
           )}
