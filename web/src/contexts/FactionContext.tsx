@@ -93,10 +93,18 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const index = await loadFactionIndex(factionId)
-      setFactionIndexes(prev => new Map(prev).set(factionId, index))
 
-      // Populate units cache from the index
-      // Each unit is now embedded in the index entry
+      // Update refs immediately to prevent race conditions
+      factionIndexesRef.current.set(factionId, index)
+
+      // Populate units cache ref from the index
+      index.units.forEach(entry => {
+        const cacheKey = `${factionId}:${entry.identifier}`
+        unitsCacheRef.current.set(cacheKey, entry.unit)
+      })
+
+      // Update state for React components
+      setFactionIndexes(prev => new Map(prev).set(factionId, index))
       setUnitsCache(prev => {
         const next = new Map(prev)
         index.units.forEach(entry => {
