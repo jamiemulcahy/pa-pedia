@@ -105,7 +105,7 @@ describe('Navigation Integration Tests', () => {
     // Step 3: Unit detail route (separate render to test route works)
     renderApp('/faction/MLA/unit/tank')
     await waitFor(() => {
-      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
       expect(screen.getByText(/back to faction/i)).toBeInTheDocument()
     })
   })
@@ -131,14 +131,14 @@ describe('Navigation Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
+      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
     })
 
     // Navigate to Bot unit
     renderApp('/faction/MLA/unit/bot')
 
     await waitFor(() => {
-      expect(screen.getByText('Rifle')).toBeInTheDocument()
+      expect(screen.getByText('bot_weapon.json')).toBeInTheDocument()
     })
   })
 
@@ -177,7 +177,7 @@ describe('Navigation Integration Tests', () => {
 
     // Verify that faction data loaded correctly with metadata
     expect(screen.getByText('MLA')).toBeInTheDocument()
-    expect(screen.getByText(/3 units total/i)).toBeInTheDocument()
+    expect(screen.getByText(/4 units total/i)).toBeInTheDocument()
   })
 
   it('should update URL correctly during navigation', async () => {
@@ -206,11 +206,11 @@ describe('Navigation Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Build Relationships')).toBeInTheDocument()
+      expect(screen.getByText('Built By')).toBeInTheDocument()
     })
 
     // Tank is built by vehicle_factory
-    const factoryLink = screen.getByText('vehicle_factory').closest('a')
+    const factoryLink = screen.getByText('Vehicle Factory').closest('a')
     expect(factoryLink).toHaveAttribute('href', '/faction/MLA/unit/vehicle_factory')
   })
 

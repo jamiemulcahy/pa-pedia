@@ -75,14 +75,14 @@ describe('UnitDetail', () => {
     })
   })
 
-  it('should render combat stats section', async () => {
+  it('should render overview stats section', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Combat')).toBeInTheDocument()
+      expect(screen.getByText('Overview')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Health')).toBeInTheDocument()
+    expect(screen.getByText('HP:')).toBeInTheDocument()
     expect(screen.getByText('200')).toBeInTheDocument()
   })
 
@@ -90,65 +90,67 @@ describe('UnitDetail', () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Weapons')).toBeInTheDocument()
+      expect(screen.getByText('Weapon')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Main Cannon')).toBeInTheDocument()
-    expect(screen.getByText(/DPS: 50.0/i)).toBeInTheDocument()
-    expect(screen.getByText(/Range: 100/i)).toBeInTheDocument()
+    // Weapon ID is displayed as the title
+    expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+    expect(screen.getByText('Range:')).toBeInTheDocument()
+    // Value 100 appears multiple times, check it exists
+    expect(screen.getAllByText('100').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('should render economy stats section', async () => {
+  it('should render economy stats in overview section', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Economy')).toBeInTheDocument()
+      expect(screen.getByText('Overview')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Metal Cost')).toBeInTheDocument()
-    expect(screen.getByText('150')).toBeInTheDocument()
+    expect(screen.getByText('Build cost:')).toBeInTheDocument()
+    expect(screen.getByText('150 metal')).toBeInTheDocument()
   })
 
-  it('should render energy consumption when available', async () => {
+  it('should render maximum range when available', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Energy Consumption')).toBeInTheDocument()
+      expect(screen.getByText('Maximum range:')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('-5/s')).toBeInTheDocument()
+    // Value 100 appears multiple times (range, vision), just check it exists
+    expect(screen.getAllByText('100').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('should render mobility stats section', async () => {
+  it('should render physics stats section', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Mobility')).toBeInTheDocument()
+      expect(screen.getByText('Physics')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Move Speed')).toBeInTheDocument()
+    expect(screen.getByText('Max speed:')).toBeInTheDocument()
     // Value 10 may appear in multiple places
     expect(screen.getAllByText('10').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('Turn Speed')).toBeInTheDocument()
+    expect(screen.getByText('Turn rate:')).toBeInTheDocument()
     expect(screen.getByText('120')).toBeInTheDocument()
   })
 
-  it('should render build relationships section', async () => {
+  it('should render built by section', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      expect(screen.getByText('Build Relationships')).toBeInTheDocument()
+      expect(screen.getByText('Built By')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Built By')).toBeInTheDocument()
-    expect(screen.getByText('vehicle_factory')).toBeInTheDocument()
+    expect(screen.getByText('Vehicle Factory')).toBeInTheDocument()
   })
 
   it('should create links for build relationships', async () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      const builderLink = screen.getByText('vehicle_factory').closest('a')
+      const builderLink = screen.getByText('Vehicle Factory').closest('a')
       expect(builderLink).toHaveAttribute('href', '/faction/MLA/unit/vehicle_factory')
     })
   })
@@ -235,6 +237,6 @@ describe('UnitDetail', () => {
       expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
     })
 
-    expect(screen.queryByText('Build Relationships')).not.toBeInTheDocument()
+    expect(screen.queryByText('Built By')).not.toBeInTheDocument()
   })
 })

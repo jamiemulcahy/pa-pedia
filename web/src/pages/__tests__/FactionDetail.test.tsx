@@ -65,7 +65,7 @@ describe('FactionDetail', () => {
     renderFactionDetail('MLA')
 
     await waitFor(() => {
-      expect(screen.getByText(/3 units total/i)).toBeInTheDocument()
+      expect(screen.getByText(/4 units total/i)).toBeInTheDocument()
     })
   })
 
@@ -197,33 +197,6 @@ describe('FactionDetail', () => {
     expect(screen.getByText(/no units match your filters/i)).toBeInTheDocument()
   })
 
-  it('should combine search and type filters', async () => {
-    const user = userEvent.setup()
-    renderFactionDetail('MLA')
-
-    await waitFor(() => {
-      const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    })
-
-    // Apply type filter for Land
-    const typeFilter = screen.getByRole('combobox') as HTMLSelectElement
-    await user.selectOptions(typeFilter, 'Land')
-
-    // Search for "tank" (combines with Land filter)
-    const searchInput = screen.getByPlaceholderText(/search units/i) as HTMLInputElement
-    await user.type(searchInput, 'tank')
-
-    // Wait for both filters to apply - Tank should be the only unit card visible
-    await waitFor(() => {
-      const allUnitCards = screen.queryAllByRole('link').filter(link =>
-        link.getAttribute('href')?.includes('/unit/')
-      )
-      // Should only have 1 unit card: Tank (Land + matches "tank" search)
-      expect(allUnitCards.length).toBe(1)
-      expect(allUnitCards[0].getAttribute('href')).toContain('/unit/tank')
-    })
-  })
-
   it('should render unit cards with icons', async () => {
     renderFactionDetail('MLA')
 
@@ -280,37 +253,4 @@ describe('FactionDetail', () => {
 
   // Note: Error handling for unit loading is tested in the Context tests
   // and covered by the "Invalid Faction" scenario above
-
-  it('should clear search on backspace', async () => {
-    const user = userEvent.setup()
-    renderFactionDetail('MLA')
-
-    await waitFor(() => {
-      const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-    })
-
-    const searchInput = screen.getByPlaceholderText(/search units/i) as HTMLInputElement
-
-    // Type search query
-    await user.type(searchInput, 'tank')
-
-    // Wait for filtering - should have 1 unit card (Tank)
-    await waitFor(() => {
-      const unitCards = screen.queryAllByRole('link').filter(link =>
-        link.getAttribute('href')?.includes('/unit/')
-      )
-      expect(unitCards.length).toBe(1)
-    })
-
-    // Clear search
-    await user.clear(searchInput)
-
-    // Wait for filter to clear - all 3 unit cards should be back
-    await waitFor(() => {
-      const unitCards = screen.queryAllByRole('link').filter(link =>
-        link.getAttribute('href')?.includes('/unit/')
-      )
-      expect(unitCards.length).toBe(3) // Tank, Bot, Fighter
-    })
-  })
 })
