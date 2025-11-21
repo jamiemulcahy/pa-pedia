@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
-import { getUnitIconPath } from '@/services/factionLoader'
+import { getUnitIconPathFromImage } from '@/services/factionLoader'
 import { useState, useCallback, useMemo } from 'react'
 
 export function FactionDetail() {
@@ -128,7 +128,7 @@ export function FactionDetail() {
                 </div>
               ) : (
                 <img
-                  src={getUnitIconPath(factionId, unit.identifier)}
+                  src={getUnitIconPathFromImage(factionId, unit.unit.image || '')}
                   alt={`${unit.displayName} icon`}
                   className="max-w-full max-h-full object-contain"
                   onError={() => handleImageError(unit.identifier)}

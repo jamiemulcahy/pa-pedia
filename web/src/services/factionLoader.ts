@@ -63,10 +63,15 @@ export async function loadFactionIndex(factionId: string): Promise<FactionIndex>
 }
 
 /**
- * Gets the icon path for a unit
+ * Gets the icon path for a unit using the unit's image field
+ * The image field contains the path relative to the faction folder
+ * (e.g., "assets/pa/units/land/tank/tank_icon_buildbar.png")
  */
-export function getUnitIconPath(factionId: string, unitId: string): string {
-  return `${FACTIONS_BASE_PATH}/${factionId}/units/${unitId}/${unitId}_icon_buildbar.png`
+export function getUnitIconPathFromImage(factionId: string, imagePath: string): string {
+  if (!imagePath) {
+    return '' // Return empty string for missing images - caller should handle fallback
+  }
+  return `${FACTIONS_BASE_PATH}/${factionId}/${imagePath}`
 }
 
 /**

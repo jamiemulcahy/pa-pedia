@@ -332,7 +332,7 @@
         },
         "image": {
           "type": "string",
-          "description": "Relative path to unit icon (e.g. './assets/tank.png')"
+          "description": "Relative path to unit icon (e.g. 'assets/pa/units/land/tank/tank_icon_buildbar.png')"
         },
         "tier": {
           "type": "integer",

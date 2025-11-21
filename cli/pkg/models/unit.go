@@ -13,7 +13,7 @@ type Unit struct {
 	ResourceName string   `json:"resourceName" jsonschema:"required,description=Full PA resource path (e.g. '/pa/units/land/tank/tank.json')"`
 	DisplayName  string   `json:"displayName" jsonschema:"required,description=Human-readable unit name (e.g. 'Ant')"`
 	Description  string   `json:"description,omitempty" jsonschema:"description=Brief unit description or role"`
-	Image        string   `json:"image,omitempty" jsonschema:"description=Relative path to unit icon (e.g. './assets/tank.png')"`
+	Image        string   `json:"image,omitempty" jsonschema:"description=Relative path to unit icon (e.g. 'assets/pa/units/land/tank/tank_icon_buildbar.png')"`
 
 	// Classification
 	Tier            int      `json:"tier" jsonschema:"required,minimum=1,maximum=3,description=Unit tier (1=Basic 2=Advanced 3=Titan)"`

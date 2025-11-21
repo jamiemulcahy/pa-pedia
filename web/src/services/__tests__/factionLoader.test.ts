@@ -4,7 +4,7 @@ import {
   discoverFactions,
   loadFactionMetadata,
   loadFactionIndex,
-  getUnitIconPath,
+  getUnitIconPathFromImage,
   loadAllFactionMetadata
 } from '../factionLoader'
 import {
@@ -109,25 +109,25 @@ describe('factionLoader', () => {
     })
   })
 
-  describe('getUnitIconPath', () => {
-    it('should return correct icon path for unit', () => {
-      const iconPath = getUnitIconPath('MLA', 'tank')
-      expect(iconPath).toBe('/factions/MLA/units/tank/tank_icon_buildbar.png')
+  describe('getUnitIconPathFromImage', () => {
+    it('should return correct path from image field', () => {
+      const iconPath = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
+      expect(iconPath).toBe('/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
     })
 
     it('should work with different faction IDs', () => {
-      const iconPath = getUnitIconPath('Legion', 'bot')
-      expect(iconPath).toBe('/factions/Legion/units/bot/bot_icon_buildbar.png')
+      const iconPath = getUnitIconPathFromImage('Legion', 'assets/pa/units/air/fighter/fighter_icon_buildbar.png')
+      expect(iconPath).toBe('/factions/Legion/assets/pa/units/air/fighter/fighter_icon_buildbar.png')
     })
 
-    it('should handle unit IDs with underscores', () => {
-      const iconPath = getUnitIconPath('MLA', 'air_fighter')
-      expect(iconPath).toBe('/factions/MLA/units/air_fighter/air_fighter_icon_buildbar.png')
+    it('should return empty string for empty image path', () => {
+      const iconPath = getUnitIconPathFromImage('MLA', '')
+      expect(iconPath).toBe('')
     })
 
     it('should be a pure function (no side effects)', () => {
-      const path1 = getUnitIconPath('MLA', 'tank')
-      const path2 = getUnitIconPath('MLA', 'tank')
+      const path1 = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
+      const path2 = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
       expect(path1).toBe(path2)
     })
   })
