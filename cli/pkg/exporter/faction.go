@@ -97,7 +97,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 		}
 
 		// Collect all referenced spec files for this unit
-		specFiles, err := e.Loader.GetReferencedSpecFiles(unit.ResourceName)
+		specFiles, err := e.Loader.GetReferencedSpecFiles(unit.ResourceName, e.Verbose)
 		if err != nil {
 			if e.Verbose {
 				fmt.Fprintf(os.Stderr, "\nWarning: Failed to collect spec files for %s: %v\n", unit.ID, err)
@@ -265,9 +265,10 @@ func (e *FactionExporter) copySpecFile(specInfo *loader.SpecFileInfo, destPath s
 			return fmt.Errorf("file not found in zip: %s", specInfo.FullPath)
 		}
 
-		// Validate path
-		if strings.Contains(file.Name, "..") {
-			return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+		// Validate path to prevent path traversal attacks
+		cleanPath := filepath.Clean(file.Name)
+		if strings.HasPrefix(cleanPath, "..") || filepath.IsAbs(cleanPath) {
+			return fmt.Errorf("invalid path in zip (path traversal attempt): %s", file.Name)
 		}
 
 		// Check file size

@@ -19,11 +19,21 @@ PA-Pedia extracts Planetary Annihilation faction data (base game + mods) into po
 ```
 faction-name/
 ├── metadata.json          # Faction info
-├── units.json             # Complete unit index with embedded resolved data (~452KB for 199 units)
-└── units/{id}/            # Essential files per unit
-    ├── {id}.json          # Raw PA data
-    └── {id}_icon_buildbar.png
+├── units.json             # Complete unit index with embedded resolved data
+└── assets/                # Mirrored PA file structure
+    └── pa/
+        ├── units/
+        │   └── land/
+        │       └── tank/
+        │           ├── tank.json              # Unit spec
+        │           ├── tank_icon_buildbar.png # Unit icon
+        │           ├── tank_tool_weapon.json  # Weapon spec
+        │           └── tank_ammo.json         # Ammo spec
+        ├── ammo/          # Shared ammo files
+        └── tools/         # Shared tool files
 ```
+
+This structure mirrors PA paths, allowing shared resources to be written once and providing a familiar layout for modders.
 
 ### Key Data Structures
 - **FactionMetadata**: Faction info (name, version, author, mods used)

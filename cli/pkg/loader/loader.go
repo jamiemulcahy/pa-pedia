@@ -612,12 +612,12 @@ type SpecFileInfo struct {
 
 // GetReferencedSpecFiles collects all spec files referenced by a unit (base_specs, weapons, ammo)
 // Returns map of resource path -> SpecFileInfo with first-wins priority
-func (l *Loader) GetReferencedSpecFiles(unitPath string) (map[string]*SpecFileInfo, error) {
+func (l *Loader) GetReferencedSpecFiles(unitPath string, verbose bool) (map[string]*SpecFileInfo, error) {
 	specs := make(map[string]*SpecFileInfo)
 	visited := make(map[string]bool) // Prevent infinite recursion
 
 	// Start with the unit file itself
-	if err := l.collectSpecsRecursively(unitPath, specs, visited); err != nil {
+	if err := l.collectSpecsRecursively(unitPath, specs, visited, verbose); err != nil {
 		return nil, err
 	}
 
@@ -625,7 +625,7 @@ func (l *Loader) GetReferencedSpecFiles(unitPath string) (map[string]*SpecFileIn
 }
 
 // collectSpecsRecursively loads a JSON file and collects all referenced specs
-func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*SpecFileInfo, visited map[string]bool) error {
+func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*SpecFileInfo, visited map[string]bool, verbose bool) error {
 	// Prevent infinite recursion
 	if visited[resourcePath] {
 		return nil
@@ -635,6 +635,9 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 	// Load the JSON file
 	data, err := l.GetJSON(resourcePath)
 	if err != nil {
+		if verbose {
+			fmt.Fprintf(os.Stderr, "    [spec] Could not load %s: %v\n", resourcePath, err)
+		}
 		return nil // File might not exist, skip silently
 	}
 
@@ -646,8 +649,8 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 
 	// Collect base_spec
 	if baseSpec, ok := data["base_spec"].(string); ok && baseSpec != "" {
-		if err := l.collectSpecsRecursively(baseSpec, specs, visited); err != nil {
-			// Log but don't fail - base spec might not exist
+		if err := l.collectSpecsRecursively(baseSpec, specs, visited, verbose); err != nil && verbose {
+			fmt.Fprintf(os.Stderr, "    [spec] Error collecting base_spec %s: %v\n", baseSpec, err)
 		}
 	}
 
@@ -656,8 +659,8 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 		for _, toolInterface := range toolsInterface {
 			if tool, ok := toolInterface.(map[string]interface{}); ok {
 				if specID, ok := tool["spec_id"].(string); ok && specID != "" {
-					if err := l.collectSpecsRecursively(specID, specs, visited); err != nil {
-						// Log but don't fail
+					if err := l.collectSpecsRecursively(specID, specs, visited, verbose); err != nil && verbose {
+						fmt.Fprintf(os.Stderr, "    [spec] Error collecting tool %s: %v\n", specID, err)
 					}
 				}
 			}
@@ -666,8 +669,8 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 
 	// Collect ammo_id from weapon specs
 	if ammoID, ok := data["ammo_id"].(string); ok && ammoID != "" {
-		if err := l.collectSpecsRecursively(ammoID, specs, visited); err != nil {
-			// Log but don't fail
+		if err := l.collectSpecsRecursively(ammoID, specs, visited, verbose); err != nil && verbose {
+			fmt.Fprintf(os.Stderr, "    [spec] Error collecting ammo %s: %v\n", ammoID, err)
 		}
 	}
 
@@ -676,8 +679,8 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 		for _, ammoItem := range ammoIDArray {
 			if ammoMap, ok := ammoItem.(map[string]interface{}); ok {
 				if id, ok := ammoMap["id"].(string); ok && id != "" {
-					if err := l.collectSpecsRecursively(id, specs, visited); err != nil {
-						// Log but don't fail
+					if err := l.collectSpecsRecursively(id, specs, visited, verbose); err != nil && verbose {
+						fmt.Fprintf(os.Stderr, "    [spec] Error collecting ammo %s: %v\n", id, err)
 					}
 				}
 			}
@@ -687,8 +690,8 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 	// Collect death_weapon ground_ammo_spec
 	if deathWeapon, ok := data["death_weapon"].(map[string]interface{}); ok {
 		if groundAmmoSpec, ok := deathWeapon["ground_ammo_spec"].(string); ok && groundAmmoSpec != "" {
-			if err := l.collectSpecsRecursively(groundAmmoSpec, specs, visited); err != nil {
-				// Log but don't fail
+			if err := l.collectSpecsRecursively(groundAmmoSpec, specs, visited, verbose); err != nil && verbose {
+				fmt.Fprintf(os.Stderr, "    [spec] Error collecting death_weapon ammo %s: %v\n", groundAmmoSpec, err)
 			}
 		}
 	}
