@@ -198,7 +198,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 
 			copiedAssets[assetPath] = true
 			indexFiles = append(indexFiles, models.UnitFile{
-				Path:   strings.TrimPrefix(assetPath, "/"),
+				Path:   assetPath,
 				Source: fileInfo.Source,
 			})
 		}
@@ -386,11 +386,7 @@ func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath st
 		return nil
 	}()
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // copyFromFilesystem copies a file from the filesystem
