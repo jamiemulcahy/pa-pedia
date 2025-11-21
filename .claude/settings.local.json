@@ -12,7 +12,8 @@
       "Bash(./generate-schema.exe:*)",
       "Bash(go test:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

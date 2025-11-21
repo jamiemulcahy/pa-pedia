@@ -171,6 +171,32 @@ export const mockFighterUnit: Unit = {
   }
 }
 
+export const mockVehicleFactoryUnit: Unit = {
+  id: 'vehicle_factory',
+  resourceName: '/pa/units/land/vehicle_factory/vehicle_factory.json',
+  displayName: 'Vehicle Factory',
+  description: 'Produces ground vehicles',
+  unitTypes: ['Structure', 'Land', 'Basic', 'Factory'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 5000
+    },
+    economy: {
+      buildCost: 600,
+      buildRate: 15
+    },
+    recon: {
+      visionRadius: 100
+    }
+  },
+  buildRelationships: {
+    builtBy: ['commander'],
+    builds: ['tank', 'bot']
+  }
+}
+
 export const mockLegionTankUnit: Unit = {
   id: 'legion_tank',
   resourceName: '/pa_ex1/units/land/tank/tank.json',
@@ -268,6 +294,19 @@ export const mockMLAIndex: FactionIndex = {
         }
       ],
       unit: mockFighterUnit
+    },
+    {
+      identifier: 'vehicle_factory',
+      displayName: 'Vehicle Factory',
+      unitTypes: ['Structure', 'Land', 'Basic', 'Factory'],
+      source: '/pa/units/land/vehicle_factory/vehicle_factory.json',
+      files: [
+        {
+          path: '/pa/units/land/vehicle_factory/vehicle_factory.json',
+          source: 'pa'
+        }
+      ],
+      unit: mockVehicleFactoryUnit
     }
   ]
 }
