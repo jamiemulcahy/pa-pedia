@@ -29,11 +29,12 @@ func (s *Source) ZipIndex() map[string]*zip.File {
 
 // Loader handles loading and caching JSON files from PA installation and mods
 type Loader struct {
-	sources   []Source                        // Priority-ordered sources to search
-	jsonCache map[string]map[string]interface{} // Cached JSON data
-	safeNames map[string]string               // resource path -> safe name
-	fullNames map[string]string               // safe name -> resource path
-	expansion string                          // Expansion directory (e.g., "pa_ex1")
+	sources     []Source                        // Priority-ordered sources to search
+	jsonCache   map[string]map[string]interface{} // Cached JSON data
+	sourceCache map[string]*SpecFileInfo        // Cached source info for resources
+	safeNames   map[string]string               // resource path -> safe name
+	fullNames   map[string]string               // safe name -> resource path
+	expansion   string                          // Expansion directory (e.g., "pa_ex1")
 }
 
 // NewMultiSourceLoader creates a loader from ModInfo array
@@ -51,11 +52,12 @@ type Loader struct {
 // closed by the caller using defer.
 func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Loader, error) {
 	l := &Loader{
-		sources:   make([]Source, 0, len(mods)+2),
-		jsonCache: make(map[string]map[string]interface{}),
-		safeNames: make(map[string]string),
-		fullNames: make(map[string]string),
-		expansion: expansion,
+		sources:     make([]Source, 0, len(mods)+2),
+		jsonCache:   make(map[string]map[string]interface{}),
+		sourceCache: make(map[string]*SpecFileInfo),
+		safeNames:   make(map[string]string),
+		fullNames:   make(map[string]string),
+		expansion:   expansion,
 	}
 
 	// Add mods in order (first has highest priority)
@@ -169,17 +171,39 @@ func (l *Loader) GetJSON(resourceName string) (map[string]interface{}, error) {
 		for _, resPath := range paths {
 			var data map[string]interface{}
 			var err error
+			var fullPath string
 
 			if src.IsZip {
 				data, err = l.loadJSONFromZip(src, resPath)
+				if err == nil {
+					// For zip, the full path is the normalized path
+					fullPath = strings.TrimPrefix(filepath.ToSlash(resPath), "/")
+				}
 			} else {
 				data, err = l.loadJSONFromDir(src, resPath)
+				if err == nil {
+					// For filesystem, compute full path
+					trimmedPath := resPath
+					if strings.HasPrefix(resPath, "/"+src.Identifier+"/") {
+						trimmedPath = strings.TrimPrefix(resPath, "/"+src.Identifier+"/")
+					} else if strings.HasPrefix(resPath, "/pa/") && src.Identifier == "pa_ex1" {
+						trimmedPath = strings.TrimPrefix(resPath, "/pa/")
+					}
+					fullPath = filepath.Join(src.Path, filepath.FromSlash(trimmedPath))
+				}
 			}
 
 			if err == nil {
 				// Cache under all possible names
 				for _, p := range paths {
 					l.jsonCache[p] = data
+				}
+				// Cache source information
+				l.sourceCache[resourceName] = &SpecFileInfo{
+					ResourcePath: resourceName,
+					Source:       src.Identifier,
+					IsFromZip:    src.IsZip,
+					FullPath:     fullPath,
 				}
 				return data, nil
 			}
@@ -576,6 +600,160 @@ func (l *Loader) findFilesInDir(src Source, unitDir string, unitID string) map[s
 	}
 
 	return files
+}
+
+// SpecFileInfo represents a discovered spec file (weapon, ammo, base_spec) with its source
+type SpecFileInfo struct {
+	ResourcePath string // PA resource path (e.g., "/pa/units/land/tank/tank_tool_weapon.json")
+	Source       string // Source identifier (pa, pa_ex1, mod identifier)
+	IsFromZip    bool   // Whether this file comes from a zip
+	FullPath     string // Full filesystem path or zip entry path
+}
+
+// GetReferencedSpecFiles collects all spec files referenced by a unit (base_specs, weapons, ammo)
+// Returns map of resource path -> SpecFileInfo with first-wins priority
+func (l *Loader) GetReferencedSpecFiles(unitPath string) (map[string]*SpecFileInfo, error) {
+	specs := make(map[string]*SpecFileInfo)
+	visited := make(map[string]bool) // Prevent infinite recursion
+
+	// Start with the unit file itself
+	if err := l.collectSpecsRecursively(unitPath, specs, visited); err != nil {
+		return nil, err
+	}
+
+	return specs, nil
+}
+
+// collectSpecsRecursively loads a JSON file and collects all referenced specs
+func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*SpecFileInfo, visited map[string]bool) error {
+	// Prevent infinite recursion
+	if visited[resourcePath] {
+		return nil
+	}
+	visited[resourcePath] = true
+
+	// Load the JSON file
+	data, err := l.GetJSON(resourcePath)
+	if err != nil {
+		return nil // File might not exist, skip silently
+	}
+
+	// Find which source provided this file and add it to specs
+	specInfo := l.findSpecSource(resourcePath)
+	if specInfo != nil {
+		specs[resourcePath] = specInfo
+	}
+
+	// Collect base_spec
+	if baseSpec, ok := data["base_spec"].(string); ok && baseSpec != "" {
+		if err := l.collectSpecsRecursively(baseSpec, specs, visited); err != nil {
+			// Log but don't fail - base spec might not exist
+		}
+	}
+
+	// Collect tools (weapons, build arms)
+	if toolsInterface, ok := data["tools"].([]interface{}); ok {
+		for _, toolInterface := range toolsInterface {
+			if tool, ok := toolInterface.(map[string]interface{}); ok {
+				if specID, ok := tool["spec_id"].(string); ok && specID != "" {
+					if err := l.collectSpecsRecursively(specID, specs, visited); err != nil {
+						// Log but don't fail
+					}
+				}
+			}
+		}
+	}
+
+	// Collect ammo_id from weapon specs
+	if ammoID, ok := data["ammo_id"].(string); ok && ammoID != "" {
+		if err := l.collectSpecsRecursively(ammoID, specs, visited); err != nil {
+			// Log but don't fail
+		}
+	}
+
+	// Handle ammo_id as array format
+	if ammoIDArray, ok := data["ammo_id"].([]interface{}); ok {
+		for _, ammoItem := range ammoIDArray {
+			if ammoMap, ok := ammoItem.(map[string]interface{}); ok {
+				if id, ok := ammoMap["id"].(string); ok && id != "" {
+					if err := l.collectSpecsRecursively(id, specs, visited); err != nil {
+						// Log but don't fail
+					}
+				}
+			}
+		}
+	}
+
+	// Collect death_weapon ground_ammo_spec
+	if deathWeapon, ok := data["death_weapon"].(map[string]interface{}); ok {
+		if groundAmmoSpec, ok := deathWeapon["ground_ammo_spec"].(string); ok && groundAmmoSpec != "" {
+			if err := l.collectSpecsRecursively(groundAmmoSpec, specs, visited); err != nil {
+				// Log but don't fail
+			}
+		}
+	}
+
+	return nil
+}
+
+// findSpecSource finds which source provides a resource and returns its info
+// Uses cached source information from GetJSON calls for performance
+func (l *Loader) findSpecSource(resourcePath string) *SpecFileInfo {
+	// Check source cache first (populated by GetJSON)
+	if cached, ok := l.sourceCache[resourcePath]; ok {
+		return cached
+	}
+
+	// Fallback: search all sources (shouldn't happen often if GetJSON was called first)
+	// Build list of possible file paths (handle expansion shadowing)
+	var paths []string
+	if l.expansion != "" && strings.HasPrefix(resourcePath, "/pa/") {
+		expPath := "/" + l.expansion + "/" + resourcePath[4:]
+		paths = append(paths, expPath)
+	}
+	paths = append(paths, resourcePath)
+
+	// Try each source in priority order
+	for _, src := range l.sources {
+		for _, resPath := range paths {
+			if src.IsZip {
+				// Check in zip
+				normalizedPath := strings.TrimPrefix(filepath.ToSlash(resPath), "/")
+				if _, found := src.zipIndex[normalizedPath]; found {
+					info := &SpecFileInfo{
+						ResourcePath: resourcePath,
+						Source:       src.Identifier,
+						IsFromZip:    true,
+						FullPath:     normalizedPath,
+					}
+					l.sourceCache[resourcePath] = info
+					return info
+				}
+			} else {
+				// Check in directory
+				trimmedPath := resPath
+				if strings.HasPrefix(resPath, "/"+src.Identifier+"/") {
+					trimmedPath = strings.TrimPrefix(resPath, "/"+src.Identifier+"/")
+				} else if strings.HasPrefix(resPath, "/pa/") && src.Identifier == "pa_ex1" {
+					trimmedPath = strings.TrimPrefix(resPath, "/pa/")
+				}
+
+				fullPath := filepath.Join(src.Path, filepath.FromSlash(trimmedPath))
+				if _, err := os.Stat(fullPath); err == nil {
+					info := &SpecFileInfo{
+						ResourcePath: resourcePath,
+						Source:       src.Identifier,
+						IsFromZip:    false,
+						FullPath:     fullPath,
+					}
+					l.sourceCache[resourcePath] = info
+					return info
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 // findFilesInZip finds all files in a unit directory from a zip source

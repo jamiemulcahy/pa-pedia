@@ -63,9 +63,24 @@ export async function loadFactionIndex(factionId: string): Promise<FactionIndex>
 }
 
 /**
+ * Gets the icon path for a unit using the unit's image field
+ * The image field contains the path relative to the faction folder
+ * (e.g., "assets/pa/units/land/tank/tank_icon_buildbar.png")
+ */
+export function getUnitIconPathFromImage(factionId: string, imagePath: string): string {
+  return `${FACTIONS_BASE_PATH}/${factionId}/${imagePath}`
+}
+
+/**
  * Gets the icon path for a unit
+ * @deprecated Use getUnitIconPathFromImage with unit.image instead for accurate paths
+ * This function now constructs a path compatible with the new assets structure
+ * but cannot determine the exact PA path without unit data
  */
 export function getUnitIconPath(factionId: string, unitId: string): string {
+  // Note: This is a fallback that won't work correctly for the new assets structure
+  // as it doesn't know the full PA path. Use getUnitIconPathFromImage instead.
+  // For backwards compatibility, we keep this but it should be migrated to use unit.image
   return `${FACTIONS_BASE_PATH}/${factionId}/units/${unitId}/${unitId}_icon_buildbar.png`
 }
 

@@ -207,7 +207,8 @@ describe('FactionDetail', () => {
     // Icon alt text includes " icon" suffix
     const tankImage = screen.getByAltText('Tank icon')
     expect(tankImage).toBeInTheDocument()
-    expect(tankImage).toHaveAttribute('src', '/factions/MLA/units/tank/tank_icon_buildbar.png')
+    // New path uses unit.unit.image field which contains assets path
+    expect(tankImage).toHaveAttribute('src', '/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
   })
 
   it('should render unit type badges', async () => {

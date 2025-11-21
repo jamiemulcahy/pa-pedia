@@ -71,7 +71,8 @@ describe('UnitDetail', () => {
     await waitFor(() => {
       const icon = screen.getByAltText('Tank')
       expect(icon).toBeInTheDocument()
-      expect(icon).toHaveAttribute('src', '/factions/MLA/units/tank/tank_icon_buildbar.png')
+      // New path uses unit.image field which contains assets path
+      expect(icon).toHaveAttribute('src', '/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
     })
   })
 

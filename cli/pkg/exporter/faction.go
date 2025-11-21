@@ -28,7 +28,7 @@ func NewFactionExporter(outputDir string, l *loader.Loader, verbose bool) *Facti
 	}
 }
 
-// ExportFaction exports a faction using the Phase 1.5 structure
+// ExportFaction exports a faction using the new assets structure
 func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units []models.Unit) error {
 	// Create faction folder
 	factionDir := filepath.Join(e.OutputDir, sanitizeFolderName(metadata.DisplayName))
@@ -41,10 +41,10 @@ func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units [
 		return fmt.Errorf("failed to create faction directory: %w", err)
 	}
 
-	// Create units subdirectory
-	unitsDir := filepath.Join(factionDir, "units")
-	if err := os.MkdirAll(unitsDir, 0755); err != nil {
-		return fmt.Errorf("failed to create units directory: %w", err)
+	// Create assets subdirectory
+	assetsDir := filepath.Join(factionDir, "assets")
+	if err := os.MkdirAll(assetsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create assets directory: %w", err)
 	}
 
 	// Write metadata.json
@@ -52,8 +52,8 @@ func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units [
 		return fmt.Errorf("failed to write metadata: %w", err)
 	}
 
-	// Build lightweight index and export unit files
-	index, err := e.exportUnits(unitsDir, units)
+	// Build lightweight index and export unit files to assets
+	index, err := e.exportUnitsToAssets(assetsDir, units)
 	if err != nil {
 		return fmt.Errorf("failed to export units: %w", err)
 	}
@@ -67,17 +67,21 @@ func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units [
 		fmt.Printf("Successfully exported faction to %s\n", factionDir)
 		fmt.Printf("  - Metadata: metadata.json\n")
 		fmt.Printf("  - Index: %d units in units.json\n", len(index.Units))
-		fmt.Printf("  - Units: %d unit folders in units/\n", len(units))
+		fmt.Printf("  - Assets: mirrored PA structure in assets/\n")
 	}
 
 	return nil
 }
 
-// exportUnits exports all unit files and builds the index
-func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*models.FactionIndex, error) {
+// exportUnitsToAssets exports all unit files and referenced specs to assets folder
+// Uses PA path structure (e.g., assets/pa/units/land/tank/tank.json)
+func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.Unit) (*models.FactionIndex, error) {
 	index := &models.FactionIndex{
 		Units: make([]models.UnitIndexEntry, 0, len(units)),
 	}
+
+	// Track all copied assets for deduplication (first-wins)
+	copiedAssets := make(map[string]bool)
 
 	var criticalFailures []string // Track units that failed to export their primary JSON
 
@@ -92,55 +96,121 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 			}
 		}
 
-		// Create unit directory
-		unitDir := filepath.Join(unitsDir, unit.ID)
-		if err := os.MkdirAll(unitDir, 0755); err != nil {
-			return nil, fmt.Errorf("failed to create unit directory for %s: %w", unit.ID, err)
+		// Collect all referenced spec files for this unit
+		specFiles, err := e.Loader.GetReferencedSpecFiles(unit.ResourceName)
+		if err != nil {
+			if e.Verbose {
+				fmt.Fprintf(os.Stderr, "\nWarning: Failed to collect spec files for %s: %v\n", unit.ID, err)
+			}
 		}
 
-		// Discover all files for this unit
+		// Also get unit files (for icon)
 		unitFiles, err := e.Loader.GetAllFilesForUnit(unit.ResourceName)
 		if err != nil {
-			// Log warning but continue
 			if e.Verbose {
 				fmt.Fprintf(os.Stderr, "\nWarning: Failed to discover files for %s: %v\n", unit.ID, err)
 			}
 			unitFiles = make(map[string]*loader.UnitFileInfo)
 		}
 
-		// Copy all discovered files to unit directory
-		indexFiles := make([]models.UnitFile, 0, len(unitFiles))
-		primaryJSONName := unit.ID + ".json"
+		// Track files for this unit's index entry
+		indexFiles := make([]models.UnitFile, 0)
 		primaryJSONFound := false
 
-		for filename, fileInfo := range unitFiles {
-			if err := e.copyFile(fileInfo, unitDir); err != nil {
-				// Always log critical failures (primary unit JSON), even in non-verbose mode
-				if filename == primaryJSONName {
-					fmt.Fprintf(os.Stderr, "\nError: Failed to copy primary file %s for unit %s: %v\n", filename, unit.ID, err)
-					criticalFailures = append(criticalFailures, unit.ID)
-				} else if e.Verbose {
-					fmt.Fprintf(os.Stderr, "\nWarning: Failed to copy %s for unit %s: %v\n", filename, unit.ID, err)
+		// Copy all spec files to assets with PA path structure
+		for resourcePath, specInfo := range specFiles {
+			// Convert resource path to assets path (e.g., /pa/units/land/tank/tank.json -> pa/units/land/tank/tank.json)
+			assetPath := strings.TrimPrefix(resourcePath, "/")
+
+			// Skip if already copied (first-wins deduplication)
+			if copiedAssets[assetPath] {
+				continue
+			}
+
+			// Create destination path
+			destPath := filepath.Join(assetsDir, filepath.FromSlash(assetPath))
+
+			// Ensure directory exists
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				if e.Verbose {
+					fmt.Fprintf(os.Stderr, "\nWarning: Failed to create directory for %s: %v\n", assetPath, err)
 				}
 				continue
 			}
 
-			// Track if primary JSON was successfully copied
-			if filename == primaryJSONName {
-				primaryJSONFound = true
+			// Copy the file
+			if err := e.copySpecFile(specInfo, destPath); err != nil {
+				// Check if this is the primary unit JSON
+				if resourcePath == unit.ResourceName {
+					fmt.Fprintf(os.Stderr, "\nError: Failed to copy primary file for unit %s: %v\n", unit.ID, err)
+					criticalFailures = append(criticalFailures, unit.ID)
+				} else if e.Verbose {
+					fmt.Fprintf(os.Stderr, "\nWarning: Failed to copy %s: %v\n", assetPath, err)
+				}
+				continue
 			}
 
-			// Add to index
+			copiedAssets[assetPath] = true
+
+			// Track primary JSON for this unit
+			if resourcePath == unit.ResourceName {
+				primaryJSONFound = true
+				indexFiles = append(indexFiles, models.UnitFile{
+					Path:   assetPath,
+					Source: specInfo.Source,
+				})
+			}
+		}
+
+		// Copy icon file to assets
+		for filename, fileInfo := range unitFiles {
+			// Only copy icon files (primary JSON is handled via spec files)
+			if !strings.HasSuffix(filename, "_icon_buildbar.png") {
+				continue
+			}
+
+			// Determine asset path for icon - use same directory as unit JSON
+			unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
+			assetPath := filepath.ToSlash(filepath.Join(unitDir, filename))
+
+			// Skip if already copied
+			if copiedAssets[assetPath] {
+				continue
+			}
+
+			destPath := filepath.Join(assetsDir, filepath.FromSlash(assetPath))
+
+			// Ensure directory exists
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				if e.Verbose {
+					fmt.Fprintf(os.Stderr, "\nWarning: Failed to create directory for icon %s: %v\n", assetPath, err)
+				}
+				continue
+			}
+
+			// Copy icon file
+			if err := e.copyFile(fileInfo, filepath.Dir(destPath)); err != nil {
+				if e.Verbose {
+					fmt.Fprintf(os.Stderr, "\nWarning: Failed to copy icon %s for unit %s: %v\n", filename, unit.ID, err)
+				}
+				continue
+			}
+
+			copiedAssets[assetPath] = true
 			indexFiles = append(indexFiles, models.UnitFile{
-				Path:   filename,
+				Path:   strings.TrimPrefix(assetPath, "/"),
 				Source: fileInfo.Source,
 			})
 		}
 
-		// Warn if primary JSON wasn't found (even if copy didn't fail, it might not exist)
-		if !primaryJSONFound && len(unitFiles) > 0 {
-			fmt.Fprintf(os.Stderr, "\nWarning: Primary file %s not found for unit %s\n", primaryJSONName, unit.ID)
+		// Warn if primary JSON wasn't found
+		if !primaryJSONFound {
+			fmt.Fprintf(os.Stderr, "\nWarning: Primary file not found for unit %s\n", unit.ID)
 		}
+
+		// Update unit image path to new assets structure
+		unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
+		unit.Image = filepath.ToSlash(filepath.Join("assets", unitDir, unit.ID+"_icon_buildbar.png"))
 
 		// Create index entry with embedded unit data
 		indexEntry := models.UnitIndexEntry{
@@ -157,11 +227,12 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 
 	if e.Verbose {
 		fmt.Println() // New line after progress indicator
+		fmt.Printf("  Total unique assets copied: %d\n", len(copiedAssets))
 	}
 
 	// Report critical failures summary if any
 	if len(criticalFailures) > 0 {
-		fmt.Fprintf(os.Stderr, "\n⚠️  Warning: %d unit(s) failed to export their primary JSON file:\n", len(criticalFailures))
+		fmt.Fprintf(os.Stderr, "\nWarning: %d unit(s) failed to export their primary JSON file:\n", len(criticalFailures))
 		for _, unitID := range criticalFailures {
 			fmt.Fprintf(os.Stderr, "  - %s\n", unitID)
 		}
@@ -169,6 +240,63 @@ func (e *FactionExporter) exportUnits(unitsDir string, units []models.Unit) (*mo
 	}
 
 	return index, nil
+}
+
+// copySpecFile copies a spec file from source to destination
+func (e *FactionExporter) copySpecFile(specInfo *loader.SpecFileInfo, destPath string) error {
+	if specInfo.IsFromZip {
+		// Find the source in the loader
+		var source *loader.Source
+		for _, src := range e.Loader.Sources() {
+			if src.IsZip && src.Identifier == specInfo.Source {
+				s := src
+				source = &s
+				break
+			}
+		}
+
+		if source == nil || source.ZipReader == nil {
+			return fmt.Errorf("zip reader not found for source %s", specInfo.Source)
+		}
+
+		// Use zip index for O(1) lookup
+		file, found := source.ZipIndex()[specInfo.FullPath]
+		if !found {
+			return fmt.Errorf("file not found in zip: %s", specInfo.FullPath)
+		}
+
+		// Validate path
+		if strings.Contains(file.Name, "..") {
+			return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+		}
+
+		// Check file size
+		if file.UncompressedSize64 > maxFileSize {
+			return fmt.Errorf("file too large: %s (%d bytes, max %d bytes)", file.Name, file.UncompressedSize64, maxFileSize)
+		}
+
+		// Extract file
+		rc, err := file.Open()
+		if err != nil {
+			return fmt.Errorf("failed to open file in zip: %w", err)
+		}
+		defer rc.Close()
+
+		destFile, err := os.Create(destPath)
+		if err != nil {
+			return fmt.Errorf("failed to create destination file: %w", err)
+		}
+		defer destFile.Close()
+
+		if _, err := io.Copy(destFile, rc); err != nil {
+			return fmt.Errorf("failed to copy file data: %w", err)
+		}
+
+		return nil
+	}
+
+	// Copy from filesystem
+	return e.copyFromFilesystem(specInfo.FullPath, destPath)
 }
 
 // copyFile copies a unit file from source to destination

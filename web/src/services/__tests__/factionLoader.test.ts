@@ -5,6 +5,7 @@ import {
   loadFactionMetadata,
   loadFactionIndex,
   getUnitIconPath,
+  getUnitIconPathFromImage,
   loadAllFactionMetadata
 } from '../factionLoader'
 import {
@@ -128,6 +129,29 @@ describe('factionLoader', () => {
     it('should be a pure function (no side effects)', () => {
       const path1 = getUnitIconPath('MLA', 'tank')
       const path2 = getUnitIconPath('MLA', 'tank')
+      expect(path1).toBe(path2)
+    })
+  })
+
+  describe('getUnitIconPathFromImage', () => {
+    it('should return correct path from image field', () => {
+      const iconPath = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
+      expect(iconPath).toBe('/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
+    })
+
+    it('should work with different faction IDs', () => {
+      const iconPath = getUnitIconPathFromImage('Legion', 'assets/pa/units/air/fighter/fighter_icon_buildbar.png')
+      expect(iconPath).toBe('/factions/Legion/assets/pa/units/air/fighter/fighter_icon_buildbar.png')
+    })
+
+    it('should handle empty image path', () => {
+      const iconPath = getUnitIconPathFromImage('MLA', '')
+      expect(iconPath).toBe('/factions/MLA/')
+    })
+
+    it('should be a pure function (no side effects)', () => {
+      const path1 = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
+      const path2 = getUnitIconPathFromImage('MLA', 'assets/pa/units/land/tank/tank_icon_buildbar.png')
       expect(path1).toBe(path2)
     })
   })
