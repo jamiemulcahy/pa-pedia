@@ -64,7 +64,7 @@ export function UnitDetail() {
                 className="max-w-full max-h-full object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
-                  target.src = ''
+                  target.style.display = 'none'
                 }}
               />
             </div>
@@ -91,11 +91,10 @@ export function UnitDetail() {
 
           <UnitTypesSection unitTypes={unit.unitTypes} />
 
-          {regularWeapons.map((weapon, idx) => (
-            <React.Fragment key={idx}>
+          {regularWeapons.map((weapon) => (
+            <React.Fragment key={weapon.resourceName}>
               <WeaponSection
                 weapon={weapon}
-                index={idx}
                 factionId={factionId || ''}
                 unitId={unitId || ''}
               />
@@ -113,7 +112,6 @@ export function UnitDetail() {
             <>
               <WeaponSection
                 weapon={selfDestructWeapon}
-                index={0}
                 factionId={factionId || ''}
                 unitId={unitId || ''}
               />
@@ -131,7 +129,6 @@ export function UnitDetail() {
             <>
               <WeaponSection
                 weapon={deathExplosionWeapon}
-                index={0}
                 factionId={factionId || ''}
                 unitId={unitId || ''}
               />

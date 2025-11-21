@@ -6,7 +6,6 @@ import type { Weapon } from '@/types/faction';
 
 interface WeaponSectionProps {
   weapon: Weapon;
-  index: number;
   factionId: string;
   unitId: string;
 }

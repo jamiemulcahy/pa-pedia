@@ -53,11 +53,13 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       return;
     }
 
+    const controller = new AbortController();
+
     const loadBlueprint = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(blueprintPath);
+        const response = await fetch(blueprintPath, { signal: controller.signal });
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
@@ -74,6 +76,10 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
         const json = await response.json();
         setBlueprintContent(JSON.stringify(json, null, 2));
       } catch (err) {
+        // Ignore abort errors
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
         // Improve JSON parse error messages
         if (err instanceof Error && err.message.includes('JSON')) {
           setError('Blueprint file not found or contains invalid data.');
@@ -87,6 +93,8 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     };
 
     loadBlueprint();
+
+    return () => controller.abort();
   }, [isOpen, blueprintPath]);
 
   const handleCopy = async () => {

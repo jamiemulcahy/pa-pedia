@@ -76,9 +76,12 @@ describe('BlueprintLink', () => {
 
     await user.click(screen.getByText('View'))
 
-    // Check that fetch was called with correct path
+    // Check that fetch was called with correct path (includes abort signal)
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/factions/MLA/units/tank/tank.json')
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/factions/MLA/units/tank/tank.json',
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      )
     })
   })
 
