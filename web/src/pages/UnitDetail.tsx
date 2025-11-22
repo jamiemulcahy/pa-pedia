@@ -55,8 +55,8 @@ export function UnitDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left column - Unit icon and basic info */}
-        <div className="md:col-span-1">
-          <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 sticky top-4">
+        <div className="md:col-span-1 space-y-6">
+          <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
             <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded">
               <img
                 src={getUnitIconPathFromImage(factionId || '', unit.image || '')}
@@ -72,11 +72,19 @@ export function UnitDetail() {
               {unit.displayName}
             </h1>
             {unit.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 italic">
                 {unit.description}
               </p>
             )}
           </div>
+
+          <UnitTypesSection unitTypes={unit.unitTypes} />
+
+          <BuiltBySection
+            factionId={factionId || ''}
+            builtBy={buildRelationships?.builtBy}
+            buildCost={specs.economy.buildCost}
+          />
         </div>
 
         {/* Right column - All stats sections */}
@@ -88,8 +96,6 @@ export function UnitDetail() {
           )}
 
           {specs.recon && <ReconSection recon={specs.recon} />}
-
-          <UnitTypesSection unitTypes={unit.unitTypes} />
 
           {regularWeapons.map((weapon) => (
             <React.Fragment key={weapon.resourceName}>
@@ -137,12 +143,6 @@ export function UnitDetail() {
           )}
 
           <TargetPrioritiesSection weapons={regularWeapons} />
-
-          <BuiltBySection
-            factionId={factionId || ''}
-            builtBy={buildRelationships?.builtBy}
-            buildCost={specs.economy.buildCost}
-          />
         </div>
       </div>
     </div>
