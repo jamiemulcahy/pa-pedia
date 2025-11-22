@@ -1,20 +1,26 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useFactionContext } from '@/contexts/FactionContext';
+import { getLocalAsset } from '@/services/localFactionStorage';
 
 interface BlueprintModalProps {
   isOpen: boolean;
   onClose: () => void;
   blueprintPath: string;
   title: string;
+  factionId?: string;
 }
 
 export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   isOpen,
   onClose,
   blueprintPath,
-  title
+  title,
+  factionId
 }) => {
+  const { isLocalFaction } = useFactionContext();
+  const isLocal = factionId ? isLocalFaction(factionId) : false;
   const [blueprintContent, setBlueprintContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,21 +108,39 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       setError(null);
       setBaseSpec(null);
       try {
-        const response = await fetch(currentPath, { signal: controller.signal });
-        if (!response.ok) {
-          if (response.status === 404) {
+        let json;
+
+        if (isLocal && factionId) {
+          // Load from IndexedDB for local factions
+          // Convert path like /factions/MyFaction/assets/pa/units/... to assets/pa/units/...
+          const assetPath = currentPath.replace(/^\/factions\/[^/]+\//, '');
+          const blob = await getLocalAsset(factionId, assetPath);
+
+          if (!blob) {
             throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
           }
-          throw new Error(`Failed to load blueprint: ${response.statusText}`);
+
+          const text = await blob.text();
+          json = JSON.parse(text);
+        } else {
+          // Load from server for static factions
+          const response = await fetch(currentPath, { signal: controller.signal });
+          if (!response.ok) {
+            if (response.status === 404) {
+              throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
+            }
+            throw new Error(`Failed to load blueprint: ${response.statusText}`);
+          }
+
+          // Check if response is actually JSON
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Blueprint file not found or invalid format.');
+          }
+
+          json = await response.json();
         }
 
-        // Check if response is actually JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error('Blueprint file not found or invalid format.');
-        }
-
-        const json = await response.json();
         setBlueprintContent(JSON.stringify(json, null, 2));
 
         // Check for base_spec field
@@ -147,7 +171,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     loadBlueprint();
 
     return () => controller.abort();
-  }, [isOpen, currentPath]);
+  }, [isOpen, currentPath, isLocal, factionId]);
 
   const handleCopy = async () => {
     try {

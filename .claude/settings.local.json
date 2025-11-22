@@ -13,7 +13,8 @@
       "Bash(go test:*)",
       "Bash(npm run build:*)",
       "Bash(npm run test:run:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npx vite build)"
     ],
     "deny": [],
     "ask": []

@@ -34,6 +34,7 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
         onClose={() => setIsModalOpen(false)}
         blueprintPath={getBlueprintPath()}
         title={`Blueprint: ${displayName || resourceName}`}
+        factionId={factionId}
       />
     </>
   );

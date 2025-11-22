@@ -1,20 +1,55 @@
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
+import {
+  getLocalFactionIds,
+  getLocalFactionMetadata,
+  getLocalFactionIndex,
+  getLocalAssetUrl,
+} from './localFactionStorage'
 
 const FACTIONS_BASE_PATH = '/factions'
 
+export interface FactionDiscoveryEntry {
+  id: string
+  isLocal: boolean
+}
+
 /**
  * Discovers available factions by checking for known faction directories
- * In a real app, this would be dynamic, but for now we hardcode MLA and Legion
+ * Includes both static factions and local (user-uploaded) factions
  */
-export async function discoverFactions(): Promise<string[]> {
-  // Hardcoded for now - in production, this could fetch a manifest
-  return ['MLA', 'Legion']
+export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
+  const staticFactions: FactionDiscoveryEntry[] = ['MLA', 'Legion'].map(id => ({
+    id,
+    isLocal: false,
+  }))
+
+  try {
+    const localIds = await getLocalFactionIds()
+    const localFactions: FactionDiscoveryEntry[] = localIds.map(id => ({
+      id,
+      isLocal: true,
+    }))
+    return [...staticFactions, ...localFactions]
+  } catch (error) {
+    console.warn('Failed to load local factions:', error)
+    return staticFactions
+  }
 }
 
 /**
  * Loads faction metadata from metadata.json
+ * Supports both static factions (fetched) and local factions (IndexedDB)
  */
-export async function loadFactionMetadata(factionId: string): Promise<FactionMetadata> {
+export async function loadFactionMetadata(factionId: string, isLocal: boolean = false): Promise<FactionMetadata> {
+  // Try local storage first if marked as local
+  if (isLocal) {
+    const localMetadata = await getLocalFactionMetadata(factionId)
+    if (localMetadata) {
+      return localMetadata
+    }
+    throw new Error(`Local faction '${factionId}' not found`)
+  }
+
   try {
     const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
     if (!response.ok) {
@@ -48,8 +83,18 @@ export async function loadFactionMetadata(factionId: string): Promise<FactionMet
 
 /**
  * Loads faction unit index from units.json
+ * Supports both static factions (fetched) and local factions (IndexedDB)
  */
-export async function loadFactionIndex(factionId: string): Promise<FactionIndex> {
+export async function loadFactionIndex(factionId: string, isLocal: boolean = false): Promise<FactionIndex> {
+  // Try local storage first if marked as local
+  if (isLocal) {
+    const localIndex = await getLocalFactionIndex(factionId)
+    if (localIndex) {
+      return localIndex
+    }
+    throw new Error(`Local faction '${factionId}' index not found`)
+  }
+
   try {
     const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/units.json`)
     if (!response.ok) {
@@ -75,15 +120,34 @@ export function getUnitIconPathFromImage(factionId: string, imagePath: string): 
 }
 
 /**
+ * Gets the icon URL for a local faction unit
+ * Returns a blob URL that must be revoked when no longer needed
+ */
+export async function getLocalUnitIconUrl(factionId: string, imagePath: string): Promise<string | undefined> {
+  if (!imagePath) {
+    return undefined
+  }
+  return getLocalAssetUrl(factionId, imagePath)
+}
+
+// Re-export for convenience
+export { getLocalAssetUrl }
+
+export interface FactionMetadataWithLocal extends FactionMetadata {
+  isLocal: boolean
+}
+
+/**
  * Loads all faction metadata at once for initial app load
  * Maps by folder name (not metadata.identifier) since routes use folder names
+ * Now includes isLocal flag for each faction
  */
-export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetadata>> {
-  const factionFolderNames = await discoverFactions()
-  const metadataMap = new Map<string, FactionMetadata>()
+export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetadataWithLocal>> {
+  const factionEntries = await discoverFactions()
+  const metadataMap = new Map<string, FactionMetadataWithLocal>()
 
   const results = await Promise.allSettled(
-    factionFolderNames.map(folderName => loadFactionMetadata(folderName))
+    factionEntries.map(entry => loadFactionMetadata(entry.id, entry.isLocal))
   )
 
   const errors: Error[] = []
@@ -91,9 +155,13 @@ export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetad
     if (result.status === 'fulfilled') {
       // Use folder name as key, not metadata.identifier
       // This ensures routes like /faction/MLA match the map key
-      metadataMap.set(factionFolderNames[index], result.value)
+      const entry = factionEntries[index]
+      metadataMap.set(entry.id, {
+        ...result.value,
+        isLocal: entry.isLocal,
+      })
     } else {
-      console.warn(`Skipping faction ${factionFolderNames[index]}: ${result.reason.message}`)
+      console.warn(`Skipping faction ${factionEntries[index].id}: ${result.reason.message}`)
       errors.push(result.reason)
     }
   })

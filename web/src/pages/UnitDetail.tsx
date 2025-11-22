@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
-import { getUnitIconPathFromImage } from '@/services/factionLoader'
+import { UnitIcon } from '@/components/UnitIcon'
 import { OverviewSection } from '@/components/stats/OverviewSection'
 import { PhysicsSection } from '@/components/stats/PhysicsSection'
 import { ReconSection } from '@/components/stats/ReconSection'
@@ -58,14 +58,11 @@ export function UnitDetail() {
         <div className="md:col-span-1 space-y-6">
           <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
             <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded">
-              <img
-                src={getUnitIconPathFromImage(factionId || '', unit.image || '')}
+              <UnitIcon
+                factionId={factionId || ''}
+                imagePath={unit.image}
                 alt={unit.displayName}
                 className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                }}
               />
             </div>
             <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">

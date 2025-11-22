@@ -1,13 +1,21 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
-import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
+import type { FactionIndex, Unit } from '@/types/faction'
 import {
   loadAllFactionMetadata,
-  loadFactionIndex
+  loadFactionIndex,
+  type FactionMetadataWithLocal
 } from '@/services/factionLoader'
+import {
+  saveLocalFaction,
+  deleteLocalFaction as deleteLocalFactionFromStorage,
+  getLocalFactionIds,
+  hasLocalFaction,
+} from '@/services/localFactionStorage'
+import { parseFactionZip } from '@/services/zipHandler'
 
 interface FactionContextState {
   // Faction metadata (loaded on app start)
-  factions: Map<string, FactionMetadata>
+  factions: Map<string, FactionMetadataWithLocal>
   factionsLoading: boolean
   factionsError: Error | null
 
@@ -26,11 +34,17 @@ interface FactionContextState {
   // Actions
   loadFaction: (factionId: string) => Promise<void>
   loadUnit: (factionId: string, unitId: string) => Promise<Unit>
-  getFaction: (factionId: string) => FactionMetadata | undefined
+  getFaction: (factionId: string) => FactionMetadataWithLocal | undefined
   getFactionIndex: (factionId: string) => FactionIndex | undefined
   getUnit: (cacheKey: string) => Unit | undefined
   getFactionError: (factionId: string) => Error | undefined
   getUnitError: (cacheKey: string) => Error | undefined
+
+  // Local faction actions
+  uploadFaction: (file: File) => Promise<{ factionId: string; wasOverwrite: boolean }>
+  deleteFaction: (factionId: string) => Promise<void>
+  isLocalFaction: (factionId: string) => boolean
+  refreshFactions: () => Promise<void>
 }
 
 const FactionContext = createContext<FactionContextState | null>(null)
@@ -44,7 +58,7 @@ const FactionContext = createContext<FactionContextState | null>(null)
  */
 /* eslint-disable react-refresh/only-export-components */
 export function FactionProvider({ children }: { children: React.ReactNode }) {
-  const [factions, setFactions] = useState<Map<string, FactionMetadata>>(new Map())
+  const [factions, setFactions] = useState<Map<string, FactionMetadataWithLocal>>(new Map())
   const [factionsLoading, setFactionsLoading] = useState(true)
   const [factionsError, setFactionsError] = useState<Error | null>(null)
   const [factionIndexes, setFactionIndexes] = useState<Map<string, FactionIndex>>(new Map())
@@ -65,24 +79,32 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     unitsCacheRef.current = unitsCache
   }, [unitsCache])
 
+  // Ref for factions to use in callbacks
+  const factionsRef = useRef(factions)
+  useEffect(() => {
+    factionsRef.current = factions
+  }, [factions])
+
+  // Load all faction metadata
+  const loadFactionsData = useCallback(async () => {
+    try {
+      setFactionsLoading(true)
+      const metadataMap = await loadAllFactionMetadata()
+      setFactions(metadataMap)
+      factionsRef.current = metadataMap
+      setFactionsError(null)
+    } catch (error) {
+      setFactionsError(error as Error)
+      console.error('Failed to load factions:', error)
+    } finally {
+      setFactionsLoading(false)
+    }
+  }, [])
+
   // Load all faction metadata on mount
   useEffect(() => {
-    const loadFactions = async () => {
-      try {
-        setFactionsLoading(true)
-        const metadataMap = await loadAllFactionMetadata()
-        setFactions(metadataMap)
-        setFactionsError(null)
-      } catch (error) {
-        setFactionsError(error as Error)
-        console.error('Failed to load factions:', error)
-      } finally {
-        setFactionsLoading(false)
-      }
-    }
-
-    loadFactions()
-  }, [])
+    loadFactionsData()
+  }, [loadFactionsData])
 
   // Load a faction's unit index and populate units cache
   const loadFaction = useCallback(async (factionId: string) => {
@@ -92,7 +114,10 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const index = await loadFactionIndex(factionId)
+      // Check if this is a local faction
+      const factionMeta = factionsRef.current.get(factionId)
+      const isLocal = factionMeta?.isLocal ?? false
+      const index = await loadFactionIndex(factionId, isLocal)
 
       // Update refs immediately to prevent race conditions
       factionIndexesRef.current.set(factionId, index)
@@ -178,6 +203,101 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     return unitErrors.get(cacheKey)
   }, [unitErrors])
 
+  // Upload a local faction from a zip file
+  const uploadFaction = useCallback(async (file: File): Promise<{ factionId: string; wasOverwrite: boolean }> => {
+    // Get existing local faction IDs for conflict checking
+    const existingLocalIds = await getLocalFactionIds()
+
+    // Parse and validate the zip file
+    const result = await parseFactionZip(file, existingLocalIds)
+
+    if (!result.success) {
+      throw new Error(result.error.message)
+    }
+
+    const { factionId, metadata, index, assets } = result.data
+
+    // Check if this will be an overwrite
+    const wasOverwrite = await hasLocalFaction(factionId)
+
+    // Save to IndexedDB
+    await saveLocalFaction(factionId, metadata, index, assets)
+
+    // Clear cached data for this faction if it was previously loaded
+    if (factionIndexesRef.current.has(factionId)) {
+      factionIndexesRef.current.delete(factionId)
+      setFactionIndexes(prev => {
+        const next = new Map(prev)
+        next.delete(factionId)
+        return next
+      })
+
+      // Clear units cache for this faction
+      setUnitsCache(prev => {
+        const next = new Map(prev)
+        for (const key of prev.keys()) {
+          if (key.startsWith(`${factionId}:`)) {
+            next.delete(key)
+            unitsCacheRef.current.delete(key)
+          }
+        }
+        return next
+      })
+    }
+
+    // Refresh factions list
+    await loadFactionsData()
+
+    return { factionId, wasOverwrite }
+  }, [loadFactionsData])
+
+  // Delete a local faction
+  const deleteFaction = useCallback(async (factionId: string) => {
+    // Check if it's actually a local faction
+    const faction = factionsRef.current.get(factionId)
+    if (!faction?.isLocal) {
+      throw new Error(`Cannot delete non-local faction '${factionId}'`)
+    }
+
+    // Delete from IndexedDB
+    await deleteLocalFactionFromStorage(factionId)
+
+    // Clear cached data
+    if (factionIndexesRef.current.has(factionId)) {
+      factionIndexesRef.current.delete(factionId)
+      setFactionIndexes(prev => {
+        const next = new Map(prev)
+        next.delete(factionId)
+        return next
+      })
+    }
+
+    // Clear units cache for this faction
+    setUnitsCache(prev => {
+      const next = new Map(prev)
+      for (const key of prev.keys()) {
+        if (key.startsWith(`${factionId}:`)) {
+          next.delete(key)
+          unitsCacheRef.current.delete(key)
+        }
+      }
+      return next
+    })
+
+    // Refresh factions list
+    await loadFactionsData()
+  }, [loadFactionsData])
+
+  // Check if a faction is local
+  const isLocalFaction = useCallback((factionId: string): boolean => {
+    return factionsRef.current.get(factionId)?.isLocal ?? false
+  }, [])
+
+  // Refresh factions list
+  const refreshFactions = useCallback(async () => {
+    await loadFactionsData()
+  }, [loadFactionsData])
+
   const value: FactionContextState = {
     factions,
     factionsLoading,
@@ -192,7 +312,11 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     getFactionIndex,
     getUnit,
     getFactionError,
-    getUnitError
+    getUnitError,
+    uploadFaction,
+    deleteFaction,
+    isLocalFaction,
+    refreshFactions,
   }
 
   return <FactionContext.Provider value={value}>{children}</FactionContext.Provider>
