@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useRef } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
-import type { FactionMetadata, FactionIndex } from '@/types/faction'
+import type { FactionIndex } from '@/types/faction'
+import type { FactionMetadataWithLocal } from '@/services/factionLoader'
 
 /**
  * State for faction loading lifecycle
@@ -57,7 +58,7 @@ export function useFaction(factionId: string) {
   // the effect could trigger multiple fetches since `index` is still undefined
   const loadingRef = useRef(false)
 
-  const metadata: FactionMetadata | undefined = getFaction(factionId)
+  const metadata: FactionMetadataWithLocal | undefined = getFaction(factionId)
   const index: FactionIndex | undefined = getFactionIndex(factionId)
 
   useEffect(() => {

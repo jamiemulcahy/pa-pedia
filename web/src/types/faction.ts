@@ -176,3 +176,9 @@ export interface Unit {
   buildableTypes?: string;
   assistBuildableOnly?: boolean;
 }
+
+// Extended types for app usage
+export interface FactionWithFolder extends FactionMetadata {
+  folderName: string;
+  isLocal: boolean;
+}

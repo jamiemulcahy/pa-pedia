@@ -7,8 +7,8 @@
  */
 /* eslint-disable react-refresh/only-export-components */
 
-import React, { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import React, { type ReactElement } from 'react'
+import { render, type RenderOptions } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { FactionProvider } from '@/contexts/FactionContext'
 

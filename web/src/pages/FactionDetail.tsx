@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
-import { getUnitIconPathFromImage } from '@/services/factionLoader'
+import { UnitIcon } from '@/components/UnitIcon'
+import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { useState, useCallback, useMemo } from 'react'
 
 export function FactionDetail() {
@@ -77,15 +78,23 @@ export function FactionDetail() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
-        <h1 className="text-5xl font-display font-bold mb-2 tracking-wide">{metadata?.displayName}</h1>
-        <p className="text-muted-foreground font-medium">{metadata?.description}</p>
-        <div className="text-sm text-muted-foreground mt-2 font-mono">
-          {units.length} units total
+    <CurrentFactionProvider factionId={factionId}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-5xl font-display font-bold tracking-wide">{metadata?.displayName}</h1>
+            {metadata?.isLocal && (
+              <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
+                LOCAL
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground font-medium">{metadata?.description}</p>
+          <div className="text-sm text-muted-foreground mt-2 font-mono">
+            {units.length} units total
+          </div>
         </div>
-      </div>
 
       <div className="mb-6 flex gap-4 flex-wrap">
         <input
@@ -127,8 +136,8 @@ export function FactionDetail() {
                   No Icon
                 </div>
               ) : (
-                <img
-                  src={getUnitIconPathFromImage(factionId, unit.unit.image || '')}
+                <UnitIcon
+                  imagePath={unit.unit.image}
                   alt={`${unit.displayName} icon`}
                   className="max-w-full max-h-full object-contain"
                   onError={() => handleImageError(unit.identifier)}
@@ -147,11 +156,12 @@ export function FactionDetail() {
         ))}
       </div>
 
-      {filteredUnits.length === 0 && (
-        <div className="text-center text-muted-foreground py-12">
-          No units match your filters
-        </div>
-      )}
-    </div>
+        {filteredUnits.length === 0 && (
+          <div className="text-center text-muted-foreground py-12">
+            No units match your filters
+          </div>
+        )}
+      </div>
+    </CurrentFactionProvider>
   )
 }

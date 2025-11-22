@@ -1,4 +1,15 @@
+import { vi, type Mock } from 'vitest'
 import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
+
+/**
+ * Type for mocked fetch function
+ */
+export type MockFetch = Mock<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>
+
+/**
+ * Type for fetch call arguments
+ */
+export type FetchCallArgs = [input: RequestInfo | URL, init?: RequestInit]
 
 /**
  * Mock faction metadata

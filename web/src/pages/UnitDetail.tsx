@@ -1,7 +1,8 @@
 import React from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
-import { getUnitIconPathFromImage } from '@/services/factionLoader'
+import { UnitIcon } from '@/components/UnitIcon'
+import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { OverviewSection } from '@/components/stats/OverviewSection'
 import { PhysicsSection } from '@/components/stats/PhysicsSection'
 import { ReconSection } from '@/components/stats/ReconSection'
@@ -48,103 +49,82 @@ export function UnitDetail() {
   const deathExplosionWeapon = weapons.find(w => w.deathExplosion)
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <Link to={`/faction/${factionId}`} className="text-primary hover:underline mb-4 inline-block">
-        &larr; Back to faction
-      </Link>
+    <CurrentFactionProvider factionId={factionId || ''}>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <Link to={`/faction/${factionId}`} className="text-primary hover:underline mb-4 inline-block">
+          &larr; Back to faction
+        </Link>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left column - Unit icon and basic info */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
-            <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded">
-              <img
-                src={getUnitIconPathFromImage(factionId || '', unit.image || '')}
-                alt={unit.displayName}
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                }}
-              />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Left column - Unit icon and basic info */}
+          <div className="md:col-span-1 space-y-6">
+            <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
+              <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded">
+                <UnitIcon
+                  imagePath={unit.image}
+                  alt={unit.displayName}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                {unit.displayName}
+              </h1>
+              {unit.description && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                  {unit.description}
+                </p>
+              )}
             </div>
-            <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">
-              {unit.displayName}
-            </h1>
-            {unit.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-                {unit.description}
-              </p>
-            )}
+
+            <UnitTypesSection unitTypes={unit.unitTypes} />
+
+            <BuiltBySection
+              builtBy={buildRelationships?.builtBy}
+              buildCost={specs.economy.buildCost}
+            />
           </div>
 
-          <UnitTypesSection unitTypes={unit.unitTypes} />
+          {/* Right column - All stats sections */}
+          <div className="md:col-span-2 space-y-6">
+            <OverviewSection unit={unit} />
 
-          <BuiltBySection
-            factionId={factionId || ''}
-            builtBy={buildRelationships?.builtBy}
-            buildCost={specs.economy.buildCost}
-          />
-        </div>
+            {specs.mobility && (
+              <PhysicsSection mobility={specs.mobility} special={specs.special} />
+            )}
 
-        {/* Right column - All stats sections */}
-        <div className="md:col-span-2 space-y-6">
-          <OverviewSection unit={unit} factionId={factionId || ''} />
+            {specs.recon && <ReconSection recon={specs.recon} />}
 
-          {specs.mobility && (
-            <PhysicsSection mobility={specs.mobility} special={specs.special} />
-          )}
+            {regularWeapons.map((weapon, index) => (
+              <React.Fragment key={`${weapon.resourceName}-${index}`}>
+                <WeaponSection weapon={weapon} />
+                {weapon.ammoDetails && (
+                  <AmmoSection ammo={weapon.ammoDetails} />
+                )}
+              </React.Fragment>
+            ))}
 
-          {specs.recon && <ReconSection recon={specs.recon} />}
+            {selfDestructWeapon && (
+              <>
+                <WeaponSection weapon={selfDestructWeapon} />
+                {selfDestructWeapon.ammoDetails && (
+                  <AmmoSection ammo={selfDestructWeapon.ammoDetails} />
+                )}
+              </>
+            )}
 
-          {regularWeapons.map((weapon, index) => (
-            <React.Fragment key={`${weapon.resourceName}-${index}`}>
-              <WeaponSection
-                weapon={weapon}
-                factionId={factionId || ''}
-              />
-              {weapon.ammoDetails && (
-                <AmmoSection
-                  ammo={weapon.ammoDetails}
-                  factionId={factionId || ''}
-                />
-              )}
-            </React.Fragment>
-          ))}
+            {deathExplosionWeapon && (
+              <>
+                <WeaponSection weapon={deathExplosionWeapon} />
+                {deathExplosionWeapon.ammoDetails && (
+                  <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />
+                )}
+              </>
+            )}
 
-          {selfDestructWeapon && (
-            <>
-              <WeaponSection
-                weapon={selfDestructWeapon}
-                factionId={factionId || ''}
-              />
-              {selfDestructWeapon.ammoDetails && (
-                <AmmoSection
-                  ammo={selfDestructWeapon.ammoDetails}
-                  factionId={factionId || ''}
-                />
-              )}
-            </>
-          )}
-
-          {deathExplosionWeapon && (
-            <>
-              <WeaponSection
-                weapon={deathExplosionWeapon}
-                factionId={factionId || ''}
-              />
-              {deathExplosionWeapon.ammoDetails && (
-                <AmmoSection
-                  ammo={deathExplosionWeapon.ammoDetails}
-                  factionId={factionId || ''}
-                />
-              )}
-            </>
-          )}
-
-          <TargetPrioritiesSection weapons={regularWeapons} />
+            <TargetPrioritiesSection weapons={regularWeapons} />
+          </div>
         </div>
       </div>
-    </div>
+    </CurrentFactionProvider>
   )
 }

@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom';
 import { StatSection } from '../StatSection';
 import { StatLink } from '../StatRow';
 import { useFaction } from '@/hooks/useFaction';
+import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 
 interface BuiltBySectionProps {
-  factionId: string;
   builtBy?: string[];
   buildCost: number;
 }
 
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
-  factionId,
   builtBy,
   buildCost
 }) => {
+  const { factionId } = useCurrentFaction();
   const { units } = useFaction(factionId);
 
   if (!builtBy || builtBy.length === 0) return null;

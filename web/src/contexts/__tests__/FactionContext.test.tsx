@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import type { Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { FactionProvider, useFactionContext } from '../FactionContext'
 import {
@@ -8,10 +7,9 @@ import {
   mockMLAIndex,
   mockTankUnit,
   mockBotUnit,
-  setupMockFetch
+  setupMockFetch,
+  type MockFetch
 } from '@/tests/mocks/factionData'
-
-type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('FactionContext', () => {
   beforeEach(() => {
