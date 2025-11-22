@@ -97,8 +97,8 @@ export function UnitDetail() {
 
           {specs.recon && <ReconSection recon={specs.recon} />}
 
-          {regularWeapons.map((weapon) => (
-            <React.Fragment key={weapon.resourceName}>
+          {regularWeapons.map((weapon, index) => (
+            <React.Fragment key={`${weapon.resourceName}-${index}`}>
               <WeaponSection
                 weapon={weapon}
                 factionId={factionId || ''}
