@@ -1,7 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { BrowserRouter } from 'react-router-dom'
 import { BlueprintLink } from '../BlueprintLink'
+import { FactionProvider } from '@/contexts/FactionContext'
+import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+
+// Wrapper that provides necessary contexts for BlueprintLink
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <BrowserRouter>
+      <FactionProvider>
+        <CurrentFactionProvider factionId="MLA">
+          {children}
+        </CurrentFactionProvider>
+      </FactionProvider>
+    </BrowserRouter>
+  )
+}
 
 describe('BlueprintLink', () => {
   beforeEach(() => {
@@ -20,10 +36,10 @@ describe('BlueprintLink', () => {
   it('should render button with display name', () => {
     render(
       <BlueprintLink
-        factionId="MLA"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="Tank Blueprint"
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     expect(screen.getByText('Tank Blueprint')).toBeInTheDocument()
@@ -33,9 +49,9 @@ describe('BlueprintLink', () => {
   it('should render button with resource name when no display name', () => {
     render(
       <BlueprintLink
-        factionId="MLA"
         resourceName="/pa/units/land/tank/tank.json"
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     expect(screen.getByText('/pa/units/land/tank/tank.json')).toBeInTheDocument()
@@ -45,10 +61,10 @@ describe('BlueprintLink', () => {
     const user = userEvent.setup()
     render(
       <BlueprintLink
-        factionId="MLA"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View Blueprint"
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     const button = screen.getByText('View Blueprint')
@@ -64,10 +80,10 @@ describe('BlueprintLink', () => {
     const user = userEvent.setup()
     render(
       <BlueprintLink
-        factionId="MLA"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View"
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     await user.click(screen.getByText('View'))
@@ -85,10 +101,10 @@ describe('BlueprintLink', () => {
     const user = userEvent.setup()
     render(
       <BlueprintLink
-        factionId="MLA"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View Blueprint"
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     // Open modal

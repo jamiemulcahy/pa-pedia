@@ -10,7 +10,7 @@ interface UnitIconProps {
 
 export function UnitIcon({ imagePath, alt, className, onError }: UnitIconProps) {
   const { factionId } = useCurrentFaction()
-  const { iconUrl, loading } = useUnitIcon(factionId, imagePath)
+  const { iconUrl, loading, error } = useUnitIcon(factionId, imagePath)
 
   if (loading) {
     return (
@@ -20,7 +20,11 @@ export function UnitIcon({ imagePath, alt, className, onError }: UnitIconProps) 
     )
   }
 
-  if (!iconUrl) {
+  if (error || !iconUrl) {
+    // Call onError callback if provided, to let parent handle the missing icon
+    if (error && onError) {
+      onError()
+    }
     return null
   }
 

@@ -8,7 +8,7 @@ import { getUnitIconPathFromImage, getLocalAssetUrl } from '@/services/factionLo
  */
 export function useUnitIcon(factionId: string, imagePath: string | undefined) {
   const { isLocalFaction } = useFactionContext()
-  const [iconUrl, setIconUrl] = useState<string>('')
+  const [iconUrl, setIconUrl] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -16,7 +16,7 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
   useEffect(() => {
     if (!imagePath) {
-      setIconUrl('')
+      setIconUrl(undefined)
       return
     }
 
@@ -33,16 +33,12 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
     getLocalAssetUrl(factionId, imagePath)
       .then((url) => {
-        if (url) {
-          blobUrl = url
-          setIconUrl(url)
-        } else {
-          setIconUrl('')
-        }
+        blobUrl = url
+        setIconUrl(url)
       })
       .catch((err) => {
         setError(err)
-        setIconUrl('')
+        setIconUrl(undefined)
       })
       .finally(() => {
         setLoading(false)

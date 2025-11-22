@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import type { Mock } from 'vitest'
 import {
   discoverFactions,
   loadFactionMetadata,
@@ -12,10 +11,9 @@ import {
   mockLegionMetadata,
   mockMLAIndex,
   createMockFetchResponse,
-  setupMockFetch
+  setupMockFetch,
+  type MockFetch
 } from '@/tests/mocks/factionData'
-
-type MockFetch = Mock<[input: string | URL | Request, init?: RequestInit], Promise<Response>>
 
 describe('factionLoader', () => {
   beforeEach(() => {

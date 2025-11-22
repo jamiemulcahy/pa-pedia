@@ -78,8 +78,7 @@ function resolveIdConflict(factionId: string): string {
  * Parse and validate a faction zip file
  */
 export async function parseFactionZip(
-  file: File,
-  _existingLocalIds: string[] = []
+  file: File
 ): Promise<{ success: true; data: ParsedFaction } | { success: false; error: ParseError }> {
   try {
     const zip = await JSZip.loadAsync(file)

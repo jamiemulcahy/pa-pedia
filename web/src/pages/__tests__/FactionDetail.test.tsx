@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import type { Mock } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
-import { setupMockFetch, mockMLAMetadata } from '@/tests/mocks/factionData'
+import { setupMockFetch } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 function renderFactionDetail(factionId: string) {

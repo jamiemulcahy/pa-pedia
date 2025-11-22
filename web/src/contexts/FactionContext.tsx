@@ -8,7 +8,6 @@ import {
 import {
   saveLocalFaction,
   deleteLocalFaction as deleteLocalFactionFromStorage,
-  getLocalFactionIds,
   hasLocalFaction,
 } from '@/services/localFactionStorage'
 import { parseFactionZip } from '@/services/zipHandler'
@@ -66,6 +65,9 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   const [unitsCache, setUnitsCache] = useState<Map<string, Unit>>(new Map())
   const [unitErrors, setUnitErrors] = useState<Map<string, Error>>(new Map())
 
+  // Track which factions are currently being loaded to prevent race conditions
+  const loadingFactionsRef = useRef<Set<string>>(new Set())
+
   // Use refs to avoid dependency issues in useCallback
   const factionIndexesRef = useRef(factionIndexes)
   const unitsCacheRef = useRef(unitsCache)
@@ -108,15 +110,19 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
 
   // Load a faction's unit index and populate units cache
   const loadFaction = useCallback(async (factionId: string) => {
-    // Check if already loaded
-    if (factionIndexesRef.current.has(factionId)) {
+    // Check if already loaded or currently loading
+    if (factionIndexesRef.current.has(factionId) || loadingFactionsRef.current.has(factionId)) {
       return
     }
 
+    // Mark as loading to prevent duplicate requests
+    loadingFactionsRef.current.add(factionId)
+
     try {
       // Check if this is a local faction
+      // Use metadata if available, fall back to ID suffix check for direct navigation
       const factionMeta = factionsRef.current.get(factionId)
-      const isLocal = factionMeta?.isLocal ?? false
+      const isLocal = factionMeta?.isLocal ?? factionId.endsWith('--local')
       const index = await loadFactionIndex(factionId, isLocal)
 
       // Update refs immediately to prevent race conditions
@@ -151,6 +157,9 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
       // Track faction-specific error
       setFactionErrors(prev => new Map(prev).set(factionId, err))
       throw error
+    } finally {
+      // Remove from loading set
+      loadingFactionsRef.current.delete(factionId)
     }
   }, [])
 
@@ -205,11 +214,8 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
 
   // Upload a local faction from a zip file
   const uploadFaction = useCallback(async (file: File): Promise<{ factionId: string; wasOverwrite: boolean }> => {
-    // Get existing local faction IDs for conflict checking
-    const existingLocalIds = await getLocalFactionIds()
-
     // Parse and validate the zip file
-    const result = await parseFactionZip(file, existingLocalIds)
+    const result = await parseFactionZip(file)
 
     if (!result.success) {
       throw new Error(result.error.message)
