@@ -28,7 +28,6 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, factionI
       <div className="py-1">
         <BlueprintLink
           factionId={factionId}
-          unitId={unit.id}
           resourceName={unit.resourceName}
           displayName="View Blueprint"
         />

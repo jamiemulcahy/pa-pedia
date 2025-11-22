@@ -7,10 +7,9 @@ import type { Weapon } from '@/types/faction';
 interface WeaponSectionProps {
   weapon: Weapon;
   factionId: string;
-  unitId: string;
 }
 
-export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, factionId, unitId }) => {
+export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, factionId }) => {
   const title = 'Weapon';
 
   // Format target layers
@@ -30,7 +29,6 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, factionId,
       <div className="py-1">
         <BlueprintLink
           factionId={factionId}
-          unitId={unitId}
           resourceName={weapon.resourceName}
           displayName="View Blueprint"
         />
