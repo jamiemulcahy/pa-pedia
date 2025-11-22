@@ -66,4 +66,35 @@ describe('StatSection', () => {
     fireEvent.click(button);
     expect(button).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('has aria-controls linking button to content', () => {
+    render(
+      <StatSection title="Combat Stats">
+        <div>Test content</div>
+      </StatSection>
+    );
+
+    const button = screen.getByRole('button');
+    const contentId = 'section-content-combat-stats';
+
+    expect(button).toHaveAttribute('aria-controls', contentId);
+    expect(screen.getByText('Test content').parentElement).toHaveAttribute('id', contentId);
+  });
+
+  it('generates unique content IDs for different titles', () => {
+    render(
+      <>
+        <StatSection title="First Section">
+          <div>First content</div>
+        </StatSection>
+        <StatSection title="Second Section">
+          <div>Second content</div>
+        </StatSection>
+      </>
+    );
+
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveAttribute('aria-controls', 'section-content-first-section');
+    expect(buttons[1]).toHaveAttribute('aria-controls', 'section-content-second-section');
+  });
 });

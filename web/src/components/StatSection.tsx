@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 interface StatSectionProps {
   title: string;
@@ -15,12 +15,18 @@ export const StatSection: React.FC<StatSectionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
+  const contentId = useMemo(
+    () => `section-content-${title.toLowerCase().replace(/\s+/g, '-')}`,
+    [title]
+  );
+
   return (
     <section className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 ${className}`}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg"
         aria-expanded={isExpanded}
+        aria-controls={contentId}
       >
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {title}
@@ -35,7 +41,7 @@ export const StatSection: React.FC<StatSectionProps> = ({
         </svg>
       </button>
       {isExpanded && (
-        <dl className="space-y-2 px-4 pb-4">
+        <dl id={contentId} className="space-y-2 px-4 pb-4">
           {children}
         </dl>
       )}
