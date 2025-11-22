@@ -734,11 +734,21 @@ func (l *Loader) findSpecSource(resourcePath string) *SpecFileInfo {
 				}
 			} else {
 				// Check in directory
+				// Different sources have different directory structures:
+				// - Mods: mod_root/pa/units/... (keep /pa/ prefix, just strip leading /)
+				// - Expansion (pa_ex1): paRoot/pa_ex1/units/... (strip /pa/ or /pa_ex1/)
+				// - Base game (pa): paRoot/pa/units/... (strip /pa/)
 				trimmedPath := resPath
-				if strings.HasPrefix(resPath, "/"+src.Identifier+"/") {
-					trimmedPath = strings.TrimPrefix(resPath, "/"+src.Identifier+"/")
-				} else if strings.HasPrefix(resPath, "/pa/") && src.Identifier == "pa_ex1" {
-					trimmedPath = strings.TrimPrefix(resPath, "/pa/")
+				if src.Identifier == "pa" || src.Identifier == "pa_ex1" {
+					// Base game and expansion have src.Path already including pa/ or pa_ex1/
+					if strings.HasPrefix(resPath, "/pa/") {
+						trimmedPath = strings.TrimPrefix(resPath, "/pa/")
+					} else if strings.HasPrefix(resPath, "/pa_ex1/") {
+						trimmedPath = strings.TrimPrefix(resPath, "/pa_ex1/")
+					}
+				} else {
+					// Mods: just strip leading slash, keep pa/ prefix
+					trimmedPath = strings.TrimPrefix(resPath, "/")
 				}
 
 				fullPath := filepath.Join(src.Path, filepath.FromSlash(trimmedPath))
