@@ -20,6 +20,10 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [baseSpec, setBaseSpec] = useState<string | null>(null);
+  const [viewingBaseSpec, setViewingBaseSpec] = useState(false);
+  const [currentPath, setCurrentPath] = useState(blueprintPath);
+  const [pathHistory, setPathHistory] = useState<string[]>([]);
 
   // Detect dark mode
   useEffect(() => {
@@ -46,10 +50,48 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Reset state when modal opens with new path
   useEffect(() => {
-    if (!isOpen || !blueprintPath) {
+    if (isOpen) {
+      setCurrentPath(blueprintPath);
+      setPathHistory([]);
+      setViewingBaseSpec(false);
+    }
+  }, [isOpen, blueprintPath]);
+
+  // Convert a PA resource path to the faction assets path
+  const getAssetPath = (resourcePath: string) => {
+    // Extract the faction base from current path
+    // e.g., /factions/MLA/assets/pa/units/... -> /factions/MLA/assets
+    const match = currentPath.match(/^(\/factions\/[^/]+\/assets)/);
+    if (match) {
+      return `${match[1]}${resourcePath}`;
+    }
+    return resourcePath;
+  };
+
+  const handleViewBaseSpec = () => {
+    if (baseSpec) {
+      setPathHistory([...pathHistory, currentPath]);
+      setCurrentPath(getAssetPath(baseSpec));
+      setViewingBaseSpec(true);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (pathHistory.length > 0) {
+      const previousPath = pathHistory[pathHistory.length - 1];
+      setPathHistory(pathHistory.slice(0, -1));
+      setCurrentPath(previousPath);
+      setViewingBaseSpec(pathHistory.length > 1);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen || !currentPath) {
       setBlueprintContent('');
       setError(null);
+      setBaseSpec(null);
       return;
     }
 
@@ -58,8 +100,9 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     const loadBlueprint = async () => {
       setLoading(true);
       setError(null);
+      setBaseSpec(null);
       try {
-        const response = await fetch(blueprintPath, { signal: controller.signal });
+        const response = await fetch(currentPath, { signal: controller.signal });
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
@@ -75,6 +118,11 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
 
         const json = await response.json();
         setBlueprintContent(JSON.stringify(json, null, 2));
+
+        // Check for base_spec field
+        if (json.base_spec && typeof json.base_spec === 'string') {
+          setBaseSpec(json.base_spec);
+        }
       } catch (err) {
         // Ignore abort errors
         if (err instanceof Error && err.name === 'AbortError') {
@@ -95,7 +143,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     loadBlueprint();
 
     return () => controller.abort();
-  }, [isOpen, blueprintPath]);
+  }, [isOpen, currentPath]);
 
   const handleCopy = async () => {
     try {
@@ -138,9 +186,23 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {title}
-          </h2>
+          <div className="flex items-center gap-2">
+            {pathHistory.length > 0 && (
+              <button
+                onClick={handleGoBack}
+                className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                aria-label="Go back"
+                title="Go back"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {viewingBaseSpec ? `Base Spec: ${currentPath.split('/').pop()}` : title}
+            </h2>
+          </div>
           <div className="flex items-center gap-2">
             {blueprintContent && (
               <button
@@ -169,6 +231,22 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Base spec link */}
+        {baseSpec && (
+          <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 flex-shrink-0">
+            <button
+              onClick={handleViewBaseSpec}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            >
+              <span>Inherits from:</span>
+              <span className="font-mono">{baseSpec}</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         <div
