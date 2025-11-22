@@ -499,5 +499,47 @@ describe('BlueprintModal', () => {
         expect(screen.getByText('/pa/units/land/base_moveable/base_moveable.json')).toBeInTheDocument()
       })
     })
+
+    it('should show error when base_spec fetch fails', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          headers: new Headers()
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Wait for initial content and click base_spec
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(baseSpecButton)
+
+      // Should show error
+      await waitFor(() => {
+        expect(screen.getByText(/Blueprint file not found/)).toBeInTheDocument()
+      })
+    })
   })
 })

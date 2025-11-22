@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -60,7 +60,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   }, [isOpen, blueprintPath]);
 
   // Convert a PA resource path to the faction assets path
-  const getAssetPath = (resourcePath: string) => {
+  const getAssetPath = useCallback((resourcePath: string) => {
     // Extract the faction base from current path
     // e.g., /factions/MLA/assets/pa/units/... -> /factions/MLA/assets
     const match = currentPath.match(/^(\/factions\/[^/]+\/assets)/);
@@ -68,7 +68,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       return `${match[1]}${resourcePath}`;
     }
     return resourcePath;
-  };
+  }, [currentPath]);
 
   const handleViewBaseSpec = () => {
     if (baseSpec) {
@@ -120,8 +120,12 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
         setBlueprintContent(JSON.stringify(json, null, 2));
 
         // Check for base_spec field
-        if (json.base_spec && typeof json.base_spec === 'string') {
-          setBaseSpec(json.base_spec);
+        if (json.base_spec) {
+          if (typeof json.base_spec === 'string') {
+            setBaseSpec(json.base_spec);
+          } else {
+            console.warn('base_spec field exists but is not a string:', json.base_spec);
+          }
         }
       } catch (err) {
         // Ignore abort errors
