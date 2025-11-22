@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useFactionContext } from '@/contexts/FactionContext';
+import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import { getLocalAsset } from '@/services/localFactionStorage';
 
 interface BlueprintModalProps {
@@ -9,18 +9,15 @@ interface BlueprintModalProps {
   onClose: () => void;
   blueprintPath: string;
   title: string;
-  factionId?: string;
 }
 
 export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   isOpen,
   onClose,
   blueprintPath,
-  title,
-  factionId
+  title
 }) => {
-  const { isLocalFaction } = useFactionContext();
-  const isLocal = factionId ? isLocalFaction(factionId) : false;
+  const { factionId, isLocal } = useCurrentFaction();
   const [blueprintContent, setBlueprintContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

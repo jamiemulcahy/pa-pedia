@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { BlueprintModal } from './BlueprintModal';
+import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 
 interface BlueprintLinkProps {
-  factionId: string;
   resourceName: string;
   displayName?: string;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
-  factionId,
   resourceName,
   displayName
 }) => {
+  const { factionId } = useCurrentFaction();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Convert PA resource name to faction data path
@@ -34,7 +34,6 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
         onClose={() => setIsModalOpen(false)}
         blueprintPath={getBlueprintPath()}
         title={`Blueprint: ${displayName || resourceName}`}
-        factionId={factionId}
       />
     </>
   );

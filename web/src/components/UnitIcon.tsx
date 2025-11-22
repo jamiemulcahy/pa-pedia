@@ -1,14 +1,15 @@
 import { useUnitIcon } from '@/hooks/useUnitIcon'
+import { useCurrentFaction } from '@/contexts/CurrentFactionContext'
 
 interface UnitIconProps {
-  factionId: string
   imagePath: string | undefined
   alt: string
   className?: string
   onError?: () => void
 }
 
-export function UnitIcon({ factionId, imagePath, alt, className, onError }: UnitIconProps) {
+export function UnitIcon({ imagePath, alt, className, onError }: UnitIconProps) {
+  const { factionId } = useCurrentFaction()
   const { iconUrl, loading } = useUnitIcon(factionId, imagePath)
 
   if (loading) {
