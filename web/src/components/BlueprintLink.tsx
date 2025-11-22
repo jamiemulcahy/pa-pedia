@@ -3,14 +3,12 @@ import { BlueprintModal } from './BlueprintModal';
 
 interface BlueprintLinkProps {
   factionId: string;
-  unitId: string;
   resourceName: string;
   displayName?: string;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
   factionId,
-  unitId,
   resourceName,
   displayName
 }) => {
@@ -18,10 +16,9 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
 
   // Convert PA resource name to faction data path
   // e.g., /pa/units/land/tank_light_laser/tank_light_laser.json
-  // becomes /factions/MLA/units/tank_light_laser/tank_light_laser.json
+  // becomes /factions/MLA/assets/pa/units/land/tank_light_laser/tank_light_laser.json
   const getBlueprintPath = () => {
-    const filename = resourceName.split('/').pop();
-    return `/factions/${factionId}/units/${unitId}/${filename}`;
+    return `/factions/${factionId}/assets${resourceName}`;
   };
 
   return (

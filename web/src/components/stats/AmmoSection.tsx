@@ -7,16 +7,14 @@ import type { Ammo } from '@/types/faction';
 interface AmmoSectionProps {
   ammo: Ammo;
   factionId: string;
-  unitId: string;
 }
 
-export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId, unitId }) => {
+export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId }) => {
   return (
     <StatSection title="Ammo">
       <div className="py-1">
         <BlueprintLink
           factionId={factionId}
-          unitId={unitId}
           resourceName={ammo.resourceName}
           displayName="View Blueprint"
         />

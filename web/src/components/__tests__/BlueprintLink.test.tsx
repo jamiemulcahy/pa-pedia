@@ -21,7 +21,6 @@ describe('BlueprintLink', () => {
     render(
       <BlueprintLink
         factionId="MLA"
-        unitId="tank"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="Tank Blueprint"
       />
@@ -35,7 +34,6 @@ describe('BlueprintLink', () => {
     render(
       <BlueprintLink
         factionId="MLA"
-        unitId="tank"
         resourceName="/pa/units/land/tank/tank.json"
       />
     )
@@ -48,7 +46,6 @@ describe('BlueprintLink', () => {
     render(
       <BlueprintLink
         factionId="MLA"
-        unitId="tank"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View Blueprint"
       />
@@ -68,7 +65,6 @@ describe('BlueprintLink', () => {
     render(
       <BlueprintLink
         factionId="MLA"
-        unitId="tank"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View"
       />
@@ -79,7 +75,7 @@ describe('BlueprintLink', () => {
     // Check that fetch was called with correct path (includes abort signal)
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/factions/MLA/units/tank/tank.json',
+        '/factions/MLA/assets/pa/units/land/tank/tank.json',
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
     })
@@ -90,7 +86,6 @@ describe('BlueprintLink', () => {
     render(
       <BlueprintLink
         factionId="MLA"
-        unitId="tank"
         resourceName="/pa/units/land/tank/tank.json"
         displayName="View Blueprint"
       />

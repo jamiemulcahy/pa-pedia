@@ -96,13 +96,11 @@ export function UnitDetail() {
               <WeaponSection
                 weapon={weapon}
                 factionId={factionId || ''}
-                unitId={unitId || ''}
               />
               {weapon.ammoDetails && (
                 <AmmoSection
                   ammo={weapon.ammoDetails}
                   factionId={factionId || ''}
-                  unitId={unitId || ''}
                 />
               )}
             </React.Fragment>
@@ -113,13 +111,11 @@ export function UnitDetail() {
               <WeaponSection
                 weapon={selfDestructWeapon}
                 factionId={factionId || ''}
-                unitId={unitId || ''}
               />
               {selfDestructWeapon.ammoDetails && (
                 <AmmoSection
                   ammo={selfDestructWeapon.ammoDetails}
                   factionId={factionId || ''}
-                  unitId={unitId || ''}
                 />
               )}
             </>
@@ -130,13 +126,11 @@ export function UnitDetail() {
               <WeaponSection
                 weapon={deathExplosionWeapon}
                 factionId={factionId || ''}
-                unitId={unitId || ''}
               />
               {deathExplosionWeapon.ammoDetails && (
                 <AmmoSection
                   ammo={deathExplosionWeapon.ammoDetails}
                   factionId={factionId || ''}
-                  unitId={unitId || ''}
                 />
               )}
             </>
