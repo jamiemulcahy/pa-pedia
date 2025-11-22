@@ -245,4 +245,301 @@ describe('BlueprintModal', () => {
       expect(screen.getByText(/Blueprint file not found or invalid format/)).toBeInTheDocument()
     })
   })
+
+  describe('base_spec navigation', () => {
+    it('should show base_spec link when blueprint has base_spec field', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({
+          unit: 'tank',
+          base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+        })
+      } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+        expect(screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')).toBeInTheDocument()
+      })
+    })
+
+    it('should not show base_spec link when blueprint has no base_spec', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ unit: 'tank', health: 200 })
+      } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText(/"unit"/)).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText('Inherits from:')).not.toBeInTheDocument()
+    })
+
+    it('should navigate to base_spec when clicking the link', async () => {
+      const user = userEvent.setup()
+
+      // First fetch returns unit with base_spec
+      // Second fetch returns the base spec content
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            base: 'vehicle',
+            navigation: { type: 'land' }
+          })
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Wait for initial content
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      // Click the base_spec link
+      const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(baseSpecButton)
+
+      // Should fetch the base spec file
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(2)
+        expect(global.fetch).toHaveBeenLastCalledWith(
+          '/factions/MLA/assets/pa/units/land/base_vehicle/base_vehicle.json',
+          expect.any(Object)
+        )
+      })
+
+      // Title should update to show base spec
+      await waitFor(() => {
+        expect(screen.getByText('Base Spec: base_vehicle.json')).toBeInTheDocument()
+      })
+    })
+
+    it('should show back button after navigating to base_spec', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ base: 'vehicle' })
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Initially no back button
+      expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument()
+
+      // Wait and click base_spec
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(baseSpecButton)
+
+      // Back button should appear
+      await waitFor(() => {
+        expect(screen.getByLabelText('Go back')).toBeInTheDocument()
+      })
+    })
+
+    it('should navigate back when clicking back button', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ base: 'vehicle' })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Navigate to base_spec
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(baseSpecButton)
+
+      // Wait for navigation
+      await waitFor(() => {
+        expect(screen.getByLabelText('Go back')).toBeInTheDocument()
+      })
+
+      // Click back button
+      const backButton = screen.getByLabelText('Go back')
+      await user.click(backButton)
+
+      // Should return to original title
+      await waitFor(() => {
+        expect(screen.getByText('Test Blueprint')).toBeInTheDocument()
+      })
+
+      // Back button should be gone
+      expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument()
+    })
+
+    it('should support nested base_spec navigation', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            base: 'vehicle',
+            base_spec: '/pa/units/land/base_moveable/base_moveable.json'
+          })
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Navigate to first base_spec
+      await waitFor(() => {
+        expect(screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')).toBeInTheDocument()
+      })
+
+      const firstBaseSpec = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(firstBaseSpec)
+
+      // Should show nested base_spec
+      await waitFor(() => {
+        expect(screen.getByText('/pa/units/land/base_moveable/base_moveable.json')).toBeInTheDocument()
+      })
+    })
+
+    it('should show error when base_spec fetch fails', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({
+            unit: 'tank',
+            base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+          })
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found',
+          headers: new Headers()
+        } as Response)
+
+      render(
+        <BlueprintModal
+          isOpen={true}
+          onClose={mockOnClose}
+          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
+          title="Test Blueprint"
+        />
+      )
+
+      // Wait for initial content and click base_spec
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
+      await user.click(baseSpecButton)
+
+      // Should show error
+      await waitFor(() => {
+        expect(screen.getByText(/Blueprint file not found/)).toBeInTheDocument()
+      })
+    })
+  })
 })
