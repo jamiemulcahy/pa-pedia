@@ -124,6 +124,14 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 
 			// Skip if already copied (first-wins deduplication)
 			if copiedAssets[assetPath] {
+				// Still track if this is the primary JSON for this unit
+				if resourcePath == unit.ResourceName {
+					primaryJSONFound = true
+					indexFiles = append(indexFiles, models.UnitFile{
+						Path:   assetPath,
+						Source: specInfo.Source,
+					})
+				}
 				continue
 			}
 
