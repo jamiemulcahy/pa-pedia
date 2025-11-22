@@ -24,15 +24,16 @@ export const StatSection: React.FC<StatSectionProps> = ({
     <section className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 ${className}`}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg"
+        className="group w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-t-lg"
         aria-expanded={isExpanded}
         aria-controls={contentId}
+        title={isExpanded ? 'Click to collapse' : 'Click to expand'}
       >
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {title}
         </h2>
         <svg
-          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -40,11 +41,17 @@ export const StatSection: React.FC<StatSectionProps> = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {isExpanded && (
-        <dl id={contentId} className="space-y-2 px-4 pb-4">
-          {children}
-        </dl>
-      )}
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${
+          isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <dl id={contentId} className="space-y-2 px-4 pb-4">
+            {children}
+          </dl>
+        </div>
+      </div>
     </section>
   );
 };

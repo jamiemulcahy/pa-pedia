@@ -23,9 +23,10 @@ describe('StatSection', () => {
 
     const button = screen.getByRole('button');
     expect(screen.getByText('Test content')).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-expanded', 'true');
 
     fireEvent.click(button);
-    expect(screen.queryByText('Test content')).not.toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('expands content when collapsed header is clicked', () => {
@@ -35,10 +36,11 @@ describe('StatSection', () => {
       </StatSection>
     );
 
-    expect(screen.queryByText('Test content')).not.toBeInTheDocument();
-
     const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+
     fireEvent.click(button);
+    expect(button).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
@@ -50,7 +52,8 @@ describe('StatSection', () => {
     );
 
     expect(screen.getByText('Test Section')).toBeInTheDocument();
-    expect(screen.queryByText('Test content')).not.toBeInTheDocument();
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('has correct aria-expanded attribute', () => {
@@ -96,5 +99,19 @@ describe('StatSection', () => {
     const buttons = screen.getAllByRole('button');
     expect(buttons[0]).toHaveAttribute('aria-controls', 'section-content-first-section');
     expect(buttons[1]).toHaveAttribute('aria-controls', 'section-content-second-section');
+  });
+
+  it('shows appropriate tooltip based on expanded state', () => {
+    render(
+      <StatSection title="Test Section">
+        <div>Test content</div>
+      </StatSection>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('title', 'Click to collapse');
+
+    fireEvent.click(button);
+    expect(button).toHaveAttribute('title', 'Click to expand');
   });
 });
