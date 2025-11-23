@@ -502,7 +502,7 @@ func sanitizeFolderName(name string) string {
 // CreateBaseGameMetadata creates metadata for the base game faction
 func CreateBaseGameMetadata(displayName, description string) models.FactionMetadata {
 	return models.FactionMetadata{
-		Identifier:  "pa",
+		Identifier:  strings.ToLower(displayName),
 		DisplayName: displayName,
 		Version:     "1.0.0",
 		Author:      "Uber Entertainment",
