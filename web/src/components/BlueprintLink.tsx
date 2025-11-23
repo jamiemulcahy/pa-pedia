@@ -36,7 +36,7 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         blueprintPath={getBlueprintPath()}
-        title={`Blueprint: ${displayName || resourceName}`}
+        title={`Blueprint: ${resourceName}`}
       />
     </>
   );
