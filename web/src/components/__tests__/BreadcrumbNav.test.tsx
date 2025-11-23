@@ -15,10 +15,14 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-function renderBreadcrumbNav(factionId: string, unitId?: string) {
+function renderBreadcrumbNav(
+  factionId: string,
+  unitId?: string,
+  onUnitChange?: (factionId: string, unitId: string) => void
+) {
   return renderWithProviders(
     <MemoryRouter>
-      <BreadcrumbNav factionId={factionId} unitId={unitId} />
+      <BreadcrumbNav factionId={factionId} unitId={unitId} onUnitChange={onUnitChange} />
     </MemoryRouter>,
     { skipRouter: true }
   )
@@ -118,5 +122,17 @@ describe('BreadcrumbNav', () => {
       const nav = screen.getByLabelText('Unit navigation')
       expect(nav).toBeInTheDocument()
     })
+  })
+
+  it('should accept onUnitChange callback prop', async () => {
+    const onUnitChange = vi.fn()
+    renderBreadcrumbNav('MLA', 'tank', onUnitChange)
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select unit')).toBeInTheDocument()
+    })
+
+    // Component renders successfully with callback
+    expect(screen.getByLabelText('Unit navigation')).toBeInTheDocument()
   })
 })

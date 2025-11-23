@@ -1,14 +1,21 @@
 import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
+import { ComparisonValue } from '../ComparisonValue';
 import type { MobilitySpecs, SpecialSpecs } from '@/types/faction';
 
 interface PhysicsSectionProps {
   mobility: MobilitySpecs;
   special?: SpecialSpecs;
+  compareMobility?: MobilitySpecs;
+  compareSpecial?: SpecialSpecs;
 }
 
-export const PhysicsSection: React.FC<PhysicsSectionProps> = ({ mobility, special }) => {
+export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
+  mobility,
+  special,
+  compareMobility,
+}) => {
   const hasAnyStats =
     mobility.moveSpeed !== undefined ||
     mobility.acceleration !== undefined ||
@@ -20,16 +27,52 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({ mobility, specia
   return (
     <StatSection title="Physics">
       {mobility.moveSpeed !== undefined && (
-        <StatRow label="Max speed" value={mobility.moveSpeed} />
+        <StatRow
+          label="Max speed"
+          value={
+            <ComparisonValue
+              value={mobility.moveSpeed}
+              compareValue={compareMobility?.moveSpeed}
+              comparisonType="higher-better"
+            />
+          }
+        />
       )}
       {mobility.acceleration !== undefined && (
-        <StatRow label="Acceleration" value={mobility.acceleration} />
+        <StatRow
+          label="Acceleration"
+          value={
+            <ComparisonValue
+              value={mobility.acceleration}
+              compareValue={compareMobility?.acceleration}
+              comparisonType="higher-better"
+            />
+          }
+        />
       )}
       {mobility.brake !== undefined && (
-        <StatRow label="Braking rate" value={mobility.brake} />
+        <StatRow
+          label="Braking rate"
+          value={
+            <ComparisonValue
+              value={mobility.brake}
+              compareValue={compareMobility?.brake}
+              comparisonType="higher-better"
+            />
+          }
+        />
       )}
       {mobility.turnSpeed !== undefined && (
-        <StatRow label="Turn rate" value={mobility.turnSpeed} />
+        <StatRow
+          label="Turn rate"
+          value={
+            <ComparisonValue
+              value={mobility.turnSpeed}
+              compareValue={compareMobility?.turnSpeed}
+              comparisonType="higher-better"
+            />
+          }
+        />
       )}
       {special?.amphibious && (
         <StatRow label="Amphibious" value="Yes" />

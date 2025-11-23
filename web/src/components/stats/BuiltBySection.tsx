@@ -8,13 +8,17 @@ import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 interface BuiltBySectionProps {
   builtBy?: string[];
   buildCost: number;
+  /** Optional faction ID override (used for comparison mode) */
+  factionId?: string;
 }
 
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   builtBy,
-  buildCost
+  buildCost,
+  factionId: propFactionId
 }) => {
-  const { factionId } = useCurrentFaction();
+  const { factionId: contextFactionId } = useCurrentFaction();
+  const factionId = propFactionId || contextFactionId;
   const { units } = useFaction(factionId);
 
   if (!builtBy || builtBy.length === 0) return null;

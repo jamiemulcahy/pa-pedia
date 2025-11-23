@@ -16,6 +16,8 @@ interface FactionOption extends SelectOption {
 interface BreadcrumbNavProps {
   factionId: string
   unitId?: string
+  /** Optional callback for custom navigation (used in comparison mode) */
+  onUnitChange?: (factionId: string, unitId: string) => void
 }
 
 // Custom styles for react-select to match dark theme
@@ -92,7 +94,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
 }
 
-export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
+export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNavProps) {
   const navigate = useNavigate()
   const { factions, getFactionIndex, loadFaction } = useFactionContext()
 
@@ -155,12 +157,16 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
 
   const handleUnitChange = (option: SelectOption | null) => {
     if (option) {
-      navigate(`/faction/${selectedFactionId}/unit/${option.value}`)
+      if (onUnitChange) {
+        onUnitChange(selectedFactionId, option.value)
+      } else {
+        navigate(`/faction/${selectedFactionId}/unit/${option.value}`)
+      }
     }
   }
 
   return (
-    <nav className="mb-6" aria-label="Unit navigation">
+    <nav aria-label="Unit navigation">
       <div className="inline-flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
         <div className="w-full sm:w-auto sm:min-w-[180px]">
           <Select<FactionOption>

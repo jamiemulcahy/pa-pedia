@@ -6,10 +6,13 @@ interface UnitIconProps {
   alt: string
   className?: string
   onError?: () => void
+  /** Optional faction ID override (used for comparison mode) */
+  factionId?: string
 }
 
-export function UnitIcon({ imagePath, alt, className, onError }: UnitIconProps) {
-  const { factionId } = useCurrentFaction()
+export function UnitIcon({ imagePath, alt, className, onError, factionId: propFactionId }: UnitIconProps) {
+  const { factionId: contextFactionId } = useCurrentFaction()
+  const factionId = propFactionId || contextFactionId
   const { iconUrl, loading, error } = useUnitIcon(factionId, imagePath)
 
   if (loading) {
