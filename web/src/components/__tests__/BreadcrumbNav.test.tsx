@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { screen, waitFor, fireEvent } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { BreadcrumbNav } from '../BreadcrumbNav'
 import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'

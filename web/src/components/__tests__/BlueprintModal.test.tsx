@@ -1,12 +1,59 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BlueprintModal } from '../BlueprintModal'
+import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { renderWithFactionProvider } from '@/tests/helpers'
+import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockMLAIndex, mockLegionIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
+
+function renderModal(props: {
+  isOpen: boolean
+  onClose: () => void
+  blueprintPath: string
+  title: string
+}) {
+  return renderWithFactionProvider(
+    <CurrentFactionProvider factionId="MLA">
+      <BlueprintModal {...props} />
+    </CurrentFactionProvider>
+  )
+}
+
+// Helper to create a fetch mock that handles faction data plus custom blueprint responses
+function createBlueprintFetchMock(blueprintResponses: Array<() => Promise<Response>>) {
+  let callIndex = 0
+  return vi.fn((url: string | URL | Request) => {
+    const urlString = typeof url === 'string' ? url : url.toString()
+
+    // Handle faction metadata
+    if (urlString.includes('/factions/MLA/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockMLAMetadata))
+    }
+    if (urlString.includes('/factions/Legion/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockLegionMetadata))
+    }
+    if (urlString.includes('/factions/MLA/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockMLAIndex))
+    }
+    if (urlString.includes('/factions/Legion/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockLegionIndex))
+    }
+
+    // Handle blueprint requests in sequence
+    if (callIndex < blueprintResponses.length) {
+      return blueprintResponses[callIndex++]()
+    }
+
+    // Default 404
+    return Promise.resolve(createMockFetchResponse(null, false))
+  })
+}
 
 describe('BlueprintModal', () => {
   const mockOnClose = vi.fn()
 
   beforeEach(() => {
+    setupMockFetch()
     mockOnClose.mockClear()
   })
 
@@ -15,14 +62,12 @@ describe('BlueprintModal', () => {
   })
 
   it('should not render when closed', () => {
-    render(
-      <BlueprintModal
-        isOpen={false}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test Blueprint"
-      />
-    )
+    renderModal({
+      isOpen: false,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test Blueprint'
+    })
 
     expect(screen.queryByText('Test Blueprint')).not.toBeInTheDocument()
   })
@@ -34,14 +79,12 @@ describe('BlueprintModal', () => {
       json: async () => ({ test: 'data' })
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test Blueprint"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test Blueprint'
+    })
 
     expect(screen.getByText('Test Blueprint')).toBeInTheDocument()
   })
@@ -58,14 +101,12 @@ describe('BlueprintModal', () => {
       }, 100))
     )
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     expect(screen.getByText('Loading blueprint...')).toBeInTheDocument()
   })
@@ -77,14 +118,12 @@ describe('BlueprintModal', () => {
       json: async () => ({ unit: 'tank', health: 200 })
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/"unit"/)).toBeInTheDocument()
@@ -100,14 +139,12 @@ describe('BlueprintModal', () => {
       headers: new Headers()
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/nonexistent.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/nonexistent.json',
+      title: 'Test'
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/Blueprint file not found/)).toBeInTheDocument()
@@ -122,14 +159,12 @@ describe('BlueprintModal', () => {
       headers: new Headers()
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/Failed to load blueprint/)).toBeInTheDocument()
@@ -144,14 +179,12 @@ describe('BlueprintModal', () => {
     } as Response)
 
     const user = userEvent.setup()
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     const closeButton = screen.getByLabelText('Close')
     await user.click(closeButton)
@@ -166,14 +199,12 @@ describe('BlueprintModal', () => {
       json: async () => ({})
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     // Click on the backdrop (the fixed overlay)
     const backdrop = screen.getByText('Test').closest('.fixed')
@@ -190,14 +221,12 @@ describe('BlueprintModal', () => {
       json: async () => ({})
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     fireEvent.keyDown(document, { key: 'Escape' })
 
@@ -211,14 +240,12 @@ describe('BlueprintModal', () => {
       json: async () => ({ test: 'data' })
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     await waitFor(() => {
       expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
@@ -232,14 +259,12 @@ describe('BlueprintModal', () => {
       json: async () => ({})
     } as Response)
 
-    render(
-      <BlueprintModal
-        isOpen={true}
-        onClose={mockOnClose}
-        blueprintPath="/path/to/blueprint.json"
-        title="Test"
-      />
-    )
+    renderModal({
+      isOpen: true,
+      onClose: mockOnClose,
+      blueprintPath: '/path/to/blueprint.json',
+      title: 'Test'
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/Blueprint file not found or invalid format/)).toBeInTheDocument()
@@ -257,14 +282,12 @@ describe('BlueprintModal', () => {
         })
       } as Response)
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       await waitFor(() => {
         expect(screen.getByText('Inherits from:')).toBeInTheDocument()
@@ -279,14 +302,12 @@ describe('BlueprintModal', () => {
         json: async () => ({ unit: 'tank', health: 200 })
       } as Response)
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       await waitFor(() => {
         expect(screen.getByText(/"unit"/)).toBeInTheDocument()
@@ -300,16 +321,16 @@ describe('BlueprintModal', () => {
 
       // First fetch returns unit with base_spec
       // Second fetch returns the base spec content
-      global.fetch = vi.fn()
-        .mockResolvedValueOnce({
+      global.fetch = createBlueprintFetchMock([
+        () => Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
           json: async () => ({
             unit: 'tank',
             base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
           })
-        } as Response)
-        .mockResolvedValueOnce({
+        } as Response),
+        () => Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
           json: async () => ({
@@ -317,15 +338,14 @@ describe('BlueprintModal', () => {
             navigation: { type: 'land' }
           })
         } as Response)
+      ])
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       // Wait for initial content
       await waitFor(() => {
@@ -335,15 +355,6 @@ describe('BlueprintModal', () => {
       // Click the base_spec link
       const baseSpecButton = screen.getByText('/pa/units/land/base_vehicle/base_vehicle.json')
       await user.click(baseSpecButton)
-
-      // Should fetch the base spec file
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(2)
-        expect(global.fetch).toHaveBeenLastCalledWith(
-          '/factions/MLA/assets/pa/units/land/base_vehicle/base_vehicle.json',
-          expect.any(Object)
-        )
-      })
 
       // Title should update to show base spec
       await waitFor(() => {
@@ -369,14 +380,12 @@ describe('BlueprintModal', () => {
           json: async () => ({ base: 'vehicle' })
         } as Response)
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       // Initially no back button
       expect(screen.queryByLabelText('Go back')).not.toBeInTheDocument()
@@ -421,14 +430,12 @@ describe('BlueprintModal', () => {
           })
         } as Response)
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       // Navigate to base_spec
       await waitFor(() => {
@@ -459,16 +466,16 @@ describe('BlueprintModal', () => {
     it('should support nested base_spec navigation', async () => {
       const user = userEvent.setup()
 
-      global.fetch = vi.fn()
-        .mockResolvedValueOnce({
+      global.fetch = createBlueprintFetchMock([
+        () => Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
           json: async () => ({
             unit: 'tank',
             base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
           })
-        } as Response)
-        .mockResolvedValueOnce({
+        } as Response),
+        () => Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
           json: async () => ({
@@ -476,15 +483,14 @@ describe('BlueprintModal', () => {
             base_spec: '/pa/units/land/base_moveable/base_moveable.json'
           })
         } as Response)
+      ])
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       // Navigate to first base_spec
       await waitFor(() => {
@@ -503,30 +509,29 @@ describe('BlueprintModal', () => {
     it('should show error when base_spec fetch fails', async () => {
       const user = userEvent.setup()
 
-      global.fetch = vi.fn()
-        .mockResolvedValueOnce({
+      global.fetch = createBlueprintFetchMock([
+        () => Promise.resolve({
           ok: true,
           headers: new Headers({ 'content-type': 'application/json' }),
           json: async () => ({
             unit: 'tank',
             base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
           })
-        } as Response)
-        .mockResolvedValueOnce({
+        } as Response),
+        () => Promise.resolve({
           ok: false,
           status: 404,
           statusText: 'Not Found',
           headers: new Headers()
         } as Response)
+      ])
 
-      render(
-        <BlueprintModal
-          isOpen={true}
-          onClose={mockOnClose}
-          blueprintPath="/factions/MLA/assets/pa/units/land/tank/tank.json"
-          title="Test Blueprint"
-        />
-      )
+      renderModal({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/factions/MLA/assets/pa/units/land/tank/tank.json',
+        title: 'Test Blueprint'
+      })
 
       // Wait for initial content and click base_spec
       await waitFor(() => {

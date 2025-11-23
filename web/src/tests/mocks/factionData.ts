@@ -1,5 +1,6 @@
 import { vi, type Mock } from 'vitest'
-import type { FactionMetadata, FactionIndex, Unit } from '@/types/faction'
+import type { FactionIndex, Unit } from '@/types/faction'
+import type { FactionMetadataWithLocal } from '@/services/factionLoader'
 
 /**
  * Type for mocked fetch function
@@ -14,7 +15,7 @@ export type FetchCallArgs = [input: RequestInfo | URL, init?: RequestInit]
 /**
  * Mock faction metadata
  */
-export const mockMLAMetadata: FactionMetadata = {
+export const mockMLAMetadata: FactionMetadataWithLocal = {
   identifier: 'mla',
   displayName: 'MLA',
   version: '1.0.0',
@@ -23,10 +24,11 @@ export const mockMLAMetadata: FactionMetadata = {
   dateCreated: '2025-01-15',
   build: '123456',
   type: 'mod',
-  mods: ['com.pa.mla']
+  mods: ['com.pa.mla'],
+  isLocal: false
 }
 
-export const mockLegionMetadata: FactionMetadata = {
+export const mockLegionMetadata: FactionMetadataWithLocal = {
   identifier: 'legion',
   displayName: 'Legion',
   version: '2.0.0',
@@ -35,7 +37,8 @@ export const mockLegionMetadata: FactionMetadata = {
   dateCreated: '2025-01-10',
   build: '789012',
   type: 'mod',
-  mods: ['com.pa.legion-expansion']
+  mods: ['com.pa.legion-expansion'],
+  isLocal: false
 }
 
 /**
@@ -390,6 +393,11 @@ export function setupMockFetch() {
     }
     if (urlString.includes('/factions/Legion/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionIndex))
+    }
+
+    // Default: return generic JSON for asset requests
+    if (urlString.includes('/factions/') && urlString.includes('/assets/')) {
+      return Promise.resolve(createMockFetchResponse({ default: 'asset' }))
     }
 
     // Default 404
