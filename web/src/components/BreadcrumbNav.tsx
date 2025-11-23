@@ -173,7 +173,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
             options={factionOptions}
             value={selectedFaction}
             onChange={handleFactionChange}
-            styles={selectStyles as StylesConfig<FactionOption, false>}
+            styles={selectStyles as unknown as StylesConfig<FactionOption, false>}
             placeholder="Select faction..."
             isSearchable
             aria-label="Select faction"

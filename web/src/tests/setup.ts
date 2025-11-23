@@ -1,6 +1,15 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeAll, afterAll, vi } from 'vitest'
+import 'fake-indexeddb/auto'
+
+// Mock URL.createObjectURL and revokeObjectURL
+if (typeof URL.createObjectURL === 'undefined') {
+  URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+}
+if (typeof URL.revokeObjectURL === 'undefined') {
+  URL.revokeObjectURL = vi.fn()
+}
 
 // Suppress console errors/warnings in tests (expected errors from code logging)
 const originalError = console.error

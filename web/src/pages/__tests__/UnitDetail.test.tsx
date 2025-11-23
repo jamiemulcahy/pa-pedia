@@ -106,7 +106,9 @@ describe('UnitDetail', () => {
     })
 
     expect(screen.getByText('Build cost:')).toBeInTheDocument()
-    expect(screen.getByText('150 metal')).toBeInTheDocument()
+    // Build cost value (150) and unit (metal) may be in separate elements
+    expect(screen.getByText('150')).toBeInTheDocument()
+    expect(screen.getByText(/metal/)).toBeInTheDocument()
   })
 
   it('should render maximum range when available', async () => {

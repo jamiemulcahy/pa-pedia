@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { BlueprintLink } from '../BlueprintLink'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { setupMockFetch } from '@/tests/mocks/factionData'
 
 // Wrapper that provides necessary contexts for BlueprintLink
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -21,12 +22,8 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
 
 describe('BlueprintLink', () => {
   beforeEach(() => {
-    // Mock fetch for modal content loading
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      headers: new Headers({ 'content-type': 'application/json' }),
-      json: async () => ({ unit: 'tank', health: 200 })
-    } as Response)
+    // Setup mock fetch for faction data and blueprint content
+    setupMockFetch()
   })
 
   afterEach(() => {
@@ -70,9 +67,9 @@ describe('BlueprintLink', () => {
     const button = screen.getByText('View Blueprint')
     await user.click(button)
 
-    // Modal should appear with title
+    // Modal should appear with title (title uses resourceName, not displayName)
     await waitFor(() => {
-      expect(screen.getByText('Blueprint: View Blueprint')).toBeInTheDocument()
+      expect(screen.getByText('Blueprint: /pa/units/land/tank/tank.json')).toBeInTheDocument()
     })
   })
 
@@ -111,7 +108,7 @@ describe('BlueprintLink', () => {
     await user.click(screen.getByText('View Blueprint'))
 
     await waitFor(() => {
-      expect(screen.getByText('Blueprint: View Blueprint')).toBeInTheDocument()
+      expect(screen.getByText('Blueprint: /pa/units/land/tank/tank.json')).toBeInTheDocument()
     })
 
     // Close modal
@@ -119,7 +116,7 @@ describe('BlueprintLink', () => {
     await user.click(closeButton)
 
     await waitFor(() => {
-      expect(screen.queryByText('Blueprint: View Blueprint')).not.toBeInTheDocument()
+      expect(screen.queryByText('Blueprint: /pa/units/land/tank/tank.json')).not.toBeInTheDocument()
     })
   })
 })

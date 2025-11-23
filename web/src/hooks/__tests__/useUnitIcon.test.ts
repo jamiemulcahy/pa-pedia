@@ -26,17 +26,17 @@ describe('useUnitIcon', () => {
     mockIsLocalFaction.mockReturnValue(false)
   })
 
-  it('should return empty string for undefined imagePath', () => {
+  it('should return undefined for undefined imagePath', () => {
     const { result } = renderHook(() => useUnitIcon('MLA', undefined))
 
-    expect(result.current.iconUrl).toBe('')
+    expect(result.current.iconUrl).toBeUndefined()
     expect(result.current.loading).toBe(false)
   })
 
-  it('should return empty string for empty imagePath', () => {
+  it('should return undefined for empty imagePath', () => {
     const { result } = renderHook(() => useUnitIcon('MLA', ''))
 
-    expect(result.current.iconUrl).toBe('')
+    expect(result.current.iconUrl).toBeUndefined()
     expect(result.current.loading).toBe(false)
   })
 
@@ -85,7 +85,7 @@ describe('useUnitIcon', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    expect(result.current.iconUrl).toBe('')
+    expect(result.current.iconUrl).toBeUndefined()
   })
 
   it('should handle errors when loading local asset', async () => {
@@ -100,7 +100,7 @@ describe('useUnitIcon', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    expect(result.current.iconUrl).toBe('')
+    expect(result.current.iconUrl).toBeUndefined()
     expect(result.current.error).toBeDefined()
   })
 

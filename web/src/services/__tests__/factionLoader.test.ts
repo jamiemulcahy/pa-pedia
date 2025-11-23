@@ -27,7 +27,10 @@ describe('factionLoader', () => {
   describe('discoverFactions', () => {
     it('should return list of available factions', async () => {
       const factions = await discoverFactions()
-      expect(factions).toEqual(['MLA', 'Legion'])
+      expect(factions).toEqual([
+        { id: 'MLA', isLocal: false },
+        { id: 'Legion', isLocal: false }
+      ])
     })
 
     it('should return an array', async () => {
