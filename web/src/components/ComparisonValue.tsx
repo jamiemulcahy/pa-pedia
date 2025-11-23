@@ -47,10 +47,11 @@ export function ComparisonValue({
       : 'text-red-600 dark:text-red-400';
   }
 
-  // Format the diff
+  // Format the diff - use threshold to handle floating-point precision issues
+  const isWholeNumber = Math.abs(diff - Math.round(diff)) < 0.0001;
   const formattedDiff = formatDiff
     ? formatDiff(diff)
-    : Math.abs(diff).toFixed(diff % 1 === 0 ? 0 : 1);
+    : Math.abs(diff).toFixed(isWholeNumber ? 0 : 1);
 
   const sign = diff > 0 ? '+' : '-';
 

@@ -8,7 +8,6 @@ interface PhysicsSectionProps {
   mobility: MobilitySpecs;
   special?: SpecialSpecs;
   compareMobility?: MobilitySpecs;
-  compareSpecial?: SpecialSpecs;
 }
 
 export const PhysicsSection: React.FC<PhysicsSectionProps> = ({

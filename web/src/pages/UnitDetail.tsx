@@ -77,149 +77,6 @@ export function UnitDetail() {
   const selfDestructWeapon = weapons.find(w => w.selfDestruct)
   const deathExplosionWeapon = weapons.find(w => w.deathExplosion)
 
-  // Render unit panel content (reused for both primary and comparison)
-  const renderUnitPanel = (panelUnit: Unit, isComparison: boolean = false, panelFactionId?: string) => {
-    const panelSpecs = panelUnit.specs
-    const panelWeapons = panelSpecs.combat.weapons || []
-    const panelRegularWeapons = panelWeapons.filter(w => !w.selfDestruct && !w.deathExplosion)
-    const panelSelfDestruct = panelWeapons.find(w => w.selfDestruct)
-    const panelDeathExplosion = panelWeapons.find(w => w.deathExplosion)
-
-    // When comparing, we need to show sections even if this unit doesn't have them
-    // to maintain alignment with the other panel
-    const otherUnit = isComparison ? unit : compareUnit
-    const otherSpecs = otherUnit?.specs
-    const otherWeapons = otherSpecs?.combat.weapons || []
-    const otherRegularWeapons = otherWeapons.filter(w => !w.selfDestruct && !w.deathExplosion)
-    const otherSelfDestruct = otherWeapons.find(w => w.selfDestruct)
-    const otherDeathExplosion = otherWeapons.find(w => w.deathExplosion)
-
-    // Determine which sections to show (union of both units' sections)
-    const showMobility = panelSpecs.mobility || (isComparing && otherSpecs?.mobility)
-    const showRecon = panelSpecs.recon || (isComparing && otherSpecs?.recon)
-    const showSelfDestruct = panelSelfDestruct || (isComparing && otherSelfDestruct)
-    const showDeathExplosion = panelDeathExplosion || (isComparing && otherDeathExplosion)
-
-    // For weapons, show max of both units' weapon counts
-    const maxWeaponCount = isComparing
-      ? Math.max(panelRegularWeapons.length, otherRegularWeapons.length)
-      : panelRegularWeapons.length
-
-    return (
-      <div className="space-y-6">
-        {/* Unit card */}
-        <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
-          <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[200px] mx-auto">
-            <UnitIcon
-              imagePath={panelUnit.image}
-              alt={panelUnit.displayName}
-              className="max-w-full max-h-full object-contain"
-              factionId={panelFactionId}
-            />
-          </div>
-          <h2 className={`font-bold mb-2 text-gray-900 dark:text-gray-100 text-center ${isComparison ? 'text-2xl' : 'text-3xl'}`}>
-            {panelUnit.displayName}
-          </h2>
-          {panelUnit.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 italic text-center">
-              {panelUnit.description}
-            </p>
-          )}
-        </div>
-
-        <UnitTypesSection unitTypes={panelUnit.unitTypes} />
-
-        <OverviewSection unit={panelUnit} compareUnit={isComparison ? unit : compareUnit} />
-
-        {showMobility && (
-          panelSpecs.mobility ? (
-            <PhysicsSection
-              mobility={panelSpecs.mobility}
-              special={panelSpecs.special}
-              compareMobility={isComparison ? specs.mobility : compareUnit?.specs.mobility}
-              compareSpecial={isComparison ? specs.special : compareUnit?.specs.special}
-            />
-          ) : (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm">
-              No mobility data
-            </div>
-          )
-        )}
-
-        {showRecon && (
-          panelSpecs.recon ? (
-            <ReconSection
-              recon={panelSpecs.recon}
-              compareRecon={isComparison ? specs.recon : compareUnit?.specs.recon}
-            />
-          ) : (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm">
-              No recon data
-            </div>
-          )
-        )}
-
-        {Array.from({ length: maxWeaponCount }).map((_, index) => {
-          const weapon = panelRegularWeapons[index]
-          if (weapon) {
-            return (
-              <React.Fragment key={`${weapon.resourceName}-${index}`}>
-                <WeaponSection weapon={weapon} />
-                {weapon.ammoDetails && (
-                  <AmmoSection ammo={weapon.ammoDetails} />
-                )}
-              </React.Fragment>
-            )
-          } else {
-            return (
-              <div key={`empty-weapon-${index}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm">
-                No weapon {index + 1}
-              </div>
-            )
-          }
-        })}
-
-        {showSelfDestruct && (
-          panelSelfDestruct ? (
-            <>
-              <WeaponSection weapon={panelSelfDestruct} />
-              {panelSelfDestruct.ammoDetails && (
-                <AmmoSection ammo={panelSelfDestruct.ammoDetails} />
-              )}
-            </>
-          ) : (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm">
-              No self-destruct
-            </div>
-          )
-        )}
-
-        {showDeathExplosion && (
-          panelDeathExplosion ? (
-            <>
-              <WeaponSection weapon={panelDeathExplosion} />
-              {panelDeathExplosion.ammoDetails && (
-                <AmmoSection ammo={panelDeathExplosion.ammoDetails} />
-              )}
-            </>
-          ) : (
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm">
-              No death explosion
-            </div>
-          )
-        )}
-
-        <TargetPrioritiesSection weapons={panelRegularWeapons} />
-
-        <BuiltBySection
-          builtBy={panelUnit.buildRelationships?.builtBy}
-          buildCost={panelSpecs.economy.buildCost}
-          factionId={panelFactionId}
-        />
-      </div>
-    )
-  }
-
   return (
     <CurrentFactionProvider factionId={factionId || ''}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -249,6 +106,7 @@ export function UnitDetail() {
                     onClick={handleSwap}
                     className="p-2 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
                     title="Swap primary and comparison units"
+                    aria-label="Swap primary and comparison units"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -259,6 +117,7 @@ export function UnitDetail() {
                   onClick={() => navigate(`/faction/${factionId}/unit/${unitId}`)}
                   className="p-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                   title="Exit comparison mode"
+                  aria-label="Exit comparison mode"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -346,7 +205,7 @@ export function UnitDetail() {
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
                       )}
                       {compareSpecs.mobility ? (
-                        <PhysicsSection mobility={compareSpecs.mobility} special={compareSpecs.special} compareMobility={specs.mobility} compareSpecial={specs.special} />
+                        <PhysicsSection mobility={compareSpecs.mobility} special={compareSpecs.special} compareMobility={specs.mobility} />
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
                       )}

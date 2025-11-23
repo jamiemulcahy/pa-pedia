@@ -17,9 +17,11 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
     ?.filter(w => w.maxRange !== undefined)
     .reduce((max, w) => Math.max(max, w.maxRange || 0), 0);
 
-  const compareMaxRange = compareUnit?.specs.combat.weapons
-    ?.filter(w => w.maxRange !== undefined)
-    .reduce((max, w) => Math.max(max, w.maxRange || 0), 0);
+  const compareWeaponsWithRange = compareUnit?.specs.combat.weapons
+    ?.filter(w => w.maxRange !== undefined);
+  const compareMaxRange = compareWeaponsWithRange?.length
+    ? compareWeaponsWithRange.reduce((max, w) => Math.max(max, w.maxRange || 0), 0)
+    : undefined;
 
   // Determine build locations based on unit types
   const buildLocations: string[] = [];
