@@ -8,9 +8,10 @@ import type { Unit } from '@/types/faction';
 interface OverviewSectionProps {
   unit: Unit;
   compareUnit?: Unit;
+  factionId?: string;
 }
 
-export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit }) => {
+export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId }) => {
   const { specs } = unit;
   const maxRange = specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -34,6 +35,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
         <BlueprintLink
           resourceName={unit.resourceName}
           displayName="View Blueprint"
+          factionId={factionId}
         />
       </div>
       <StatRow

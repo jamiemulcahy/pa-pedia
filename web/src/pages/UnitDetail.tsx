@@ -334,7 +334,7 @@ export function UnitDetail() {
                   {/* Overview row */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     <OverviewSection unit={unit} />
-                    <OverviewSection unit={compareUnit} compareUnit={unit} />
+                    <OverviewSection unit={compareUnit} compareUnit={unit} factionId={compareFactionId} />
                   </div>
 
                   {/* Physics row */}

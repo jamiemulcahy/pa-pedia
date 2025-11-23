@@ -5,13 +5,16 @@ import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 interface BlueprintLinkProps {
   resourceName: string;
   displayName?: string;
+  factionId?: string;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
   resourceName,
-  displayName
+  displayName,
+  factionId: propFactionId
 }) => {
-  const { factionId } = useCurrentFaction();
+  const { factionId: contextFactionId } = useCurrentFaction();
+  const factionId = propFactionId || contextFactionId;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Convert PA resource name to faction data path
