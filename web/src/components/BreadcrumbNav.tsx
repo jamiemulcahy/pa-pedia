@@ -141,7 +141,11 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
     if (option) {
       setSelectedFactionId(option.value)
       // Load faction data if not already loaded (for unit options)
-      await loadFaction(option.value)
+      try {
+        await loadFaction(option.value)
+      } catch (error) {
+        console.error('Failed to load faction:', error)
+      }
     }
   }
 

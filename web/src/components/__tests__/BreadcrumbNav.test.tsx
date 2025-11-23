@@ -89,14 +89,19 @@ describe('BreadcrumbNav', () => {
   })
 
   it('should show LOCAL tag for local factions', async () => {
-    // This test would require mock data with isLocal: true
-    // For now, just verify the component renders without error
+    // Note: Full LOCAL tag testing would require mock data with isLocal: true
+    // The formatFactionOption function renders the tag when isLocal is true
+    // This test verifies the component renders without error
     renderBreadcrumbNav('MLA', 'tank')
 
     await waitFor(() => {
       expect(screen.getByLabelText('Select faction')).toBeInTheDocument()
     })
   })
+
+  // Note: Unit selection navigation is tested in integration tests
+  // (navigation.test.tsx) since react-select dropdown interactions
+  // are complex to simulate in unit tests
 
   it('should have arrow between selectors', async () => {
     renderBreadcrumbNav('MLA', 'tank')
