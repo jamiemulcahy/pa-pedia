@@ -10,6 +10,7 @@ jobs:
   cli:
     name: CLI (Go)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: cli
@@ -33,6 +34,7 @@ jobs:
   web:
     name: Web (React)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: web
