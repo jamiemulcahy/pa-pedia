@@ -14,7 +14,7 @@ export interface ParseError {
   message: string
 }
 
-const STATIC_FACTIONS = ['MLA', 'Legion']
+const STATIC_FACTIONS = ['mla', 'legion']
 
 /**
  * Sanitize a string to prevent XSS
@@ -65,8 +65,8 @@ function sanitizeIndex(index: FactionIndex): FactionIndex {
  * If ID matches a static faction, append '--local'
  */
 function resolveIdConflict(factionId: string): string {
-  // Check for static faction conflict
-  if (STATIC_FACTIONS.includes(factionId)) {
+  // Check for static faction conflict (case-insensitive)
+  if (STATIC_FACTIONS.includes(factionId.toLowerCase())) {
     return `${factionId}--local`
   }
 
