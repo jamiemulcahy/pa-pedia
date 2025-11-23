@@ -7,7 +7,7 @@ import { UnitDetail } from '@/pages/UnitDetail'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ErrorBoundary>
         <FactionProvider>
           <div className="min-h-screen bg-background text-foreground">

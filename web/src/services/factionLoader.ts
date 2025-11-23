@@ -6,7 +6,7 @@ import {
   getLocalAssetUrl,
 } from './localFactionStorage'
 
-const FACTIONS_BASE_PATH = '/factions'
+const FACTIONS_BASE_PATH = `${import.meta.env.BASE_URL}factions`
 
 export interface FactionDiscoveryEntry {
   id: string
