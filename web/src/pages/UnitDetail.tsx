@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
 import { UnitIcon } from '@/components/UnitIcon'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { BreadcrumbNav } from '@/components/BreadcrumbNav'
 import { OverviewSection } from '@/components/stats/OverviewSection'
 import { PhysicsSection } from '@/components/stats/PhysicsSection'
 import { ReconSection } from '@/components/stats/ReconSection'
@@ -54,6 +55,8 @@ export function UnitDetail() {
         <Link to={`/faction/${factionId}`} className="text-primary hover:underline mb-4 inline-block">
           &larr; Back to faction
         </Link>
+
+        <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left column - Unit icon and basic info */}

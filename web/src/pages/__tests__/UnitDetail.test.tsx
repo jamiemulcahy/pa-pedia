@@ -163,6 +163,16 @@ describe('UnitDetail', () => {
     })
   })
 
+  it('should render breadcrumb navigation', async () => {
+    renderUnitDetail('MLA', 'tank')
+
+    await waitFor(() => {
+      // BreadcrumbNav should be present with faction and unit selectors
+      expect(screen.getByLabelText('Select faction')).toBeInTheDocument()
+      expect(screen.getByLabelText('Select unit')).toBeInTheDocument()
+    })
+  })
+
   it('should handle error when unit not found', async () => {
     renderUnitDetail('MLA', 'invalid_unit')
 
