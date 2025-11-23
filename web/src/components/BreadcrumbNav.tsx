@@ -98,6 +98,7 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
 
   // Track selected faction for filtering units (may differ from URL during selection)
   const [selectedFactionId, setSelectedFactionId] = useState(factionId)
+  const [isLoadingFaction, setIsLoadingFaction] = useState(false)
 
   // Get faction options - use Map key (folder name) for URL, not metadata.identifier
   const factionOptions = useMemo(() => {
@@ -141,10 +142,13 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
     if (option) {
       setSelectedFactionId(option.value)
       // Load faction data if not already loaded (for unit options)
+      setIsLoadingFaction(true)
       try {
         await loadFaction(option.value)
       } catch (error) {
         console.error('Failed to load faction:', error)
+      } finally {
+        setIsLoadingFaction(false)
       }
     }
   }
@@ -157,8 +161,8 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
 
   return (
     <nav className="mb-6" aria-label="Unit navigation">
-      <div className="inline-flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="min-w-[180px]">
+      <div className="inline-flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
+        <div className="w-full sm:w-auto sm:min-w-[180px]">
           <Select<FactionOption>
             options={factionOptions}
             value={selectedFaction}
@@ -171,16 +175,17 @@ export function BreadcrumbNav({ factionId, unitId }: BreadcrumbNavProps) {
           />
         </div>
 
-        <span className="text-gray-400 dark:text-gray-500 text-lg">&rarr;</span>
+        <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline">&rarr;</span>
 
-        <div className="min-w-[200px]">
+        <div className="w-full sm:w-auto sm:min-w-[200px]">
           <Select<SelectOption>
             options={unitOptions}
             value={selectedUnit}
             onChange={handleUnitChange}
             styles={selectStyles}
-            placeholder={unitOptions.length ? "Select unit..." : "Loading units..."}
+            placeholder={isLoadingFaction ? "Loading..." : unitOptions.length ? "Select unit..." : "Loading units..."}
             isSearchable
+            isLoading={isLoadingFaction}
             aria-label="Select unit"
             noOptionsMessage={() => unitOptions.length === 0 ? "Loading units..." : "No units found"}
           />
