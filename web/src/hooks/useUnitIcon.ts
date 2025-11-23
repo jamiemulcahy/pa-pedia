@@ -16,6 +16,7 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
   useEffect(() => {
     if (!imagePath) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIconUrl(undefined)
       return
     }

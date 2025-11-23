@@ -12,7 +12,6 @@ import { AmmoSection } from '@/components/stats/AmmoSection'
 import { TargetPrioritiesSection } from '@/components/stats/TargetPrioritiesSection'
 import { BuiltBySection } from '@/components/stats/BuiltBySection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
-import type { Unit } from '@/types/faction'
 
 export function UnitDetail() {
   const { factionId, unitId } = useParams<{ factionId: string; unitId: string }>()

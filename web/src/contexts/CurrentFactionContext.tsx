@@ -43,6 +43,7 @@ export function CurrentFactionProvider({ factionId, children }: CurrentFactionPr
  *
  * @throws {Error} If used outside of CurrentFactionProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCurrentFaction(): CurrentFactionContextValue {
   const context = useContext(CurrentFactionContext)
   if (!context) {
