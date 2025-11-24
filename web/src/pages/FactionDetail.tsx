@@ -1,8 +1,9 @@
 import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
-import { UnitIcon } from '@/components/UnitIcon'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { UnitCategorySection } from '@/components/UnitCategorySection'
 import { useState, useCallback, useMemo } from 'react'
+import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
@@ -11,9 +12,22 @@ export function FactionDetail() {
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<UnitCategory>>(new Set())
 
   const handleImageError = useCallback((unitId: string) => {
     setBrokenImages(prev => new Set(prev).add(unitId))
+  }, [])
+
+  const toggleCategory = useCallback((category: UnitCategory) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(category)) {
+        next.delete(category)
+      } else {
+        next.add(category)
+      }
+      return next
+    })
   }, [])
 
   // Get all unique unit types for filter (memoized for performance)
@@ -31,6 +45,12 @@ export function FactionDetail() {
       return matchesSearch && matchesType
     }),
     [units, searchQuery, typeFilter]
+  )
+
+  // Group filtered units by category
+  const groupedUnits = useMemo(
+    () => groupUnitsByCategory(filteredUnits),
+    [filteredUnits]
   )
 
   // Show loading while factions metadata is being loaded
@@ -118,43 +138,18 @@ export function FactionDetail() {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" role="list">
-        {filteredUnits.map((unit) => (
-          <Link
-            key={unit.identifier}
-            to={`/faction/${factionId}/unit/${unit.identifier}`}
-            className="block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center"
-            role="listitem"
-            aria-label={`View ${unit.displayName} details`}
-          >
-            <div className="aspect-square mb-2 flex items-center justify-center">
-              {brokenImages.has(unit.identifier) ? (
-                <div
-                  className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono"
-                  aria-label={`${unit.displayName} icon not available`}
-                >
-                  No Icon
-                </div>
-              ) : (
-                <UnitIcon
-                  imagePath={unit.unit.image}
-                  alt={`${unit.displayName} icon`}
-                  className="max-w-full max-h-full object-contain"
-                  onError={() => handleImageError(unit.identifier)}
-                />
-              )}
-            </div>
-            <div className="text-sm font-semibold truncate">{unit.displayName}</div>
-            <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
-              {unit.unitTypes.slice(0, 2).map(type => (
-                <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                  {type}
-                </span>
-              ))}
-            </div>
-          </Link>
+      {CATEGORY_ORDER.map((category) => (
+          <UnitCategorySection
+            key={category}
+            category={category}
+            units={groupedUnits.get(category) || []}
+            isExpanded={!collapsedCategories.has(category)}
+            onToggle={() => toggleCategory(category)}
+            factionId={factionId}
+            brokenImages={brokenImages}
+            onImageError={handleImageError}
+          />
         ))}
-      </div>
 
         {filteredUnits.length === 0 && (
           <div className="text-center text-muted-foreground py-12">
