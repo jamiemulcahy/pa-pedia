@@ -71,6 +71,12 @@ export function getUnitCategory(unitTypes: string[]): UnitCategory {
 /**
  * Groups an array of units by their category.
  * Returns a Map with categories in display order, including empty categories.
+ *
+ * @typeParam T - Any object with a `unitTypes` string array. Uses a generic rather than
+ *   coupling to UnitIndexEntry to allow reuse with different unit representations
+ *   (e.g., Unit, UnitIndexEntry, or test mocks).
+ * @param units - Array of units to group
+ * @returns Map with categories as keys (in CATEGORY_ORDER) and arrays of units as values
  */
 export function groupUnitsByCategory<T extends { unitTypes: string[] }>(
   units: T[]

@@ -49,6 +49,7 @@ export function UnitCategorySection({
             d="M9 5l7 7-7 7"
           />
         </svg>
+        <span className="sr-only">{isExpanded ? 'Collapse' : 'Expand'} {category} section</span>
         <h2 className="text-xl font-display font-bold">{category}</h2>
         <span className="px-2 py-0.5 text-sm font-mono bg-primary/20 text-primary rounded">
           {units.length}

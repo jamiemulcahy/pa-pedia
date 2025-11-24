@@ -138,23 +138,23 @@ export function FactionDetail() {
         </select>
       </div>
 
-      {CATEGORY_ORDER.map((category) => (
-          <UnitCategorySection
-            key={category}
-            category={category}
-            units={groupedUnits.get(category) || []}
-            isExpanded={!collapsedCategories.has(category)}
-            onToggle={() => toggleCategory(category)}
-            factionId={factionId}
-            brokenImages={brokenImages}
-            onImageError={handleImageError}
-          />
-        ))}
-
-        {filteredUnits.length === 0 && (
+      {filteredUnits.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">
             No units match your filters
           </div>
+        ) : (
+          CATEGORY_ORDER.map((category) => (
+            <UnitCategorySection
+              key={category}
+              category={category}
+              units={groupedUnits.get(category) || []}
+              isExpanded={!collapsedCategories.has(category)}
+              onToggle={() => toggleCategory(category)}
+              factionId={factionId}
+              brokenImages={brokenImages}
+              onImageError={handleImageError}
+            />
+          ))
         )}
       </div>
     </CurrentFactionProvider>
