@@ -8,7 +8,7 @@ project_name: pa-pedia
 
 before:
   hooks:
-    - go mod tidy
+    - cd cli && go mod tidy
 
 builds:
   - id: pa-pedia
@@ -25,9 +25,9 @@ builds:
       - arm64
     ldflags:
       - -s -w
-      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.version={{.Version}}
-      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.commit={{.ShortCommit}}
-      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.date={{.Date}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.version={{.Version}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.commit={{.ShortCommit}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.date={{.Date}}
 
 archives:
   - id: default
