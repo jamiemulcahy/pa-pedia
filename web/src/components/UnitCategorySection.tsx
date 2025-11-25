@@ -11,6 +11,7 @@ interface UnitCategorySectionProps {
   factionId: string
   brokenImages: Set<string>
   onImageError: (unitId: string) => void
+  compact?: boolean
 }
 
 export function UnitCategorySection({
@@ -21,6 +22,7 @@ export function UnitCategorySection({
   factionId,
   brokenImages,
   onImageError,
+  compact = false,
 }: UnitCategorySectionProps) {
   if (units.length === 0) {
     return null
@@ -59,21 +61,34 @@ export function UnitCategorySection({
       {isExpanded && (
         <div
           id={`category-${category}`}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4"
+          className={
+            compact
+              ? 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 mt-4'
+              : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4'
+          }
           role="list"
         >
           {units.map((unit) => (
             <Link
               key={unit.identifier}
               to={`/faction/${factionId}/unit/${unit.identifier}`}
-              className="block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center"
+              className={
+                compact
+                  ? 'block border rounded p-1 hover:border-primary transition-all hover:shadow-md hover:shadow-primary/20 text-center'
+                  : 'block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center'
+              }
               role="listitem"
               aria-label={`View ${unit.displayName} details`}
+              title={unit.displayName}
             >
-              <div className="aspect-square mb-2 flex items-center justify-center">
+              <div className={compact ? 'aspect-square flex items-center justify-center' : 'aspect-square mb-2 flex items-center justify-center'}>
                 {brokenImages.has(unit.identifier) ? (
                   <div
-                    className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono"
+                    className={
+                      compact
+                        ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[8px] font-mono'
+                        : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
+                    }
                     aria-label={`${unit.displayName} icon not available`}
                   >
                     No Icon
@@ -87,14 +102,18 @@ export function UnitCategorySection({
                   />
                 )}
               </div>
-              <div className="text-sm font-semibold truncate">{unit.displayName}</div>
-              <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
-                {unit.unitTypes.slice(0, 2).map((type) => (
-                  <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                    {type}
-                  </span>
-                ))}
-              </div>
+              {!compact && (
+                <>
+                  <div className="text-sm font-semibold truncate">{unit.displayName}</div>
+                  <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
+                    {unit.unitTypes.slice(0, 2).map((type) => (
+                      <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
             </Link>
           ))}
         </div>

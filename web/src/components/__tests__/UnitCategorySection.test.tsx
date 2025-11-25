@@ -214,4 +214,56 @@ describe('UnitCategorySection', () => {
       expect(botLink).toHaveAttribute('href', '/faction/MLA/unit/bot')
     })
   })
+
+  describe('compact mode', () => {
+    it('should hide unit names in compact mode', () => {
+      renderCategorySection({ compact: true, isExpanded: true })
+
+      // Unit names should not be visible as text nodes
+      expect(screen.queryByText('Tank')).not.toBeInTheDocument()
+      expect(screen.queryByText('Bot')).not.toBeInTheDocument()
+    })
+
+    it('should hide unit type badges in compact mode', () => {
+      renderCategorySection({ compact: true, isExpanded: true })
+
+      // Type badges should not be visible
+      expect(screen.queryByText('Mobile')).not.toBeInTheDocument()
+      expect(screen.queryByText('Land')).not.toBeInTheDocument()
+    })
+
+    it('should show unit names in title attribute in compact mode', () => {
+      renderCategorySection({ compact: true, isExpanded: true })
+
+      const tankLink = screen.getByLabelText('View Tank details')
+      expect(tankLink).toHaveAttribute('title', 'Tank')
+
+      const botLink = screen.getByLabelText('View Bot details')
+      expect(botLink).toHaveAttribute('title', 'Bot')
+    })
+
+    it('should show unit names and badges in normal mode', () => {
+      renderCategorySection({ compact: false, isExpanded: true })
+
+      expect(screen.getByText('Tank')).toBeInTheDocument()
+      expect(screen.getByText('Bot')).toBeInTheDocument()
+      expect(screen.getAllByText('Mobile').length).toBeGreaterThan(0)
+    })
+
+    it('should use more columns in compact mode grid', () => {
+      renderCategorySection({ compact: true, isExpanded: true })
+
+      const grid = screen.getByRole('list')
+      // Compact mode has more columns - check for the compact grid classes
+      expect(grid.className).toContain('grid-cols-4')
+    })
+
+    it('should use fewer columns in normal mode grid', () => {
+      renderCategorySection({ compact: false, isExpanded: true })
+
+      const grid = screen.getByRole('list')
+      // Normal mode has fewer columns
+      expect(grid.className).toContain('grid-cols-2')
+    })
+  })
 })

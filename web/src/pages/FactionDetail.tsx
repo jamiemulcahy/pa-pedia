@@ -13,6 +13,7 @@ export function FactionDetail() {
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<UnitCategory>>(new Set())
+  const [compactView, setCompactView] = useState(false)
 
   const handleImageError = useCallback((unitId: string) => {
     setBrokenImages(prev => new Set(prev).add(unitId))
@@ -116,7 +117,7 @@ export function FactionDetail() {
           </div>
         </div>
 
-      <div className="mb-6 flex gap-4 flex-wrap">
+      <div className="mb-6 flex gap-4 flex-wrap items-center">
         <input
           type="text"
           placeholder="Search units..."
@@ -136,6 +137,28 @@ export function FactionDetail() {
             <option key={type} value={type}>{type}</option>
           ))}
         </select>
+        <button
+          type="button"
+          onClick={() => setCompactView(!compactView)}
+          className={`p-2 border rounded-md transition-colors ${
+            compactView
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-background hover:bg-muted'
+          }`}
+          aria-pressed={compactView}
+          aria-label={compactView ? 'Switch to normal view' : 'Switch to compact view'}
+          title={compactView ? 'Normal view' : 'Compact view'}
+        >
+          {compactView ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+            </svg>
+          )}
+        </button>
       </div>
 
       {filteredUnits.length === 0 ? (
@@ -153,6 +176,7 @@ export function FactionDetail() {
               factionId={factionId}
               brokenImages={brokenImages}
               onImageError={handleImageError}
+              compact={compactView}
             />
           ))
         )}
