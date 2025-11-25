@@ -53,6 +53,28 @@ export function FactionDetail() {
     [filteredUnits]
   )
 
+  // Calculate which categories have units (for expand/collapse all logic)
+  const categoriesWithUnits = useMemo(() =>
+    CATEGORY_ORDER.filter(cat => (groupedUnits.get(cat)?.length ?? 0) > 0),
+    [groupedUnits]
+  )
+
+  // Check if all categories with units are expanded or collapsed
+  const allExpanded = useMemo(() =>
+    categoriesWithUnits.length > 0 && categoriesWithUnits.every(cat => !collapsedCategories.has(cat)),
+    [categoriesWithUnits, collapsedCategories]
+  )
+
+  const toggleAllCategories = useCallback(() => {
+    if (allExpanded) {
+      // Collapse all
+      setCollapsedCategories(new Set(categoriesWithUnits))
+    } else {
+      // Expand all
+      setCollapsedCategories(new Set())
+    }
+  }, [allExpanded, categoriesWithUnits])
+
   // Show loading while factions metadata is being loaded
   if (factionsLoading) {
     return (
@@ -116,7 +138,7 @@ export function FactionDetail() {
           </div>
         </div>
 
-      <div className="mb-6 flex gap-4 flex-wrap">
+      <div className="mb-6 flex gap-4 flex-wrap items-center">
         <input
           type="text"
           placeholder="Search units..."
@@ -136,6 +158,22 @@ export function FactionDetail() {
             <option key={type} value={type}>{type}</option>
           ))}
         </select>
+        <button
+          onClick={toggleAllCategories}
+          className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
+          aria-label={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+          title={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+        >
+          {allExpanded ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          )}
+        </button>
       </div>
 
       {filteredUnits.length === 0 ? (
