@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Select from 'react-select'
 import type { StylesConfig } from 'react-select'
 import { useFactionContext } from '@/contexts/FactionContext'
@@ -96,6 +96,7 @@ const selectStyles: StylesConfig<SelectOption, false> = {
 
 export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNavProps) {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { factions, getFactionIndex, loadFaction } = useFactionContext()
 
   // Track selected faction for filtering units (may differ from URL during selection)
@@ -160,7 +161,12 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
       if (onUnitChange) {
         onUnitChange(selectedFactionId, option.value)
       } else {
-        navigate(`/faction/${selectedFactionId}/unit/${option.value}`)
+        // Preserve compare parameter when changing primary unit
+        const compareParam = searchParams.get('compare')
+        const url = compareParam
+          ? `/faction/${selectedFactionId}/unit/${option.value}?compare=${compareParam}`
+          : `/faction/${selectedFactionId}/unit/${option.value}`
+        navigate(url)
       }
     }
   }
