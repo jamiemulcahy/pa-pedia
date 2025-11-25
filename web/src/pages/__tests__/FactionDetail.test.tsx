@@ -254,4 +254,61 @@ describe('FactionDetail', () => {
 
   // Note: Error handling for unit loading is tested in the Context tests
   // and covered by the "Invalid Faction" scenario above
+
+  describe('compact view', () => {
+    it('should render compact view toggle button', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const compactButton = screen.getByRole('button', { name: /switch to compact view/i })
+        expect(compactButton).toBeInTheDocument()
+      })
+    })
+
+    it('should toggle compact view when button is clicked', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      const compactButton = screen.getByRole('button', { name: /switch to compact view/i })
+      expect(compactButton).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(compactButton)
+
+      // Button should now show "switch to normal view" and be pressed
+      const normalButton = screen.getByRole('button', { name: /switch to normal view/i })
+      expect(normalButton).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('should hide unit names in compact view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const fighters = screen.getAllByText('Fighter'); expect(fighters.length).toBeGreaterThan(0)
+      })
+
+      // In normal view, unit names are visible as text in the card
+      const fighterTexts = screen.getAllByText('Fighter')
+      const fighterInCard = fighterTexts.find(el => el.closest('a[href*="/unit/air_fighter"]'))
+      expect(fighterInCard).toBeInTheDocument()
+
+      // Toggle compact view
+      const compactButton = screen.getByRole('button', { name: /switch to compact view/i })
+      await user.click(compactButton)
+
+      // In compact view, unit names should not be visible as text (only in title attribute)
+      // The Fighter text in the unit card should be gone, but Fighter option in filter dropdown remains
+      const fighterTextsAfter = screen.getAllByText('Fighter')
+      const fighterInCardAfter = fighterTextsAfter.find(el => el.closest('a[href*="/unit/air_fighter"]'))
+      expect(fighterInCardAfter).toBeUndefined()
+
+      // But the link should still exist with the unit name in title
+      const fighterLink = screen.getByLabelText('View Fighter details')
+      expect(fighterLink).toHaveAttribute('title', 'Fighter')
+    })
+  })
 })
