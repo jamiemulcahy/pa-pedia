@@ -1,0 +1,64 @@
+# GoReleaser configuration for PA-Pedia CLI
+# Documentation: https://goreleaser.com
+
+version: 2
+
+project_name: pa-pedia
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: pa-pedia
+    main: ./cli
+    binary: pa-pedia
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.version={{.Version}}
+      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.commit={{.ShortCommit}}
+      - -X github.com/jamiemulcahy/pa-pedia/cli/cmd.date={{.Date}}
+
+archives:
+  - id: default
+    formats:
+      - zip
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+release:
+  github:
+    owner: jamiemulcahy
+    name: pa-pedia
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"
