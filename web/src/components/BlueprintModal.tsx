@@ -65,8 +65,10 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   // Convert a PA resource path to the faction assets path
   const getAssetPath = useCallback((resourcePath: string) => {
     // Extract the faction base from current path
-    // e.g., /factions/MLA/assets/pa/units/... -> /factions/MLA/assets
-    const match = currentPath.match(/^(\/factions\/[^/]+\/assets)/);
+    // e.g., {BASE_URL}factions/MLA/assets/pa/units/... -> {BASE_URL}factions/MLA/assets
+    const baseUrl = import.meta.env.BASE_URL;
+    const escapedBaseUrl = baseUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const match = currentPath.match(new RegExp(`^(${escapedBaseUrl}factions/[^/]+/assets)`));
     if (match) {
       return `${match[1]}${resourcePath}`;
     }

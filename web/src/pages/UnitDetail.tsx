@@ -143,37 +143,44 @@ export function UnitDetail() {
 
         {isComparing ? (
           // Comparison mode layout - render sections side by side for alignment
-          <>
-            {compareLoading && (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                Loading comparison unit...
+          (() => {
+            const compareSpecs = compareUnit?.specs
+            const compareWeapons = compareSpecs?.combat.weapons || []
+            const compareRegularWeapons = compareWeapons.filter(w => !w.selfDestruct && !w.deathExplosion)
+            const compareSelfDestruct = compareWeapons.find(w => w.selfDestruct)
+            const compareDeathExplosion = compareWeapons.find(w => w.deathExplosion)
+
+            const showMobility = specs.mobility || compareSpecs?.mobility
+            const showRecon = specs.recon || compareSpecs?.recon
+            const showSelfDestruct = selfDestructWeapon || compareSelfDestruct
+            const showDeathExplosion = deathExplosionWeapon || compareDeathExplosion
+            const maxWeaponCount = Math.max(regularWeapons.length, compareRegularWeapons.length)
+
+            // Placeholder component for when no comparison unit is selected
+            const ComparisonPlaceholder = () => (
+              <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-800/30 flex items-center justify-center min-h-[200px]">
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                  {compareLoading ? (
+                    <span>Loading comparison unit...</span>
+                  ) : (
+                    <span>Select a unit to compare using the dropdown above</span>
+                  )}
+                </div>
               </div>
-            )}
+            )
 
-            {compareUnit && (() => {
-              const compareSpecs = compareUnit.specs
-              const compareWeapons = compareSpecs.combat.weapons || []
-              const compareRegularWeapons = compareWeapons.filter(w => !w.selfDestruct && !w.deathExplosion)
-              const compareSelfDestruct = compareWeapons.find(w => w.selfDestruct)
-              const compareDeathExplosion = compareWeapons.find(w => w.deathExplosion)
-
-              const showMobility = specs.mobility || compareSpecs.mobility
-              const showRecon = specs.recon || compareSpecs.recon
-              const showSelfDestruct = selfDestructWeapon || compareSelfDestruct
-              const showDeathExplosion = deathExplosionWeapon || compareDeathExplosion
-              const maxWeaponCount = Math.max(regularWeapons.length, compareRegularWeapons.length)
-
-              return (
-                <div className="space-y-6">
-                  {/* Unit cards row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
-                      <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[200px] mx-auto">
-                        <UnitIcon imagePath={unit.image} alt={unit.displayName} className="max-w-full max-h-full object-contain" factionId={factionId} />
-                      </div>
-                      <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{unit.displayName}</h2>
-                      {unit.description && <p className="text-sm text-gray-600 dark:text-gray-400 italic text-center">{unit.description}</p>}
+            return (
+              <div className="space-y-6">
+                {/* Unit cards row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
+                    <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[200px] mx-auto">
+                      <UnitIcon imagePath={unit.image} alt={unit.displayName} className="max-w-full max-h-full object-contain" factionId={factionId} />
                     </div>
+                    <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{unit.displayName}</h2>
+                    {unit.description && <p className="text-sm text-gray-600 dark:text-gray-400 italic text-center">{unit.description}</p>}
+                  </div>
+                  {compareUnit ? (
                     <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800">
                       <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[200px] mx-auto">
                         <UnitIcon imagePath={compareUnit.image} alt={compareUnit.displayName} className="max-w-full max-h-full object-contain" factionId={compareFactionId} />
@@ -181,143 +188,175 @@ export function UnitDetail() {
                       <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{compareUnit.displayName}</h2>
                       {compareUnit.description && <p className="text-sm text-gray-600 dark:text-gray-400 italic text-center">{compareUnit.description}</p>}
                     </div>
-                  </div>
+                  ) : (
+                    <ComparisonPlaceholder />
+                  )}
+                </div>
 
-                  {/* Unit Types row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <UnitTypesSection unitTypes={unit.unitTypes} />
+                {/* Unit Types row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <UnitTypesSection unitTypes={unit.unitTypes} />
+                  {compareUnit ? (
                     <UnitTypesSection unitTypes={compareUnit.unitTypes} />
-                  </div>
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                  )}
+                </div>
 
-                  {/* Overview row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <OverviewSection unit={unit} />
+                {/* Overview row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <OverviewSection unit={unit} />
+                  {compareUnit ? (
                     <OverviewSection unit={compareUnit} compareUnit={unit} factionId={compareFactionId} />
-                  </div>
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                  )}
+                </div>
 
-                  {/* Physics row */}
-                  {showMobility && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                      {specs.mobility ? (
-                        <PhysicsSection mobility={specs.mobility} special={specs.special} />
-                      ) : (
-                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
-                      )}
-                      {compareSpecs.mobility ? (
+                {/* Physics row */}
+                {showMobility && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {specs.mobility ? (
+                      <PhysicsSection mobility={specs.mobility} special={specs.special} />
+                    ) : (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
+                    )}
+                    {compareUnit ? (
+                      compareSpecs?.mobility ? (
                         <PhysicsSection mobility={compareSpecs.mobility} special={compareSpecs.special} compareMobility={specs.mobility} />
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
-                      )}
-                    </div>
-                  )}
+                      )
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                )}
 
-                  {/* Recon row */}
-                  {showRecon && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                      {specs.recon ? (
-                        <ReconSection recon={specs.recon} />
-                      ) : (
-                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
-                      )}
-                      {compareSpecs.recon ? (
+                {/* Recon row */}
+                {showRecon && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {specs.recon ? (
+                      <ReconSection recon={specs.recon} />
+                    ) : (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
+                    )}
+                    {compareUnit ? (
+                      compareSpecs?.recon ? (
                         <ReconSection recon={compareSpecs.recon} compareRecon={specs.recon} />
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
-                      )}
-                    </div>
-                  )}
+                      )
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                )}
 
-                  {/* Weapons rows */}
-                  {Array.from({ length: maxWeaponCount }).map((_, index) => {
-                    const weapon1 = regularWeapons[index]
-                    const weapon2 = compareRegularWeapons[index]
-                    return (
-                      <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                        {weapon1 ? (
-                          <div className="space-y-6">
-                            <WeaponSection weapon={weapon1} />
-                            {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
-                          </div>
-                        ) : (
-                          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
-                        )}
-                        {weapon2 ? (
+                {/* Weapons rows */}
+                {Array.from({ length: maxWeaponCount || regularWeapons.length }).map((_, index) => {
+                  const weapon1 = regularWeapons[index]
+                  const weapon2 = compareRegularWeapons[index]
+                  return (
+                    <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                      {weapon1 ? (
+                        <div className="space-y-6">
+                          <WeaponSection weapon={weapon1} />
+                          {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
+                        </div>
+                      ) : (
+                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
+                      )}
+                      {compareUnit ? (
+                        weapon2 ? (
                           <div className="space-y-6">
                             <WeaponSection weapon={weapon2} />
                             {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} />}
                           </div>
                         ) : (
                           <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
-                        )}
-                      </div>
-                    )
-                  })}
-
-                  {/* Self-destruct row */}
-                  {showSelfDestruct && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                      {selfDestructWeapon ? (
-                        <div className="space-y-6">
-                          <WeaponSection weapon={selfDestructWeapon} />
-                          {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} />}
-                        </div>
+                        )
                       ) : (
-                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
+                        <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                       )}
-                      {compareSelfDestruct ? (
+                    </div>
+                  )
+                })}
+
+                {/* Self-destruct row */}
+                {showSelfDestruct && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {selfDestructWeapon ? (
+                      <div className="space-y-6">
+                        <WeaponSection weapon={selfDestructWeapon} />
+                        {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} />}
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
+                    )}
+                    {compareUnit ? (
+                      compareSelfDestruct ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareSelfDestruct} />
                           {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
-                      )}
-                    </div>
-                  )}
+                      )
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                )}
 
-                  {/* Death explosion row */}
-                  {showDeathExplosion && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                      {deathExplosionWeapon ? (
-                        <div className="space-y-6">
-                          <WeaponSection weapon={deathExplosionWeapon} />
-                          {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />}
-                        </div>
-                      ) : (
-                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
-                      )}
-                      {compareDeathExplosion ? (
+                {/* Death explosion row */}
+                {showDeathExplosion && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {deathExplosionWeapon ? (
+                      <div className="space-y-6">
+                        <WeaponSection weapon={deathExplosionWeapon} />
+                        {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />}
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
+                    )}
+                    {compareUnit ? (
+                      compareDeathExplosion ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareDeathExplosion} />
                           {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
-                      )}
-                    </div>
-                  )}
+                      )
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                )}
 
-                  {/* Target priorities row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <TargetPrioritiesSection weapons={regularWeapons} />
+                {/* Target priorities row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <TargetPrioritiesSection weapons={regularWeapons} />
+                  {compareUnit ? (
                     <TargetPrioritiesSection weapons={compareRegularWeapons} />
-                  </div>
-
-                  {/* Built by row */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <BuiltBySection builtBy={buildRelationships?.builtBy} buildCost={specs.economy.buildCost} factionId={factionId} />
-                    <BuiltBySection builtBy={compareUnit.buildRelationships?.builtBy} buildCost={compareSpecs.economy.buildCost} factionId={compareFactionId} />
-                  </div>
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                  )}
                 </div>
-              )
-            })()}
 
-            {!compareUnit && !compareLoading && !compareUnitId && (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                Select a unit to compare
+                {/* Built by row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <BuiltBySection builtBy={buildRelationships?.builtBy} buildCost={specs.economy.buildCost} factionId={factionId} />
+                  {compareUnit ? (
+                    <BuiltBySection builtBy={compareUnit.buildRelationships?.builtBy} buildCost={compareUnit.specs.economy.buildCost} factionId={compareFactionId} />
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                  )}
+                </div>
               </div>
-            )}
-          </>
+            )
+          })()
         ) : (
           // Normal single-unit layout
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

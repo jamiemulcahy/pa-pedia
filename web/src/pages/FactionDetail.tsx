@@ -54,6 +54,28 @@ export function FactionDetail() {
     [filteredUnits]
   )
 
+  // Calculate which categories have units (for expand/collapse all logic)
+  const categoriesWithUnits = useMemo(() =>
+    CATEGORY_ORDER.filter(cat => (groupedUnits.get(cat)?.length ?? 0) > 0),
+    [groupedUnits]
+  )
+
+  // Check if all categories with units are expanded or collapsed
+  const allExpanded = useMemo(() =>
+    categoriesWithUnits.length > 0 && categoriesWithUnits.every(cat => !collapsedCategories.has(cat)),
+    [categoriesWithUnits, collapsedCategories]
+  )
+
+  const toggleAllCategories = useCallback(() => {
+    if (allExpanded) {
+      // Collapse all
+      setCollapsedCategories(new Set(categoriesWithUnits))
+    } else {
+      // Expand all
+      setCollapsedCategories(new Set())
+    }
+  }, [allExpanded, categoriesWithUnits])
+
   // Show loading while factions metadata is being loaded
   if (factionsLoading) {
     return (
@@ -156,6 +178,23 @@ export function FactionDetail() {
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+            </svg>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={toggleAllCategories}
+          className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
+          aria-label={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+          title={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+        >
+          {allExpanded ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
           )}
         </button>
