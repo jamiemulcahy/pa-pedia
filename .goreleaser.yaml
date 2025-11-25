@@ -1,5 +1,6 @@
 # GoReleaser configuration for PA-Pedia CLI
 # Documentation: https://goreleaser.com
+# Requires Go 1.21+ (must match .github/workflows/release.yml)
 
 version: 2
 
@@ -11,7 +12,7 @@ before:
 
 builds:
   - id: pa-pedia
-    main: ./cli
+    main: ./cli/main.go
     binary: pa-pedia
     env:
       - CGO_ENABLED=0
@@ -46,14 +47,26 @@ checksum:
 
 changelog:
   sort: asc
+  use: github
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Other Changes
+      order: 999
   filters:
     exclude:
       - '^docs:'
       - '^test:'
       - '^ci:'
       - '^chore:'
+      - '^style:'
       - Merge pull request
       - Merge branch
+      - Merge remote-tracking
 
 release:
   github:
