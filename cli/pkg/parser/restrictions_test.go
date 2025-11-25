@@ -68,25 +68,28 @@ func TestParseRestriction(t *testing.T) {
 			unitTypes:   []string{"Mobile", "Construction"},
 			expected:    false,
 		},
-		// NOTE: The following tests with parentheses are currently failing,
-		// revealing a potential bug in the restriction parser's parentheses handling.
-		// These tests document the expected behavior, which should be fixed in a future PR.
 		{
-			name:        "Complex expression with parentheses",
+			name:        "Complex expression with parentheses - mobile basic",
 			restriction: "(Mobile | Air) & Basic",
 			unitTypes:   []string{"Mobile", "Basic", "Tank"},
-			expected:    false, // TODO: Should be true, but parser doesn't handle parens correctly yet
+			expected:    true,
 		},
 		{
 			name:        "Complex expression with parentheses - air basic",
 			restriction: "(Mobile | Air) & Basic",
 			unitTypes:   []string{"Air", "Basic"},
-			expected:    false, // TODO: Should be true, but parser doesn't handle parens correctly yet
+			expected:    true,
 		},
 		{
 			name:        "Complex expression with parentheses - mobile advanced",
 			restriction: "(Mobile | Air) & Basic",
 			unitTypes:   []string{"Mobile", "Advanced"},
+			expected:    false,
+		},
+		{
+			name:        "Complex expression with parentheses - naval basic",
+			restriction: "(Mobile | Air) & Basic",
+			unitTypes:   []string{"Naval", "Basic"},
 			expected:    false,
 		},
 		{
@@ -106,6 +109,96 @@ func TestParseRestriction(t *testing.T) {
 			restriction: "Factory",
 			unitTypes:   []string{"Structure", "Factory", "Basic"},
 			expected:    true,
+		},
+		{
+			name:        "Right-side parentheses",
+			restriction: "Mobile & (Basic | Advanced)",
+			unitTypes:   []string{"Mobile", "Basic"},
+			expected:    true,
+		},
+		{
+			name:        "Right-side parentheses - advanced",
+			restriction: "Mobile & (Basic | Advanced)",
+			unitTypes:   []string{"Mobile", "Advanced"},
+			expected:    true,
+		},
+		{
+			name:        "Right-side parentheses - titan",
+			restriction: "Mobile & (Basic | Advanced)",
+			unitTypes:   []string{"Mobile", "Titan"},
+			expected:    false,
+		},
+		{
+			name:        "Multiple groups",
+			restriction: "(Mobile | Air) & (Basic | Advanced)",
+			unitTypes:   []string{"Mobile", "Advanced"},
+			expected:    true,
+		},
+		{
+			name:        "Multiple groups - air basic",
+			restriction: "(Mobile | Air) & (Basic | Advanced)",
+			unitTypes:   []string{"Air", "Basic"},
+			expected:    true,
+		},
+		{
+			name:        "Multiple groups - naval basic",
+			restriction: "(Mobile | Air) & (Basic | Advanced)",
+			unitTypes:   []string{"Naval", "Basic"},
+			expected:    false,
+		},
+		{
+			name:        "Nested parentheses",
+			restriction: "((A | B) & C) | D",
+			unitTypes:   []string{"D"},
+			expected:    true,
+		},
+		{
+			name:        "Nested parentheses - A and C",
+			restriction: "((A | B) & C) | D",
+			unitTypes:   []string{"A", "C"},
+			expected:    true,
+		},
+		{
+			name:        "Nested parentheses - B and C",
+			restriction: "((A | B) & C) | D",
+			unitTypes:   []string{"B", "C"},
+			expected:    true,
+		},
+		{
+			name:        "Nested parentheses - A only",
+			restriction: "((A | B) & C) | D",
+			unitTypes:   []string{"A"},
+			expected:    false,
+		},
+		{
+			name:        "Parentheses with minus",
+			restriction: "(Mobile | Air) - Construction",
+			unitTypes:   []string{"Mobile"},
+			expected:    true,
+		},
+		{
+			name:        "Parentheses with minus - excluded",
+			restriction: "(Mobile | Air) - Construction",
+			unitTypes:   []string{"Mobile", "Construction"},
+			expected:    false,
+		},
+		{
+			name:        "Real PA expression - Air factory",
+			restriction: "(Air & Mobile & Basic | Air & Fabber & Basic & Mobile) & FactoryBuild",
+			unitTypes:   []string{"Air", "Mobile", "Basic", "FactoryBuild", "Fighter"},
+			expected:    true,
+		},
+		{
+			name:        "Real PA expression - Air factory fabber",
+			restriction: "(Air & Mobile & Basic | Air & Fabber & Basic & Mobile) & FactoryBuild",
+			unitTypes:   []string{"Air", "Fabber", "Basic", "Mobile", "FactoryBuild"},
+			expected:    true,
+		},
+		{
+			name:        "Real PA expression - Air factory no FactoryBuild",
+			restriction: "(Air & Mobile & Basic | Air & Fabber & Basic & Mobile) & FactoryBuild",
+			unitTypes:   []string{"Air", "Mobile", "Basic", "Fighter"},
+			expected:    false,
 		},
 	}
 
@@ -158,6 +251,18 @@ func TestRestrictionOperatorPrecedence(t *testing.T) {
 			unitTypes:   []string{"Air"},
 			expected:    false, // Air alone doesn't satisfy Air & Basic
 		},
+		{
+			name:        "MINUS has higher precedence than AND",
+			restriction: "Mobile & Tank - Scout",
+			unitTypes:   []string{"Mobile", "Tank"},
+			expected:    true, // Mobile & (Tank - Scout) -> Mobile & Tank (no Scout)
+		},
+		{
+			name:        "MINUS has higher precedence than AND - excluded",
+			restriction: "Mobile & Tank - Scout",
+			unitTypes:   []string{"Mobile", "Tank", "Scout"},
+			expected:    false, // Mobile & (Tank - Scout) -> Tank is Scout so fails
+		},
 	}
 
 	for _, tt := range tests {
@@ -184,9 +289,49 @@ func TestEmptyRestriction(t *testing.T) {
 	}
 
 	restriction := ParseRestriction("")
-	// Empty restriction should not match anything (or match everything - verify behavior)
+	// Empty restriction should not match anything
 	result := restriction.Satisfies(unit)
 
-	// Document the actual behavior
-	t.Logf("Empty restriction satisfies unit: %v", result)
+	if result != false {
+		t.Errorf("Empty restriction should not satisfy any unit, got %v", result)
+	}
+}
+
+// TestTokenize tests the tokenizer creates correct nested structure
+func TestTokenize(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int // Number of top-level tokens
+	}{
+		{
+			name:     "Simple expression",
+			input:    "Mobile",
+			expected: 1,
+		},
+		{
+			name:     "AND expression",
+			input:    "Mobile & Basic",
+			expected: 3, // Mobile, &, Basic
+		},
+		{
+			name:     "Parenthesized expression",
+			input:    "(Mobile | Air) & Basic",
+			expected: 3, // (group), &, Basic
+		},
+		{
+			name:     "Multiple groups",
+			input:    "(A | B) & (C | D)",
+			expected: 3, // (group), &, (group)
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tokens := tokenize(tt.input)
+			if len(tokens) != tt.expected {
+				t.Errorf("tokenize(%q) produced %d tokens, want %d", tt.input, len(tokens), tt.expected)
+			}
+		})
+	}
 }
