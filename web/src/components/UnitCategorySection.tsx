@@ -63,7 +63,7 @@ export function UnitCategorySection({
           id={`category-${category}`}
           className={
             compact
-              ? 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 mt-4'
+              ? 'grid grid-cols-3 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 mt-4'
               : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4'
           }
           role="list"
@@ -86,7 +86,7 @@ export function UnitCategorySection({
                   <div
                     className={
                       compact
-                        ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[8px] font-mono'
+                        ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[10px] font-mono'
                         : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
                     }
                     aria-label={`${unit.displayName} icon not available`}

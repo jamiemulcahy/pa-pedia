@@ -255,7 +255,7 @@ describe('UnitCategorySection', () => {
 
       const grid = screen.getByRole('list')
       // Compact mode has more columns - check for the compact grid classes
-      expect(grid.className).toContain('grid-cols-4')
+      expect(grid.className).toContain('grid-cols-3')
     })
 
     it('should use fewer columns in normal mode grid', () => {
