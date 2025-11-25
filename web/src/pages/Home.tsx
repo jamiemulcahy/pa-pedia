@@ -85,10 +85,10 @@ export function Home() {
       <div className="grid">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {factions.map((faction) => (
-            <div key={faction.folderName} className="relative group">
+            <div key={faction.folderName} className="relative group h-full">
               <Link
                 to={`/faction/${faction.folderName}`}
-                className="block p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20"
+                className="block h-full p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="text-3xl font-display font-bold tracking-wide">{faction.displayName}</div>
@@ -98,8 +98,8 @@ export function Home() {
                     </span>
                   )}
                 </div>
-                <div className="text-sm text-muted-foreground mb-2 font-medium">{faction.description}</div>
-                <div className="text-xs text-muted-foreground font-mono">
+                <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">{faction.description}</div>
+                <div className="text-xs text-muted-foreground font-mono mt-auto">
                   {faction.author && `By ${faction.author} • `}
                   Version {faction.version}
                 </div>
