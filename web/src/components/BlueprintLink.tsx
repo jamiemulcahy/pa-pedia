@@ -19,9 +19,9 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
 
   // Convert PA resource name to faction data path
   // e.g., /pa/units/land/tank_light_laser/tank_light_laser.json
-  // becomes /factions/MLA/assets/pa/units/land/tank_light_laser/tank_light_laser.json
+  // becomes {BASE_URL}factions/MLA/assets/pa/units/land/tank_light_laser/tank_light_laser.json
   const getBlueprintPath = () => {
-    return `/factions/${factionId}/assets${resourceName}`;
+    return `${import.meta.env.BASE_URL}factions/${factionId}/assets${resourceName}`;
   };
 
   return (
