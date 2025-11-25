@@ -199,13 +199,14 @@ describe('FactionDetail', () => {
   it('should render unit cards with icons', async () => {
     renderFactionDetail('MLA')
 
+    // Wait for units to load and icons to render
     await waitFor(() => {
-      const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      const tankImage = screen.getByAltText('Tank icon')
+      expect(tankImage).toBeInTheDocument()
     })
 
     // Icon alt text includes " icon" suffix
     const tankImage = screen.getByAltText('Tank icon')
-    expect(tankImage).toBeInTheDocument()
     // New path uses unit.unit.image field which contains assets path
     expect(tankImage).toHaveAttribute('src', '/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
   })
