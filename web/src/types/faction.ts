@@ -80,6 +80,7 @@ export interface Weapon {
   metalPerShot?: number;
   energyPerShot?: number;
   targetLayers?: string[];
+  targetPriorities?: string[];
   yawRange?: number;
   yawRate?: number;
   pitchRange?: number;

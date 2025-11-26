@@ -527,6 +527,13 @@
           "type": "array",
           "description": "Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"
         },
+        "targetPriorities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Target priority order using unit type grammar (e.g. ['Mobile - Air' 'Structure'])"
+        },
         "yawRange": {
           "type": "number",
           "description": "Horizontal aiming range in degrees"

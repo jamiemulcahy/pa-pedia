@@ -145,6 +145,16 @@ func ParseWeapon(l *loader.Loader, resourceName string, baseWeapon *models.Weapo
 		}
 	}
 
+	// Parse target priorities
+	if targetPriorities, ok := data["target_priorities"].([]interface{}); ok {
+		weapon.TargetPriorities = make([]string, 0, len(targetPriorities))
+		for _, priority := range targetPriorities {
+			if priorityStr, ok := priority.(string); ok {
+				weapon.TargetPriorities = append(weapon.TargetPriorities, priorityStr)
+			}
+		}
+	}
+
 	// Parse self-destruct flags
 	weapon.SelfDestruct = loader.GetBool(data, "self_destruct", weapon.SelfDestruct) ||
 		loader.GetBool(data, "only_fire_once", weapon.SelfDestruct)

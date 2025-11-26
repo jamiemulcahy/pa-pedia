@@ -43,8 +43,9 @@ type Weapon struct {
 	EnergyPerShot float64 `json:"energyPerShot,omitempty" jsonschema:"description=Energy consumed per shot"`
 
 	// Targeting
-	TargetLayers []string `json:"targetLayers,omitempty" jsonschema:"description=Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"`
-	YawRange     float64  `json:"yawRange,omitempty" jsonschema:"description=Horizontal aiming range in degrees"`
+	TargetLayers     []string `json:"targetLayers,omitempty" jsonschema:"description=Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"`
+	TargetPriorities []string `json:"targetPriorities,omitempty" jsonschema:"description=Target priority order using unit type grammar (e.g. ['Mobile - Air' 'Structure'])"`
+	YawRange         float64  `json:"yawRange,omitempty" jsonschema:"description=Horizontal aiming range in degrees"`
 	YawRate      float64  `json:"yawRate,omitempty" jsonschema:"description=Horizontal aiming speed in degrees/second"`
 	PitchRange   float64  `json:"pitchRange,omitempty" jsonschema:"description=Vertical aiming range in degrees"`
 	PitchRate    float64  `json:"pitchRate,omitempty" jsonschema:"description=Vertical aiming speed in degrees/second"`

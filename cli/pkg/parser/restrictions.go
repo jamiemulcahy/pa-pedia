@@ -55,47 +55,85 @@ func (r *CompoundMinus) Satisfies(unit *models.Unit) bool {
 	return r.Left.Satisfies(unit) && !r.Right.Satisfies(unit)
 }
 
+// Token represents either a simple string token or a nested group from parentheses
+type Token struct {
+	Value    string  // For simple tokens (operators or category names)
+	Children []Token // For parenthesized groups (nil if simple token)
+}
+
+// IsGroup returns true if this token represents a parenthesized group
+func (t Token) IsGroup() bool {
+	return t.Children != nil
+}
+
 // ParseRestriction parses a buildable_types string into a Restriction
-// Example: "Mobile & Tank - Construction" means mobile tanks that aren't construction
+// Example: "(Mobile | Air) & Basic" means mobile or air units that are also basic tier
 func ParseRestriction(text string) Restriction {
 	tokens := tokenize(text)
 	return parseTokens(tokens)
 }
 
-// tokenize breaks down the restriction string into tokens
-func tokenize(text string) []string {
+// tokenize converts a restriction string into a slice of tokens with nested structure for parentheses
+func tokenize(text string) []Token {
 	special := map[rune]bool{
 		'|': true, '&': true, '-': true, '(': true, ')': true, ' ': true,
 	}
 
-	var tokens []string
+	// First pass: create flat string tokens
+	var rawTokens []string
 	var word strings.Builder
 
 	for _, c := range text + " " {
 		if special[c] {
 			if word.Len() > 0 {
-				tokens = append(tokens, word.String())
+				rawTokens = append(rawTokens, word.String())
 				word.Reset()
 			}
 			if c != ' ' {
-				tokens = append(tokens, string(c))
+				rawTokens = append(rawTokens, string(c))
 			}
 		} else {
 			word.WriteRune(c)
 		}
 	}
 
-	return tokens
+	// Second pass: build nested structure from parentheses using a stack
+	var stack [][]Token
+	current := []Token{}
+
+	for _, tok := range rawTokens {
+		switch tok {
+		case "(":
+			// Push current onto stack and start a new group
+			stack = append(stack, current)
+			current = []Token{}
+		case ")":
+			// Pop from stack and add current as a nested group
+			if len(stack) > 0 {
+				parent := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				parent = append(parent, Token{Children: current})
+				current = parent
+			}
+		default:
+			// Regular token (operator or category name)
+			current = append(current, Token{Value: tok})
+		}
+	}
+
+	return current
 }
 
 // parseTokens recursively parses tokens into a Restriction tree
-func parseTokens(tokens []string) Restriction {
-	// Handle parentheses
-	tokens = parseParentheses(tokens)
+func parseTokens(tokens []Token) Restriction {
+	// Handle empty input
+	if len(tokens) == 0 {
+		return &SimpleRestriction{Category: ""}
+	}
 
-	// Handle OR (lowest precedence)
+	// Handle OR (lowest precedence) - find first OR not inside a group
 	for i, token := range tokens {
-		if token == "|" {
+		if !token.IsGroup() && token.Value == "|" {
 			left := parseTokens(tokens[:i])
 			right := parseTokens(tokens[i+1:])
 			return &CompoundOr{Left: left, Right: right}
@@ -104,7 +142,7 @@ func parseTokens(tokens []string) Restriction {
 
 	// Handle AND (medium precedence)
 	for i, token := range tokens {
-		if token == "&" {
+		if !token.IsGroup() && token.Value == "&" {
 			left := parseTokens(tokens[:i])
 			right := parseTokens(tokens[i+1:])
 			return &CompoundAnd{Left: left, Right: right}
@@ -113,63 +151,25 @@ func parseTokens(tokens []string) Restriction {
 
 	// Handle MINUS (highest precedence, right-associative)
 	for i := len(tokens) - 1; i >= 0; i-- {
-		if tokens[i] == "-" {
+		if !tokens[i].IsGroup() && tokens[i].Value == "-" {
 			left := parseTokens(tokens[:i])
 			right := parseTokens(tokens[i+1:])
 			return &CompoundMinus{Left: left, Right: right}
 		}
 	}
 
-	// Base case: single category
+	// Base case: single token (either simple or group)
 	if len(tokens) == 1 {
-		return &SimpleRestriction{Category: tokens[0]}
+		if tokens[0].IsGroup() {
+			// Recursively parse the contents of the parenthesized group
+			return parseTokens(tokens[0].Children)
+		}
+		return &SimpleRestriction{Category: tokens[0].Value}
 	}
 
-	// Shouldn't reach here with valid input
-	if len(tokens) > 0 {
-		return &SimpleRestriction{Category: tokens[0]}
+	// Fallback for unexpected cases
+	if len(tokens) > 0 && !tokens[0].IsGroup() {
+		return &SimpleRestriction{Category: tokens[0].Value}
 	}
-
 	return &SimpleRestriction{Category: ""}
-}
-
-// parseParentheses converts nested token lists from parentheses into Restrictions
-func parseParentheses(tokens []string) []string {
-	for {
-		openIdx := -1
-		foundPair := false
-
-		for i, token := range tokens {
-			if token == "(" {
-				openIdx = i
-			} else if token == ")" {
-				if openIdx == -1 {
-					// Unmatched close paren, ignore
-					continue
-				}
-
-				// Parse the content between parentheses
-				inner := tokens[openIdx+1 : i]
-				_ = parseTokens(inner)
-
-				// Replace the parenthesized section with a placeholder
-				placeholder := "\x00RESTRICTION\x00"
-				newTokens := make([]string, 0, len(tokens)-i+openIdx)
-				newTokens = append(newTokens, tokens[:openIdx]...)
-				newTokens = append(newTokens, placeholder)
-				newTokens = append(newTokens, tokens[i+1:]...)
-
-				tokens = newTokens
-				foundPair = true
-				break
-			}
-		}
-
-		// No matching parentheses pair found, stop processing
-		if !foundPair {
-			break
-		}
-	}
-
-	return tokens
 }
