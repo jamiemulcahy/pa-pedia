@@ -8,7 +8,7 @@ project_name: pa-pedia
 
 before:
   hooks:
-    - cd cli && go mod tidy
+    - sh -c "cd cli && go mod tidy"
 
 builds:
   - id: pa-pedia
