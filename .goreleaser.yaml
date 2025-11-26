@@ -39,15 +39,12 @@ builds:
 archives:
   - id: default
     formats:
-      - zip
+      - binary
     name_template: >-
       {{ .ProjectName }}_
-      {{- .Version }}_
       {{- .Os }}_
       {{- .Arch }}
-    files:
-      - README.md
-      - LICENSE*
+      {{- if eq .Os "windows" }}.exe{{ end }}
 
 checksum:
   name_template: 'checksums.txt'
