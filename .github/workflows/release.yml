@@ -98,3 +98,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
+
+      - name: Cleanup old releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Keep only the 10 most recent releases, delete older ones
+          echo "Fetching releases..."
+          RELEASES=$(gh release list --json tagName --jq '.[].tagName')
+
+          COUNT=0
+          for TAG in $RELEASES; do
+            COUNT=$((COUNT + 1))
+            if [ $COUNT -gt 10 ]; then
+              echo "Deleting old release: $TAG"
+              gh release delete "$TAG" --yes --cleanup-tag
+            else
+              echo "Keeping release: $TAG"
+            fi
+          done
