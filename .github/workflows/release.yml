@@ -78,3 +78,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
+
+      - name: Cleanup old pre-releases
+        if: steps.version.outputs.snapshot == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Keep only the 5 most recent pre-releases (v0.0.0-* pattern)
+          # Delete older ones along with their tags
+          echo "Fetching pre-releases..."
+          PRERELEASES=$(gh release list --json tagName,isPrerelease --jq '.[] | select(.isPrerelease and (.tagName | startswith("v0.0.0-"))) | .tagName')
+
+          # Count and skip the 5 most recent
+          COUNT=0
+          for TAG in $PRERELEASES; do
+            COUNT=$((COUNT + 1))
+            if [ $COUNT -gt 5 ]; then
+              echo "Deleting old pre-release: $TAG"
+              gh release delete "$TAG" --yes --cleanup-tag
+            else
+              echo "Keeping recent pre-release: $TAG"
+            fi
+          done
