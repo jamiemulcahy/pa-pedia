@@ -1,0 +1,77 @@
+# GoReleaser configuration for PA-Pedia CLI
+# Documentation: https://goreleaser.com
+# Requires Go 1.21+ (must match .github/workflows/release.yml)
+
+version: 2
+
+project_name: pa-pedia
+
+before:
+  hooks:
+    - cd cli && go mod tidy
+
+builds:
+  - id: pa-pedia
+    main: ./cli/main.go
+    binary: pa-pedia
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.version={{.Version}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.commit={{.ShortCommit}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.date={{.Date}}
+
+archives:
+  - id: default
+    formats:
+      - zip
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Other Changes
+      order: 999
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - '^style:'
+      - Merge pull request
+      - Merge branch
+      - Merge remote-tracking
+
+release:
+  github:
+    owner: jamiemulcahy
+    name: pa-pedia
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"
