@@ -12,7 +12,8 @@ before:
 
 builds:
   - id: pa-pedia
-    main: ./cli/main.go
+    dir: cli
+    main: .
     binary: pa-pedia
     env:
       - CGO_ENABLED=0
