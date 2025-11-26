@@ -3,7 +3,7 @@
 #   1. On version tags (v*) - creates a release with that version
 #   2. On push to main with CLI changes - creates a release with auto-generated version
 #   3. Manual dispatch - creates a release with specified or auto-generated version
-name: Release
+name: Create CLI Binaries
 
 on:
   push:
