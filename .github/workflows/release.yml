@@ -1,10 +1,26 @@
-# Release workflow - builds and publishes CLI binaries on new version tags
+# Release workflow - builds and publishes CLI binaries
+# Triggers:
+#   1. On version tags (v*) - creates a release with that version
+#   2. On push to main with CLI changes - creates a release with auto-generated version
+#   3. Manual dispatch - creates a release with specified or auto-generated version
 name: Release
 
 on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
+    paths:
+      - 'cli/**'
+      - '.goreleaser.yaml'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.0). Leave empty for auto-generated version.'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +28,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Skip if this is a merge commit that was already released via tag
+    if: ${{ !startsWith(github.event.head_commit.message, 'Merge pull request') || github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +42,33 @@ jobs:
           go-version: '1.21'
           cache-dependency-path: cli/go.sum
 
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            # Use the tag as version
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "snapshot=false" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            # Use manually specified version
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "snapshot=false" >> $GITHUB_OUTPUT
+          else
+            # Auto-generate version: v0.0.0-YYYYMMDD-COMMIT
+            DATE=$(date +%Y%m%d)
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            echo "version=v0.0.0-${DATE}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "snapshot=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tag for auto-generated version
+        if: steps.version.outputs.snapshot == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -32,3 +77,4 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
