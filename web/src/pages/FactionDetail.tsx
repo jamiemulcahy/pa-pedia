@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { UnitCategorySection } from '@/components/UnitCategorySection'
+import { FactionSelector } from '@/components/FactionSelector'
 import { useState, useCallback, useMemo } from 'react'
 import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 
@@ -140,6 +141,7 @@ export function FactionDetail() {
         </div>
 
       <div className="mb-6 flex gap-4 flex-wrap items-center">
+        <FactionSelector currentFactionId={factionId} />
         <input
           type="text"
           placeholder="Search units..."
