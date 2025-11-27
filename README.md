@@ -1,15 +1,25 @@
 # PA-Pedia
 
-A modern CLI tool and web application for exploring, comparing, and analyzing Planetary Annihilation faction units.
+[![Deploy to GitHub Pages](https://github.com/jamiemulcahy/pa-pedia/actions/workflows/deploy.yml/badge.svg)](https://github.com/jamiemulcahy/pa-pedia/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+A modern unit database and comparison tool for **Planetary Annihilation: Titans**. Inspired by [planetary-annihilation-db](https://github.com/speth/planetary-annihilation-db) ([palobby.com](https://palobby.com/)).
 
-PA-Pedia extracts unit data from Planetary Annihilation: Titans installations (including mods) and generates portable faction folders that can be viewed in a web interface.
+**[View Live Site →](https://jamiemulcahy.github.io/pa-pedia/faction/MLA)**
 
-### Components
+PA-Pedia consists of:
+- A **static web app** for browsing and comparing faction units
+- A **CLI tool** for extracting faction data from PA installations
 
-1. **CLI Tool (Go)**: Extract faction data from PA installations
-2. **Web App (React)**: Browse and compare faction units
+## Why PA-Pedia?
+
+**100% Static** — The web app is completely static, hosted on GitHub Pages with faction data served directly from this repository. If maintenance stops, anyone can fork and host it themselves.
+
+**Separation of Concerns** — Data extraction (CLI) and display (web) are separate, reducing complexity and making the codebase more approachable for contributors.
+
+**Isolated Faction Data** — Unlike PALobby which requires all factions installed locally, PA-Pedia handles factions independently. Add or update faction data by submitting a PR to `/web/public/factions`.
+
+**Local Import** — Upload exported faction data directly to the site for local viewing. Perfect for mod developers comparing their faction against others during development.
 
 ## Quick Start
 
@@ -32,9 +42,9 @@ pa-pedia describe-faction --name "Legion Enhanced" \
 ### Output Structure
 
 Each faction folder contains:
-- `metadata.json` - Faction information
-- `units.json` - Lightweight unit index with file listings
-- `units/` - Individual unit folders with all discovered files
+- `metadata.json` — Faction information (name, version, author, mods)
+- `units.json` — Complete unit index with fully resolved unit data
+- `assets/` — Unit icons and other assets (mirrored PA file structure)
 
 ### Web App Usage
 
@@ -168,8 +178,17 @@ npm run lint  # Run ESLint
 
 ## License
 
-[Your License Here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Feel free to:
+- Open issues for bugs or feature requests
+- Submit pull requests with improvements
+- Add new faction data to `/web/public/factions`
+
+## Acknowledgments
+
+- [planetary-annihilation-db](https://github.com/speth/planetary-annihilation-db) — The original PA unit database that inspired this project
+- [PALobby](https://palobby.com/) — The community resource this builds upon
+- The Planetary Annihilation modding community
