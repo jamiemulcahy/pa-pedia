@@ -189,7 +189,7 @@ export function FactionDetail() {
 
       <div className="mb-6 flex gap-4 flex-wrap items-center">
         <FactionSelector currentFactionId={factionId} />
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-[2] min-w-[200px]">
           <Select<SelectOption>
             options={unitSearchOptions}
             value={searchQuery ? unitSearchOptions.find(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase())) || null : null}
@@ -207,7 +207,7 @@ export function FactionDetail() {
             noOptionsMessage={() => "No units found"}
           />
         </div>
-        <div className="min-w-[150px]">
+        <div className="flex-1 min-w-[180px]">
           <Select<SelectOption>
             options={typeFilterOptions}
             value={typeFilter ? { value: typeFilter, label: typeFilter } : null}
