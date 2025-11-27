@@ -1,13 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Select from 'react-select'
-import type { StylesConfig } from 'react-select'
 import { useFactionContext } from '@/contexts/FactionContext'
-
-interface SelectOption {
-  value: string
-  label: string
-}
+import { selectStyles, type SelectOption } from './selectStyles'
 
 interface FactionOption extends SelectOption {
   isLocal: boolean
@@ -18,80 +13,6 @@ interface BreadcrumbNavProps {
   unitId?: string
   /** Optional callback for custom navigation (used in comparison mode) */
   onUnitChange?: (factionId: string, unitId: string) => void
-}
-
-// Custom styles for react-select to match dark theme
-const selectStyles: StylesConfig<SelectOption, false> = {
-  control: (base, state) => ({
-    ...base,
-    backgroundColor: 'rgb(31, 41, 55)', // gray-800
-    borderColor: state.isFocused ? 'rgb(59, 130, 246)' : 'rgb(75, 85, 99)', // blue-500 : gray-600
-    borderRadius: '0.375rem',
-    minHeight: '38px',
-    boxShadow: state.isFocused ? '0 0 0 1px rgb(59, 130, 246)' : 'none',
-    '&:hover': {
-      borderColor: 'rgb(107, 114, 128)', // gray-500
-    },
-  }),
-  menu: (base) => ({
-    ...base,
-    backgroundColor: 'rgb(31, 41, 55)', // gray-800
-    border: '1px solid rgb(75, 85, 99)', // gray-600
-    borderRadius: '0.375rem',
-    zIndex: 50,
-  }),
-  menuList: (base) => ({
-    ...base,
-    padding: '4px',
-  }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isSelected
-      ? 'rgb(59, 130, 246)' // blue-500
-      : state.isFocused
-      ? 'rgb(55, 65, 81)' // gray-700
-      : 'transparent',
-    color: 'rgb(243, 244, 246)', // gray-100
-    cursor: 'pointer',
-    borderRadius: '0.25rem',
-    '&:active': {
-      backgroundColor: 'rgb(37, 99, 235)', // blue-600
-    },
-  }),
-  singleValue: (base) => ({
-    ...base,
-    color: 'rgb(243, 244, 246)', // gray-100
-  }),
-  input: (base) => ({
-    ...base,
-    color: 'rgb(243, 244, 246)', // gray-100
-  }),
-  placeholder: (base) => ({
-    ...base,
-    color: 'rgb(156, 163, 175)', // gray-400
-  }),
-  indicatorSeparator: (base) => ({
-    ...base,
-    backgroundColor: 'rgb(75, 85, 99)', // gray-600
-  }),
-  dropdownIndicator: (base) => ({
-    ...base,
-    color: 'rgb(156, 163, 175)', // gray-400
-    '&:hover': {
-      color: 'rgb(209, 213, 219)', // gray-300
-    },
-  }),
-  clearIndicator: (base) => ({
-    ...base,
-    color: 'rgb(156, 163, 175)', // gray-400
-    '&:hover': {
-      color: 'rgb(209, 213, 219)', // gray-300
-    },
-  }),
-  noOptionsMessage: (base) => ({
-    ...base,
-    color: 'rgb(156, 163, 175)', // gray-400
-  }),
 }
 
 export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNavProps) {
@@ -179,7 +100,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
             options={factionOptions}
             value={selectedFaction}
             onChange={handleFactionChange}
-            styles={selectStyles as unknown as StylesConfig<FactionOption, false>}
+            styles={selectStyles}
             placeholder="Select faction..."
             isSearchable
             aria-label="Select faction"

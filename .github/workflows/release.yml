@@ -8,7 +8,7 @@
 #   - Push tag v1.0.0 -> releases v1.0.0
 #   - Push tag v2.0.0 -> releases v2.0.0 (bump major for breaking changes)
 #   - Merge to main -> finds latest tag, increments patch (v0.1.5 -> v0.1.6)
-name: Release
+name: Create CLI Binaries
 
 on:
   push:
