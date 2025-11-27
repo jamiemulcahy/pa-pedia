@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
@@ -26,10 +26,14 @@ function renderFactionDetail(factionId: string) {
 describe('FactionDetail', () => {
   beforeEach(() => {
     setupMockFetch()
+    // Reset localStorage to ensure clean state for each test
+    localStorage.removeItem('pa-pedia-view-mode')
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
+    // Clean up localStorage after each test
+    localStorage.removeItem('pa-pedia-view-mode')
   })
 
   it('should render loading state initially', () => {
@@ -341,5 +345,207 @@ describe('FactionDetail', () => {
 
     // Note: Faction selection navigation is tested in integration tests
     // since react-select dropdown interactions are complex to simulate
+  })
+
+  describe('view mode toggle', () => {
+    it('should render view mode toggle button', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
+        expect(viewToggle).toBeInTheDocument()
+      })
+    })
+
+    it('should start in grid view by default', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Grid view shows category sections
+      expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
+
+      // Table should not be present
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    })
+
+    it('should switch to table view when toggle is clicked', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
+      await user.click(viewToggle)
+
+      // Table should now be present
+      expect(screen.getByRole('table')).toBeInTheDocument()
+
+      // Category sections should not be visible
+      expect(screen.queryByRole('heading', { name: 'Tanks' })).not.toBeInTheDocument()
+    })
+
+    it('should switch back to grid view when toggle is clicked again', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to table view
+      const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
+      await user.click(viewToggle)
+
+      expect(screen.getByRole('table')).toBeInTheDocument()
+
+      // Switch back to grid view
+      const gridToggle = screen.getByRole('button', { name: /switch to grid view/i })
+      await user.click(gridToggle)
+
+      // Grid view should be back
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
+    })
+
+    it('should update toggle button label based on current view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // In grid view, button should say "switch to table view"
+      expect(screen.getByRole('button', { name: /switch to table view/i })).toBeInTheDocument()
+
+      // Click to switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Now button should say "switch to grid view"
+      expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
+    })
+
+    it('should hide compact view button when in table view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Compact button visible in grid mode
+      expect(screen.getByRole('button', { name: /switch to compact view/i })).toBeInTheDocument()
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Compact button should be hidden
+      expect(screen.queryByRole('button', { name: /switch to compact view/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /switch to normal view/i })).not.toBeInTheDocument()
+    })
+
+    it('should hide expand/collapse all button when in table view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Expand/collapse button visible in grid mode
+      expect(screen.getByRole('button', { name: /collapse all categories/i })).toBeInTheDocument()
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Expand/collapse button should be hidden
+      expect(screen.queryByRole('button', { name: /collapse all categories/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /expand all categories/i })).not.toBeInTheDocument()
+    })
+
+    it('should apply filters in table view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Apply search filter
+      const searchInput = screen.getByPlaceholderText(/search units/i) as HTMLInputElement
+      await user.type(searchInput, 'tank')
+
+      await waitFor(() => {
+        expect(searchInput.value).toBe('tank')
+      })
+
+      // Only Tank should be in the table
+      const table = screen.getByRole('table')
+      expect(within(table).getByRole('link', { name: 'Tank' })).toBeInTheDocument()
+      expect(within(table).queryByRole('link', { name: 'Bot' })).not.toBeInTheDocument()
+    })
+
+    it('should render sortable column headers in table view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Check for sortable headers
+      expect(screen.getByRole('button', { name: /sort by name/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /sort by health/i })).toBeInTheDocument()
+    })
+
+    it('should persist view mode preference in localStorage', async () => {
+      const user = userEvent.setup()
+
+      // Clear any existing preference
+      localStorage.removeItem('pa-pedia-view-mode')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Initially should be grid view (default)
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      expect(screen.getByRole('table')).toBeInTheDocument()
+
+      // Check localStorage was updated
+      expect(localStorage.getItem('pa-pedia-view-mode')).toBe('table')
+    })
+
+    it('should restore view mode preference from localStorage', async () => {
+      // Set preference to table before rendering
+      localStorage.setItem('pa-pedia-view-mode', 'table')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        // Should start in table view since that's the stored preference
+        expect(screen.getByRole('table')).toBeInTheDocument()
+      })
+
+      // Clean up
+      localStorage.removeItem('pa-pedia-view-mode')
+    })
   })
 })
