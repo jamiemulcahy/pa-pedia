@@ -24,6 +24,12 @@ builds:
     goarch:
       - amd64
       - arm64
+    ignore:
+      # Skip arm64 for Windows and Linux (rare use cases)
+      - goos: windows
+        goarch: arm64
+      - goos: linux
+        goarch: arm64
     ldflags:
       - -s -w
       - -X github.com/jamiemulcahy/pa-pedia/cmd.version={{.Version}}
@@ -33,15 +39,12 @@ builds:
 archives:
   - id: default
     formats:
-      - zip
+      - binary
     name_template: >-
       {{ .ProjectName }}_
-      {{- .Version }}_
       {{- .Os }}_
       {{- .Arch }}
-    files:
-      - README.md
-      - LICENSE*
+      {{- if eq .Os "windows" }}.exe{{ end }}
 
 checksum:
   name_template: 'checksums.txt'

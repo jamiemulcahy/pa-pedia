@@ -1,8 +1,13 @@
 # Release workflow - builds and publishes CLI binaries
 # Triggers:
 #   1. On version tags (v*) - creates a release with that version
-#   2. On push to main with CLI changes - creates a release with auto-generated version
-#   3. Manual dispatch - creates a release with specified or auto-generated version
+#   2. On push to main with CLI changes - auto-increments patch version (v0.1.0 -> v0.1.1)
+#   3. Manual dispatch - specify version or auto-increment
+#
+# Versioning:
+#   - Push tag v1.0.0 -> releases v1.0.0
+#   - Push tag v2.0.0 -> releases v2.0.0 (bump major for breaking changes)
+#   - Merge to main -> finds latest tag, increments patch (v0.1.5 -> v0.1.6)
 name: Create CLI Binaries
 
 on:
@@ -18,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., v1.0.0). Leave empty for auto-generated version.'
+        description: 'Version to release (e.g., v1.0.0). Leave empty to auto-increment patch.'
         required: false
         type: string
 
@@ -46,23 +51,38 @@ jobs:
         id: version
         run: |
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
-            # Use the tag as version
+            # Use the tag as version (already pushed)
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "snapshot=false" >> $GITHUB_OUTPUT
+            echo "needs_tag=false" >> $GITHUB_OUTPUT
           elif [[ -n "${{ inputs.version }}" ]]; then
             # Use manually specified version
             echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-            echo "snapshot=false" >> $GITHUB_OUTPUT
+            echo "needs_tag=true" >> $GITHUB_OUTPUT
           else
-            # Auto-generate version: v0.0.0-YYYYMMDD-COMMIT
-            DATE=$(date +%Y%m%d)
-            SHORT_SHA=$(git rev-parse --short HEAD)
-            echo "version=v0.0.0-${DATE}-${SHORT_SHA}" >> $GITHUB_OUTPUT
-            echo "snapshot=true" >> $GITHUB_OUTPUT
+            # Auto-increment: find latest tag and bump patch version
+            # Get latest tag matching vX.Y.Z pattern
+            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+
+            if [[ -z "$LATEST_TAG" ]]; then
+              # No tags exist, start at v0.1.0
+              NEW_VERSION="v0.1.0"
+            else
+              # Parse version and increment patch
+              VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
+              MAJOR=$(echo "$VERSION" | cut -d. -f1)
+              MINOR=$(echo "$VERSION" | cut -d. -f2)
+              PATCH=$(echo "$VERSION" | cut -d. -f3)
+              NEW_PATCH=$((PATCH + 1))
+              NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+            fi
+
+            echo "Latest tag: $LATEST_TAG -> New version: $NEW_VERSION"
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "needs_tag=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create tag for auto-generated version
-        if: steps.version.outputs.snapshot == 'true'
+      - name: Create tag for new version
+        if: steps.version.outputs.needs_tag == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -78,3 +98,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
+
+      - name: Cleanup old releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Keep only the 10 most recent releases, delete older ones
+          echo "Fetching releases..."
+          RELEASES=$(gh release list --json tagName --jq '.[].tagName')
+
+          COUNT=0
+          for TAG in $RELEASES; do
+            COUNT=$((COUNT + 1))
+            if [ $COUNT -gt 10 ]; then
+              echo "Deleting old release: $TAG"
+              gh release delete "$TAG" --yes --cleanup-tag
+            else
+              echo "Keeping release: $TAG"
+            fi
+          done
