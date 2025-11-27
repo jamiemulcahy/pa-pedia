@@ -6,6 +6,8 @@ import { UnitTable } from '@/components/UnitTable'
 import { FactionSelector } from '@/components/FactionSelector'
 import { useState, useCallback, useMemo } from 'react'
 import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
+import Select from 'react-select'
+import { selectStyles, type SelectOption } from '@/components/selectStyles'
 
 type ViewMode = 'grid' | 'table'
 
@@ -64,6 +66,24 @@ export function FactionDetail() {
   const allTypes = useMemo(() =>
     Array.from(new Set(units.flatMap(u => u.unitTypes))).sort(),
     [units]
+  )
+
+  // Convert units to react-select options for search
+  const unitSearchOptions = useMemo(() =>
+    units.map(unit => ({
+      value: unit.identifier,
+      label: unit.displayName,
+    })).sort((a, b) => a.label.localeCompare(b.label)),
+    [units]
+  )
+
+  // Convert types to react-select options for filter
+  const typeFilterOptions = useMemo(() =>
+    allTypes.map(type => ({
+      value: type,
+      label: type,
+    })),
+    [allTypes]
   )
 
   // Filter units (memoized for performance with large unit lists)
@@ -169,25 +189,35 @@ export function FactionDetail() {
 
       <div className="mb-6 flex gap-4 flex-wrap items-center">
         <FactionSelector currentFactionId={factionId} />
-        <input
-          type="text"
-          placeholder="Search units..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2 border rounded-md flex-1 min-w-[200px] bg-background font-medium"
-          aria-label="Search units by name"
-        />
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-4 py-2 border rounded-md bg-background font-medium"
-          aria-label="Filter units by type"
-        >
-          <option value="">All Types</option>
-          {allTypes.map(type => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+        <div className="flex-1 min-w-[200px]">
+          <Select<SelectOption>
+            options={unitSearchOptions}
+            value={searchQuery ? unitSearchOptions.find(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase())) || null : null}
+            onChange={(option) => setSearchQuery(option?.label || '')}
+            onInputChange={(inputValue, { action }) => {
+              if (action === 'input-change') {
+                setSearchQuery(inputValue)
+              }
+            }}
+            inputValue={searchQuery}
+            styles={selectStyles}
+            placeholder="Search units..."
+            isClearable
+            aria-label="Search units by name"
+            noOptionsMessage={() => "No units found"}
+          />
+        </div>
+        <div className="min-w-[150px]">
+          <Select<SelectOption>
+            options={typeFilterOptions}
+            value={typeFilter ? { value: typeFilter, label: typeFilter } : null}
+            onChange={(option) => setTypeFilter(option?.value || '')}
+            styles={selectStyles}
+            placeholder="All Types"
+            isClearable
+            aria-label="Filter units by type"
+          />
+        </div>
         {/* View mode toggle - single button that toggles between grid and table */}
         <button
           type="button"
