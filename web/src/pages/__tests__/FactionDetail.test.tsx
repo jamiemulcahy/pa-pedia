@@ -26,10 +26,14 @@ function renderFactionDetail(factionId: string) {
 describe('FactionDetail', () => {
   beforeEach(() => {
     setupMockFetch()
+    // Reset localStorage to ensure clean state for each test
+    localStorage.removeItem('pa-pedia-view-mode')
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
+    // Clean up localStorage after each test
+    localStorage.removeItem('pa-pedia-view-mode')
   })
 
   it('should render loading state initially', () => {
@@ -503,6 +507,45 @@ describe('FactionDetail', () => {
       // Check for sortable headers
       expect(screen.getByRole('button', { name: /sort by name/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /sort by health/i })).toBeInTheDocument()
+    })
+
+    it('should persist view mode preference in localStorage', async () => {
+      const user = userEvent.setup()
+
+      // Clear any existing preference
+      localStorage.removeItem('pa-pedia-view-mode')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Initially should be grid view (default)
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      expect(screen.getByRole('table')).toBeInTheDocument()
+
+      // Check localStorage was updated
+      expect(localStorage.getItem('pa-pedia-view-mode')).toBe('table')
+    })
+
+    it('should restore view mode preference from localStorage', async () => {
+      // Set preference to table before rendering
+      localStorage.setItem('pa-pedia-view-mode', 'table')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        // Should start in table view since that's the stored preference
+        expect(screen.getByRole('table')).toBeInTheDocument()
+      })
+
+      // Clean up
+      localStorage.removeItem('pa-pedia-view-mode')
     })
   })
 })

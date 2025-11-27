@@ -281,6 +281,69 @@ describe('UnitTable', () => {
       expect(links).toEqual(['Vehicle Factory', 'Bot', 'Tank', 'Fighter'])
     })
 
+    it('should use maximum range when unit has multiple weapons', async () => {
+      const user = userEvent.setup()
+
+      // Create a unit with multiple weapons of different ranges
+      const multiWeaponUnit: UnitIndexEntry = {
+        identifier: 'battleship',
+        displayName: 'Battleship',
+        unitTypes: ['Mobile', 'Naval', 'Advanced'],
+        source: 'pa',
+        files: [],
+        unit: {
+          id: 'battleship',
+          resourceName: '/pa/units/naval/battleship/battleship.json',
+          displayName: 'Battleship',
+          unitTypes: ['Mobile', 'Naval', 'Advanced'],
+          tier: 2,
+          accessible: true,
+          image: 'assets/pa/units/naval/battleship/battleship_icon_buildbar.png',
+          specs: {
+            combat: {
+              health: 10000,
+              dps: 500,
+              weapons: [
+                { resourceName: '', safeName: 'main_gun', count: 2, rateOfFire: 0.5, damage: 500, dps: 250, maxRange: 300 },
+                { resourceName: '', safeName: 'secondary_gun', count: 4, rateOfFire: 2, damage: 25, dps: 100, maxRange: 150 },
+                { resourceName: '', safeName: 'aa_gun', count: 2, rateOfFire: 5, damage: 15, dps: 75, maxRange: 100 },
+                { resourceName: '', safeName: 'torpedo', count: 2, rateOfFire: 0.2, damage: 375, dps: 75, maxRange: 200 },
+              ]
+            },
+            economy: { buildCost: 4500 },
+            mobility: { moveSpeed: 6 },
+          },
+        },
+      }
+
+      // Single weapon unit with range 120
+      const singleWeaponUnit: UnitIndexEntry = {
+        ...mockFighterUnit,
+        identifier: 'single_weapon',
+        displayName: 'Single Weapon',
+      }
+
+      renderUnitTable({ units: [singleWeaponUnit, multiWeaponUnit] })
+
+      // Sort by range ascending
+      await user.click(screen.getByRole('button', { name: /sort by range/i }))
+
+      const rows = screen.getAllByRole('row')
+      const links = rows.slice(1).map(row => within(row).getByRole('link').textContent)
+
+      // Single Weapon (120) should come before Battleship (300 - max of all weapons)
+      expect(links).toEqual(['Single Weapon', 'Battleship'])
+
+      // Sort by range descending
+      await user.click(screen.getByRole('button', { name: /sort by range/i }))
+
+      const rowsDesc = screen.getAllByRole('row')
+      const linksDesc = rowsDesc.slice(1).map(row => within(row).getByRole('link').textContent)
+
+      // Battleship (300) should come before Single Weapon (120)
+      expect(linksDesc).toEqual(['Battleship', 'Single Weapon'])
+    })
+
     it('should sort by tier when clicking tier header', async () => {
       const user = userEvent.setup()
 

@@ -9,6 +9,20 @@ import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils
 
 type ViewMode = 'grid' | 'table'
 
+const VIEW_MODE_STORAGE_KEY = 'pa-pedia-view-mode'
+
+function getStoredViewMode(): ViewMode {
+  try {
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+    if (stored === 'table' || stored === 'grid') {
+      return stored
+    }
+  } catch {
+    // localStorage may not be available
+  }
+  return 'grid'
+}
+
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
   const factionId = id || ''
@@ -18,7 +32,16 @@ export function FactionDetail() {
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<UnitCategory>>(new Set())
   const [compactView, setCompactView] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode)
+
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode)
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode)
+    } catch {
+      // localStorage may not be available
+    }
+  }, [])
 
   const handleImageError = useCallback((unitId: string) => {
     setBrokenImages(prev => new Set(prev).add(unitId))
@@ -168,7 +191,7 @@ export function FactionDetail() {
         {/* View mode toggle - single button that toggles between grid and table */}
         <button
           type="button"
-          onClick={() => setViewMode(viewMode === 'grid' ? 'table' : 'grid')}
+          onClick={() => handleViewModeChange(viewMode === 'grid' ? 'table' : 'grid')}
           className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
           aria-label={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
           title={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
