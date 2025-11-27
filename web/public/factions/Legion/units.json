@@ -37,39 +37,13 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 500,
             "dps": 30,
             "salvoDamage": 41,
             "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_tool_weapon.json",
-                "safeName": "triggered_2",
-                "name": "triggered_2",
-                "count": 1,
-                "rateOfFire": 5,
-                "damage": 6,
-                "dps": 30,
-                "projectilesPerFire": 1,
-                "maxRange": 80,
-                "splashDamage": 6,
-                "splashRadius": 80,
-                "targetLayers": [
-                  "Air"
-                ],
-                "yawRate": 3600,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_ammo.json",
-                  "safeName": "triggered_3",
-                  "name": "l_air_bomb_ammo",
-                  "damage": 6,
-                  "splashDamage": 6,
-                  "splashRadius": 80
-                }
-              },
               {
                 "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_death_tool_weapon.json",
                 "safeName": "l_air_bomb_death_tool_weapon",
@@ -89,10 +63,47 @@
                   "LandHorizontal",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
+                ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_death_ammo.json",
                   "safeName": "l_air_bomb_death_ammo",
                   "name": "l_air_bomb_death_ammo"
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_tool_weapon.json",
+                "safeName": "triggered_2",
+                "name": "triggered_2",
+                "count": 1,
+                "rateOfFire": 5,
+                "damage": 6,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "maxRange": 80,
+                "splashDamage": 6,
+                "splashRadius": 80,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRate": 3600,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_ammo.json",
+                  "safeName": "triggered_3",
+                  "name": "l_air_bomb_ammo",
+                  "damage": 6,
+                  "splashDamage": 6,
+                  "splashRadius": 80
                 }
               },
               {
@@ -140,7 +151,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -182,7 +198,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 500,
@@ -211,6 +227,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 10,
                 "yawRate": 180,
@@ -253,7 +275,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory",
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -299,7 +326,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 185
@@ -345,8 +372,32 @@
           "special": {}
         },
         "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_scout_bot_radar_mode",
+            "l_mex",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_vehicle_factory_adv"
+          ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_vehicle_factory",
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         },
         "buildableTypes": "Custom1 \u0026 (Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Land \u0026 Tank \u0026 Advanced | FabBuild )"
@@ -442,7 +493,24 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_fabrication_vehicle",
+            "l_mortar_tank",
+            "l_tank_shank",
+            "l_hover_tank",
+            "l_shotgun_tank",
+            "l_fabrication_vehicle_combat"
+          ],
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -492,7 +560,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1900,
@@ -513,6 +581,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 120,
                 "yawRate": 75,
@@ -555,7 +630,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory",
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -612,6 +692,11 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/air/l_air_scout_adv/l_vision/l_vision_death_ammo.json",
@@ -711,6 +796,11 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -785,6 +875,10 @@
                 "targetLayers": [
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 89,
@@ -817,6 +911,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -869,6 +966,11 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -899,6 +1001,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -932,6 +1038,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -1066,38 +1175,13 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 255,
             "dps": 105,
             "salvoDamage": 270,
             "weapons": [
-              {
-                "resourceName": "/pa/units/sea/l_sea_scout/l_sea_scout_tool_weapon.json",
-                "safeName": "l_sea_scout_tool_weapon",
-                "name": "l_sea_scout_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 20,
-                "dps": 30,
-                "projectilesPerFire": 1,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 180,
-                "yawRate": 130,
-                "pitchRange": 80,
-                "pitchRate": 90,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/sea/l_sea_scout/l_sea_scout_ammo.json",
-                  "safeName": "l_sea_scout_ammo",
-                  "name": "l_sea_scout_ammo",
-                  "damage": 20
-                }
-              },
               {
                 "resourceName": "/pa/units/sea/l_sea_scout/l_sea_scout_torpedo_tool_weapon.json",
                 "safeName": "l_sea_scout_torpedo_tool_weapon",
@@ -1114,6 +1198,12 @@
                   "Underwater",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
                 "yawRange": 360,
                 "yawRate": 3600,
                 "pitchRange": 360,
@@ -1126,6 +1216,38 @@
                   "muzzleVelocity": 10,
                   "maxVelocity": 50,
                   "lifetime": 5
+                }
+              },
+              {
+                "resourceName": "/pa/units/sea/l_sea_scout/l_sea_scout_tool_weapon.json",
+                "safeName": "l_sea_scout_tool_weapon",
+                "name": "l_sea_scout_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 20,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 130,
+                "pitchRange": 80,
+                "pitchRate": 90,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/sea/l_sea_scout/l_sea_scout_ammo.json",
+                  "safeName": "l_sea_scout_ammo",
+                  "name": "l_sea_scout_ammo",
+                  "damage": 20
                 }
               }
             ]
@@ -1156,7 +1278,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory",
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -1198,7 +1325,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 150
@@ -1225,7 +1352,12 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_launcher",
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -1297,7 +1429,16 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -1358,70 +1499,6 @@
             "salvoDamage": 4760,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -1436,6 +1513,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -1495,57 +1577,6 @@
                 }
               },
               {
-                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                "safeName": "nuke_pbaoe",
-                "name": "nuke_pbaoe",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 3000,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 130,
-                "fullDamageRadius": 30,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                  "safeName": "nuke_pbaoe",
-                  "name": "nuke_pbaoe",
-                  "damage": 3000,
-                  "fullDamageRadius": 30,
-                  "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -1561,6 +1592,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -1595,6 +1630,9 @@
                   "Seafloor",
                   "Underwater"
                 ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -1607,6 +1645,133 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                "safeName": "nuke_pbaoe",
+                "name": "nuke_pbaoe",
+                "count": 1,
+                "rateOfFire": 0,
+                "damage": 3000,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "splashRadius": 130,
+                "fullDamageRadius": 30,
+                "deathExplosion": true,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                  "safeName": "nuke_pbaoe",
+                  "name": "nuke_pbaoe",
+                  "damage": 3000,
+                  "fullDamageRadius": 30,
+                  "splashRadius": 130
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
                 }
               }
             ]
@@ -1736,7 +1901,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 175,
@@ -1761,6 +1926,11 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 45,
@@ -1806,7 +1976,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_vehicle_factory",
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         }
       }
@@ -1860,70 +2032,6 @@
             "salvoDamage": 4760,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -1938,6 +2046,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -1997,6 +2110,77 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
                 "safeName": "nuke_pbaoe",
                 "name": "nuke_pbaoe",
@@ -2033,6 +2217,11 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -2063,6 +2252,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -2096,6 +2289,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -2232,7 +2428,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 120,
@@ -2267,6 +2463,13 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
                 ],
                 "yawRange": 180,
                 "yawRate": 3600,
@@ -2315,7 +2518,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -2357,7 +2565,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 165
@@ -2406,7 +2614,34 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_scout_bot_radar_mode",
+            "l_mex",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_air_factory_adv"
+          ],
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 (Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 Air | FabBuild )"
       }
     },
@@ -2451,7 +2686,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 100
@@ -2509,6 +2744,10 @@
             "l_titan_vehicle",
             "l_titan_bot",
             "l_titan_orbital"
+          ],
+          "builtBy": [
+            "l_orbital_launcher",
+            "l_orbital_factory"
           ]
         },
         "buildableTypes": "Custom1 \u0026 FabOrbBuild | (Titan - Structure) \u0026 Custom1"
@@ -2555,7 +2794,7 @@
           "Custom1",
           "WaterHover"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 270
@@ -2604,7 +2843,33 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_naval_factory_adv"
+          ],
+          "builtBy": [
+            "l_naval_factory",
+            "l_naval_factory_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Naval \u0026 Structure \u0026 Basic | Naval \u0026 Factory \u0026 Advanced | Air \u0026 Factory \u0026 Basic | FabBuild )"
       }
     },
@@ -2651,7 +2916,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 65
@@ -2697,8 +2962,32 @@
           "special": {}
         },
         "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_scout_bot_radar_mode",
+            "l_mex",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_bot_factory_adv"
+          ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_bot_factory",
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         },
         "buildableTypes": "Custom1 \u0026 ( Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 Bot \u0026 Land | FabBuild )"
@@ -2793,7 +3082,25 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_transport",
+            "triggered",
+            "l_air_bomb",
+            "l_fabrication_aircraft",
+            "l_raider",
+            "l_fighter",
+            "l_bomber"
+          ],
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -2847,7 +3154,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 200
@@ -2901,7 +3208,9 @@
             "l_teleporter"
           ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_vehicle_factory",
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         },
         "buildableTypes": "Custom1 \u0026 CombatFabBuild"
@@ -2946,7 +3255,7 @@
           "Custom1",
           "FabBuild"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1000,
@@ -2975,6 +3284,12 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRate": 3600,
                 "pitchRate": 3600,
@@ -3013,7 +3328,19 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -3059,7 +3386,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 60,
@@ -3078,6 +3405,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -3112,6 +3445,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 3000,
@@ -3154,7 +3493,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_bot_factory",
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -3196,7 +3537,7 @@
           "Recon",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 60,
@@ -3221,6 +3562,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 3000,
@@ -3260,7 +3607,13 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft"
+          ]
+        }
       }
     },
     {
@@ -3339,6 +3692,12 @@
                   "Seafloor",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 300,
                 "pitchRange": 90,
@@ -3381,7 +3740,16 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -3434,7 +3802,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 100,
@@ -3456,6 +3824,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -3496,7 +3871,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_bot_factory",
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -3560,6 +3937,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -3635,6 +4017,10 @@
                 "targetLayers": [
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 89,
@@ -3667,6 +4053,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -3817,7 +4206,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 50,
@@ -3838,6 +4227,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -3878,7 +4274,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -3953,7 +4354,16 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_orbital_fabrication_bot",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -4006,7 +4416,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1150,
@@ -4030,6 +4440,11 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 240,
@@ -4069,6 +4484,218 @@
           },
           "storage": {},
           "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "l_vehicle_factory",
+            "l_vehicle_factory_adv"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "l_drone_2",
+      "displayName": "Meteoroid",
+      "unitTypes": [
+        "Mobile",
+        "Air",
+        "Basic",
+        "Custom1"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
+          "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-client"
+        }
+      ],
+      "unit": {
+        "id": "l_drone_2",
+        "resourceName": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
+        "displayName": "Meteoroid",
+        "description": "Drone - Fast. Fragile. Attacks land, sea and air targets.",
+        "image": "assets/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_2_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Mobile",
+          "Air",
+          "Basic",
+          "Custom1"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 60,
+            "dps": 50,
+            "salvoDamage": 40,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_tool_weapon.json",
+                "safeName": "l_drone_tool_weapon",
+                "name": "l_drone_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 20,
+                "dps": 20,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense",
+                  "Air",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 1000,
+                "pitchRange": 180,
+                "pitchRate": 1000,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
+                  "safeName": "l_drone_ammo",
+                  "name": "l_drone_ammo",
+                  "damage": 20,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
+                "safeName": "l_drone_death_tool_weapon",
+                "name": "l_drone_death_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.06666666666666667,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 15,
+                "ammoCapacity": 15,
+                "ammoRechargeTime": 15,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
+                  "safeName": "l_drone_death_ammo",
+                  "name": "l_drone_death_ammo"
+                }
+              },
+              {
+                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_tool_weapon.json",
+                "safeName": "l_drone_3",
+                "name": "l_drone_3",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 20,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "OrbitalDefense",
+                  "AirDefense",
+                  "Air",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 1000,
+                "pitchRange": 180,
+                "pitchRate": 1000,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
+                  "safeName": "l_drone_ammo",
+                  "name": "l_drone_ammo",
+                  "damage": 20,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
+                "safeName": "l_drone_death_tool_weapon",
+                "name": "l_drone_death_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.06666666666666667,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 15,
+                "ammoCapacity": 15,
+                "ammoRechargeTime": 15,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
+                  "safeName": "l_drone_death_ammo",
+                  "name": "l_drone_death_ammo"
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 90,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 80,
+            "turnSpeed": 240,
+            "acceleration": 80,
+            "brake": 30
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
         },
         "buildRelationships": {}
       }
@@ -4129,130 +4756,13 @@
                   "WaterSurface",
                   "Air"
                 ],
-                "yawRange": 180,
-                "yawRate": 1000,
-                "pitchRange": 180,
-                "pitchRate": 1000,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
-                  "safeName": "l_drone_ammo",
-                  "name": "l_drone_ammo",
-                  "damage": 20,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
-                "safeName": "l_drone_death_tool_weapon",
-                "name": "l_drone_death_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.06666666666666667,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "selfDestruct": true,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 15,
-                "ammoCapacity": 15,
-                "ammoRechargeTime": 15,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
-                  "safeName": "l_drone_death_ammo",
-                  "name": "l_drone_death_ammo"
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 90,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 80,
-            "turnSpeed": 240,
-            "acceleration": 80,
-            "brake": 30
-          },
-          "recon": {
-            "visionRadius": 150,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {}
-      }
-    },
-    {
-      "identifier": "l_drone_2",
-      "displayName": "Meteoroid",
-      "unitTypes": [
-        "Mobile",
-        "Air",
-        "Basic",
-        "Custom1"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
-          "source": "com.pa.legion-expansion-server"
-        },
-        {
-          "path": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
-        }
-      ],
-      "unit": {
-        "id": "l_drone_2",
-        "resourceName": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
-        "displayName": "Meteoroid",
-        "description": "Drone - Fast. Fragile. Attacks land, sea and air targets.",
-        "image": "assets/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_2_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Mobile",
-          "Air",
-          "Basic",
-          "Custom1"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 60,
-            "dps": 50,
-            "salvoDamage": 40,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_tool_weapon.json",
-                "safeName": "l_drone_tool_weapon",
-                "name": "l_drone_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 20,
-                "dps": 20,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense",
+                  "Air",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 1000,
@@ -4287,60 +4797,10 @@
                   "LandHorizontal",
                   "WaterSurface"
                 ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
-                  "safeName": "l_drone_death_ammo",
-                  "name": "l_drone_death_ammo"
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_tool_weapon.json",
-                "safeName": "l_drone_3",
-                "name": "l_drone_3",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 20,
-                "dps": 30,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 1000,
-                "pitchRange": 180,
-                "pitchRate": 1000,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
-                  "safeName": "l_drone_ammo",
-                  "name": "l_drone_ammo",
-                  "damage": 20,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
-                "safeName": "l_drone_death_tool_weapon",
-                "name": "l_drone_death_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.06666666666666667,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "selfDestruct": true,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 15,
-                "ammoCapacity": 15,
-                "ammoRechargeTime": 15,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
@@ -4429,6 +4889,13 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 1440,
                 "pitchRange": 45,
@@ -4458,6 +4925,11 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/land/l_swarm_hive/l_hive_nanoswarm/l_hive_nanoswarm_death_ammo.json",
@@ -4534,39 +5006,11 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 180,
             "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_deploy_tool_weapon.json",
-                "safeName": "l_air_bomb_deploy_tool_weapon",
-                "name": "l_air_bomb_deploy_tool_weapon",
-                "count": 1,
-                "rateOfFire": 5,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 10,
-                "selfDestruct": true,
-                "targetLayers": [
-                  "Air"
-                ],
-                "yawRange": 360,
-                "yawRate": 3600,
-                "pitchRange": 180,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_ammo.json",
-                  "safeName": "l_air_bomb_ammo",
-                  "name": "l_air_bomb_ammo",
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 10,
-                  "lifetime": 1
-                }
-              },
               {
                 "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_tracer_tool_weapon.json",
                 "safeName": "l_air_bomb_tracer_tool_weapon",
@@ -4580,6 +5024,12 @@
                 "fullDamageRadius": 1,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 360,
                 "yawRate": 3600,
@@ -4606,6 +5056,46 @@
                 "selfDestruct": true,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRange": 360,
+                "yawRate": 3600,
+                "pitchRange": 180,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_ammo.json",
+                  "safeName": "l_air_bomb_ammo",
+                  "name": "l_air_bomb_ammo",
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 10,
+                  "lifetime": 1
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_deploy_tool_weapon.json",
+                "safeName": "l_air_bomb_deploy_tool_weapon",
+                "name": "l_air_bomb_deploy_tool_weapon",
+                "count": 1,
+                "rateOfFire": 5,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 10,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 360,
                 "yawRate": 3600,
@@ -4647,7 +5137,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -4687,7 +5182,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 55
@@ -4717,7 +5212,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -4769,36 +5269,6 @@
             "salvoDamage": 4760,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -4813,6 +5283,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -4888,6 +5363,10 @@
                 "targetLayers": [
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 89,
@@ -4903,6 +5382,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -4942,6 +5454,11 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -4972,6 +5489,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -5005,6 +5526,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -5145,7 +5669,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 100,
@@ -5172,6 +5696,10 @@
                 "ammoShotsToDrain": 3,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 720,
@@ -5212,7 +5740,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_bot_factory",
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -5260,7 +5790,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 170,
@@ -5282,6 +5812,12 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -5324,7 +5860,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_bot_factory",
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -5399,6 +5937,15 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -5408,150 +5955,6 @@
             "l_raptor"
           ]
         }
-      }
-    },
-    {
-      "identifier": "l_bot_bomb",
-      "displayName": "Purger",
-      "unitTypes": [
-        "Bot",
-        "Mobile",
-        "Land",
-        "Basic",
-        "FactoryBuild",
-        "Offense",
-        "SelfDestruct",
-        "Custom1"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/l_bot_bomb/l_bot_bomb.json",
-          "source": "com.pa.legion-expansion-server"
-        },
-        {
-          "path": "/pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
-        }
-      ],
-      "unit": {
-        "id": "l_bot_bomb",
-        "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb.json",
-        "displayName": "Purger",
-        "description": "Leaping Bomb Bot - Self-destructs. Leaps at enemies. Jumps with alt fire.  Attacks land and sea targets.",
-        "image": "assets/pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Bot",
-          "Mobile",
-          "Land",
-          "Basic",
-          "FactoryBuild",
-          "Offense",
-          "SelfDestruct",
-          "Custom1"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 20,
-            "salvoDamage": 450,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_tool_weapon.json",
-                "safeName": "l_bot_bomb_tool_weapon",
-                "name": "l_bot_bomb_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 450,
-                "dps": 450,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 80,
-                "maxRange": 40,
-                "splashDamage": 150,
-                "splashRadius": 15,
-                "selfDestruct": true,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 360,
-                "yawRate": 540,
-                "pitchRange": 180,
-                "pitchRate": 1500,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_ammo.json",
-                  "safeName": "l_bot_bomb_ammo",
-                  "name": "l_bot_bomb_ammo",
-                  "damage": 450,
-                  "splashDamage": 150,
-                  "splashRadius": 15,
-                  "muzzleVelocity": 80,
-                  "maxVelocity": 150,
-                  "lifetime": 30
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_jump_tool_weapon.json",
-                "safeName": "l_bot_bomb_jump_tool_weapon",
-                "name": "l_bot_bomb_jump_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.2,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 80,
-                "maxRange": 40,
-                "selfDestruct": true,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 5,
-                "ammoCapacity": 5,
-                "ammoRechargeTime": 5,
-                "targetLayers": [
-                  "LandHorizontal"
-                ],
-                "yawRange": 180,
-                "yawRate": 3600,
-                "pitchRange": 90,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_jump_ammo.json",
-                  "safeName": "l_bot_bomb_jump_ammo",
-                  "name": "l_bot_bomb_jump_ammo",
-                  "muzzleVelocity": 80,
-                  "maxVelocity": 150,
-                  "lifetime": 30
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 50,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 30,
-            "turnSpeed": 720,
-            "acceleration": 200,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 50,
-            "underwaterVisionRadius": 120
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {}
       }
     },
     {
@@ -5617,6 +6020,12 @@
                   "LandHorizontal",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
                 "yawRange": 360,
                 "yawRate": 540,
                 "pitchRange": 180,
@@ -5653,6 +6062,12 @@
                 "targetLayers": [
                   "LandHorizontal"
                 ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 3600,
                 "pitchRange": 90,
@@ -5683,6 +6098,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 540,
@@ -5719,6 +6140,12 @@
                 "ammoRechargeTime": 5,
                 "targetLayers": [
                   "LandHorizontal"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 3600,
@@ -5764,6 +6191,167 @@
       }
     },
     {
+      "identifier": "l_bot_bomb",
+      "displayName": "Purger",
+      "unitTypes": [
+        "Bot",
+        "Mobile",
+        "Land",
+        "Basic",
+        "FactoryBuild",
+        "Offense",
+        "SelfDestruct",
+        "Custom1"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/l_bot_bomb/l_bot_bomb.json",
+          "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-client"
+        }
+      ],
+      "unit": {
+        "id": "l_bot_bomb",
+        "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb.json",
+        "displayName": "Purger",
+        "description": "Leaping Bomb Bot - Self-destructs. Leaps at enemies. Jumps with alt fire.  Attacks land and sea targets.",
+        "image": "assets/pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Bot",
+          "Mobile",
+          "Land",
+          "Basic",
+          "FactoryBuild",
+          "Offense",
+          "SelfDestruct",
+          "Custom1"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 20,
+            "salvoDamage": 450,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_tool_weapon.json",
+                "safeName": "l_bot_bomb_tool_weapon",
+                "name": "l_bot_bomb_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 450,
+                "dps": 450,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 80,
+                "maxRange": 40,
+                "splashDamage": 150,
+                "splashRadius": 15,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "yawRange": 360,
+                "yawRate": 540,
+                "pitchRange": 180,
+                "pitchRate": 1500,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_ammo.json",
+                  "safeName": "l_bot_bomb_ammo",
+                  "name": "l_bot_bomb_ammo",
+                  "damage": 450,
+                  "splashDamage": 150,
+                  "splashRadius": 15,
+                  "muzzleVelocity": 80,
+                  "maxVelocity": 150,
+                  "lifetime": 30
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_jump_tool_weapon.json",
+                "safeName": "l_bot_bomb_jump_tool_weapon",
+                "name": "l_bot_bomb_jump_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.2,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 80,
+                "maxRange": 40,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 5,
+                "ammoCapacity": 5,
+                "ammoRechargeTime": 5,
+                "targetLayers": [
+                  "LandHorizontal"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 3600,
+                "pitchRange": 90,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_bot_bomb/l_bot_bomb_jump_ammo.json",
+                  "safeName": "l_bot_bomb_jump_ammo",
+                  "name": "l_bot_bomb_jump_ammo",
+                  "muzzleVelocity": 80,
+                  "maxVelocity": 150,
+                  "lifetime": 30
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 50,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 30,
+            "turnSpeed": 720,
+            "acceleration": 200,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 50,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "l_bot_factory",
+            "l_bot_factory_adv"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "l_radar",
       "displayName": "Radar",
       "unitTypes": [
@@ -5802,7 +6390,7 @@
           "Recon",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 500
@@ -5836,7 +6424,16 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_fabrication_vehicle_combat"
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_vehicle_combat",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
           ]
         }
       }
@@ -5904,6 +6501,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -5979,6 +6581,10 @@
                 "targetLayers": [
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 89,
@@ -6011,6 +6617,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -6063,6 +6672,11 @@
                   "WaterSurface",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -6093,6 +6707,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -6126,6 +6744,9 @@
                   "WaterSurface",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -6257,7 +6878,7 @@
           "Economy",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 3000,
@@ -6381,6 +7002,12 @@
                   "Underwater",
                   "Seafloor"
                 ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
                 "yawRange": 180,
                 "yawRate": 180,
                 "pitchRange": 180,
@@ -6421,7 +7048,16 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -6472,7 +7108,7 @@
           "FabBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2500,
@@ -6494,6 +7130,12 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 50,
@@ -6532,7 +7174,19 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -6584,6 +7238,112 @@
             "salvoDamage": 4760,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -6627,100 +7387,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
                 "safeName": "nuke_pbaoe",
                 "name": "nuke_pbaoe",
@@ -6742,6 +7408,41 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -6757,6 +7458,10 @@
                 "fullDamageRadius": 0.75,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -6791,6 +7496,9 @@
                   "Seafloor",
                   "Underwater"
                 ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 40,
@@ -6803,36 +7511,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               }
             ]
@@ -6956,7 +7634,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 120,
@@ -6974,6 +7652,13 @@
                 "projectilesPerFire": 2,
                 "maxRange": 110,
                 "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 70,
@@ -7014,7 +7699,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory",
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -7052,7 +7742,7 @@
           "CombatFabAdvBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 5,
@@ -7157,7 +7847,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 300,
@@ -7181,6 +7871,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 90,
@@ -7223,7 +7920,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_vehicle_factory",
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         }
       }
@@ -7316,7 +8015,23 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_sea_scout",
+            "l_fabrication_ship",
+            "l_frigate",
+            "l_attack_sub",
+            "l_destroyer"
+          ],
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -7396,6 +8111,10 @@
                 "targetLayers": [
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Air \u0026 Mobile"
+                ],
                 "yawRange": 180,
                 "yawRate": 720,
                 "pitchRange": 90,
@@ -7422,6 +8141,10 @@
                 "maxRange": 150,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 720,
@@ -7459,7 +8182,16 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -7544,9 +8276,18 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
             "l_fabrication_vehicle_combat",
             "l_fabrication_sub_combat_adv",
             "l_orbital_fabrication_bot",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -7597,7 +8338,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 50
@@ -7624,7 +8365,12 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_launcher",
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -7662,7 +8408,7 @@
           "CombatFabBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 5,
@@ -7774,7 +8520,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1000
@@ -7806,7 +8552,12 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_launcher",
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -7900,7 +8651,23 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_orbital_lander",
+            "l_orbital_probe",
+            "l_orbital_fighter",
+            "l_radar_satellite",
+            "l_orbital_fabrication_bot"
+          ],
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -7956,7 +8723,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 225,
@@ -7981,6 +8748,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 360,
                 "yawRate": 160,
@@ -8014,6 +8788,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 160,
@@ -8056,7 +8836,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_vehicle_factory",
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         }
       }
@@ -8100,7 +8882,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 650,
@@ -8119,6 +8901,10 @@
                 "maxRange": 180,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -8158,7 +8944,12 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory",
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -8198,7 +8989,7 @@
           "Basic",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1000,
@@ -8231,6 +9022,13 @@
                   "Seafloor",
                   "WaterSurface",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 60,
@@ -8274,7 +9072,19 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -8339,6 +9149,9 @@
                 "targetLayers": [
                   "Orbital"
                 ],
+                "targetPriorities": [
+                  "Orbital"
+                ],
                 "yawRange": 180,
                 "yawRate": 90,
                 "pitchRange": 90,
@@ -8377,6 +9190,15 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -8429,7 +9251,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 100,
@@ -8448,6 +9270,9 @@
                 "muzzleVelocity": 300,
                 "maxRange": 200,
                 "targetLayers": [
+                  "Orbital"
+                ],
+                "targetPriorities": [
                   "Orbital"
                 ],
                 "yawRange": 75,
@@ -8486,7 +9311,12 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_launcher",
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -8579,7 +9409,24 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_bot_bomb",
+            "l_assault_bot",
+            "l_bot_aa",
+            "l_fabrication_bot",
+            "l_scout_bot",
+            "l_sniper_bot"
+          ],
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -8635,7 +9482,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 500
@@ -8681,8 +9528,47 @@
           "special": {}
         },
         "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_drop_turret",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_flame_turret",
+            "l_air_defense_adv",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_torpedo_launcher_adv",
+            "l_mex_adv",
+            "l_rocket_barrage",
+            "l_radar_adv",
+            "l_shield_gen",
+            "l_energy_plant_adv",
+            "l_flying_teleporter",
+            "l_vehicle_factory_adv",
+            "l_artillery_long",
+            "l_nuke_launcher",
+            "l_anti_nuke_launcher",
+            "l_titan_vehicle",
+            "l_control_module",
+            "l_delta_v_engine",
+            "l_titan_structure"
+          ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         },
         "buildableTypes": "(Custom1 \u0026 ( Structure \u0026 Land \u0026 Advanced - Factory | Factory \u0026 Land \u0026 Tank \u0026 Advanced | FabAdvBuild | FabBuild | Titan \u0026 Tank))"
@@ -8729,7 +9615,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 30000
@@ -8771,7 +9657,26 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_fabrication_vehicle",
+            "l_mortar_tank",
+            "l_tank_shank",
+            "l_hover_tank",
+            "l_shotgun_tank",
+            "l_fabrication_vehicle_combat",
+            "l_tank_swarm",
+            "l_tank_laser_adv",
+            "l_sniper_tank",
+            "l_hover_tank_adv",
+            "l_tank_heavy_armor",
+            "l_fabrication_vehicle_adv"
+          ],
+          "builtBy": [
+            "l_fabrication_vehicle",
+            "l_fabrication_vehicle_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Mobile \u0026 Tank \u0026 FactoryBuild )"
       }
     },
@@ -8814,7 +9719,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 160
@@ -8863,7 +9768,49 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_drop_turret",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_flame_turret",
+            "l_air_defense_adv",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_torpedo_launcher_adv",
+            "l_mex_adv",
+            "l_rocket_barrage",
+            "l_radar_adv",
+            "l_shield_gen",
+            "l_energy_plant_adv",
+            "l_flying_teleporter",
+            "l_air_factory_adv",
+            "l_artillery_long",
+            "l_nuke_launcher",
+            "l_anti_nuke_launcher",
+            "l_titan_air",
+            "l_control_module",
+            "l_delta_v_engine",
+            "l_titan_structure"
+          ],
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 (Land \u0026 Structure \u0026 Advanced - Factory | Factory \u0026 Advanced \u0026 Air | FabAdvBuild | FabBuild | Air \u0026 Titan)"
       }
     },
@@ -8906,7 +9853,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 675
@@ -8955,7 +9902,47 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_flame_turret",
+            "l_air_defense_adv",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_torpedo_launcher_adv",
+            "l_mex_adv",
+            "l_rocket_barrage",
+            "l_radar_adv",
+            "l_shield_gen",
+            "l_energy_plant_adv",
+            "l_flying_teleporter",
+            "l_naval_factory_adv",
+            "l_artillery_long",
+            "l_nuke_launcher",
+            "l_anti_nuke_launcher",
+            "l_control_module",
+            "l_delta_v_engine",
+            "l_titan_structure"
+          ],
+          "builtBy": [
+            "l_naval_factory_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Naval \u0026 Structure \u0026 Advanced | Naval \u0026 Factory \u0026 Advanced | FabAdvBuild | FabBuild )"
       }
     },
@@ -9002,7 +9989,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 150
@@ -9048,8 +10035,47 @@
           "special": {}
         },
         "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_drop_turret",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_flame_turret",
+            "l_air_defense_adv",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_torpedo_launcher_adv",
+            "l_mex_adv",
+            "l_rocket_barrage",
+            "l_radar_adv",
+            "l_shield_gen",
+            "l_energy_plant_adv",
+            "l_flying_teleporter",
+            "l_bot_factory_adv",
+            "l_artillery_long",
+            "l_nuke_launcher",
+            "l_anti_nuke_launcher",
+            "l_titan_bot",
+            "l_control_module",
+            "l_delta_v_engine",
+            "l_titan_structure"
+          ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         },
         "buildableTypes": "Custom1 \u0026 (Land \u0026 Structure \u0026 Advanced - Factory| Factory \u0026 Advanced \u0026 Bot \u0026 Land | FabAdvBuild | FabBuild | Bot \u0026 Titan)"
@@ -9094,7 +10120,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 30000
@@ -9137,7 +10163,27 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_transport",
+            "triggered",
+            "l_air_bomb",
+            "l_fabrication_aircraft",
+            "l_raider",
+            "l_fighter",
+            "l_air_scout_adv",
+            "l_bomber",
+            "l_fighter_adv",
+            "l_gunship",
+            "l_firestarter",
+            "l_fabrication_aircraft_adv",
+            "l_air_carrier"
+          ],
+          "builtBy": [
+            "l_fabrication_aircraft",
+            "l_fabrication_aircraft_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Air \u0026 Mobile \u0026 FactoryBuild )"
       }
     },
@@ -9178,7 +10224,7 @@
           "Economy",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 3000
@@ -9207,7 +10253,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -9247,7 +10301,7 @@
           "Economy",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2500,
@@ -9302,7 +10356,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -9344,7 +10406,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 30000
@@ -9386,7 +10448,25 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_sea_scout",
+            "l_fabrication_ship",
+            "l_frigate",
+            "l_attack_sub",
+            "l_destroyer",
+            "l_fabrication_sub_combat_adv",
+            "l_hover_ship",
+            "l_fabrication_ship_adv",
+            "l_missile_ship",
+            "l_sea_tank",
+            "l_battleship"
+          ],
+          "builtBy": [
+            "l_fabrication_ship",
+            "l_fabrication_ship_adv"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Naval \u0026 Mobile \u0026 FactoryBuild )"
       }
     },
@@ -9431,7 +10511,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 30000
@@ -9473,7 +10553,28 @@
             ]
           }
         },
-        "buildRelationships": {},
+        "buildRelationships": {
+          "builds": [
+            "l_bot_bomb",
+            "l_assault_bot",
+            "l_bot_aa",
+            "l_fabrication_bot",
+            "l_scout_bot",
+            "l_sniper_bot",
+            "l_riot_bot",
+            "l_bot_aa_adv",
+            "l_bot_artillery",
+            "l_necromancer",
+            "l_bot_artillery_adv",
+            "l_fabrication_bot_adv",
+            "l_bot_support_commander"
+          ],
+          "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_bot_adv",
+            "l_bot_support_commander"
+          ]
+        },
         "buildableTypes": "Custom1 \u0026 ( Bot \u0026 Mobile \u0026 FactoryBuild )"
       }
     },
@@ -9516,7 +10617,7 @@
           "FabAdvBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 3000,
@@ -9539,6 +10640,10 @@
                 "fullDamageRadius": 5,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 3600,
@@ -9580,7 +10685,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -9622,7 +10735,7 @@
           "FabAdvBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 4000,
@@ -9645,6 +10758,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 90,
@@ -9685,7 +10805,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -9729,7 +10857,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 900,
@@ -9761,6 +10889,13 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Land - Wall",
+                  "Naval",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 180,
@@ -9804,6 +10939,13 @@
                   "Seafloor",
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Land - Wall",
+                  "Naval",
+                  "Wall",
+                  "Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 7200,
                 "pitchRange": 180,
@@ -9844,7 +10986,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -9884,7 +11030,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 20000
@@ -9909,7 +11055,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -9951,7 +11105,7 @@
           "FabOrbBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2000,
@@ -9971,6 +11125,12 @@
                 "maxRange": 150,
                 "targetLayers": [
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 120,
@@ -9999,6 +11159,12 @@
                   "Air",
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -10083,7 +11249,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1900
@@ -10116,7 +11282,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -10160,7 +11334,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 250,
@@ -10183,6 +11357,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 60,
@@ -10222,7 +11403,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_vehicle_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -10268,7 +11453,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2500,
@@ -10292,6 +11477,11 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 70,
@@ -10333,7 +11523,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -10379,7 +11577,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 20000
@@ -10404,7 +11602,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -10448,7 +11654,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 7000,
@@ -10471,6 +11677,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -10509,7 +11722,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_vehicle_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -10553,7 +11770,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 500,
@@ -10575,6 +11792,12 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 540,
@@ -10615,7 +11838,8 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -10659,48 +11883,13 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 7500,
             "dps": 320,
             "salvoDamage": 1600,
             "weapons": [
-              {
-                "resourceName": "/pa/units/sea/l_battleship/l_battleship_upper_tool_weapon.json",
-                "safeName": "l_battleship_upper_tool_weapon",
-                "name": "l_battleship_upper_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.2,
-                "damage": 800,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 130,
-                "maxRange": 400,
-                "splashDamage": 800,
-                "splashRadius": 25,
-                "fullDamageRadius": 5,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 120,
-                "yawRate": 45,
-                "pitchRange": 90,
-                "pitchRate": 90,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/sea/l_battleship/l_battleship_upper_ammo.json",
-                  "safeName": "l_battleship_upper_ammo",
-                  "name": "l_battleship_upper_ammo",
-                  "damage": 800,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 800,
-                  "splashRadius": 25,
-                  "muzzleVelocity": 130,
-                  "maxVelocity": 250,
-                  "lifetime": 5
-                }
-              },
               {
                 "resourceName": "/pa/units/sea/l_battleship/l_battleship_lower_tool_weapon.json",
                 "safeName": "l_battleship_lower_tool_weapon",
@@ -10719,6 +11908,13 @@
                   "LandHorizontal",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
                 "yawRange": 120,
                 "yawRate": 45,
                 "pitchRange": 90,
@@ -10732,6 +11928,48 @@
                   "splashDamage": 800,
                   "splashRadius": 25,
                   "muzzleVelocity": 150,
+                  "maxVelocity": 250,
+                  "lifetime": 5
+                }
+              },
+              {
+                "resourceName": "/pa/units/sea/l_battleship/l_battleship_upper_tool_weapon.json",
+                "safeName": "l_battleship_upper_tool_weapon",
+                "name": "l_battleship_upper_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.2,
+                "damage": 800,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 130,
+                "maxRange": 400,
+                "splashDamage": 800,
+                "splashRadius": 25,
+                "fullDamageRadius": 5,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 120,
+                "yawRate": 45,
+                "pitchRange": 90,
+                "pitchRate": 90,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/sea/l_battleship/l_battleship_upper_ammo.json",
+                  "safeName": "l_battleship_upper_ammo",
+                  "name": "l_battleship_upper_ammo",
+                  "damage": 800,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 800,
+                  "splashRadius": 25,
+                  "muzzleVelocity": 130,
                   "maxVelocity": 250,
                   "lifetime": 5
                 }
@@ -10763,7 +12001,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -10807,7 +12049,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 240,
@@ -10825,6 +12067,13 @@
                 "projectilesPerFire": 1,
                 "maxRange": 90,
                 "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 40,
@@ -10854,6 +12103,11 @@
                 "fullDamageRadius": 5,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -10899,7 +12153,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -10943,7 +12201,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 5000,
@@ -10975,6 +12233,12 @@
                   "Seafloor",
                   "WaterSurface",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
                 ],
                 "yawRange": 360,
                 "yawRate": 10,
@@ -11018,7 +12282,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -11060,13 +12332,55 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 14000,
             "dps": 2725,
             "salvoDamage": 1250,
             "weapons": [
+              {
+                "resourceName": "/pa/units/sea/l_sea_tank/l_sea_tank_tool_weapon.json",
+                "safeName": "l_sea_tank_tool_weapon",
+                "name": "l_sea_tank_tool_weapon",
+                "count": 2,
+                "rateOfFire": 0.5,
+                "damage": 400,
+                "dps": 800,
+                "projectilesPerFire": 4,
+                "muzzleVelocity": 110,
+                "maxRange": 150,
+                "splashDamage": 400,
+                "splashRadius": 4,
+                "fullDamageRadius": 2,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 25,
+                "yawRate": 90,
+                "pitchRange": 90,
+                "pitchRate": 45,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/sea/l_sea_tank/l_sea_tank_ammo.json",
+                  "safeName": "l_sea_tank_ammo",
+                  "name": "l_sea_tank_ammo",
+                  "damage": 400,
+                  "fullDamageRadius": 2,
+                  "splashDamage": 400,
+                  "splashRadius": 4,
+                  "muzzleVelocity": 110,
+                  "maxVelocity": 120,
+                  "lifetime": 5
+                }
+              },
               {
                 "resourceName": "/pa/units/sea/l_sea_tank/l_sea_tank_torpedo_tool_weapon.json",
                 "safeName": "l_sea_tank_torpedo_tool_weapon",
@@ -11085,6 +12399,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -11119,6 +12439,12 @@
                 "targetLayers": [
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
                 "yawRange": 55,
                 "yawRate": 360,
                 "pitchRange": 90,
@@ -11131,41 +12457,6 @@
                   "fullDamageRadius": 10,
                   "splashDamage": 200,
                   "splashRadius": 10
-                }
-              },
-              {
-                "resourceName": "/pa/units/sea/l_sea_tank/l_sea_tank_tool_weapon.json",
-                "safeName": "l_sea_tank_tool_weapon",
-                "name": "l_sea_tank_tool_weapon",
-                "count": 2,
-                "rateOfFire": 0.5,
-                "damage": 400,
-                "dps": 800,
-                "projectilesPerFire": 4,
-                "muzzleVelocity": 110,
-                "maxRange": 150,
-                "splashDamage": 400,
-                "splashRadius": 4,
-                "fullDamageRadius": 2,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 25,
-                "yawRate": 90,
-                "pitchRange": 90,
-                "pitchRate": 45,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/sea/l_sea_tank/l_sea_tank_ammo.json",
-                  "safeName": "l_sea_tank_ammo",
-                  "name": "l_sea_tank_ammo",
-                  "damage": 400,
-                  "fullDamageRadius": 2,
-                  "splashDamage": 400,
-                  "splashRadius": 4,
-                  "muzzleVelocity": 110,
-                  "maxVelocity": 120,
-                  "lifetime": 5
                 }
               }
             ]
@@ -11195,7 +12486,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -11239,7 +12534,7 @@
           "TacticalDefense",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 450,
@@ -11270,6 +12565,13 @@
                   "LandHorizontal",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 360,
                 "pitchRange": 90,
@@ -11299,6 +12601,13 @@
                 "targetLayers": [
                   "Air",
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 3600,
@@ -11337,7 +12646,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_vehicle_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -11383,13 +12696,46 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 5500,
             "dps": 455,
             "salvoDamage": 1045,
             "weapons": [
+              {
+                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_tool_weapon.json",
+                "safeName": "l_orbital_battleship_tool_weapon",
+                "name": "l_orbital_battleship_tool_weapon",
+                "count": 3,
+                "rateOfFire": 1,
+                "damage": 65,
+                "dps": 65,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 500,
+                "maxRange": 150,
+                "targetLayers": [
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 120,
+                "yawRate": 45,
+                "pitchRange": 60,
+                "pitchRate": 45,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_ammo.json",
+                  "safeName": "l_orbital_battleship_ammo",
+                  "name": "l_orbital_battleship_ammo",
+                  "damage": 65,
+                  "muzzleVelocity": 500,
+                  "maxVelocity": 500
+                }
+              },
               {
                 "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_main_tool_weapon.json",
                 "safeName": "l_orbital_battleship_main_tool_weapon",
@@ -11403,6 +12749,12 @@
                 "maxRange": 250,
                 "targetLayers": [
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 30,
@@ -11435,6 +12787,12 @@
                   "Air",
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 180,
@@ -11473,6 +12831,12 @@
                   "WaterSurface",
                   "Air"
                 ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
                 "yawRange": 360,
                 "yawRate": 720,
                 "pitchRange": 180,
@@ -11484,33 +12848,6 @@
                   "muzzleVelocity": 90,
                   "maxVelocity": 90,
                   "lifetime": 5
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_tool_weapon.json",
-                "safeName": "l_orbital_battleship_tool_weapon",
-                "name": "l_orbital_battleship_tool_weapon",
-                "count": 3,
-                "rateOfFire": 1,
-                "damage": 65,
-                "dps": 65,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 500,
-                "maxRange": 150,
-                "targetLayers": [
-                  "Orbital"
-                ],
-                "yawRange": 120,
-                "yawRate": 45,
-                "pitchRange": 60,
-                "pitchRate": 45,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_ammo.json",
-                  "safeName": "l_orbital_battleship_ammo",
-                  "name": "l_orbital_battleship_ammo",
-                  "damage": 65,
-                  "muzzleVelocity": 500,
-                  "maxVelocity": 500
                 }
               }
             ]
@@ -11540,7 +12877,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -11582,7 +12923,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 250,
@@ -11608,6 +12949,12 @@
                   "WaterSurface",
                   "Air",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 3600,
@@ -11655,7 +13002,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -11701,7 +13052,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 3500,
@@ -11724,6 +13075,12 @@
                 "targetLayers": [
                   "Air",
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "pitchRange": 180,
@@ -11783,7 +13140,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -11825,7 +13190,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1600,
@@ -11849,6 +13214,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 45,
@@ -11881,6 +13253,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 120,
@@ -11925,7 +13304,11 @@
             "hover": true
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -11967,7 +13350,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2000,
@@ -11988,6 +13371,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -12031,7 +13420,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -12073,7 +13466,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 350,
@@ -12094,6 +13487,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
                 ],
                 "yawRange": 360,
                 "yawRate": 360,
@@ -12131,6 +13531,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
                 ],
                 "yawRate": 180,
                 "pitchRate": 180,
@@ -12172,7 +13579,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12214,7 +13625,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 3500,
@@ -12233,6 +13644,12 @@
                 "maxRange": 130,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 360,
@@ -12260,6 +13677,10 @@
                 "splashRadius": 1,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 360,
                 "yawRate": 360,
@@ -12290,6 +13711,12 @@
                 "targetLayers": [
                   "Orbital",
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_antidrop_ammo.json",
@@ -12323,6 +13750,12 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_rocket_ammo.json",
@@ -12361,7 +13794,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_naval_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12401,7 +13838,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2000,
@@ -12430,6 +13867,12 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRate": 180,
                 "pitchRate": 180,
@@ -12472,7 +13915,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12516,7 +13963,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 125,
@@ -12543,6 +13990,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure \u0026 SurfaceDefense",
+                  "Structure \u0026 Defense",
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 45,
@@ -12580,7 +14034,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_bot_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12624,13 +14082,51 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 4000,
             "dps": 420,
             "salvoDamage": 1680,
             "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_tool_weapon.json",
+                "safeName": "l_bot_artillery_adv_light_tool_weapon",
+                "name": "l_bot_artillery_adv_light_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 30,
+                "dps": 90,
+                "projectilesPerFire": 2,
+                "muzzleVelocity": 150,
+                "maxRange": 75,
+                "fullDamageRadius": 2,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
+                ],
+                "yawRange": 360,
+                "yawRate": 360,
+                "pitchRange": 20,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_ammo.json",
+                  "safeName": "l_bot_artillery_adv_light_ammo",
+                  "name": "l_bot_artillery_adv_light_ammo",
+                  "damage": 30,
+                  "fullDamageRadius": 2,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              },
               {
                 "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_tool_weapon.json",
                 "safeName": "l_bot_artillery_adv_tool_weapon",
@@ -12649,6 +14145,13 @@
                   "Seafloor",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
                 "yawRange": 180,
                 "yawRate": 45,
                 "pitchRange": 80,
@@ -12663,38 +14166,6 @@
                   "muzzleVelocity": 600,
                   "maxVelocity": 600,
                   "lifetime": 0.75
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_tool_weapon.json",
-                "safeName": "l_bot_artillery_adv_light_tool_weapon",
-                "name": "l_bot_artillery_adv_light_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 30,
-                "dps": 90,
-                "projectilesPerFire": 2,
-                "muzzleVelocity": 150,
-                "maxRange": 75,
-                "fullDamageRadius": 2,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "yawRange": 360,
-                "yawRate": 360,
-                "pitchRange": 20,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_ammo.json",
-                  "safeName": "l_bot_artillery_adv_light_ammo",
-                  "name": "l_bot_artillery_adv_light_ammo",
-                  "damage": 30,
-                  "fullDamageRadius": 2,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
                 }
               }
             ]
@@ -12720,7 +14191,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_bot_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12766,7 +14241,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 250,
@@ -12833,7 +14308,11 @@
             "amphibious": true
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_bot_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -12932,6 +14411,15 @@
         },
         "buildRelationships": {
           "builtBy": [
+            "l_fabrication_bot",
+            "l_fabrication_vehicle",
+            "l_fabrication_aircraft",
+            "l_fabrication_ship",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander",
             "l_cataphract",
             "l_quad",
             "l_cyclops",
@@ -12986,7 +14474,7 @@
           "CannonBuildable",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 400,
@@ -13007,6 +14495,10 @@
                 "splashRadius": 10,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 360,
                 "yawRate": 720,
@@ -13046,7 +14538,8 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         }
       }
@@ -13088,7 +14581,7 @@
           "FabAdvBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1500
@@ -13120,7 +14613,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -13164,7 +14665,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 350,
@@ -13191,6 +14692,12 @@
                 "energyPerShot": 1000,
                 "targetLayers": [
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 360,
                 "yawRate": 40,
@@ -13230,7 +14737,11 @@
           "storage": {},
           "special": {}
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_orbital_factory"
+          ]
+        }
       }
     },
     {
@@ -13278,7 +14789,7 @@
           "Custom1",
           "Tactical"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 200,
@@ -13309,6 +14820,11 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Orbital"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 120,
@@ -13342,6 +14858,12 @@
                 "targetLayers": [
                   "Orbital",
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 120,
@@ -13384,7 +14906,11 @@
             "hover": true
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_vehicle_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -13434,7 +14960,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 8000,
@@ -13461,6 +14987,12 @@
                   "WaterSurface",
                   "Air",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -13524,8 +15056,47 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_land_barrier",
+            "l_mex",
+            "l_drop_turret",
+            "l_air_defense",
+            "l_torpedo_launcher",
+            "l_t1_turret_basic",
+            "l_radar",
+            "l_energy_plant",
+            "l_storage",
+            "l_t1_turret_adv",
+            "l_vehicle_factory",
+            "l_air_factory",
+            "l_naval_factory",
+            "l_orbital_launcher",
+            "l_bot_factory",
+            "l_swarm_hive",
+            "l_flame_turret",
+            "l_air_defense_adv",
+            "l_artillery_short",
+            "l_teleporter",
+            "l_ion_defense",
+            "l_torpedo_launcher_adv",
+            "l_mex_adv",
+            "l_rocket_barrage",
+            "l_radar_adv",
+            "l_shield_gen",
+            "l_energy_plant_adv",
+            "l_flying_teleporter",
+            "l_bot_factory_adv",
+            "l_artillery_long",
+            "l_nuke_launcher",
+            "l_anti_nuke_launcher",
+            "l_titan_bot",
+            "l_control_module",
+            "l_delta_v_engine",
+            "l_titan_structure"
+          ],
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_bot_factory_adv"
           ]
         },
         "buildableTypes": "(Land \u0026 Structure \u0026 Advanced - Factory| Factory \u0026 Advanced \u0026 Bot \u0026 Land | FabAdvBuild | FabBuild | Titan \u0026 Bot) \u0026 Custom1"
@@ -13568,7 +15139,7 @@
           "Defense",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2500,
@@ -13591,6 +15162,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 360,
                 "yawRate": 240,
@@ -13630,7 +15208,14 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -13674,7 +15259,7 @@
           "Custom1",
           "Shield"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 750,
@@ -13699,6 +15284,13 @@
                 "energyRate": -1000,
                 "energyPerShot": 1500,
                 "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 360,
@@ -13757,7 +15349,12 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_fabrication_sub_combat_adv"
+            "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
           ]
         }
       }
@@ -13801,7 +15398,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 800
@@ -13861,6 +15458,9 @@
             "l_teleporter",
             "l_torpedo_launcher_adv",
             "l_shield_gen"
+          ],
+          "builtBy": [
+            "l_naval_factory_adv"
           ]
         },
         "buildableTypes": "Custom1 \u0026 CombatFabAdvBuild"
@@ -13905,7 +15505,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1100,
@@ -13933,6 +15533,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
                 ],
                 "yawRange": 180,
                 "yawRate": 3600,
@@ -13962,6 +15569,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 10,
                 "yawRate": 3600,
@@ -14006,7 +15619,11 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_air_factory_adv"
+          ]
+        }
       }
     },
     {
@@ -14050,7 +15667,7 @@
           "FactoryBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1650,
@@ -14075,6 +15692,13 @@
                   "LandHorizontal",
                   "Seafloor",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
                 ],
                 "yawRange": 180,
                 "yawRate": 60,
@@ -14118,7 +15742,8 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_dropper"
+            "l_orbital_dropper",
+            "l_vehicle_factory_adv"
           ]
         }
       }
@@ -14162,7 +15787,7 @@
           "FabOrbBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2000,
@@ -14181,6 +15806,12 @@
                 "ammoSource": "factory",
                 "targetLayers": [
                   "LandHorizontal"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 360,
@@ -14304,7 +15935,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 9000
@@ -14346,6 +15977,17 @@
           }
         },
         "buildRelationships": {
+          "builds": [
+            "l_orbital_lander",
+            "l_orbital_probe",
+            "l_orbital_fighter",
+            "l_radar_satellite",
+            "l_orbital_fabrication_bot",
+            "l_orbital_railgun",
+            "l_radar_satellite_adv",
+            "l_orbital_laser",
+            "l_orbital_battleship"
+          ],
           "builtBy": [
             "l_orbital_fabrication_bot"
           ]
@@ -14396,7 +16038,7 @@
           "Important",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 1500,
@@ -14421,6 +16063,12 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "pitchRange": 180,
@@ -14480,7 +16128,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -14538,6 +16194,11 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/land/l_bot_artillery/bomb/bomb_ammo.json",
@@ -14613,7 +16274,7 @@
           "CombatFabAdvBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 4000,
@@ -14635,6 +16296,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Sub",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "yawRange": 180,
                 "yawRate": 180,
@@ -14676,7 +16343,12 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_fabrication_sub_combat_adv"
+            "l_fabrication_sub_combat_adv",
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
           ]
         }
       }
@@ -14722,7 +16394,7 @@
           "Titan",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 15000,
@@ -14745,6 +16417,11 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/land/titan_structure/titan_structure_pbaoe.json",
@@ -14774,7 +16451,15 @@
             ]
           }
         },
-        "buildRelationships": {}
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_bot_adv",
+            "l_fabrication_vehicle_adv",
+            "l_fabrication_aircraft_adv",
+            "l_fabrication_ship_adv",
+            "l_bot_support_commander"
+          ]
+        }
       }
     },
     {
@@ -14820,7 +16505,7 @@
           "FabOrbBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 11250,
@@ -14847,6 +16532,13 @@
                   "Air",
                   "Seafloor",
                   "Underwater"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
                 ],
                 "yawRange": 180,
                 "yawRate": 40,
@@ -14880,6 +16572,13 @@
                 "splashRadius": 25,
                 "fullDamageRadius": 20,
                 "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
                   "Air"
                 ],
                 "yawRange": 120,
@@ -14951,7 +16650,8 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_fabrication_bot"
+            "l_orbital_fabrication_bot",
+            "l_fabrication_aircraft_adv"
           ]
         }
       }
@@ -15001,7 +16701,7 @@
           "FabOrbBuild",
           "Custom1"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 50000,
@@ -15026,6 +16726,13 @@
                   "LandHorizontal",
                   "WaterSurface",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
                 ],
                 "yawRange": 180,
                 "yawRate": 20,
@@ -15059,6 +16766,10 @@
                 "fullDamageRadius": 5,
                 "targetLayers": [
                   "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
                 ],
                 "yawRange": 180,
                 "yawRate": 280,
@@ -15125,7 +16836,8 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_fabrication_bot"
+            "l_orbital_fabrication_bot",
+            "l_fabrication_vehicle_adv"
           ]
         }
       }
@@ -15175,7 +16887,7 @@
           "Custom1",
           "Amphibious"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 60000,
@@ -15198,6 +16910,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
                 ],
                 "yawRange": 180,
                 "yawRate": 35,
@@ -15243,6 +16962,13 @@
                   "Underwater",
                   "WaterSurface"
                 ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
+                ],
                 "yawRange": 180,
                 "yawRate": 40,
                 "pitchRange": 80,
@@ -15273,6 +16999,13 @@
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
                 ],
                 "yawRate": 180,
                 "pitchRate": 180,
@@ -15339,7 +17072,9 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "l_orbital_fabrication_bot"
+            "l_orbital_fabrication_bot",
+            "l_fabrication_bot_adv",
+            "l_bot_support_commander"
           ]
         }
       }
@@ -15389,7 +17124,7 @@
           "Custom1",
           "Interplanetary"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 21000,
@@ -15415,6 +17150,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Land - Wall",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/orbital/l_titan_orbital/l_titan_orbital_ammo.json",
@@ -15446,6 +17187,12 @@
                   "WaterSurface",
                   "Underwater",
                   "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Land - Wall",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
                 ],
                 "ammoDetails": {
                   "resourceName": "/pa/units/orbital/l_titan_orbital/l_titan_orbital_effect_ammo.json",
