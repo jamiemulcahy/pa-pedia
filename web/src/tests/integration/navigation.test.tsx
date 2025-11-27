@@ -223,8 +223,8 @@ describe('Navigation Integration Tests', () => {
       const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
     })
 
-    // Search input should be present
-    const searchInput = screen.getByPlaceholderText(/search units/i)
+    // Search input should be present - react-select uses aria-label
+    const searchInput = screen.getByLabelText(/search units by name/i)
     expect(searchInput).toBeInTheDocument()
   })
 })
