@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useUnitIcon } from '@/hooks/useUnitIcon'
-import { CurrentFactionContext } from '@/contexts/CurrentFactionContext'
+import { CurrentFactionContext } from '@/contexts/CurrentFactionContextValue'
 
 interface UnitIconProps {
   imagePath: string | undefined

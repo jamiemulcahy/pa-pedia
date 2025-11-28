@@ -1,14 +1,9 @@
-import React, { createContext, useContext } from 'react'
+import React, { useContext } from 'react'
 import { useFactionContext } from './FactionContext'
-import type { FactionMetadataWithLocal } from '@/services/factionLoader'
+import { CurrentFactionContext, type CurrentFactionContextValue } from './CurrentFactionContextValue'
 
-interface CurrentFactionContextValue {
-  factionId: string
-  isLocal: boolean
-  metadata: FactionMetadataWithLocal | undefined
-}
-
-export const CurrentFactionContext = createContext<CurrentFactionContextValue | null>(null)
+// Re-export for backwards compatibility
+export { CurrentFactionContext } from './CurrentFactionContextValue'
 
 interface CurrentFactionProviderProps {
   factionId: string
