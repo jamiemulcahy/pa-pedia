@@ -63,7 +63,7 @@ npm run dev
 # Open http://localhost:5173 in your browser
 ```
 
-**Available Factions**: MLA (Machine Liquid Army) and Legion
+**Available Factions**: MLA and Legion
 
 **Features**:
 - Browse all units in each faction
@@ -182,7 +182,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Contributions are welcome! Feel free to:
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Quick ways to help:
 - Open issues for bugs or feature requests
 - Submit pull requests with improvements
 - Add new faction data to `/web/public/factions`

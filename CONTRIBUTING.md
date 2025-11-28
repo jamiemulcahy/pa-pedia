@@ -52,6 +52,27 @@ npm run build    # Production build
 npm run lint     # Run linter
 ```
 
+### Schema Generation
+
+If you modify Go structs in `cli/pkg/models/`, regenerate the JSON schemas:
+
+```bash
+# Generate schemas from Go structs
+cd cli/tools/generate-schema
+./build-and-run.bat  # Windows
+./build-and-run.sh   # Unix/Mac
+
+# Update TypeScript types (manual step)
+# Edit web/src/types/faction.ts to match schema changes
+```
+
+## Pull Request Guidelines
+
+- Keep PRs focused on a single change
+- Include a clear description of what and why
+- Ensure tests pass and linting is clean
+- Update documentation if adding new features
+
 ## Code Style
 
 - **Go**: Follow standard Go conventions (`gofmt`, `go vet`)
