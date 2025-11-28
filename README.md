@@ -5,7 +5,7 @@
 
 A modern unit database and comparison tool for **Planetary Annihilation: Titans**. Inspired by [planetary-annihilation-db](https://github.com/speth/planetary-annihilation-db) ([palobby.com](https://palobby.com/)).
 
-**[View Live Site →](https://jamiemulcahy.github.io/pa-pedia/faction/MLA)**
+**[View Live Site →](https://jamiemulcahy.github.io/pa-pedia)**
 
 PA-Pedia consists of:
 - A **static web app** for browsing and comparing faction units
