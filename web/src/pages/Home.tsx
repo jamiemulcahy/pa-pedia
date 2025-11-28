@@ -88,6 +88,7 @@ export function Home() {
           <Link
             to="/faction"
             className="block h-full p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col bg-muted/30"
+            aria-label="Browse all factions"
           >
             <div className="flex items-start justify-between mb-2">
               <div className="text-3xl font-display font-bold tracking-wide">All</div>

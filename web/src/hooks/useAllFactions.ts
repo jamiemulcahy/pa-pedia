@@ -75,6 +75,13 @@ export function useAllFactions() {
     return factionIds.every(id => getFactionIndex(id) !== undefined)
   }, [factionIds, getFactionIndex])
 
+  // Reset loading ref on unmount to prevent stale state on remount
+  useEffect(() => {
+    return () => {
+      loadingRef.current = false
+    }
+  }, [])
+
   useEffect(() => {
     // Only load if we have factions and not all are loaded yet
     if (factionsLoading || factionIds.length === 0 || allLoaded || loadingRef.current) {
@@ -88,7 +95,7 @@ export function useAllFactions() {
     // Load all factions concurrently
     const loadAll = async () => {
       let loaded = 0
-      const errors: Error[] = []
+      const failedFactions: string[] = []
 
       await Promise.all(
         factionIds.map(async (factionId) => {
@@ -99,16 +106,16 @@ export function useAllFactions() {
             }
             loaded++
             dispatch({ type: 'LOAD_PROGRESS', loadedCount: loaded })
-          } catch (err) {
-            errors.push(err as Error)
+          } catch {
+            failedFactions.push(factionId)
           }
         })
       )
 
       loadingRef.current = false
 
-      if (errors.length > 0) {
-        dispatch({ type: 'LOAD_ERROR', error: new Error(`Failed to load ${errors.length} faction(s)`) })
+      if (failedFactions.length > 0) {
+        dispatch({ type: 'LOAD_ERROR', error: new Error(`Failed to load faction(s): ${failedFactions.join(', ')}`) })
       } else {
         dispatch({ type: 'LOAD_SUCCESS' })
       }
