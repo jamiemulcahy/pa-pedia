@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
+import { useAllFactions, type UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { UnitCategorySection } from '@/components/UnitCategorySection'
 import { UnitTable } from '@/components/UnitTable'
@@ -8,6 +9,7 @@ import { useState, useCallback, useMemo } from 'react'
 import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 import Select from 'react-select'
 import { selectStyles, type SelectOption } from '@/components/selectStyles'
+import type { UnitIndexEntry } from '@/types/faction'
 
 type ViewMode = 'grid' | 'table'
 
@@ -28,7 +30,20 @@ function getStoredViewMode(): ViewMode {
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
   const factionId = id || ''
-  const { metadata, units, loading, error, exists, factionsLoading } = useFaction(factionId)
+  const isAllMode = factionId === ''
+
+  // Use appropriate hook based on mode
+  const singleFaction = useFaction(isAllMode ? '__skip__' : factionId)
+  const allFactions = useAllFactions()
+
+  // Unified data based on mode
+  const metadata = isAllMode ? null : singleFaction.metadata
+  const units: (UnitIndexEntry | UnitIndexEntryWithFaction)[] = isAllMode ? allFactions.units : singleFaction.units
+  const loading = isAllMode ? allFactions.loading : singleFaction.loading
+  const error = isAllMode ? allFactions.error : singleFaction.error
+  const exists = isAllMode ? true : singleFaction.exists
+  const factionsLoading = isAllMode ? allFactions.factionsLoading : singleFaction.factionsLoading
+
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
@@ -67,6 +82,16 @@ export function FactionDetail() {
     Array.from(new Set(units.flatMap(u => u.unitTypes))).sort(),
     [units]
   )
+
+  // Count unique factions (only in All mode, for display)
+  const factionCount = useMemo(() => {
+    if (!isAllMode) return 0
+    const factionSet = new Set<string>()
+    for (const unit of units as UnitIndexEntryWithFaction[]) {
+      factionSet.add(unit.factionId)
+    }
+    return factionSet.size
+  }, [isAllMode, units])
 
   // Convert units to react-select options for search
   const unitSearchOptions = useMemo(() =>
@@ -152,6 +177,11 @@ export function FactionDetail() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="text-3xl font-display font-bold mb-2">LOADING UNITS...</div>
+          {isAllMode && allFactions.totalCount > 0 && (
+            <div className="text-muted-foreground font-mono">
+              {allFactions.loadedCount} / {allFactions.totalCount} factions
+            </div>
+          )}
         </div>
       </div>
     )
@@ -168,24 +198,34 @@ export function FactionDetail() {
     )
   }
 
-  return (
-    <CurrentFactionProvider factionId={factionId}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-5xl font-display font-bold tracking-wide">{metadata?.displayName}</h1>
-            {metadata?.isLocal && (
-              <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
-                LOCAL
-              </span>
-            )}
-          </div>
-          <p className="text-muted-foreground font-medium">{metadata?.description}</p>
-          <div className="text-sm text-muted-foreground mt-2 font-mono">
-            {units.length} units total
-          </div>
+  // Helper to get faction ID for a unit (handles both modes)
+  const getUnitFactionId = (unit: UnitIndexEntry | UnitIndexEntryWithFaction): string => {
+    return isAllMode ? (unit as UnitIndexEntryWithFaction).factionId : factionId
+  }
+
+  // Content wrapped conditionally - only use CurrentFactionProvider for single faction mode
+  const content = (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-5xl font-display font-bold tracking-wide">
+            {isAllMode ? 'All' : metadata?.displayName}
+          </h1>
+          {!isAllMode && metadata?.isLocal && (
+            <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
+              LOCAL
+            </span>
+          )}
         </div>
+        <p className="text-muted-foreground font-medium">
+          {isAllMode ? 'Browse units from all available factions' : metadata?.description}
+        </p>
+        <div className="text-sm text-muted-foreground mt-2 font-mono">
+          {units.length} units total
+          {isAllMode && factionCount > 0 && ` from ${factionCount} factions`}
+        </div>
+      </div>
 
       <div className="mb-6 flex gap-4 flex-wrap items-center">
         <FactionSelector currentFactionId={factionId} />
@@ -289,6 +329,8 @@ export function FactionDetail() {
             factionId={factionId}
             brokenImages={brokenImages}
             onImageError={handleImageError}
+            showFactionColumn={isAllMode}
+            getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
           />
         ) : filteredUnits.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">
@@ -306,10 +348,22 @@ export function FactionDetail() {
               brokenImages={brokenImages}
               onImageError={handleImageError}
               compact={compactView}
+              showFactionBadge={isAllMode}
+              getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
             />
           ))
         )}
       </div>
+  )
+
+  // Wrap with CurrentFactionProvider only for single faction mode
+  if (isAllMode) {
+    return content
+  }
+
+  return (
+    <CurrentFactionProvider factionId={factionId}>
+      {content}
     </CurrentFactionProvider>
   )
 }

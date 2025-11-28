@@ -99,13 +99,19 @@ export function FactionSelector({ currentFactionId, basePath = '/faction' }: Fac
   const navigate = useNavigate()
   const { factions, loading } = useFactions()
 
-  // Convert factions to react-select options
+  // Convert factions to react-select options with "All Factions" at the top
   const factionOptions = useMemo(() => {
-    return factions.map(faction => ({
+    const allOption: FactionOption = {
+      value: '',
+      label: 'All',
+      isLocal: false,
+    }
+    const factionOpts = factions.map(faction => ({
       value: faction.folderName,
       label: faction.displayName,
       isLocal: faction.isLocal,
     }))
+    return [allOption, ...factionOpts]
   }, [factions])
 
   // Find current selection
@@ -125,7 +131,8 @@ export function FactionSelector({ currentFactionId, basePath = '/faction' }: Fac
 
   const handleFactionChange = (option: FactionOption | null) => {
     if (option && option.value !== currentFactionId) {
-      navigate(`${basePath}/${option.value}`)
+      // Empty value means "All Factions" - navigate to /faction without trailing slash
+      navigate(option.value === '' ? basePath : `${basePath}/${option.value}`)
     }
   }
 

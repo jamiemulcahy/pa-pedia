@@ -2,16 +2,19 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { UnitIcon } from '@/components/UnitIcon'
 import type { UnitIndexEntry } from '@/types/faction'
+import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { getUnitCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 
 interface UnitTableProps {
-  units: UnitIndexEntry[]
+  units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
   factionId: string
   brokenImages: Set<string>
   onImageError: (unitId: string) => void
+  showFactionColumn?: boolean
+  getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
 }
 
-type SortColumn = 'name' | 'category' | 'tier' | 'health' | 'dps' | 'range' | 'cost' | 'speed'
+type SortColumn = 'name' | 'faction' | 'category' | 'tier' | 'health' | 'dps' | 'range' | 'cost' | 'speed'
 type SortDirection = 'asc' | 'desc'
 
 function formatNumber(value: number | undefined): string {
@@ -113,6 +116,8 @@ export function UnitTable({
   factionId,
   brokenImages,
   onImageError,
+  showFactionColumn = false,
+  getUnitFactionId,
 }: UnitTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
@@ -134,6 +139,12 @@ export function UnitTable({
         case 'name':
           comparison = a.displayName.localeCompare(b.displayName)
           break
+        case 'faction': {
+          const factionA = showFactionColumn ? (a as UnitIndexEntryWithFaction).factionDisplayName : ''
+          const factionB = showFactionColumn ? (b as UnitIndexEntryWithFaction).factionDisplayName : ''
+          comparison = factionA.localeCompare(factionB)
+          break
+        }
         case 'category': {
           const catA = getUnitCategory(a.unitTypes)
           const catB = getUnitCategory(b.unitTypes)
@@ -164,7 +175,7 @@ export function UnitTable({
     })
 
     return sorted
-  }, [units, sortColumn, sortDirection])
+  }, [units, sortColumn, sortDirection, showFactionColumn])
 
   if (units.length === 0) {
     return (
@@ -189,6 +200,17 @@ export function UnitTable({
             >
               Name
             </SortHeader>
+            {showFactionColumn && (
+              <SortHeader
+                column="faction"
+                currentSort={sortColumn}
+                direction={sortDirection}
+                onSort={handleSort}
+                className="text-left hidden sm:table-cell"
+              >
+                Faction
+              </SortHeader>
+            )}
             <SortHeader
               column="category"
               currentSort={sortColumn}
@@ -259,10 +281,12 @@ export function UnitTable({
             const unit = entry.unit
             const category = getUnitCategory(entry.unitTypes)
             const maxRange = getMaxRange(entry)
+            const unitFactionId = getUnitFactionId ? getUnitFactionId(entry) : factionId
+            const factionDisplayName = showFactionColumn ? (entry as UnitIndexEntryWithFaction).factionDisplayName : ''
 
             return (
               <tr
-                key={entry.identifier}
+                key={showFactionColumn ? `${unitFactionId}:${entry.identifier}` : entry.identifier}
                 className="border-b hover:bg-muted/30 transition-colors"
               >
                 <td className="py-2 px-2">
@@ -277,18 +301,32 @@ export function UnitTable({
                         alt=""
                         className="max-w-full max-h-full object-contain"
                         onError={() => onImageError(entry.identifier)}
+                        factionId={unitFactionId}
                       />
                     )}
                   </div>
                 </td>
                 <td className="py-2 px-2">
                   <Link
-                    to={`/faction/${factionId}/unit/${entry.identifier}`}
+                    to={showFactionColumn
+                      ? `/faction/${unitFactionId}/unit/${entry.identifier}?from=all`
+                      : `/faction/${unitFactionId}/unit/${entry.identifier}`
+                    }
                     className="font-medium text-primary hover:underline"
                   >
                     {entry.displayName}
                   </Link>
                 </td>
+                {showFactionColumn && (
+                  <td className="py-2 px-2 hidden sm:table-cell">
+                    <Link
+                      to={`/faction/${unitFactionId}`}
+                      className="text-muted-foreground hover:text-primary hover:underline text-xs"
+                    >
+                      {factionDisplayName}
+                    </Link>
+                  </td>
+                )}
                 <td className="py-2 px-2 hidden sm:table-cell">
                   <span className={getCategoryBadgeClass(category)}>
                     {category}

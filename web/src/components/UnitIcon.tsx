@@ -1,18 +1,20 @@
+import { useContext } from 'react'
 import { useUnitIcon } from '@/hooks/useUnitIcon'
-import { useCurrentFaction } from '@/contexts/CurrentFactionContext'
+import { CurrentFactionContext } from '@/contexts/CurrentFactionContextValue'
 
 interface UnitIconProps {
   imagePath: string | undefined
   alt: string
   className?: string
   onError?: () => void
-  /** Optional faction ID override (used for comparison mode) */
+  /** Optional faction ID override (required when not inside CurrentFactionProvider) */
   factionId?: string
 }
 
 export function UnitIcon({ imagePath, alt, className, onError, factionId: propFactionId }: UnitIconProps) {
-  const { factionId: contextFactionId } = useCurrentFaction()
-  const factionId = propFactionId || contextFactionId
+  // Use context directly to avoid throwing when outside provider
+  const context = useContext(CurrentFactionContext)
+  const factionId = propFactionId || context?.factionId || ''
   const { iconUrl, loading, error } = useUnitIcon(factionId, imagePath)
 
   if (loading) {
