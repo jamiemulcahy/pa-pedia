@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 import { UnitIcon } from '@/components/UnitIcon'
 import type { UnitIndexEntry } from '@/types/faction'
+import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
 
 interface UnitCategorySectionProps {
   category: UnitCategory
-  units: UnitIndexEntry[]
+  units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
   isExpanded: boolean
   onToggle: () => void
   factionId: string
   brokenImages: Set<string>
   onImageError: (unitId: string) => void
   compact?: boolean
+  showFactionBadge?: boolean
+  getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
 }
 
 export function UnitCategorySection({
@@ -23,6 +26,8 @@ export function UnitCategorySection({
   brokenImages,
   onImageError,
   compact = false,
+  showFactionBadge = false,
+  getUnitFactionId,
 }: UnitCategorySectionProps) {
   if (units.length === 0) {
     return null
@@ -68,54 +73,66 @@ export function UnitCategorySection({
           }
           role="list"
         >
-          {units.map((unit) => (
-            <Link
-              key={unit.identifier}
-              to={`/faction/${factionId}/unit/${unit.identifier}`}
-              className={
-                compact
-                  ? 'block border rounded p-1 hover:border-primary transition-all hover:shadow-md hover:shadow-primary/20 text-center'
-                  : 'block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center'
-              }
-              role="listitem"
-              aria-label={`View ${unit.displayName} details`}
-              title={unit.displayName}
-            >
-              <div className={compact ? 'aspect-square flex items-center justify-center' : 'aspect-square mb-2 flex items-center justify-center'}>
-                {brokenImages.has(unit.identifier) ? (
-                  <div
-                    className={
-                      compact
-                        ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[10px] font-mono'
-                        : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
-                    }
-                    aria-label={`${unit.displayName} icon not available`}
-                  >
-                    No Icon
-                  </div>
-                ) : (
-                  <UnitIcon
-                    imagePath={unit.unit.image}
-                    alt={`${unit.displayName} icon`}
-                    className="max-w-full max-h-full object-contain"
-                    onError={() => onImageError(unit.identifier)}
-                  />
+          {units.map((unit) => {
+            const unitFactionId = getUnitFactionId ? getUnitFactionId(unit) : factionId
+            const factionDisplayName = showFactionBadge ? (unit as UnitIndexEntryWithFaction).factionDisplayName : ''
+
+            return (
+              <Link
+                key={showFactionBadge ? `${unitFactionId}:${unit.identifier}` : unit.identifier}
+                to={showFactionBadge
+                  ? `/faction/${unitFactionId}/unit/${unit.identifier}?from=all`
+                  : `/faction/${unitFactionId}/unit/${unit.identifier}`
+                }
+                className={
+                  compact
+                    ? 'block border rounded p-1 hover:border-primary transition-all hover:shadow-md hover:shadow-primary/20 text-center'
+                    : 'block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center'
+                }
+                role="listitem"
+                aria-label={`View ${unit.displayName} details`}
+                title={showFactionBadge ? `${unit.displayName} (${factionDisplayName})` : unit.displayName}
+              >
+                <div className={compact ? 'aspect-square flex items-center justify-center' : 'aspect-square mb-2 flex items-center justify-center'}>
+                  {brokenImages.has(unit.identifier) ? (
+                    <div
+                      className={
+                        compact
+                          ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[10px] font-mono'
+                          : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
+                      }
+                      aria-label={`${unit.displayName} icon not available`}
+                    >
+                      No Icon
+                    </div>
+                  ) : (
+                    <UnitIcon
+                      imagePath={unit.unit.image}
+                      alt={`${unit.displayName} icon`}
+                      className="max-w-full max-h-full object-contain"
+                      onError={() => onImageError(unit.identifier)}
+                      factionId={unitFactionId}
+                    />
+                  )}
+                </div>
+                {!compact && (
+                  <>
+                    <div className="text-sm font-semibold truncate">{unit.displayName}</div>
+                    {showFactionBadge && (
+                      <div className="text-xs text-muted-foreground truncate mt-0.5">{factionDisplayName}</div>
+                    )}
+                    <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
+                      {unit.unitTypes.slice(0, 2).map((type) => (
+                        <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                  </>
                 )}
-              </div>
-              {!compact && (
-                <>
-                  <div className="text-sm font-semibold truncate">{unit.displayName}</div>
-                  <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
-                    {unit.unitTypes.slice(0, 2).map((type) => (
-                      <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </>
-              )}
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       )}
     </section>

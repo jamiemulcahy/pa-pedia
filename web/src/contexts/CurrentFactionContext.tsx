@@ -8,7 +8,7 @@ interface CurrentFactionContextValue {
   metadata: FactionMetadataWithLocal | undefined
 }
 
-const CurrentFactionContext = createContext<CurrentFactionContextValue | null>(null)
+export const CurrentFactionContext = createContext<CurrentFactionContextValue | null>(null)
 
 interface CurrentFactionProviderProps {
   factionId: string

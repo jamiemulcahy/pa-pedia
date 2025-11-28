@@ -84,6 +84,21 @@ export function Home() {
 
       <div className="grid">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* All card */}
+          <Link
+            to="/faction"
+            className="block h-full p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col bg-muted/30"
+          >
+            <div className="flex items-start justify-between mb-2">
+              <div className="text-3xl font-display font-bold tracking-wide">All</div>
+            </div>
+            <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">
+              Browse units from all available factions in one view
+            </div>
+            <div className="text-xs text-muted-foreground font-mono mt-auto">
+              {factions.length} factions available
+            </div>
+          </Link>
           {factions.map((faction) => (
             <div key={faction.folderName} className="relative group h-full">
               <Link

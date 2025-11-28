@@ -13,6 +13,7 @@ function App() {
           <div className="min-h-screen bg-background text-foreground">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/faction" element={<FactionDetail />} />
               <Route path="/faction/:id" element={<FactionDetail />} />
               <Route path="/faction/:factionId/unit/:unitId" element={<UnitDetail />} />
             </Routes>

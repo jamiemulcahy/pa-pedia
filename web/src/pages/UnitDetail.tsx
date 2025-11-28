@@ -22,6 +22,11 @@ export function UnitDetail() {
   const compareParam = searchParams.get('compare')
   const isComparing = compareParam !== null
 
+  // Check if user came from "All" view
+  const fromAll = searchParams.get('from') === 'all'
+  const backLink = fromAll ? '/faction' : `/faction/${factionId}`
+  const backText = fromAll ? 'Back to all' : 'Back to faction'
+
   let compareFactionId: string | undefined
   let compareUnitId: string | undefined
 
@@ -60,8 +65,8 @@ export function UnitDetail() {
         <div className="text-center">
           <div className="text-2xl font-semibold text-destructive mb-2">Error loading unit</div>
           <div className="text-muted-foreground">{error?.message || 'Unit not found'}</div>
-          <Link to={`/faction/${factionId}`} className="text-primary hover:underline mt-4 inline-block">
-            Back to faction
+          <Link to={backLink} className="text-primary hover:underline mt-4 inline-block">
+            {backText}
           </Link>
         </div>
       </div>
@@ -79,8 +84,8 @@ export function UnitDetail() {
   return (
     <CurrentFactionProvider factionId={factionId || ''}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <Link to={`/faction/${factionId}`} className="text-primary hover:underline mb-4 inline-block">
-          &larr; Back to faction
+        <Link to={backLink} className="text-primary hover:underline mb-4 inline-block">
+          &larr; {backText}
         </Link>
 
         {/* Navigation row with breadcrumbs and compare button */}
