@@ -60,8 +60,8 @@ jobs:
             echo "needs_tag=true" >> $GITHUB_OUTPUT
           else
             # Auto-increment: find latest tag and bump patch version
-            # Get latest tag matching vX.Y.Z pattern
-            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+            # Get latest stable tag matching vX.Y.Z pattern (exclude prereleases with hyphens)
+            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
 
             if [[ -z "$LATEST_TAG" ]]; then
               # No tags exist, start at v0.1.0
