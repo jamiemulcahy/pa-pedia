@@ -43,8 +43,8 @@ describe('Navigation Integration Tests', () => {
     const mlaCard = screen.getByText('MLA').closest('a')
     expect(mlaCard).toBeTruthy()
 
-    // Verify we can see the home page content
-    expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
+    // Verify we can see the faction cards
+    expect(screen.getByText('Legion')).toBeInTheDocument()
   })
 
   it('should navigate from Faction Detail back to Home', async () => {
@@ -91,8 +91,8 @@ describe('Navigation Integration Tests', () => {
     // Step 1: Home page
     renderApp('/')
     await waitFor(() => {
-      expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
       expect(screen.getByText('MLA')).toBeInTheDocument()
+      expect(screen.getByText('Legion')).toBeInTheDocument()
     })
 
     // Step 2: Faction detail route (separate render to test route works)
