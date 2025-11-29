@@ -190,7 +190,7 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 
 **XSS Prevention**:
 - **Current Risk**: Low - React escapes all rendered strings by default
-- **Local Uploads**: User-uploaded faction data is stored locally (IndexedDB) and only affects the uploading user
+- **Local Storage Only**: User-uploaded faction data is stored in the browser's IndexedDB and only affects that user's session
 - **Why No Sanitization Library**:
   - React's JSX automatically escapes strings, preventing script injection
   - We don't use `dangerouslySetInnerHTML` anywhere

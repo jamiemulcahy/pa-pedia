@@ -87,10 +87,15 @@ jobs:
       - name: Create tag for new version
         if: steps.version.outputs.needs_tag == 'true'
         run: |
+          VERSION=${{ steps.version.outputs.version }}
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.version.outputs.version }}
-          git push origin ${{ steps.version.outputs.version }}
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists, skipping tag creation"
+          else
+            git tag "$VERSION"
+            git push origin "$VERSION"
+          fi
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
