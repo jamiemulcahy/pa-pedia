@@ -12,24 +12,24 @@ export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex items-center justify-between h-16 px-4">
-        {/* Left spacer for centering */}
-        <div className="w-32" />
+        {/* Left spacer for centering - hidden on mobile */}
+        <div className="hidden sm:block sm:w-32" />
 
         {/* Center - Title and subtitle */}
         <Link
           to="/"
-          className="flex flex-col items-center hover:opacity-80 transition-opacity"
+          className="flex flex-col items-center hover:opacity-80 transition-opacity min-w-0 flex-shrink"
         >
-          <span className="text-2xl font-display font-bold tracking-wider text-foreground">
+          <span className="text-xl sm:text-2xl font-display font-bold tracking-wider text-foreground">
             PA-PEDIA
           </span>
-          <span className="text-xs text-muted-foreground font-medium">
+          <span className="text-xs text-muted-foreground font-medium hidden sm:block">
             Browse Planetary Annihilation Titans faction data
           </span>
         </Link>
 
         {/* Right - Actions */}
-        <div className="flex items-center gap-1 w-32 justify-end">
+        <div className="flex items-center gap-1 sm:w-32 justify-end">
           <a
             href={githubUrl}
             target="_blank"

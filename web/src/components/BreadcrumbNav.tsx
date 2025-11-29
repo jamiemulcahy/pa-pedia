@@ -93,8 +93,8 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
   }
 
   return (
-    <nav aria-label="Unit navigation">
-      <div className="inline-flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
+    <nav aria-label="Unit navigation" className="w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row sm:inline-flex items-stretch sm:items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
         <div className="w-full sm:w-auto sm:min-w-[180px]">
           <Select<FactionOption>
             options={factionOptions}
@@ -108,7 +108,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
           />
         </div>
 
-        <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline">&rarr;</span>
+        <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline self-center">&rarr;</span>
 
         <div className="w-full sm:w-auto sm:min-w-[200px]">
           <Select<SelectOption>

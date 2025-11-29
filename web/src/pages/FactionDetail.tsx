@@ -227,9 +227,13 @@ export function FactionDetail() {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-4 flex-wrap items-center">
-        <FactionSelector currentFactionId={factionId} />
-        <div className="flex-[2] min-w-[200px]">
+      <div className="mb-6 space-y-3 sm:space-y-0 sm:flex sm:gap-4 sm:flex-wrap sm:items-center">
+        {/* Row 1 on mobile: Faction selector (full width) */}
+        <div className="w-full sm:w-auto sm:flex-none">
+          <FactionSelector currentFactionId={factionId} />
+        </div>
+        {/* Row 2 on mobile: Search (full width) */}
+        <div className="w-full sm:w-auto sm:flex-[2] sm:min-w-[200px]">
           <Select<SelectOption>
             options={unitSearchOptions}
             value={searchQuery ? unitSearchOptions.find(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase())) || null : null}
@@ -247,7 +251,8 @@ export function FactionDetail() {
             noOptionsMessage={() => "No units found"}
           />
         </div>
-        <div className="flex-1 min-w-[180px]">
+        {/* Row 3 on mobile: Type filter (full width) */}
+        <div className="w-full sm:w-auto sm:flex-1 sm:min-w-[180px]">
           <Select<SelectOption>
             options={typeFilterOptions}
             value={typeFilter ? { value: typeFilter, label: typeFilter } : null}
@@ -258,69 +263,72 @@ export function FactionDetail() {
             aria-label="Filter units by type"
           />
         </div>
-        {/* View mode toggle - single button that toggles between grid and table */}
-        <button
-          type="button"
-          onClick={() => handleViewModeChange(viewMode === 'grid' ? 'table' : 'grid')}
-          className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
-          aria-label={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
-          title={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
-        >
-          {viewMode === 'grid' ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M3 6h18M3 18h18" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          )}
-        </button>
-        {/* Compact view toggle - only visible in grid mode */}
-        {viewMode === 'grid' && (
+        {/* Row 4 on mobile: All toggle buttons in one row, right-aligned on mobile */}
+        <div className="flex gap-2 items-center justify-end sm:justify-start">
+          {/* View mode toggle */}
           <button
             type="button"
-            onClick={() => setCompactView(!compactView)}
-            className={`p-2 border rounded-md transition-colors ${
-              compactView
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-background hover:bg-muted'
-            }`}
-            aria-pressed={compactView}
-            aria-label={compactView ? 'Switch to normal view' : 'Switch to compact view'}
-            title={compactView ? 'Normal view' : 'Compact view'}
-          >
-            {compactView ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
-              </svg>
-            )}
-          </button>
-        )}
-        {/* Expand/collapse all - only visible in grid mode */}
-        {viewMode === 'grid' && (
-          <button
-            type="button"
-            onClick={toggleAllCategories}
+            onClick={() => handleViewModeChange(viewMode === 'grid' ? 'table' : 'grid')}
             className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
-            aria-label={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
-            title={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+            aria-label={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
+            title={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
           >
-            {allExpanded ? (
+            {viewMode === 'grid' ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M3 6h18M3 18h18" />
               </svg>
             ) : (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
             )}
           </button>
-        )}
+          {/* Compact view toggle - only visible in grid mode */}
+          {viewMode === 'grid' && (
+            <button
+              type="button"
+              onClick={() => setCompactView(!compactView)}
+              className={`p-2 border rounded-md transition-colors ${
+                compactView
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background hover:bg-muted'
+              }`}
+              aria-pressed={compactView}
+              aria-label={compactView ? 'Switch to normal view' : 'Switch to compact view'}
+              title={compactView ? 'Normal view' : 'Compact view'}
+            >
+              {compactView ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                </svg>
+              )}
+            </button>
+          )}
+          {/* Expand/collapse all - only visible in grid mode */}
+          {viewMode === 'grid' && (
+            <button
+              type="button"
+              onClick={toggleAllCategories}
+              className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
+              aria-label={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+              title={allExpanded ? 'Collapse all categories' : 'Expand all categories'}
+            >
+              {allExpanded ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {viewMode === 'table' ? (
