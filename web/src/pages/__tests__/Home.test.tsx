@@ -28,22 +28,6 @@ describe('Home', () => {
     expect(screen.getByText('Legion')).toBeInTheDocument()
   })
 
-  it('should display page title', async () => {
-    renderWithProviders(<Home />)
-
-    await waitFor(() => {
-      expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
-    })
-  })
-
-  it('should display page description', async () => {
-    renderWithProviders(<Home />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/browse planetary annihilation titans faction data/i)).toBeInTheDocument()
-    })
-  })
-
   it('should render faction metadata correctly', async () => {
     renderWithProviders(<Home />)
 

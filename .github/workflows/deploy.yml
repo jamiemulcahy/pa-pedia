@@ -1,27 +1,185 @@
-name: Deploy to GitHub Pages
+# Unified Deploy workflow - builds CLI (if needed) and deploys web
+# Triggers:
+#   1. On version tags (v*) - releases CLI with that version, deploys web
+#   2. On push to main with CLI/web changes - conditionally releases CLI, always deploys web
+#   3. Manual dispatch - optionally specify CLI version
+#
+# Versioning:
+#   - Push tag v1.0.0 -> releases CLI v1.0.0, deploys web with that version
+#   - CLI changes on main -> auto-increments CLI patch version, deploys web
+#   - Web-only changes -> skips CLI release, deploys web with latest CLI version
+
+name: Deploy
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
     paths:
+      - 'cli/**'
       - 'web/**'
       - 'schema/**'
+      - '.goreleaser.yaml'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'CLI version to release (e.g., v1.0.0). Leave empty to auto-detect.'
+        required: false
+        type: string
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
-  build:
+  # Detect what changed to determine which jobs to run
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      cli: ${{ steps.filter.outputs.cli }}
+      web: ${{ steps.filter.outputs.web }}
     steps:
       - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            cli:
+              - 'cli/**'
+              - '.goreleaser.yaml'
+            web:
+              - 'web/**'
+              - 'schema/**'
+
+  # Release CLI binaries (conditional)
+  release-cli:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    # Run if: tag push, CLI changed, or manual version specified
+    if: |
+      github.ref_type == 'tag' ||
+      needs.changes.outputs.cli == 'true' ||
+      github.event.inputs.version != ''
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache-dependency-path: cli/go.sum
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            # Use the tag as version (already pushed)
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "needs_tag=false" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            # Use manually specified version
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "needs_tag=true" >> $GITHUB_OUTPUT
+          else
+            # Auto-increment: find latest tag and bump patch version
+            LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+
+            if [[ -z "$LATEST_TAG" ]]; then
+              NEW_VERSION="v0.1.0"
+            else
+              VERSION=${LATEST_TAG#v}
+              MAJOR=$(echo "$VERSION" | cut -d. -f1)
+              MINOR=$(echo "$VERSION" | cut -d. -f2)
+              PATCH=$(echo "$VERSION" | cut -d. -f3)
+              NEW_PATCH=$((PATCH + 1))
+              NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+            fi
+
+            echo "Latest tag: $LATEST_TAG -> New version: $NEW_VERSION"
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "needs_tag=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tag for new version
+        if: steps.version.outputs.needs_tag == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
+
+      - name: Cleanup old releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching releases..."
+          RELEASES=$(gh release list --json tagName --jq '.[].tagName')
+
+          COUNT=0
+          for TAG in $RELEASES; do
+            COUNT=$((COUNT + 1))
+            if [ $COUNT -gt 10 ]; then
+              echo "Deleting old release: $TAG"
+              gh release delete "$TAG" --yes --cleanup-tag
+            else
+              echo "Keeping release: $TAG"
+            fi
+          done
+
+  # Build web app
+  build-web:
+    runs-on: ubuntu-latest
+    needs: [changes, release-cli]
+    # Always run unless a previous job failed (allow skipped release-cli)
+    if: |
+      always() &&
+      !failure() &&
+      !cancelled()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for tags
+
+      - name: Get CLI version
+        id: cli-version
+        run: |
+          # Use output from release-cli if available, otherwise get latest tag
+          if [[ -n "${{ needs.release-cli.outputs.version }}" ]]; then
+            VERSION="${{ needs.release-cli.outputs.version }}"
+            echo "Using version from release-cli job: $VERSION"
+          else
+            VERSION=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            echo "Using latest tag: $VERSION"
+          fi
+
+          if [[ -z "$VERSION" ]]; then
+            VERSION="v0.0.0"
+            echo "No version found, using fallback: $VERSION"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,6 +197,7 @@ jobs:
         run: npm run build
         env:
           GITHUB_PAGES: 'true'
+          VITE_CLI_VERSION: ${{ steps.cli-version.outputs.version }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -48,12 +207,13 @@ jobs:
         with:
           path: web/dist
 
-  deploy:
+  # Deploy to GitHub Pages
+  deploy-web:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build-web]
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

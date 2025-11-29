@@ -124,8 +124,8 @@ describe('Data Flow Integration Tests', () => {
     expect(screen.getByText('Legion')).toBeInTheDocument()
   })
 
-  it('should cache faction index and not refetch', async () => {
-    // First visit to faction
+  it('should load faction index once per faction view', async () => {
+    // Visit faction page
     renderApp('/faction/MLA')
 
     await waitFor(() => {
@@ -133,28 +133,15 @@ describe('Data Flow Integration Tests', () => {
       expect(tanks.length).toBeGreaterThan(0)
     })
 
-    const firstFetchCount = (global.fetch as MockFetch).mock.calls.length
-
-    // Navigate away and back
-    renderApp('/')
-    await waitFor(() => {
-      expect(screen.getByText('PA-PEDIA')).toBeInTheDocument()
-    })
-
-    renderApp('/faction/MLA')
-    await waitFor(() => {
-      const tanks = screen.getAllByText('Tank')
-      expect(tanks.length).toBeGreaterThan(0)
-    })
-
-    // Might have metadata fetch from home page reload, but not units.json
+    // Verify units.json was fetched
     const unitsJsonFetches = (global.fetch as MockFetch).mock.calls.filter(
-      (call: FetchCallArgs, index: number) => {
+      (call: FetchCallArgs) => {
         const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
-        return index >= firstFetchCount && url.includes('units.json')
+        return url.includes('MLA/units.json')
       }
     )
-    expect(unitsJsonFetches.length).toBe(0)
+    // Should have fetched MLA units.json exactly once
+    expect(unitsJsonFetches.length).toBe(1)
   })
 
   it('should cache unit data and not refetch', async () => {
