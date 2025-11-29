@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
   CLI_RELEASE,
   getDownloadUrl,
   getReleasesPageUrl,
-  getRecommendedAsset,
+  detectPlatform,
 } from '@/config/releases'
 import type { CliAsset } from '@/config/releases'
 
@@ -68,8 +68,18 @@ function getOsIcon(os: string, className?: string) {
 }
 
 export function CliDownload({ onClose }: CliDownloadProps) {
-  // Compute recommended asset once on mount (no state needed - it won't change)
-  const recommendedAsset = getRecommendedAsset()
+  // Detect platform once and memoize
+  const platform = useMemo(() => detectPlatform(), [])
+
+  // Find recommended asset based on detected platform
+  const recommendedAsset = useMemo(() => {
+    if (!platform) return null
+    return (
+      CLI_RELEASE.assets.find(
+        (asset) => asset.os === platform.os && asset.arch === platform.arch
+      ) || null
+    )
+  }, [platform])
 
   // Close on escape key
   useEffect(() => {
@@ -138,6 +148,11 @@ export function CliDownload({ onClose }: CliDownloadProps) {
             const isRecommended =
               recommendedAsset?.os === asset.os &&
               recommendedAsset?.arch === asset.arch
+            // For macOS, highlight both options when we can't detect architecture
+            const isMacOption =
+              platform?.os === 'darwin' &&
+              !platform.archConfident &&
+              asset.os === 'darwin'
 
             return (
               <a
@@ -146,7 +161,9 @@ export function CliDownload({ onClose }: CliDownloadProps) {
                 className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                   isRecommended
                     ? 'bg-blue-600 hover:bg-blue-500 text-white ring-2 ring-blue-400'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : isMacOption
+                      ? 'bg-blue-900/50 hover:bg-blue-800/50 text-blue-100 ring-1 ring-blue-600'
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
                 }`}
                 download
               >
@@ -161,6 +178,13 @@ export function CliDownload({ onClose }: CliDownloadProps) {
               </a>
             )
           })}
+          {/* Show hint for macOS users when architecture is uncertain */}
+          {platform?.os === 'darwin' && !platform.archConfident && (
+            <p className="text-xs text-gray-400 mt-2">
+              Not sure which Mac version? Apple Silicon (M1/M2/M3) Macs use the
+              ARM version. Intel Macs use the Intel version.
+            </p>
+          )}
         </div>
 
         {/* Usage instructions */}

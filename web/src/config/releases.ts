@@ -48,56 +48,36 @@ export function getReleasesPageUrl(): string {
 }
 
 // Detect user's platform
-export function detectPlatform(): { os: string; arch: string } | null {
+// Returns os, arch, and whether arch detection is confident
+export function detectPlatform(): {
+  os: string
+  arch: string
+  archConfident: boolean
+} | null {
   const userAgent = navigator.userAgent.toLowerCase()
   const platform = navigator.platform.toLowerCase()
 
   let os: string | null = null
   let arch = 'amd64' // Default to amd64
+  let archConfident = true
 
   if (userAgent.includes('win') || platform.includes('win')) {
     os = 'windows'
   } else if (userAgent.includes('mac') || platform.includes('mac')) {
     os = 'darwin'
-    // Check for Apple Silicon - this is a heuristic
-    // Modern Safari on Apple Silicon reports arm in userAgent
-    if (
-      userAgent.includes('arm') ||
-      // Check if running on Apple Silicon via WebGL renderer
-      (typeof navigator !== 'undefined' && 'userAgentData' in navigator)
-    ) {
-      // Try to detect Apple Silicon
-      try {
-        const canvas = document.createElement('canvas')
-        const gl = canvas.getContext('webgl')
-        if (gl) {
-          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-          if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-            if (renderer.includes('Apple M')) {
-              arch = 'arm64'
-            }
-          }
-        }
-      } catch {
-        // Fall back to amd64
-      }
+    // macOS: Try to detect Apple Silicon vs Intel
+    // Default to Intel, but mark as uncertain so UI can show both options
+    archConfident = false
+
+    // Check if userAgent explicitly mentions arm
+    if (userAgent.includes('arm')) {
+      arch = 'arm64'
+      archConfident = true
     }
   } else if (userAgent.includes('linux') || platform.includes('linux')) {
     os = 'linux'
   }
 
   if (!os) return null
-  return { os, arch }
-}
-
-export function getRecommendedAsset(): CliAsset | null {
-  const platform = detectPlatform()
-  if (!platform) return null
-
-  return (
-    CLI_RELEASE.assets.find(
-      (asset) => asset.os === platform.os && asset.arch === platform.arch
-    ) || null
-  )
+  return { os, arch, archConfident }
 }

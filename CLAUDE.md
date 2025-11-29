@@ -188,19 +188,15 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 
 ### Security Considerations
 
-**XSS Prevention (Phase 3 Requirement)**:
-- **Current Risk**: Low - data comes from trusted local files only
-- **Phase 3 Requirement**: If user-uploaded faction data is implemented, ALL faction data MUST be sanitized before rendering
-- **Critical Fields to Sanitize**:
-  - Unit names and descriptions
-  - Faction metadata (name, description, author)
-  - Any user-generated content displayed in UI
-- **Implementation Notes**:
-  - Use DOMPurify or similar library for HTML sanitization
-  - Validate JSON schema compliance before accepting uploads
-  - Implement Content Security Policy (CSP) headers
-  - Never use `dangerouslySetInnerHTML` without sanitization
-- **Location**: Document this requirement in Phase 3 implementation plan
+**XSS Prevention**:
+- **Current Risk**: Low - React escapes all rendered strings by default
+- **Local Uploads**: User-uploaded faction data is stored locally (IndexedDB) and only affects the uploading user
+- **Why No Sanitization Library**:
+  - React's JSX automatically escapes strings, preventing script injection
+  - We don't use `dangerouslySetInnerHTML` anywhere
+  - Local-only storage means users can only "attack" themselves
+- **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
+- **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
 ## Common Development Tasks
 
