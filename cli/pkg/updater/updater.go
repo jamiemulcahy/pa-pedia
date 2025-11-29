@@ -4,6 +4,8 @@ package updater
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/creativeprojects/go-selfupdate"
@@ -17,8 +19,9 @@ const (
 	CheckTimeout = 30 * time.Second
 	// DownloadTimeout is the timeout for downloading updates
 	DownloadTimeout = 5 * time.Minute
-	// StartupCheckTimeout is a shorter timeout for startup checks to avoid blocking
-	StartupCheckTimeout = 5 * time.Second
+	// DefaultStartupCheckTimeout is the default timeout for startup checks.
+	// Can be overridden via PA_PEDIA_UPDATE_TIMEOUT environment variable.
+	DefaultStartupCheckTimeout = 10 * time.Second
 )
 
 // UpdateInfo contains information about available updates
@@ -129,4 +132,15 @@ func PerformUpdate(currentVersion string) (*UpdateInfo, error) {
 // IsDevelopmentVersion returns true if the version indicates a development build
 func IsDevelopmentVersion(version string) bool {
 	return version == "dev" || version == ""
+}
+
+// GetStartupCheckTimeout returns the timeout for startup update checks.
+// It can be overridden via the PA_PEDIA_UPDATE_TIMEOUT environment variable (in seconds).
+func GetStartupCheckTimeout() time.Duration {
+	if envTimeout := os.Getenv("PA_PEDIA_UPDATE_TIMEOUT"); envTimeout != "" {
+		if seconds, err := strconv.Atoi(envTimeout); err == nil && seconds > 0 {
+			return time.Duration(seconds) * time.Second
+		}
+	}
+	return DefaultStartupCheckTimeout
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/updater"
 	"github.com/spf13/cobra"
@@ -74,8 +73,8 @@ func checkForUpdates(cmd *cobra.Command, args []string) error {
 
 	logVerbose("Checking for updates...")
 
-	// Use short timeout for startup check
-	info, err := updater.CheckForUpdate(Version, updater.StartupCheckTimeout)
+	// Use short timeout for startup check (configurable via PA_PEDIA_UPDATE_TIMEOUT)
+	info, err := updater.CheckForUpdate(Version, updater.GetStartupCheckTimeout())
 	if err != nil {
 		// Silently ignore update check failures to not block user's command
 		logVerbose("Update check failed: %v", err)
@@ -104,29 +103,31 @@ func checkForUpdates(cmd *cobra.Command, args []string) error {
 	return reExecWithNewBinary()
 }
 
-// reExecWithNewBinary replaces the current process with the updated binary
+// reExecWithNewBinary replaces the current process with the updated binary.
+// The go-selfupdate library handles Windows binary replacement by renaming the
+// running executable to .old and writing the new one in its place.
 func reExecWithNewBinary() error {
 	exe, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get executable path: %w", err)
 	}
 
-	// On Windows, we can't replace the running executable, so we use exec.Command
-	// On Unix, we could use syscall.Exec, but exec.Command works cross-platform
 	cmd := exec.Command(exe, os.Args[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
+	err = cmd.Run()
+	exitCode := 0
+	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			os.Exit(exitErr.ExitCode())
+			exitCode = exitErr.ExitCode()
+		} else {
+			// Command failed to start
+			return fmt.Errorf("failed to re-exec: %w", err)
 		}
-		return fmt.Errorf("failed to re-exec: %w", err)
 	}
-
-	// Exit this process since the new one has completed
-	os.Exit(0)
+	os.Exit(exitCode)
 	return nil // unreachable, but needed for compilation
 }
 
@@ -139,7 +140,4 @@ func init() {
 	if os.Getenv("PA_PEDIA_NO_UPDATE_CHECK") == "1" {
 		disableUpdateCheck = true
 	}
-
-	// Silence unused variable warning for runtime import
-	_ = runtime.GOOS
 }
