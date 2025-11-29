@@ -348,7 +348,7 @@
         },
         "image": {
           "type": "string",
-          "description": "Relative path to unit icon (e.g. './assets/tank.png')"
+          "description": "Relative path to unit icon (e.g. 'assets/pa/units/land/tank/tank_icon_buildbar.png')"
         },
         "tier": {
           "type": "integer",
@@ -542,6 +542,13 @@
           },
           "type": "array",
           "description": "Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"
+        },
+        "targetPriorities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Target priority order using unit type grammar (e.g. ['Mobile - Air' 'Structure'])"
         },
         "yawRange": {
           "type": "number",

@@ -564,3 +564,44 @@ func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mo
 		Mods:        modIdentifiers,
 	}
 }
+
+// CreateMetadataFromProfile creates faction metadata from a profile and optional resolved mods.
+// This is the unified way to create metadata for both base-game and modded factions.
+func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*loader.ModInfo) models.FactionMetadata {
+	metadata := models.FactionMetadata{
+		Identifier:  profile.ID,
+		DisplayName: profile.DisplayName,
+		Version:     "1.0.0",
+	}
+
+	// Use profile author if provided, otherwise collect from mods
+	if profile.Author != "" {
+		metadata.Author = profile.Author
+	} else if len(resolvedMods) > 0 {
+		// Collect unique authors from mods
+		authors := make([]string, 0, len(resolvedMods))
+		seenAuthors := make(map[string]bool)
+		for _, mod := range resolvedMods {
+			if mod.Author != "" && !seenAuthors[mod.Author] {
+				authors = append(authors, mod.Author)
+				seenAuthors[mod.Author] = true
+			}
+		}
+		metadata.Author = strings.Join(authors, ", ")
+	}
+
+	// Use profile description if provided
+	if profile.Description != "" {
+		metadata.Description = profile.Description
+	}
+
+	// Set type based on whether mods are involved
+	if len(profile.Mods) > 0 {
+		metadata.Type = "mod"
+		metadata.Mods = profile.Mods
+	} else {
+		metadata.Type = "base-game"
+	}
+
+	return metadata
+}

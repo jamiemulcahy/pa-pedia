@@ -36,6 +36,7 @@ func main() {
 		{"faction-metadata", &models.FactionMetadata{}},
 		{"faction-database", &models.FactionDatabase{}},
 		{"faction-index", &models.FactionIndex{}},
+		{"faction-profile", &models.FactionProfile{}},
 		{"unit", &models.Unit{}},
 		{"weapon", &models.Weapon{}},
 		{"build-arm", &models.BuildArm{}},

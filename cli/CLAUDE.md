@@ -26,7 +26,10 @@ cli/
 │   ├── loader/       # Data loading from PA files (dirs + zips)
 │   ├── parser/       # Unit/weapon/ammo parsing + build tree
 │   ├── models/       # Go structs (source of truth for schemas)
+│   ├── profiles/     # Faction profile loading (embedded + local)
 │   └── exporter/     # Faction folder generation
+├── profiles/
+│   └── embedded/     # Built-in faction profiles (mla.json, legion.json)
 └── tools/
     └── generate-schema/  # Schema generator from Go structs
 ```
@@ -79,32 +82,90 @@ Generates faction folder with three-tier structure:
 
 ## Command Usage
 
-```bash
-# Base game (MLA) - auto-defaults to Custom58
-pa-pedia describe-faction --name MLA \
-  --pa-root "C:/PA/media" \
-  --output ./factions
+### Profile-Based (Recommended)
 
-# Custom faction (Legion)
-pa-pedia describe-faction --name Legion \
+Profiles define faction identity (name, unit type, mods) in reusable JSON files. Built-in profiles are embedded in the binary.
+
+```bash
+# List available profiles
+pa-pedia describe-faction --list-profiles
+
+# Base game (MLA)
+pa-pedia describe-faction --profile mla --pa-root "C:/PA/media"
+
+# Modded faction (Legion)
+pa-pedia describe-faction --profile legion \
   --pa-root "C:/PA/media" \
-  --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation" \
-  --mod com.pa.legion-expansion-server \
-  --faction-unit-type Custom1 \
-  --output ./factions
+  --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation"
+```
+
+### Manual Mode (Fallback)
+
+For custom configurations without creating a profile file.
+
+```bash
+pa-pedia describe-faction --name "My Faction" \
+  --faction-unit-type Custom99 \
+  --mod com.example.mod \
+  --pa-root "C:/PA/media" \
+  --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation"
 ```
 
 ## Flags
 
+### Profile-Based Flags (Recommended)
+
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
-| `--name` | Yes | - | Faction display name |
+| `--profile` | Yes* | - | Profile ID to use (e.g., `mla`, `legion`) |
+| `--profile-dir` | No | `./profiles` | Directory for custom faction profiles |
+| `--list-profiles` | No | `false` | List available profiles and exit |
+
+### Manual Mode Flags (Fallback)
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--name` | Yes* | - | Faction display name |
+| `--faction-unit-type` | Yes | - | Faction unit type identifier (e.g., `Custom58`, `Custom1`) |
+| `--mod` | No | - | Mod ID(s) to merge (repeatable, first = highest priority) |
+
+*Either `--profile` or `--name` is required (mutually exclusive).
+
+### Common Flags
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
 | `--pa-root` | Yes | - | PA media directory path |
 | `--data-root` | For mods | - | PA data directory (for mod discovery) |
-| `--mod` | No | - | Mod ID(s) to merge (repeatable, first = highest priority) |
-| `--faction-unit-type` | For non-MLA | `Custom58` for MLA | Faction unit type identifier (e.g., `Custom1`) |
 | `--output` | No | `./factions` | Output directory |
+| `--allow-empty` | No | `false` | Allow exporting factions with 0 units |
 | `-v, --verbose` | No | `false` | Enable verbose logging |
+
+## Faction Profiles
+
+### Built-in Profiles
+
+| Profile | Faction | Unit Type | Mods Required |
+|---------|---------|-----------|---------------|
+| `mla` | MLA | Custom58 | None (base game) |
+| `legion` | Legion | Custom1 | com.pa.legion-expansion-server, com.pa.legion-expansion-client |
+
+### Custom Profiles
+
+Add JSON files to `./profiles/` directory. Local profiles override built-in profiles with the same ID.
+
+**Profile schema** (`profiles/my-faction.json`):
+```json
+{
+  "displayName": "My Faction",
+  "factionUnitType": "Custom99",
+  "mods": ["com.example.my-mod"],
+  "author": "Your Name",
+  "description": "Description of your faction"
+}
+```
+
+Required fields: `displayName`, `factionUnitType`
 
 ## Faction Unit Type Filtering
 
@@ -119,11 +180,6 @@ pa-pedia describe-faction --name Legion \
 - `Custom58` - MLA (base game)
 - `Custom1` - Legion
 - Other mods may use different custom identifiers
-
-**Validation**:
-- MLA factions auto-default to `Custom58` (convenience)
-- Non-MLA factions **must** specify `--faction-unit-type`
-- Empty/invalid types show warning if 0 units match
 
 ## Schema Synchronization
 
