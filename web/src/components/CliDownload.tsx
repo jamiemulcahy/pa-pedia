@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
   CLI_RELEASE,
   getDownloadUrl,
   getReleasesPageUrl,
   getRecommendedAsset,
 } from '@/config/releases'
-import type { CliAsset } from '@/config/releases'
 
 interface CliDownloadProps {
   onClose: () => void
@@ -68,13 +67,8 @@ function getOsIcon(os: string, className?: string) {
 }
 
 export function CliDownload({ onClose }: CliDownloadProps) {
-  const [recommendedAsset, setRecommendedAsset] = useState<CliAsset | null>(
-    null
-  )
-
-  useEffect(() => {
-    setRecommendedAsset(getRecommendedAsset())
-  }, [])
+  // Compute recommended asset once on mount (no state needed - it won't change)
+  const recommendedAsset = getRecommendedAsset()
 
   // Close on escape key
   useEffect(() => {
