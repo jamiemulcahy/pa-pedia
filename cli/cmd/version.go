@@ -7,10 +7,11 @@ import (
 )
 
 // These variables are set via ldflags at build time by GoReleaser
+// Version is exported for use by the updater package
 var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
+	Version = "dev"
+	Commit  = "none"
+	Date    = "unknown"
 )
 
 var versionCmd = &cobra.Command{
@@ -24,11 +25,11 @@ Use the --verbose (-v) flag to see additional build information:
     commit: abc1234
     built:  2025-01-15T10:30:00Z`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("pa-pedia %s\n", version)
+		fmt.Printf("pa-pedia %s\n", Version)
 		// verbose is a persistent flag defined on rootCmd and inherited by all subcommands
 		if verbose {
-			fmt.Printf("  commit: %s\n", commit)
-			fmt.Printf("  built:  %s\n", date)
+			fmt.Printf("  commit: %s\n", Commit)
+			fmt.Printf("  built:  %s\n", Date)
 		}
 	},
 }

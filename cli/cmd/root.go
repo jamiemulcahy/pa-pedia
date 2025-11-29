@@ -3,7 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 
+	"github.com/jamiemulcahy/pa-pedia/pkg/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +27,9 @@ It supports extracting data from:
 
 Generated faction folders can be used with the PA-Pedia web application
 or shared with other users.`,
-	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceUsage:      true,
+	SilenceErrors:     true,
+	PersistentPreRunE: checkForUpdates,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -46,4 +50,96 @@ func logVerbose(format string, args ...interface{}) {
 	if verbose {
 		fmt.Fprintf(os.Stderr, "[VERBOSE] "+format+"\n", args...)
 	}
+}
+
+// checkForUpdates runs before any command to check for and install updates
+func checkForUpdates(cmd *cobra.Command, args []string) error {
+	// Skip update check for version and update commands to avoid recursion
+	cmdName := cmd.Name()
+	if cmdName == "version" || cmdName == "update" {
+		return nil
+	}
+
+	// Skip if disabled via environment variable
+	if disableUpdateCheck {
+		logVerbose("Update check disabled via PA_PEDIA_NO_UPDATE_CHECK")
+		return nil
+	}
+
+	// Skip in development mode
+	if updater.IsDevelopmentVersion(Version) {
+		logVerbose("Skipping update check in development mode")
+		return nil
+	}
+
+	logVerbose("Checking for updates...")
+
+	// Use short timeout for startup check
+	info, err := updater.CheckForUpdate(Version, updater.StartupCheckTimeout)
+	if err != nil {
+		// Silently ignore update check failures to not block user's command
+		logVerbose("Update check failed: %v", err)
+		return nil
+	}
+
+	if !info.UpdateAvailable {
+		logVerbose("Already running latest version (%s)", info.CurrentVersion)
+		return nil
+	}
+
+	fmt.Printf("New version available: %s (current: %s)\n", info.LatestVersion, info.CurrentVersion)
+	fmt.Println("Updating...")
+
+	result, err := updater.PerformUpdate(Version)
+	if err != nil {
+		// Log error but don't block the user's command
+		fmt.Fprintf(os.Stderr, "Update failed: %v\n", err)
+		fmt.Fprintln(os.Stderr, "Continuing with current version...")
+		return nil
+	}
+
+	fmt.Printf("Successfully updated to %s\n\n", result.LatestVersion)
+
+	// Re-exec the command with the new binary
+	return reExecWithNewBinary()
+}
+
+// reExecWithNewBinary replaces the current process with the updated binary
+func reExecWithNewBinary() error {
+	exe, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("failed to get executable path: %w", err)
+	}
+
+	// On Windows, we can't replace the running executable, so we use exec.Command
+	// On Unix, we could use syscall.Exec, but exec.Command works cross-platform
+	cmd := exec.Command(exe, os.Args[1:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			os.Exit(exitErr.ExitCode())
+		}
+		return fmt.Errorf("failed to re-exec: %w", err)
+	}
+
+	// Exit this process since the new one has completed
+	os.Exit(0)
+	return nil // unreachable, but needed for compilation
+}
+
+// disableUpdateCheck can be set to true to disable the startup update check
+// This is useful for testing or when running in CI environments
+var disableUpdateCheck bool
+
+func init() {
+	// Check for environment variable to disable update check
+	if os.Getenv("PA_PEDIA_NO_UPDATE_CHECK") == "1" {
+		disableUpdateCheck = true
+	}
+
+	// Silence unused variable warning for runtime import
+	_ = runtime.GOOS
 }
