@@ -1,5 +1,6 @@
 // CLI release configuration
-// Version is injected at build time via VITE_CLI_VERSION environment variable
+// Uses 'latest' tag for download URLs - the release workflow updates this tag
+// to always point to the newest release
 
 export interface CliAsset {
   os: string
@@ -9,7 +10,6 @@ export interface CliAsset {
 }
 
 export const CLI_RELEASE = {
-  version: import.meta.env.VITE_CLI_VERSION || 'v0.0.0',
   githubRepo: 'jamiemulcahy/pa-pedia',
   assets: [
     {
@@ -40,7 +40,7 @@ export const CLI_RELEASE = {
 }
 
 export function getDownloadUrl(asset: CliAsset): string {
-  return `https://github.com/${CLI_RELEASE.githubRepo}/releases/download/${CLI_RELEASE.version}/${asset.filename}`
+  return `https://github.com/${CLI_RELEASE.githubRepo}/releases/download/latest/${asset.filename}`
 }
 
 export function getReleasesPageUrl(): string {

@@ -5,6 +5,7 @@ import {
   getReleasesPageUrl,
   getRecommendedAsset,
 } from '@/config/releases'
+import type { CliAsset } from '@/config/releases'
 
 interface CliDownloadProps {
   onClose: () => void
@@ -126,22 +127,14 @@ export function CliDownload({ onClose }: CliDownloadProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-300 mb-4">
+        <p className="text-gray-300 mb-6">
           The PA-Pedia CLI extracts faction data from Planetary Annihilation
           Titans. Use it to create faction zip files that can be uploaded here.
         </p>
 
-        {/* Version badge */}
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-gray-400">Version:</span>
-          <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
-            {CLI_RELEASE.version}
-          </span>
-        </div>
-
         {/* Download buttons */}
         <div className="space-y-3 mb-6">
-          {CLI_RELEASE.assets.map((asset) => {
+          {CLI_RELEASE.assets.map((asset: CliAsset) => {
             const isRecommended =
               recommendedAsset?.os === asset.os &&
               recommendedAsset?.arch === asset.arch

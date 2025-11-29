@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { screen, render, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CliDownload } from '../CliDownload'
-import { CLI_RELEASE } from '@/config/releases'
 
 function renderCliDownload(onClose = vi.fn()) {
   return {
@@ -29,11 +28,6 @@ describe('CliDownload', () => {
     it('should render the description', () => {
       renderCliDownload()
       expect(screen.getByText(/extracts faction data from Planetary Annihilation/i)).toBeInTheDocument()
-    })
-
-    it('should display the CLI version', () => {
-      renderCliDownload()
-      expect(screen.getByText(CLI_RELEASE.version)).toBeInTheDocument()
     })
 
     it('should render download buttons for all platforms', () => {
