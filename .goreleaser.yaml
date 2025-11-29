@@ -32,19 +32,20 @@ builds:
         goarch: arm64
     ldflags:
       - -s -w
-      - -X github.com/jamiemulcahy/pa-pedia/cmd.version={{.Version}}
-      - -X github.com/jamiemulcahy/pa-pedia/cmd.commit={{.ShortCommit}}
-      - -X github.com/jamiemulcahy/pa-pedia/cmd.date={{.Date}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.Version={{.Version}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.Commit={{.ShortCommit}}
+      - -X github.com/jamiemulcahy/pa-pedia/cmd.Date={{.Date}}
 
 archives:
   - id: default
     formats:
       - binary
+    # Note: GoReleaser automatically adds .exe for Windows binaries when format is 'binary'
+    # Do NOT add .exe in the template to avoid double extension (e.g., .exe.exe)
     name_template: >-
       {{ .ProjectName }}_
       {{- .Os }}_
       {{- .Arch }}
-      {{- if eq .Os "windows" }}.exe{{ end }}
 
 checksum:
   name_template: 'checksums.txt'
