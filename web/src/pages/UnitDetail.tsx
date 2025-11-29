@@ -90,21 +90,23 @@ export function UnitDetail() {
 
         {/* Navigation row with breadcrumbs and compare button */}
         {isComparing ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 mb-6">
             <div>
               <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <BreadcrumbNav
-                factionId={compareFactionId || factionId || ''}
-                unitId={compareUnitId}
-                onUnitChange={(newFactionId, newUnitId) => {
-                  const params = new URLSearchParams(searchParams)
-                  params.set('compare', `${newFactionId}/${newUnitId}`)
-                  navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-                }}
-              />
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <BreadcrumbNav
+                  factionId={compareFactionId || factionId || ''}
+                  unitId={compareUnitId}
+                  onUnitChange={(newFactionId, newUnitId) => {
+                    const params = new URLSearchParams(searchParams)
+                    params.set('compare', `${newFactionId}/${newUnitId}`)
+                    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
+                  }}
+                />
+              </div>
+              <div className="flex items-center gap-2 justify-end sm:flex-shrink-0">
                 {compareUnit && (
                   <button
                     onClick={handleSwap}
@@ -131,7 +133,7 @@ export function UnitDetail() {
             </div>
           </div>
         ) : (
-          <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
             <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
             <button
               onClick={() => {
@@ -139,7 +141,7 @@ export function UnitDetail() {
                 params.set('compare', '')
                 navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
               }}
-              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors whitespace-nowrap"
+              className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors whitespace-nowrap self-start sm:flex-shrink-0"
             >
               Compare
             </button>
