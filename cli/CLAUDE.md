@@ -152,20 +152,28 @@ pa-pedia describe-faction --name "My Faction" \
 
 ### Custom Profiles
 
-Add JSON files to `./profiles/` directory. Local profiles override built-in profiles with the same ID.
+Add JSON files to `./profiles/` directory.
 
-**Profile schema** (`profiles/my-faction.json`):
+**Profile Discovery Rules**:
+- Profile ID is derived from filename (e.g., `queller.json` → ID `queller`)
+- Profile IDs are case-insensitive (`MLA` and `mla` are the same)
+- Local profiles override built-in profiles with the same ID
+- Only `.json` files are loaded; directories are ignored
+
+**Profile schema** (`profiles/queller.json`):
 ```json
 {
-  "displayName": "My Faction",
-  "factionUnitType": "Custom99",
-  "mods": ["com.example.my-mod"],
-  "author": "Your Name",
-  "description": "Description of your faction"
+  "displayName": "Queller AI",
+  "factionUnitType": "Custom3",
+  "mods": ["com.pa.queller.server", "com.pa.queller.client"],
+  "author": "Queller Team",
+  "description": "Advanced AI faction with unique macro mechanics"
 }
 ```
 
-Required fields: `displayName`, `factionUnitType`
+**Required fields**: `displayName`, `factionUnitType`
+
+**Validation**: `factionUnitType` must be alphanumeric (e.g., `Custom1`, `Custom58`)
 
 ## Faction Unit Type Filtering
 

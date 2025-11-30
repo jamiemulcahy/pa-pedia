@@ -5,12 +5,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 	"github.com/jamiemulcahy/pa-pedia/profiles/embedded"
 )
+
+// factionUnitTypePattern validates faction unit type format.
+// Should be alphanumeric (e.g., Custom1, Custom58, Tank, etc.)
+var factionUnitTypePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
 
 // Loader handles profile discovery and loading from embedded and local sources.
 type Loader struct {
@@ -140,6 +145,11 @@ func parseProfile(data []byte, filename string) (*models.FactionProfile, error) 
 	}
 	if profile.FactionUnitType == "" {
 		return nil, fmt.Errorf("factionUnitType is required")
+	}
+
+	// Validate factionUnitType format (should be alphanumeric identifier like Custom1, Custom58)
+	if !factionUnitTypePattern.MatchString(profile.FactionUnitType) {
+		return nil, fmt.Errorf("factionUnitType must be alphanumeric identifier (e.g., Custom1, Custom58), got: %s", profile.FactionUnitType)
 	}
 
 	return &profile, nil
