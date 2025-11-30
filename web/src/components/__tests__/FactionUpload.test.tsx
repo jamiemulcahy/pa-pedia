@@ -59,10 +59,11 @@ describe('FactionUpload', () => {
       expect(screen.getByText('Upload Local Faction')).toBeInTheDocument()
     })
 
-    it('should render the drop zone', () => {
+    it('should render the drop zone and browse button', () => {
       renderFactionUpload()
       expect(screen.getByText('Drag and drop faction zip here')).toBeInTheDocument()
-      expect(screen.getByText('or click to select file')).toBeInTheDocument()
+      expect(screen.getByText('Browse Files')).toBeInTheDocument()
+      expect(screen.getByText('.zip files only')).toBeInTheDocument()
     })
 
     it('should render About Local Factions section', () => {
@@ -161,14 +162,14 @@ describe('FactionUpload', () => {
       expect(onOpenCliDownload).toHaveBeenCalledTimes(1)
     })
 
-    it('should open file picker when drop zone is clicked', async () => {
+    it('should open file picker when Browse Files button is clicked', async () => {
       renderFactionUpload()
 
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
       const clickSpy = vi.spyOn(fileInput, 'click')
 
-      const dropZone = screen.getByText('Drag and drop faction zip here').closest('div')!
-      await userEvent.click(dropZone)
+      const browseButton = screen.getByText('Browse Files')
+      await userEvent.click(browseButton)
 
       expect(clickSpy).toHaveBeenCalled()
     })
