@@ -36,6 +36,7 @@ faction-name/
 This structure mirrors PA paths, allowing shared resources to be written once and providing a familiar layout for modders.
 
 ### Key Data Structures
+- **FactionProfile**: Faction identity for CLI extraction (name, unit type, mods)
 - **FactionMetadata**: Faction info (name, version, author, mods used)
 - **FactionIndex** (`units.json`): Unit index with embedded resolved Unit data
 - **UnitIndexEntry**: identifier, displayName, unitTypes, source, files[], unit (embedded)
