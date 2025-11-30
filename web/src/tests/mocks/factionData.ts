@@ -215,6 +215,45 @@ export const mockVehicleFactoryUnit: Unit = {
   }
 }
 
+export const mockSeaMineUnit: Unit = {
+  id: 'sea_mine',
+  resourceName: '/pa/units/sea/sea_mine/sea_mine.json',
+  displayName: 'Sea Mine',
+  description: 'Naval mine - inaccessible test unit',
+  image: 'assets/pa/units/sea/sea_mine/sea_mine_icon_buildbar.png',
+  unitTypes: ['Structure', 'Naval', 'Basic', 'Defense'],
+  tier: 1,
+  accessible: false,
+  specs: {
+    combat: {
+      health: 50,
+      weapons: [
+        {
+          resourceName: '/pa/units/sea/sea_mine/sea_mine_weapon.json',
+          safeName: 'detonation',
+          name: 'Detonation',
+          count: 1,
+          rateOfFire: 1.0,
+          damage: 500,
+          dps: 500,
+          maxRange: 10,
+          targetLayers: ['WL_WaterSurface']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 300
+    },
+    recon: {
+      visionRadius: 1
+    }
+  },
+  buildRelationships: {
+    builtBy: ['fabrication_ship'],
+    builds: []
+  }
+}
+
 export const mockLegionTankUnit: Unit = {
   id: 'legion_tank',
   resourceName: '/pa_ex1/units/land/tank/tank.json',
@@ -326,6 +365,19 @@ export const mockMLAIndex: FactionIndex = {
         }
       ],
       unit: mockVehicleFactoryUnit
+    },
+    {
+      identifier: 'sea_mine',
+      displayName: 'Sea Mine',
+      unitTypes: ['Structure', 'Naval', 'Basic', 'Defense'],
+      source: '/pa/units/sea/sea_mine/sea_mine.json',
+      files: [
+        {
+          path: '/pa/units/sea/sea_mine/sea_mine.json',
+          source: 'pa'
+        }
+      ],
+      unit: mockSeaMineUnit
     }
   ]
 }

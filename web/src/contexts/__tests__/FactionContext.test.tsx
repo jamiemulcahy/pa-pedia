@@ -241,10 +241,10 @@ describe('FactionContext', () => {
       await result.current.loadUnit('MLA', 'tank')
       await result.current.loadUnit('MLA', 'bot')
 
-      // All units from the index are cached (tank, bot, air_fighter, vehicle_factory = 4 units)
+      // All units from the index are cached (tank, bot, air_fighter, vehicle_factory, sea_mine = 5 units)
       // The units are embedded in the index, so all are cached when index loads
       await waitFor(() => {
-        expect(result.current.unitsCache.size).toBe(4)
+        expect(result.current.unitsCache.size).toBe(5)
       })
 
       // Verify specific units are accessible
