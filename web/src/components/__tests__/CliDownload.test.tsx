@@ -41,8 +41,8 @@ describe('CliDownload', () => {
     it('should render quick start instructions', () => {
       renderCliDownload()
       expect(screen.getByText('Quick Start')).toBeInTheDocument()
-      expect(screen.getByText(/Download and extract the CLI/i)).toBeInTheDocument()
-      expect(screen.getByText('pa-pedia extract --faction MLA')).toBeInTheDocument()
+      expect(screen.getByText(/Download the CLI/i)).toBeInTheDocument()
+      expect(screen.getByText('pa-pedia describe-faction --profile mla')).toBeInTheDocument()
     })
 
     it('should render GitHub releases link', () => {
