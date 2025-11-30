@@ -70,11 +70,11 @@ describe('FactionDetail', () => {
     expect(screen.getByText(/machine legion army faction for testing/i)).toBeInTheDocument()
   })
 
-  it('should render unit count', async () => {
+  it('should render unit count with hidden count', async () => {
     renderFactionDetail('MLA')
 
     await waitFor(() => {
-      expect(screen.getByText(/4 units total/i)).toBeInTheDocument()
+      expect(screen.getByText(/4 units.*1 hidden/i)).toBeInTheDocument()
     })
   })
 
@@ -527,6 +527,110 @@ describe('FactionDetail', () => {
 
       // Clean up
       localStorage.removeItem('pa-pedia-view-mode')
+    })
+  })
+
+  describe('inaccessible units filtering', () => {
+    it('should hide inaccessible units by default', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Sea Mine (inaccessible) should NOT be visible by default
+      expect(screen.queryByText('Sea Mine')).not.toBeInTheDocument()
+
+      // Accessible units should still be visible
+      expect(screen.getAllByText('Tank')[0]).toBeInTheDocument()
+      expect(screen.getAllByText('Bot')[0]).toBeInTheDocument()
+    })
+
+    it('should show toggle button when inaccessible units exist', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Toggle button should be visible with count in aria-label
+      const toggleButton = screen.getByRole('button', { name: /show 1 inaccessible unit/i })
+      expect(toggleButton).toBeInTheDocument()
+      expect(toggleButton).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('should show inaccessible units when toggle is clicked', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Sea Mine should be hidden initially
+      expect(screen.queryByText('Sea Mine')).not.toBeInTheDocument()
+
+      // Click toggle to show inaccessible units
+      const toggleButton = screen.getByRole('button', { name: /show 1 inaccessible unit/i })
+      await user.click(toggleButton)
+
+      // Now Sea Mine should be visible
+      await waitFor(() => {
+        expect(screen.getByText('Sea Mine')).toBeInTheDocument()
+      })
+
+      // Button should now show "hide inaccessible units"
+      expect(screen.getByRole('button', { name: /hide inaccessible units/i })).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('should hide inaccessible units when toggle is clicked again', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Show inaccessible units
+      const toggleButton = screen.getByRole('button', { name: /show 1 inaccessible unit/i })
+      await user.click(toggleButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('Sea Mine')).toBeInTheDocument()
+      })
+
+      // Hide inaccessible units again
+      const hideButton = screen.getByRole('button', { name: /hide inaccessible units/i })
+      await user.click(hideButton)
+
+      await waitFor(() => {
+        expect(screen.queryByText('Sea Mine')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should work with inaccessible filter in table view', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      // Sea Mine should be hidden in table view too
+      const table = screen.getByRole('table')
+      expect(within(table).queryByText('Sea Mine')).not.toBeInTheDocument()
+
+      // Show inaccessible units
+      const toggleButton = screen.getByRole('button', { name: /show 1 inaccessible unit/i })
+      await user.click(toggleButton)
+
+      // Now Sea Mine should be visible in table
+      await waitFor(() => {
+        expect(within(table).getByRole('link', { name: 'Sea Mine' })).toBeInTheDocument()
+      })
     })
   })
 })
