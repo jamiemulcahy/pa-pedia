@@ -207,6 +207,24 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 3. Regenerate schema: `cd cli/tools/generate-schema && ./build-and-run.bat`
 4. Update TypeScript types in `web/src/types/faction.ts` manually
 
+### Add New Static Faction
+Static factions are shipped with the web app and available to all users. They require two steps to add:
+
+1. **Export faction data** using the CLI:
+   ```bash
+   pa-pedia describe-faction --name "Faction Name" \
+     --pa-root "C:/PA/media" \
+     --mod com.pa.example-mod \
+     --output "./web/public/factions"
+   ```
+   This creates `web/public/factions/{FactionName}/` with `metadata.json`, `units.json`, and `assets/`.
+
+2. **Register the faction** in `web/src/services/factionLoader.ts`:
+   - Add the faction ID to the static array in `discoverFactions()` function
+   - Example: `['MLA', 'Legion', 'Bugs']` → `['MLA', 'Legion', 'Bugs', 'NewFaction']`
+
+**Important**: Adding the folder alone is not enough - the web app discovers static factions from the hardcoded array, not by scanning directories. User-uploaded factions are stored in IndexedDB and discovered dynamically.
+
 For CLI-specific development tasks (debugging parsing, build issues, gotchas), see [cli/CLAUDE.md](cli/CLAUDE.md).
 
 ## File Paths (Windows)
