@@ -418,6 +418,94 @@ func (e *FactionExporter) copyFromFilesystem(srcPath, destPath string) error {
 	return nil
 }
 
+// CopyResourceToFile copies a resource from the loader sources to a destination file.
+// The resourcePath should be a PA resource path (e.g., "/ui/mods/my_mod/img/bg.png").
+// Returns nil if the resource was copied successfully, or an error if not found or copy failed.
+func (e *FactionExporter) CopyResourceToFile(resourcePath, destPath string) error {
+	// Normalize the resource path
+	normalizedPath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(resourcePath)), "/")
+
+	// Search through all sources (first-wins priority)
+	for _, src := range e.Loader.Sources() {
+		if src.IsZip {
+			// Check in zip
+			if src.ZipReader == nil {
+				continue
+			}
+			file, found := src.ZipIndex()[normalizedPath]
+			if !found {
+				continue
+			}
+
+			// Validate and copy from zip
+			if strings.Contains(file.Name, "..") {
+				return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+			}
+			if file.UncompressedSize64 > maxFileSize {
+				return fmt.Errorf("file too large: %s (%d bytes)", file.Name, file.UncompressedSize64)
+			}
+
+			// Create destination directory
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory: %w", err)
+			}
+
+			// Extract from zip
+			rc, err := file.Open()
+			if err != nil {
+				return fmt.Errorf("failed to open file in zip: %w", err)
+			}
+			defer rc.Close()
+
+			destFile, err := os.Create(destPath)
+			if err != nil {
+				return fmt.Errorf("failed to create destination file: %w", err)
+			}
+			defer destFile.Close()
+
+			// Use LimitReader to prevent decompression bombs
+			limitedReader := io.LimitReader(rc, int64(maxFileSize)+1)
+			n, err := io.Copy(destFile, limitedReader)
+			if err != nil {
+				return fmt.Errorf("failed to copy file from zip: %w", err)
+			}
+			if n > int64(maxFileSize) {
+				os.Remove(destPath)
+				return fmt.Errorf("file exceeded size limit during extraction")
+			}
+
+			if e.Verbose {
+				fmt.Printf("  Copied resource: %s -> %s\n", resourcePath, destPath)
+			}
+			return nil
+		} else {
+			// Check in directory
+			fullPath := filepath.Join(src.Path, normalizedPath)
+			info, err := os.Stat(fullPath)
+			if err != nil || info.IsDir() {
+				continue
+			}
+
+			// Create destination directory
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory: %w", err)
+			}
+
+			// Copy from filesystem
+			if err := e.copyFromFilesystem(fullPath, destPath); err != nil {
+				return err
+			}
+
+			if e.Verbose {
+				fmt.Printf("  Copied resource: %s -> %s\n", resourcePath, destPath)
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf("resource not found in any source: %s", resourcePath)
+}
+
 // writeMetadata writes the metadata.json file
 func (e *FactionExporter) writeMetadata(factionDir string, metadata models.FactionMetadata) error {
 	metadataPath := filepath.Join(factionDir, "metadata.json")

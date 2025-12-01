@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -333,7 +332,7 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 
 	// Copy background image if specified
 	factionDir := filepath.Join(outputDir, exporter.SanitizeFolderName(metadata.DisplayName))
-	if err := copyBackgroundImage(profile, factionDir); err != nil {
+	if err := copyBackgroundImage(profile, factionDir, exp); err != nil {
 		return fmt.Errorf("failed to copy background image: %w", err)
 	}
 
@@ -352,34 +351,11 @@ func showAvailableMods(missingModID string, allMods map[string]*loader.ModInfo) 
 	fmt.Println()
 }
 
-// copyBackgroundImage copies the background image from profile source dir to faction output.
-// Returns the destination path relative to faction folder, or empty string if no image.
-func copyBackgroundImage(profile *models.FactionProfile, factionDir string) error {
+// copyBackgroundImage copies the background image from mod sources to faction output.
+// The background image path is a PA resource path (e.g., "/ui/mods/my_mod/img/bg.png").
+func copyBackgroundImage(profile *models.FactionProfile, factionDir string, exp *exporter.FactionExporter) error {
 	// No background image specified
 	if profile.BackgroundImage == "" {
-		return nil
-	}
-
-	// Cannot copy background image for embedded profiles (no source dir)
-	if profile.SourceDir == "" {
-		fmt.Printf("Warning: Background image specified but profile has no source directory (embedded profiles don't support background images)\n")
-		return nil
-	}
-
-	// Resolve source path
-	srcPath := filepath.Join(profile.SourceDir, profile.BackgroundImage)
-
-	// Check if source file exists
-	srcInfo, err := os.Stat(srcPath)
-	if os.IsNotExist(err) {
-		fmt.Printf("Warning: Background image not found: %s\n", srcPath)
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("failed to stat background image: %w", err)
-	}
-	if srcInfo.IsDir() {
-		fmt.Printf("Warning: Background image path is a directory: %s\n", srcPath)
 		return nil
 	}
 
@@ -387,23 +363,12 @@ func copyBackgroundImage(profile *models.FactionProfile, factionDir string) erro
 	ext := filepath.Ext(profile.BackgroundImage)
 	dstPath := filepath.Join(factionDir, "background"+ext)
 
-	// Copy the file
-	srcFile, err := os.Open(srcPath)
-	if err != nil {
-		return fmt.Errorf("failed to open background image: %w", err)
-	}
-	defer srcFile.Close()
-
-	dstFile, err := os.Create(dstPath)
-	if err != nil {
-		return fmt.Errorf("failed to create background image destination: %w", err)
-	}
-	defer dstFile.Close()
-
-	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		return fmt.Errorf("failed to copy background image: %w", err)
+	// Copy from mod sources using the exporter
+	if err := exp.CopyResourceToFile(profile.BackgroundImage, dstPath); err != nil {
+		fmt.Printf("Warning: Could not copy background image: %v\n", err)
+		return nil // Non-fatal - faction can still be exported without background
 	}
 
-	logVerbose("Copied background image: %s -> %s", srcPath, dstPath)
+	logVerbose("Copied background image: %s -> %s", profile.BackgroundImage, dstPath)
 	return nil
 }

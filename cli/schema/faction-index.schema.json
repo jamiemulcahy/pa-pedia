@@ -1,0 +1,649 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/faction-index",
+  "$ref": "#/$defs/FactionIndex",
+  "$defs": {
+    "Ammo": {
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path to ammo JSON"
+        },
+        "safeName": {
+          "type": "string",
+          "description": "Short identifier for ammo"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable ammo name"
+        },
+        "damage": {
+          "type": "number",
+          "description": "Direct hit damage"
+        },
+        "fullDamageRadius": {
+          "type": "number",
+          "description": "Radius where full damage applies"
+        },
+        "splashDamage": {
+          "type": "number",
+          "description": "Area of effect damage"
+        },
+        "splashRadius": {
+          "type": "number",
+          "description": "Splash damage radius"
+        },
+        "muzzleVelocity": {
+          "type": "number",
+          "description": "Initial velocity"
+        },
+        "maxVelocity": {
+          "type": "number",
+          "description": "Maximum velocity (for guided projectiles)"
+        },
+        "lifetime": {
+          "type": "number",
+          "description": "Projectile lifetime in seconds"
+        },
+        "metalCost": {
+          "type": "number",
+          "description": "Metal cost per projectile"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resourceName",
+        "safeName"
+      ]
+    },
+    "BuildArm": {
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path to build arm JSON"
+        },
+        "safeName": {
+          "type": "string",
+          "description": "Short identifier for build arm"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable build arm name"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of identical build arms on unit"
+        },
+        "metalConsumption": {
+          "type": "number",
+          "description": "Metal consumed per second while building"
+        },
+        "energyConsumption": {
+          "type": "number",
+          "description": "Energy consumed per second while building"
+        },
+        "range": {
+          "type": "number",
+          "description": "Maximum construction range"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resourceName",
+        "safeName",
+        "count",
+        "metalConsumption",
+        "energyConsumption"
+      ]
+    },
+    "BuildRelationships": {
+      "properties": {
+        "builds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "List of unit IDs this unit can build"
+        },
+        "builtBy": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "List of unit IDs that can build this unit"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "CombatSpecs": {
+      "properties": {
+        "health": {
+          "type": "number",
+          "description": "Maximum hit points"
+        },
+        "dps": {
+          "type": "number",
+          "description": "Total damage per second from all weapons"
+        },
+        "salvoDamage": {
+          "type": "number",
+          "description": "Total damage in a single volley"
+        },
+        "weapons": {
+          "items": {
+            "$ref": "#/$defs/Weapon"
+          },
+          "type": "array",
+          "description": "Individual weapon systems"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "health"
+      ]
+    },
+    "EconomySpecs": {
+      "properties": {
+        "buildCost": {
+          "type": "number",
+          "description": "Total metal cost to build unit"
+        },
+        "production": {
+          "$ref": "#/$defs/Resources",
+          "description": "Resources produced per second"
+        },
+        "consumption": {
+          "$ref": "#/$defs/Resources",
+          "description": "Base resource consumption per second"
+        },
+        "storage": {
+          "$ref": "#/$defs/Resources",
+          "description": "Resource storage capacity"
+        },
+        "toolConsumption": {
+          "$ref": "#/$defs/Resources",
+          "description": "Resource consumption from build arms"
+        },
+        "weaponConsumption": {
+          "$ref": "#/$defs/Resources",
+          "description": "Resource consumption from weapons"
+        },
+        "buildRate": {
+          "type": "number",
+          "description": "Construction speed multiplier"
+        },
+        "buildInefficiency": {
+          "type": "number",
+          "description": "Resource efficiency penalty when building"
+        },
+        "metalRate": {
+          "type": "number",
+          "description": "Net metal production/consumption per second"
+        },
+        "energyRate": {
+          "type": "number",
+          "description": "Net energy production/consumption per second"
+        },
+        "buildArms": {
+          "items": {
+            "$ref": "#/$defs/BuildArm"
+          },
+          "type": "array",
+          "description": "Construction tools"
+        },
+        "buildRange": {
+          "type": "number",
+          "description": "Maximum construction range"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "buildCost"
+      ]
+    },
+    "FactionIndex": {
+      "properties": {
+        "units": {
+          "items": {
+            "$ref": "#/$defs/UnitIndexEntry"
+          },
+          "type": "array",
+          "description": "Lightweight unit index with file provenance"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "units"
+      ]
+    },
+    "MobilitySpecs": {
+      "properties": {
+        "moveSpeed": {
+          "type": "number",
+          "description": "Maximum movement speed in units/second"
+        },
+        "turnSpeed": {
+          "type": "number",
+          "description": "Rotation speed in degrees/second"
+        },
+        "acceleration": {
+          "type": "number",
+          "description": "Acceleration rate"
+        },
+        "brake": {
+          "type": "number",
+          "description": "Deceleration/braking rate"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "ReconSpecs": {
+      "properties": {
+        "visionRadius": {
+          "type": "number",
+          "description": "Surface vision range"
+        },
+        "underwaterVisionRadius": {
+          "type": "number",
+          "description": "Underwater vision range"
+        },
+        "orbitalVisionRadius": {
+          "type": "number",
+          "description": "Orbital layer vision range"
+        },
+        "mineVisionRadius": {
+          "type": "number",
+          "description": "Mine detection range"
+        },
+        "radarRadius": {
+          "type": "number",
+          "description": "Radar detection range"
+        },
+        "sonarRadius": {
+          "type": "number",
+          "description": "Sonar detection range"
+        },
+        "orbitalRadarRadius": {
+          "type": "number",
+          "description": "Orbital radar range"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Resources": {
+      "properties": {
+        "metal": {
+          "type": "number",
+          "description": "Metal resource amount"
+        },
+        "energy": {
+          "type": "number",
+          "description": "Energy resource amount"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "SpecialSpecs": {
+      "properties": {
+        "spawnLayers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Valid spawn/movement layers (e.g. ['WL_LandHorizontal' 'WL_Water'])"
+        },
+        "amphibious": {
+          "type": "boolean",
+          "description": "Can traverse both land and water"
+        },
+        "hover": {
+          "type": "boolean",
+          "description": "Hovers above ground"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "StorageSpecs": {
+      "properties": {
+        "unitStorage": {
+          "type": "integer",
+          "description": "Number of units that can be stored"
+        },
+        "storedUnitType": {
+          "type": "string",
+          "description": "Type restriction for stored units"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Unit": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Short identifier derived from resource name (e.g. 'tank')"
+        },
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path (e.g. '/pa/units/land/tank/tank.json')"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable unit name (e.g. 'Ant')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief unit description or role"
+        },
+        "image": {
+          "type": "string",
+          "description": "Relative path to unit icon (e.g. 'assets/pa/units/land/tank/tank_icon_buildbar.png')"
+        },
+        "tier": {
+          "type": "integer",
+          "maximum": 3,
+          "minimum": 1,
+          "description": "Unit tier (1=Basic 2=Advanced 3=Titan)"
+        },
+        "unitTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Unit type tags (e.g. ['Mobile' 'Tank' 'Land' 'Basic'])"
+        },
+        "accessible": {
+          "type": "boolean",
+          "description": "Whether unit is buildable from commander (excludes test/tutorial units)"
+        },
+        "baseTemplate": {
+          "type": "boolean",
+          "description": "Whether this is a base template file (not a real unit)"
+        },
+        "specs": {
+          "$ref": "#/$defs/UnitSpecs",
+          "description": "Detailed unit specifications organized by category"
+        },
+        "buildRelationships": {
+          "$ref": "#/$defs/BuildRelationships",
+          "description": "What this unit builds and what builds this unit"
+        },
+        "buildableTypes": {
+          "type": "string",
+          "description": "Build restriction grammar (e.g. 'Mobile \u0026 Basic')"
+        },
+        "assistBuildableOnly": {
+          "type": "boolean",
+          "description": "Whether unit can only assist (not start) builds"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "resourceName",
+        "displayName",
+        "tier",
+        "accessible",
+        "specs"
+      ]
+    },
+    "UnitFile": {
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative path within the unit folder such as tank.json or tank_icon_buildbar.png"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source that provided this file such as pa"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "path",
+        "source"
+      ]
+    },
+    "UnitIndexEntry": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unit identifier such as tank or commander"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable unit name such as Ant or Commander"
+        },
+        "unitTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Unit type tags such as Mobile"
+        },
+        "source": {
+          "type": "string",
+          "description": "Primary source that first defined this unit such as pa"
+        },
+        "files": {
+          "items": {
+            "$ref": "#/$defs/UnitFile"
+          },
+          "type": "array",
+          "description": "All discovered files for this unit with provenance"
+        },
+        "unit": {
+          "$ref": "#/$defs/Unit",
+          "description": "Complete resolved unit specification with base_spec inheritance merged and all calculations complete. This contains the full parsed Unit object ready for consumption by the web app."
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "identifier",
+        "displayName",
+        "unitTypes",
+        "source",
+        "files",
+        "unit"
+      ]
+    },
+    "UnitSpecs": {
+      "properties": {
+        "combat": {
+          "$ref": "#/$defs/CombatSpecs",
+          "description": "Combat-related specifications (health weapons damage)"
+        },
+        "economy": {
+          "$ref": "#/$defs/EconomySpecs",
+          "description": "Economic specifications (costs production consumption)"
+        },
+        "mobility": {
+          "$ref": "#/$defs/MobilitySpecs",
+          "description": "Movement and positioning specifications"
+        },
+        "recon": {
+          "$ref": "#/$defs/ReconSpecs",
+          "description": "Vision and detection specifications"
+        },
+        "storage": {
+          "$ref": "#/$defs/StorageSpecs",
+          "description": "Unit transport and storage capabilities"
+        },
+        "special": {
+          "$ref": "#/$defs/SpecialSpecs",
+          "description": "Special attributes (amphibious hover spawn layers)"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Weapon": {
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path to weapon JSON"
+        },
+        "safeName": {
+          "type": "string",
+          "description": "Short identifier for weapon"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable weapon name"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of identical weapons on unit"
+        },
+        "rateOfFire": {
+          "type": "number",
+          "description": "Shots per second"
+        },
+        "damage": {
+          "type": "number",
+          "description": "Direct damage per projectile"
+        },
+        "dps": {
+          "type": "number",
+          "description": "Total damage per second (includes count ROF and projectiles)"
+        },
+        "projectilesPerFire": {
+          "type": "integer",
+          "description": "Number of projectiles per shot (e.g. shotgun)"
+        },
+        "muzzleVelocity": {
+          "type": "number",
+          "description": "Initial projectile velocity"
+        },
+        "maxRange": {
+          "type": "number",
+          "description": "Maximum effective range"
+        },
+        "splashDamage": {
+          "type": "number",
+          "description": "Splash/AoE damage"
+        },
+        "splashRadius": {
+          "type": "number",
+          "description": "Splash damage radius"
+        },
+        "fullDamageRadius": {
+          "type": "number",
+          "description": "Radius where full splash damage applies"
+        },
+        "selfDestruct": {
+          "type": "boolean",
+          "description": "Weapon triggers on unit self-destruct"
+        },
+        "deathExplosion": {
+          "type": "boolean",
+          "description": "Weapon triggers on unit death"
+        },
+        "ammoSource": {
+          "type": "string",
+          "description": "Resource type used for ammo (e.g. 'energy')"
+        },
+        "ammoDemand": {
+          "type": "number",
+          "description": "Rate of ammo consumption"
+        },
+        "ammoPerShot": {
+          "type": "number",
+          "description": "Ammo consumed per shot"
+        },
+        "ammoCapacity": {
+          "type": "number",
+          "description": "Maximum ammo storage"
+        },
+        "ammoDrainTime": {
+          "type": "number",
+          "description": "Time to drain full ammo capacity"
+        },
+        "ammoRechargeTime": {
+          "type": "number",
+          "description": "Time to fully recharge ammo"
+        },
+        "ammoShotsToDrain": {
+          "type": "integer",
+          "description": "Number of shots before ammo depletes"
+        },
+        "metalRate": {
+          "type": "number",
+          "description": "Metal consumption per second when firing"
+        },
+        "energyRate": {
+          "type": "number",
+          "description": "Energy consumption per second when firing"
+        },
+        "metalPerShot": {
+          "type": "number",
+          "description": "Metal consumed per shot"
+        },
+        "energyPerShot": {
+          "type": "number",
+          "description": "Energy consumed per shot"
+        },
+        "targetLayers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"
+        },
+        "targetPriorities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Target priority order using unit type grammar (e.g. ['Mobile - Air' 'Structure'])"
+        },
+        "yawRange": {
+          "type": "number",
+          "description": "Horizontal aiming range in degrees"
+        },
+        "yawRate": {
+          "type": "number",
+          "description": "Horizontal aiming speed in degrees/second"
+        },
+        "pitchRange": {
+          "type": "number",
+          "description": "Vertical aiming range in degrees"
+        },
+        "pitchRate": {
+          "type": "number",
+          "description": "Vertical aiming speed in degrees/second"
+        },
+        "ammoDetails": {
+          "$ref": "#/$defs/Ammo",
+          "description": "Detailed projectile specifications"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resourceName",
+        "safeName",
+        "count",
+        "rateOfFire",
+        "damage",
+        "dps"
+      ]
+    }
+  },
+  "title": "faction-index"
+}

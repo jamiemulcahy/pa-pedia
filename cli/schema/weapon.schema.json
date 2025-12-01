@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/weapon",
+  "$ref": "#/$defs/Weapon",
+  "$defs": {
+    "Ammo": {
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path to ammo JSON"
+        },
+        "safeName": {
+          "type": "string",
+          "description": "Short identifier for ammo"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable ammo name"
+        },
+        "damage": {
+          "type": "number",
+          "description": "Direct hit damage"
+        },
+        "fullDamageRadius": {
+          "type": "number",
+          "description": "Radius where full damage applies"
+        },
+        "splashDamage": {
+          "type": "number",
+          "description": "Area of effect damage"
+        },
+        "splashRadius": {
+          "type": "number",
+          "description": "Splash damage radius"
+        },
+        "muzzleVelocity": {
+          "type": "number",
+          "description": "Initial velocity"
+        },
+        "maxVelocity": {
+          "type": "number",
+          "description": "Maximum velocity (for guided projectiles)"
+        },
+        "lifetime": {
+          "type": "number",
+          "description": "Projectile lifetime in seconds"
+        },
+        "metalCost": {
+          "type": "number",
+          "description": "Metal cost per projectile"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resourceName",
+        "safeName"
+      ]
+    },
+    "Weapon": {
+      "properties": {
+        "resourceName": {
+          "type": "string",
+          "description": "Full PA resource path to weapon JSON"
+        },
+        "safeName": {
+          "type": "string",
+          "description": "Short identifier for weapon"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable weapon name"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of identical weapons on unit"
+        },
+        "rateOfFire": {
+          "type": "number",
+          "description": "Shots per second"
+        },
+        "damage": {
+          "type": "number",
+          "description": "Direct damage per projectile"
+        },
+        "dps": {
+          "type": "number",
+          "description": "Total damage per second (includes count ROF and projectiles)"
+        },
+        "projectilesPerFire": {
+          "type": "integer",
+          "description": "Number of projectiles per shot (e.g. shotgun)"
+        },
+        "muzzleVelocity": {
+          "type": "number",
+          "description": "Initial projectile velocity"
+        },
+        "maxRange": {
+          "type": "number",
+          "description": "Maximum effective range"
+        },
+        "splashDamage": {
+          "type": "number",
+          "description": "Splash/AoE damage"
+        },
+        "splashRadius": {
+          "type": "number",
+          "description": "Splash damage radius"
+        },
+        "fullDamageRadius": {
+          "type": "number",
+          "description": "Radius where full splash damage applies"
+        },
+        "selfDestruct": {
+          "type": "boolean",
+          "description": "Weapon triggers on unit self-destruct"
+        },
+        "deathExplosion": {
+          "type": "boolean",
+          "description": "Weapon triggers on unit death"
+        },
+        "ammoSource": {
+          "type": "string",
+          "description": "Resource type used for ammo (e.g. 'energy')"
+        },
+        "ammoDemand": {
+          "type": "number",
+          "description": "Rate of ammo consumption"
+        },
+        "ammoPerShot": {
+          "type": "number",
+          "description": "Ammo consumed per shot"
+        },
+        "ammoCapacity": {
+          "type": "number",
+          "description": "Maximum ammo storage"
+        },
+        "ammoDrainTime": {
+          "type": "number",
+          "description": "Time to drain full ammo capacity"
+        },
+        "ammoRechargeTime": {
+          "type": "number",
+          "description": "Time to fully recharge ammo"
+        },
+        "ammoShotsToDrain": {
+          "type": "integer",
+          "description": "Number of shots before ammo depletes"
+        },
+        "metalRate": {
+          "type": "number",
+          "description": "Metal consumption per second when firing"
+        },
+        "energyRate": {
+          "type": "number",
+          "description": "Energy consumption per second when firing"
+        },
+        "metalPerShot": {
+          "type": "number",
+          "description": "Metal consumed per shot"
+        },
+        "energyPerShot": {
+          "type": "number",
+          "description": "Energy consumed per shot"
+        },
+        "targetLayers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Valid target layers (e.g. ['WL_LandHorizontal' 'WL_Air'])"
+        },
+        "targetPriorities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Target priority order using unit type grammar (e.g. ['Mobile - Air' 'Structure'])"
+        },
+        "yawRange": {
+          "type": "number",
+          "description": "Horizontal aiming range in degrees"
+        },
+        "yawRate": {
+          "type": "number",
+          "description": "Horizontal aiming speed in degrees/second"
+        },
+        "pitchRange": {
+          "type": "number",
+          "description": "Vertical aiming range in degrees"
+        },
+        "pitchRate": {
+          "type": "number",
+          "description": "Vertical aiming speed in degrees/second"
+        },
+        "ammoDetails": {
+          "$ref": "#/$defs/Ammo",
+          "description": "Detailed projectile specifications"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resourceName",
+        "safeName",
+        "count",
+        "rateOfFire",
+        "damage",
+        "dps"
+      ]
+    }
+  },
+  "title": "weapon"
+}

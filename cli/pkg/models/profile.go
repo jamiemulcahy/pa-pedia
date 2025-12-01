@@ -8,11 +8,6 @@ type FactionProfile struct {
 	// Not stored in JSON - computed at load time.
 	ID string `json:"-"`
 
-	// SourceDir is the directory where the profile was loaded from.
-	// Used to resolve relative paths like BackgroundImage.
-	// Empty for embedded profiles.
-	SourceDir string `json:"-"`
-
 	// DisplayName is the human-readable faction name shown in output.
 	DisplayName string `json:"displayName" jsonschema:"required,description=Human-readable faction name (e.g. 'MLA' or 'Legion')"`
 
@@ -30,7 +25,8 @@ type FactionProfile struct {
 	// Description provides context about the faction.
 	Description string `json:"description,omitempty" jsonschema:"description=Brief description of the faction"`
 
-	// BackgroundImage is an optional path to a background image relative to the profile file location.
-	// The image will be copied to the faction output folder during export.
-	BackgroundImage string `json:"backgroundImage,omitempty" jsonschema:"description=Path to background image relative to profile file location"`
+	// BackgroundImage is an optional resource path to a background image within the mod sources.
+	// Uses the same path format as other PA resources (e.g., "/ui/mods/my_mod/img/background.png").
+	// The image will be loaded from mod sources and copied to the faction output folder during export.
+	BackgroundImage string `json:"backgroundImage,omitempty" jsonschema:"description=Resource path to background image within mod sources (e.g. /ui/mods/my_mod/img/bg.png)"`
 }

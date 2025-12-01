@@ -75,12 +75,6 @@ func (l *Loader) LoadLocalProfiles(profileDir string) error {
 		return fmt.Errorf("failed to read profile directory: %w", err)
 	}
 
-	// Get absolute path for the profile directory
-	absProfileDir, err := filepath.Abs(profileDir)
-	if err != nil {
-		return fmt.Errorf("failed to get absolute path for profile directory: %w", err)
-	}
-
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
@@ -96,9 +90,6 @@ func (l *Loader) LoadLocalProfiles(profileDir string) error {
 		if err != nil {
 			return fmt.Errorf("failed to parse profile %s: %w", entry.Name(), err)
 		}
-
-		// Track where the profile was loaded from for relative path resolution
-		profile.SourceDir = absProfileDir
 
 		// Local profiles override embedded
 		l.profiles[profile.ID] = profile
