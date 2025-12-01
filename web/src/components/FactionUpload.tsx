@@ -195,7 +195,7 @@ export function FactionUpload({
               </div>
 
               {/* Browse button */}
-              <div className="flex flex-col items-center gap-2 mt-4 md:mt-4">
+              <div className="flex flex-col items-center gap-2 mt-4">
                 <button
                   onClick={handleDropZoneClick}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors font-medium"

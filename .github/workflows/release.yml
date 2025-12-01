@@ -120,6 +120,7 @@ jobs:
           fi
 
           # Update 'latest' tag to point to this version's commit
+          # Force-push is required because we're moving 'latest' to point to a new commit
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -f latest "$VERSION"
