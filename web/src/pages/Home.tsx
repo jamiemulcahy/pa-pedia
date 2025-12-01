@@ -65,7 +65,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
     <div key={faction.folderName} className="relative group h-full">
       <Link
         to={`/faction/${faction.folderName}`}
-        className="block h-full border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden"
+        className="relative block h-full min-h-[280px] border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden"
       >
         {/* Background image layer */}
         {backgroundUrl && (
@@ -75,17 +75,17 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
           />
         )}
         {/* Content layer */}
-        <div className="relative z-10 p-6 h-full flex flex-col">
-          <div className="flex items-start justify-between mb-2">
-            <div className="text-3xl font-display font-bold tracking-wide">{faction.displayName}</div>
+        <div className="relative z-10 p-8 h-full flex flex-col">
+          <div className="flex items-start justify-between mb-4">
+            <div className="text-4xl font-display font-bold tracking-wide">{faction.displayName}</div>
             {faction.isLocal && (
               <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
                 LOCAL
               </span>
             )}
           </div>
-          <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">{faction.description}</div>
-          <div className="text-xs text-muted-foreground font-mono mt-auto">
+          <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">{faction.description}</div>
+          <div className="text-sm text-muted-foreground font-mono mt-auto">
             {faction.author && `By ${faction.author} • `}
             Version {faction.version}
           </div>
@@ -172,23 +172,7 @@ export function Home() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6 max-w-6xl mx-auto">
-          {/* All card */}
-          <Link
-            to="/faction"
-            className="block h-full p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col bg-muted/30"
-            aria-label="Browse all factions"
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="text-3xl font-display font-bold tracking-wide">All</div>
-            </div>
-            <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">
-              Browse units from all available factions in one view
-            </div>
-            <div className="text-xs text-muted-foreground font-mono mt-auto">
-              {factions.length} factions available
-            </div>
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6 max-w-7xl mx-auto">
           {factions.map((faction) => (
             <FactionCard
               key={faction.folderName}
@@ -196,6 +180,22 @@ export function Home() {
               onDeleteClick={setDeleteConfirm}
             />
           ))}
+          {/* All card - at end as secondary option */}
+          <Link
+            to="/faction"
+            className="block h-full p-8 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col bg-muted/30 min-h-[280px]"
+            aria-label="Browse all factions"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="text-4xl font-display font-bold tracking-wide">All</div>
+            </div>
+            <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">
+              Browse units from all available factions in one view
+            </div>
+            <div className="text-sm text-muted-foreground font-mono mt-auto">
+              {factions.length} factions available
+            </div>
+          </Link>
         </div>
       </div>
 
