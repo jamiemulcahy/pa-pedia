@@ -31,7 +31,7 @@ func NewFactionExporter(outputDir string, l *loader.Loader, verbose bool) *Facti
 // ExportFaction exports a faction using the new assets structure
 func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units []models.Unit) error {
 	// Create faction folder
-	factionDir := filepath.Join(e.OutputDir, sanitizeFolderName(metadata.DisplayName))
+	factionDir := filepath.Join(e.OutputDir, SanitizeFolderName(metadata.DisplayName))
 
 	if e.Verbose {
 		fmt.Printf("Creating faction folder: %s\n", factionDir)
@@ -475,8 +475,8 @@ func determineUnitSource(resourceName string) string {
 	return "unknown"
 }
 
-// sanitizeFolderName converts a faction name to a valid folder name
-func sanitizeFolderName(name string) string {
+// SanitizeFolderName converts a faction name to a valid folder name
+func SanitizeFolderName(name string) string {
 	// Replace invalid characters with hyphens
 	sanitized := strings.Map(func(r rune) rune {
 		if r == ' ' {
@@ -601,6 +601,12 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		metadata.Mods = profile.Mods
 	} else {
 		metadata.Type = "base-game"
+	}
+
+	// Set background image path if provided (just the filename, actual copy happens in describe_faction)
+	if profile.BackgroundImage != "" {
+		ext := filepath.Ext(profile.BackgroundImage)
+		metadata.BackgroundImage = "background" + ext
 	}
 
 	return metadata

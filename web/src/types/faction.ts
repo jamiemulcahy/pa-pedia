@@ -11,6 +11,7 @@ export interface FactionMetadata {
   build?: string;
   type: 'base-game' | 'mod';
   mods?: string[];
+  backgroundImage?: string;
 }
 
 // Faction Index

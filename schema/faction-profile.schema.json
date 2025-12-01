@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jamiemulcahy/pa-pedia/pkg/models/faction-profile",
+  "$ref": "#/$defs/FactionProfile",
+  "$defs": {
+    "FactionProfile": {
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable faction name (e.g. 'MLA' or 'Legion')"
+        },
+        "factionUnitType": {
+          "type": "string",
+          "description": "Faction unit type identifier without UNITTYPE_ prefix (e.g. 'Custom58' for MLA)"
+        },
+        "mods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Mod identifiers that layer on base game in priority order (empty for base game only)"
+        },
+        "author": {
+          "type": "string",
+          "description": "Faction or profile author"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the faction"
+        },
+        "backgroundImage": {
+          "type": "string",
+          "description": "Path to background image relative to profile file location"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "displayName",
+        "factionUnitType"
+      ]
+    }
+  },
+  "title": "faction-profile"
+}

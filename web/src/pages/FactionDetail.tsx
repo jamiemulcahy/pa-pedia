@@ -5,11 +5,12 @@ import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { UnitCategorySection } from '@/components/UnitCategorySection'
 import { UnitTable } from '@/components/UnitTable'
 import { FactionSelector } from '@/components/FactionSelector'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 import Select from 'react-select'
 import { selectStyles, type SelectOption } from '@/components/selectStyles'
 import type { UnitIndexEntry } from '@/types/faction'
+import { getFactionBackgroundPath, getLocalFactionBackgroundUrl } from '@/services/factionLoader'
 
 type ViewMode = 'grid' | 'table'
 
@@ -51,6 +52,43 @@ export function FactionDetail() {
   const [compactView, setCompactView] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode)
   const [showInaccessible, setShowInaccessible] = useState(false)
+  const [localBackgroundUrl, setLocalBackgroundUrl] = useState<string | null>(null)
+
+  // For static factions, compute the URL directly (no need for state)
+  const staticBackgroundUrl = !isAllMode && !metadata?.isLocal && metadata?.backgroundImage
+    ? getFactionBackgroundPath(factionId, metadata.backgroundImage)
+    : null
+
+  // Load background image for local factions asynchronously
+  useEffect(() => {
+    if (isAllMode || !metadata?.isLocal || !metadata?.backgroundImage) {
+      return
+    }
+
+    let isMounted = true
+    let blobUrl: string | undefined
+
+    getLocalFactionBackgroundUrl(factionId, metadata.backgroundImage)
+      .then(url => {
+        if (isMounted && url) {
+          blobUrl = url
+          setLocalBackgroundUrl(url)
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load local faction background:', err)
+      })
+
+    return () => {
+      isMounted = false
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl)
+      }
+    }
+  }, [isAllMode, factionId, metadata?.backgroundImage, metadata?.isLocal])
+
+  // Use the appropriate URL based on faction type
+  const backgroundUrl = metadata?.isLocal ? localBackgroundUrl : staticBackgroundUrl
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode)
@@ -213,7 +251,16 @@ export function FactionDetail() {
 
   // Content wrapped conditionally - only use CurrentFactionProvider for single faction mode
   const content = (
-    <div className="container mx-auto px-4 py-8">
+    <div className="relative min-h-screen">
+      {/* Fixed background image layer */}
+      {backgroundUrl && (
+        <div
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-[0.08] pointer-events-none"
+          style={{ backgroundImage: `url(${backgroundUrl})` }}
+        />
+      )}
+      {/* Content layer */}
+      <div className="relative container mx-auto px-4 py-8">
       <div className="mb-8">
         <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
         <div className="flex items-center gap-3 mb-2">
@@ -396,6 +443,7 @@ export function FactionDetail() {
           ))
         )}
       </div>
+    </div>
   )
 
   // Wrap with CurrentFactionProvider only for single faction mode

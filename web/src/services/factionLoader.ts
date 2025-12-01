@@ -130,6 +130,27 @@ export async function getLocalUnitIconUrl(factionId: string, imagePath: string):
   return getLocalAssetUrl(factionId, imagePath)
 }
 
+/**
+ * Gets the background image path for a faction (static factions)
+ */
+export function getFactionBackgroundPath(factionId: string, backgroundPath: string): string {
+  if (!backgroundPath) {
+    return ''
+  }
+  return `${FACTIONS_BASE_PATH}/${factionId}/${backgroundPath}`
+}
+
+/**
+ * Gets the background image URL for a local faction
+ * Returns a blob URL that must be revoked when no longer needed
+ */
+export async function getLocalFactionBackgroundUrl(factionId: string, backgroundPath: string): Promise<string | undefined> {
+  if (!backgroundPath) {
+    return undefined
+  }
+  return getLocalAssetUrl(factionId, backgroundPath)
+}
+
 // Re-export for convenience
 export { getLocalAssetUrl }
 
