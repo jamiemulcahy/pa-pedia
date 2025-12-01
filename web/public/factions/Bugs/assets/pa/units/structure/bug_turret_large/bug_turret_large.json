@@ -1,0 +1,85 @@
+{
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "unit_name": "large spitter turret",
+    "display_name": "!LOC:Large Spitter Turret",
+    "si_name": "laser_defense",
+    "description": "!LOC:Advanced anti land turret.",
+    "max_health": 4000,
+    "build_metal_cost": 900,
+    "atrophy_rate": 7.5,
+    "atrophy_cool_down": 15.0,
+    "spawn_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+    "unit_types": [
+        "UNITTYPE_Structure",
+        "UNITTYPE_Advanced",
+        "UNITTYPE_Land",
+        "UNITTYPE_SurfaceDefense",
+        "UNITTYPE_Defense",
+        "UNITTYPE_NoBuild",
+        "UNITTYPE_FabAdvBuild",
+        "UNITTYPE_Custom2"
+    ],
+    "command_caps": [
+        "ORDER_Attack"
+    ],
+    "guard_layer": "WL_AnyLayer",
+    "recon": {
+        "observer": {
+            "items": [
+                {
+                    "layer": "surface_and_air",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 130
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 130
+                }
+            ]
+        }
+    },
+    "model": [
+        {
+            "layer": "WL_LandHorizontal",
+            "animtree": "/pa/anim/anim_trees/defense_turret_single_anim_tree.json",
+            "filename": "/pa/units/structure/bug_turret_large/bug_turret_large.papa"
+           
+        }
+    ],
+    "tools": [
+        {
+            "spec_id": "/pa/units/structure/bug_turret_large/bug_turret_large_weapon.json",
+            "aim_bone": "socket_muzzle",
+            "muzzle_bone": [
+                "socket_muzzle"
+            ]
+        }
+    ],
+    "events": {
+        "build_complete": {
+            "audio_cue": "/SE/Build_Complete/structure_small"
+        },
+        "fired": {
+            "audio_cue": "/SE/Weapons/bot/assault_fire",
+            "effect_spec": "/pa/units/land/bug_scout/bug_muzzle_flash.pfx bone_barrel"
+          },
+        "died": {
+            "effect_spec": "/pa/effects/specs/bug_building_explosion.pfx",
+            "audio_cue": "/SE/Death/structure_small",
+            "effect_scale": 0.6
+        }
+    },
+    "selection_icon": {
+        "diameter": 12.0
+    },
+    "mesh_bounds": [
+        8,
+        8,
+        23
+      ],
+    "TEMP_texelinfo": 10.2184,
+    "area_build_separation": 18
+}

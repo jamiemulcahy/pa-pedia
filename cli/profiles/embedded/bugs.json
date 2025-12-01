@@ -1,0 +1,7 @@
+{
+  "displayName": "Bugs",
+  "factionUnitType": "Custom2",
+  "mods": ["com.pa.ferretmaster.bugs", "com.pa.ferretmaster.bugs-client"],
+  "author": "Ferretmaster",
+  "description": "The Bugs faction - adds a second fully playable faction with unique units"
+}

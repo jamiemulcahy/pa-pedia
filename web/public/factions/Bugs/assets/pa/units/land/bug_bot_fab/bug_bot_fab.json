@@ -1,0 +1,153 @@
+{
+    "display_name": "!LOC:Bug Fab",
+    "description": "!LOC:Basic fabricator, builds bug structures",
+    "TEMP_texelinfo": 5.11028,
+    "si_name":"bug_fab",
+    "attachable": {
+      "offsets": {
+        "head": [
+          0,
+          0,
+          3.6
+        ],
+        "root": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "audio": {
+      "command_response": {
+        "cue": "/SE/Confirmation/bot/fab"
+      },
+      "loops": {
+        "build": {
+          "cue": "/SE/Construction/Fab_bot_contruction_beam_loop",
+          "flag": "build_target_changed",
+          "should_start_func": "has_build_target",
+          "should_stop_func": "no_build_target"
+        },
+        "move": {
+          "cue": "/SE/Movement/bot/fab_loop",
+          "flag": "vel_changed",
+          "should_start_func": "is_moving",
+          "should_stop_func": "is_not_moving"
+        }
+      },
+      "selection_response": {
+        "cue": "/SE/Selection/bot/fab"
+      }
+    },
+    "base_spec": "/pa/units/land/base_bot/base_bot.json",
+    "build_metal_cost": 150,
+
+    "buildable_types": "((Land & Structure & Basic | Factory & Basic & FabBuild | Factory & Advanced & Bot & Land & FabBuild| FabBuild) & Custom2)",
+
+    "command_caps": [
+      "ORDER_Move",
+      "ORDER_Patrol",
+      "ORDER_Build",
+      "ORDER_Reclaim",
+      "ORDER_Repair",
+      "ORDER_Assist",
+      "ORDER_Use"
+    ],
+    "events": {
+      "build_complete": {
+        "audio_cue": "/SE/Build_Complete/fab"
+      },
+      "died": {
+        "audio_cue": "/SE/Death/Bot",
+        "effect_spec": "/pa/units/land/bug_crusher/bug_explosion_large.pfx",
+        "effect_scale": 0.6
+      }
+    },
+    "fx_offsets": [
+      {
+        "bone": "bone_head",
+        "filename": "/pa/effects/specs/bug_fab_spray.pfx",
+        "offset": [
+          0,
+          -1.891,
+          -0.11
+        ],
+        "orientation": [
+          0,
+          0,
+          0
+        ],
+        "type": "build"
+      }
+    ],
+    "guard_layer": "WL_LandHorizontal",
+    "max_health": 50,
+    "mesh_bounds": [
+      5,
+      3,
+      5
+    ],
+    "model": {
+      "animations": {
+        "death01": "/pa/units/land/bug_bot_fab/bug_bot_fab_death_anim.papa",
+        "idle": "/pa/units/land/bug_bot_fab/bug_bot_fab_idle.papa",
+        "walk": "/pa/units/land/bug_bot_fab/bug_bot_fab_run.papa"
+      },
+      "animtree": "/pa/anim/anim_trees/bot_bomb_anim_tree.json",
+      "filename": "/pa/units/land/bug_bot_fab/bug_bot_fab.papa",
+      "walk_speed": 40
+    },
+    "navigation": {
+      "acceleration": 160,
+      "brake": -1,
+      "group_preference": "back",
+      "move_speed": 14,
+      "turn_speed": 360,
+      "type": "land-small"
+    },
+    "physics": {
+      "allow_pushing": true,
+      "radius": 3.5
+    },
+    "recon": {
+      "observer": {
+        "items": [
+          {
+            "channel": "sight",
+            "layer": "surface_and_air",
+            "radius": 100,
+            "shape": "capsule"
+          },
+          {
+            "channel": "sight",
+            "layer": "underwater",
+            "radius": 100,
+            "shape": "capsule"
+          }
+        ]
+      }
+    },
+    "selection_icon": {
+      "diameter": 9.0
+    },
+    "tools": [
+      {
+        "aim_bone": "bone_root",
+        "spec_id": "/pa/units/land/bug_bot_fab/bug_bot_fab_build_arm.json"
+      }
+    ],
+    "transportable": {
+      "size": 1
+    },
+    "unit_name": "Fabrication Bot",
+    "unit_types": [
+      "UNITTYPE_Fabber",
+      "UNITTYPE_Construction",
+      "UNITTYPE_Bot",
+      "UNITTYPE_Mobile",
+      "UNITTYPE_Land",
+      "UNITTYPE_Basic",
+      "UNITTYPE_FactoryBuild",
+      "UNITTYPE_Custom2"
+    ]
+  }

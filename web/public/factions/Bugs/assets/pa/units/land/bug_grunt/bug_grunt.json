@@ -1,0 +1,126 @@
+
+{
+  "display_name": "!LOC:Grunt",
+  "description": "!LOC:Armored Bug - Melee, heavily armored, expendable.",
+  "si_name": "grunt",
+  "TEMP_texelinfo": 4.07719,
+  "attachable": {
+    "offsets": {
+      "root": [
+        0,
+        0,
+        0
+      ],
+      "head": [
+        0,
+        0,
+        4
+      ]
+    }
+  },
+  "audio": {
+    "loops": {
+      "move": {
+        "cue": "/SE/Movement/veh/tank_light_laser_loop",
+        "flag": "vel_changed",
+        "should_start_func": "is_moving",
+        "should_stop_func": "is_not_moving"
+      }
+    },
+    "selection_response": {
+      "cue": "/SE/Selection/bot/spark"
+    }
+  },
+  "base_spec": "/pa/units/land/base_bot/base_bot.json",
+  "build_metal_cost": 100,
+  "events": {
+    "build_complete": {
+      "audio_cue": "/SE/Build_Complete/bot"
+    },
+    "fired": {
+      "audio_cue": "/SE/Weapons/veh/tank_light_fire"
+      
+    },
+    "died": {
+      "audio_cue": "/SE/Death/Bot",
+      "effect_spec": "/pa/units/land/bug_crusher/bug_explosion_large.pfx",
+      "effect_scale": 0.6
+    }
+  },
+  "attack_range_frac": 0.7,
+  "guard_layer": "WL_AnySurface",
+  "guard_radius":80,
+  "max_health": 540,
+  "mesh_bounds": [
+    5.5,
+    5.5,
+    7
+  ],
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "layer": "surface_and_air",
+          "channel": "sight",
+          "shape": "capsule",
+          "radius": 100
+        },
+        {
+          "layer": "underwater",
+          "channel": "sight",
+          "shape": "capsule",
+          "radius": 120
+        }
+      ]
+    }
+  },
+  "model": {
+    "filename": "/pa/units/land/bug_grunt/Grunt.papa",
+    "animations": {
+      "walk": "/pa/units/land/bug_grunt/Grunt_Walk.papa",
+      "firing": "/pa/units/land/bug_grunt/Grunt_Attack.papa",
+      "idle": "/pa/units/land/bug_grunt/Grunt_Idle.papa"
+    },
+    "animtree": "/pa/units/land/bug_grunt/bug_anim_tree.json",
+    "walk_speed": 0.15
+  },
+  "navigation": {
+    "type": "land-small",
+    "acceleration": 30,
+    "brake": -1,
+    "move_speed": 16,
+    "turn_speed": 180,
+    "group_preference": "front"
+  },
+  "physics": {
+    "radius": 1.0
+  },
+  "selection_icon": {
+    "diameter": 11.0
+  },
+  "tools": [
+    {
+      "spec_id": "/pa/units/land/bug_grunt/bug_grunt_weapon.json",
+      "aim_bone": "bone_barrel"
+    }
+  ],
+  "transportable": {
+    "size": 1
+  },
+  "unit_types": [
+    "UNITTYPE_Tank",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Heavy",
+    "UNITTYPE_Offense",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic",
+    "UNITTYPE_FactoryBuild",
+    "UNITTYPE_Custom2"
+  ],
+  "wreckage_health_frac": 0.7,
+  "death": {
+    "decals": [
+      "/pa/decals/decal_bug_splat_01.json"
+    ]
+  }
+}

@@ -31,7 +31,7 @@ describe('useFactions', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    expect(result.current.factions.length).toBe(2)
+    expect(result.current.factions.length).toBe(3)
   })
 
   it('should return factions with folder names attached', async () => {
@@ -59,7 +59,7 @@ describe('useFactions', () => {
     })
 
     expect(result.current.factionsMap instanceof Map).toBe(true)
-    expect(result.current.factionsMap.size).toBe(2)
+    expect(result.current.factionsMap.size).toBe(3)
     expect(result.current.factionsMap.get('MLA')).toEqual(mockMLAMetadata)
   })
 

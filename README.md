@@ -63,7 +63,7 @@ npm run dev
 # Open http://localhost:5173 in your browser
 ```
 
-**Available Factions**: MLA and Legion
+**Available Factions**: MLA, Legion, and Bugs
 
 **Features**:
 - Browse all units in each faction
@@ -187,7 +187,9 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 Quick ways to help:
 - Open issues for bugs or feature requests
 - Submit pull requests with improvements
-- Add new faction data to `/web/public/factions`
+- Add new static faction data:
+  1. Export faction data to `/web/public/factions/{FactionName}/`
+  2. Register faction ID in `web/src/services/factionLoader.ts` (see `discoverFactions()` function)
 
 ## Acknowledgments
 
