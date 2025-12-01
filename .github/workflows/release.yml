@@ -107,14 +107,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
 
-      - name: Update latest tag
+      - name: Update latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Update 'latest' tag to point to this release
-          # This allows stable download URLs: /releases/download/latest/...
+          VERSION=${{ steps.version.outputs.version }}
+
+          # Delete existing 'latest' release if it exists (but keep the tag for now)
+          if gh release view latest &>/dev/null; then
+            echo "Deleting existing 'latest' release..."
+            gh release delete latest --yes || true
+          fi
+
+          # Update 'latest' tag to point to this version's commit
+          # Force-push is required because we're moving 'latest' to point to a new commit
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -f latest ${{ steps.version.outputs.version }}
+          git tag -f latest "$VERSION"
           git push -f origin latest
+
+          # Download assets from the versioned release
+          echo "Downloading assets from $VERSION release..."
+          mkdir -p latest-assets
+          gh release download "$VERSION" --dir latest-assets
+
+          # Create 'latest' release with the same assets
+          echo "Creating 'latest' release with assets..."
+          gh release create latest \
+            --title "Latest Release ($VERSION)" \
+            --notes "This release always points to the latest stable version. Currently: $VERSION
+
+For changelog and details, see the [$VERSION release](https://github.com/${{ github.repository }}/releases/tag/$VERSION)." \
+            latest-assets/*
+
+          echo "Successfully updated 'latest' release to $VERSION"
 
       - name: Cleanup old releases
         env:

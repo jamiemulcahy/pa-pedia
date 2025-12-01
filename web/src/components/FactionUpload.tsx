@@ -128,29 +128,21 @@ export function FactionUpload({
           </button>
         </div>
 
-        {/* Drop zone */}
-        <div
-          className={`relative border-2 border-dashed rounded-lg p-8 mb-6 text-center cursor-pointer transition-colors ${
-            isDragOver
-              ? 'border-blue-400 bg-blue-900/20'
-              : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/30'
-          } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleDropZoneClick}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".zip"
-            onChange={handleFileSelect}
-            disabled={isUploading}
-            className="hidden"
-          />
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".zip"
+          onChange={handleFileSelect}
+          disabled={isUploading}
+          className="hidden"
+        />
 
+        {/* Upload area */}
+        <div className="mb-6">
+          {/* Uploading state */}
           {isUploading ? (
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-3 p-8">
               <svg className="animate-spin h-10 w-10 text-blue-400" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
@@ -170,27 +162,62 @@ export function FactionUpload({
               <span className="text-blue-400 font-medium">Uploading...</span>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3">
-              <svg
-                className={`w-12 h-12 ${isDragOver ? 'text-blue-400' : 'text-gray-400'}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <>
+              {/* Drop zone - hidden on mobile */}
+              <div
+                className={`hidden md:block relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  isDragOver
+                    ? 'border-blue-400 bg-blue-900/20'
+                    : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/30'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-              <div>
-                <span className={`font-medium ${isDragOver ? 'text-blue-300' : 'text-gray-200'}`}>
-                  Drag and drop faction zip here
-                </span>
-                <p className="text-sm text-gray-400 mt-1">or click to select file</p>
+                <div className="flex flex-col items-center gap-3">
+                  <svg
+                    className={`w-12 h-12 ${isDragOver ? 'text-blue-400' : 'text-gray-400'}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  <span className={`font-medium ${isDragOver ? 'text-blue-300' : 'text-gray-200'}`}>
+                    Drag and drop faction zip here
+                  </span>
+                </div>
               </div>
-            </div>
+
+              {/* Browse button */}
+              <div className="flex flex-col items-center gap-2 mt-4">
+                <button
+                  onClick={handleDropZoneClick}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors font-medium"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                    />
+                  </svg>
+                  Browse Files
+                </button>
+                <span className="text-sm text-gray-400">.zip files only</span>
+              </div>
+            </>
           )}
         </div>
 

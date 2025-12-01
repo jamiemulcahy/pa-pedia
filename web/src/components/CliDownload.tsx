@@ -191,11 +191,11 @@ export function CliDownload({ onClose }: CliDownloadProps) {
         <div className="bg-gray-900/50 rounded-lg p-4 mb-6">
           <h3 className="text-sm font-semibold text-white mb-2">Quick Start</h3>
           <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-            <li>Download and extract the CLI for your platform</li>
+            <li>Download the CLI for your platform</li>
             <li>
               Run:{' '}
               <code className="bg-gray-800 px-1 rounded">
-                pa-pedia extract --faction MLA
+                pa-pedia describe-faction --profile mla
               </code>
             </li>
             <li>Upload the generated zip file here</li>
