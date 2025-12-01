@@ -3,5 +3,6 @@
   "factionUnitType": "Custom1",
   "mods": ["com.pa.legion-expansion-server", "com.pa.legion-expansion-client"],
   "author": "Legion Expansion Team",
-  "description": "The Legion faction - adds a second fully playable faction with unique units"
+  "description": "The Legion faction - adds a second fully playable faction with unique units",
+  "backgroundImage": "ui/mods/com.pa.legion-expansion/img/splash_no_logo.png"
 }

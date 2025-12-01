@@ -3,6 +3,7 @@
   "displayName": "MLA",
   "version": "1.0.0",
   "author": "Uber Entertainment",
-  "description": "PA Titans",
-  "type": "base-game"
+  "description": "The Machine Liberation Army - base game faction from PA Titans",
+  "type": "base-game",
+  "backgroundImage": "assets/ui/splash/splash.png"
 }
