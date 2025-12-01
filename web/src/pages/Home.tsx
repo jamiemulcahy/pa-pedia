@@ -51,7 +51,15 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
   }, [faction.folderName, faction.backgroundImage, faction.isLocal])
 
   // Use the appropriate URL based on faction type
-  const backgroundUrl = faction.isLocal ? localBackgroundUrl : staticBackgroundUrl
+  const rawBackgroundUrl = faction.isLocal ? localBackgroundUrl : staticBackgroundUrl
+
+  // Sanitize URL to prevent XSS - only allow blob:, http:, https:, or relative paths
+  const backgroundUrl = rawBackgroundUrl && (
+    rawBackgroundUrl.startsWith('blob:') ||
+    rawBackgroundUrl.startsWith('http://') ||
+    rawBackgroundUrl.startsWith('https://') ||
+    rawBackgroundUrl.startsWith('/')
+  ) ? rawBackgroundUrl : null
 
   return (
     <div key={faction.folderName} className="relative group h-full">
