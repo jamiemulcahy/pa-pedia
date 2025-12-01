@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/exporter"
 	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
@@ -353,15 +354,17 @@ func showAvailableMods(missingModID string, allMods map[string]*loader.ModInfo) 
 
 // copyBackgroundImage copies the background image from mod sources to faction output.
 // The background image path is a PA resource path (e.g., "/ui/mods/my_mod/img/bg.png").
+// The image is copied to assets/ mirroring the original path structure.
 func copyBackgroundImage(profile *models.FactionProfile, factionDir string, exp *exporter.FactionExporter) error {
 	// No background image specified
 	if profile.BackgroundImage == "" {
 		return nil
 	}
 
-	// Determine destination path (standardized name with original extension)
-	ext := filepath.Ext(profile.BackgroundImage)
-	dstPath := filepath.Join(factionDir, "background"+ext)
+	// Mirror the original path in assets/ folder (consistent with other assets)
+	normalizedPath := filepath.ToSlash(filepath.Clean(profile.BackgroundImage))
+	normalizedPath = strings.TrimPrefix(normalizedPath, "/")
+	dstPath := filepath.Join(factionDir, "assets", normalizedPath)
 
 	// Copy from mod sources using the exporter
 	if err := exp.CopyResourceToFile(profile.BackgroundImage, dstPath); err != nil {

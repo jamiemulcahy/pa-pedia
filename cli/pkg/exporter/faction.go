@@ -691,10 +691,11 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		metadata.Type = "base-game"
 	}
 
-	// Set background image path if provided (just the filename, actual copy happens in describe_faction)
+	// Set background image path if provided (mirrors original path in assets/, actual copy happens in describe_faction)
 	if profile.BackgroundImage != "" {
-		ext := filepath.Ext(profile.BackgroundImage)
-		metadata.BackgroundImage = "background" + ext
+		normalizedPath := filepath.ToSlash(filepath.Clean(profile.BackgroundImage))
+		normalizedPath = strings.TrimPrefix(normalizedPath, "/")
+		metadata.BackgroundImage = "assets/" + normalizedPath
 	}
 
 	return metadata
