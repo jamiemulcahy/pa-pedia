@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { BlueprintModal } from '../BlueprintModal'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { renderWithFactionProvider } from '@/tests/helpers'
-import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockMLAIndex, mockLegionIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
+import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockBugsMetadata, mockMLAIndex, mockLegionIndex, mockBugsIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
 
 function renderModal(props: {
   isOpen: boolean
@@ -32,11 +32,17 @@ function createBlueprintFetchMock(blueprintResponses: Array<() => Promise<Respon
     if (urlString.includes('/factions/Legion/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionMetadata))
     }
+    if (urlString.includes('/factions/Bugs/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockBugsMetadata))
+    }
     if (urlString.includes('/factions/MLA/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockMLAIndex))
     }
     if (urlString.includes('/factions/Legion/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionIndex))
+    }
+    if (urlString.includes('/factions/Bugs/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockBugsIndex))
     }
 
     // Handle blueprint requests in sequence

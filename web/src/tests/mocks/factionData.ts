@@ -41,6 +41,19 @@ export const mockLegionMetadata: FactionMetadataWithLocal = {
   isLocal: false
 }
 
+export const mockBugsMetadata: FactionMetadataWithLocal = {
+  identifier: 'bugs',
+  displayName: 'Bugs',
+  version: '3.0.0',
+  author: 'Bugs Team',
+  description: 'Bugs faction for testing',
+  dateCreated: '2025-01-20',
+  build: '345678',
+  type: 'mod',
+  mods: ['com.pa.bugs'],
+  isLocal: false
+}
+
 /**
  * Mock resolved units (defined before index since index references them)
  */
@@ -400,6 +413,72 @@ export const mockLegionIndex: FactionIndex = {
   ]
 }
 
+export const mockBugsUnit: Unit = {
+  id: 'bug_warrior',
+  resourceName: '/pa/units/bugs/warrior/warrior.json',
+  displayName: 'Bug Warrior',
+  description: 'Basic bugs assault unit',
+  image: 'assets/pa/units/bugs/warrior/bug_warrior_icon_buildbar.png',
+  unitTypes: ['Mobile', 'Land', 'Basic', 'Bot'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 150,
+      weapons: [
+        {
+          resourceName: '/pa/units/bugs/warrior/warrior_weapon.json',
+          safeName: 'claws',
+          name: 'Claws',
+          count: 1,
+          rateOfFire: 2.0,
+          damage: 30,
+          dps: 60,
+          maxRange: 20,
+          targetLayers: ['WL_LandHorizontal']
+        }
+      ]
+    },
+    economy: {
+      buildCost: 100,
+      consumption: {
+        energy: 3
+      }
+    },
+    mobility: {
+      moveSpeed: 15,
+      acceleration: 80,
+      brake: 80,
+      turnSpeed: 200
+    },
+    recon: {
+      visionRadius: 80
+    }
+  },
+  buildRelationships: {
+    builtBy: ['bug_hive'],
+    builds: []
+  }
+}
+
+export const mockBugsIndex: FactionIndex = {
+  units: [
+    {
+      identifier: 'bug_warrior',
+      displayName: 'Bug Warrior',
+      unitTypes: ['Mobile', 'Land', 'Basic', 'Bot'],
+      source: '/pa/units/bugs/warrior/warrior.json',
+      files: [
+        {
+          path: '/pa/units/bugs/warrior/warrior.json',
+          source: 'pa'
+        }
+      ],
+      unit: mockBugsUnit
+    }
+  ]
+}
+
 /**
  * Factory function to create mock fetch responses
  */
@@ -438,6 +517,9 @@ export function setupMockFetch() {
     if (urlString.includes('/factions/Legion/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionMetadata))
     }
+    if (urlString.includes('/factions/Bugs/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockBugsMetadata))
+    }
 
     // Faction indexes (now include embedded units, no need for separate resolved files)
     if (urlString.includes('/factions/MLA/units.json')) {
@@ -445,6 +527,9 @@ export function setupMockFetch() {
     }
     if (urlString.includes('/factions/Legion/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionIndex))
+    }
+    if (urlString.includes('/factions/Bugs/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockBugsIndex))
     }
 
     // Default: return generic JSON for asset requests

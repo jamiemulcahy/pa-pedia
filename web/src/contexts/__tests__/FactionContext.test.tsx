@@ -65,9 +65,10 @@ describe('FactionContext', () => {
         expect(result.current.factionsLoading).toBe(false)
       })
 
-      expect(result.current.factions.size).toBe(2)
+      expect(result.current.factions.size).toBe(3)
       expect(result.current.factions.get('MLA')).toEqual(mockMLAMetadata)
       expect(result.current.factions.get('Legion')).toEqual(mockLegionMetadata)
+      expect(result.current.factions.has('Bugs')).toBe(true)
     })
 
     it('should set error state on failure', async () => {
