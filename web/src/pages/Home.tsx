@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useFactions } from '@/hooks/useFactions'
 import { getFactionBackgroundPath, getLocalFactionBackgroundUrl } from '@/services/factionLoader'
@@ -11,6 +11,7 @@ interface FactionCardProps {
 
 function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
   const [localBackgroundUrl, setLocalBackgroundUrl] = useState<string | null>(null)
+  const blobUrlRef = useRef<string | null>(null)
 
   // For static factions, compute the URL directly (no need for state)
   const staticBackgroundUrl = !faction.isLocal && faction.backgroundImage
@@ -24,13 +25,15 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
     }
 
     let isMounted = true
-    let blobUrl: string | undefined
 
     getLocalFactionBackgroundUrl(faction.folderName, faction.backgroundImage)
       .then(url => {
         if (isMounted && url) {
-          blobUrl = url
+          blobUrlRef.current = url
           setLocalBackgroundUrl(url)
+        } else if (url) {
+          // Component unmounted before we could use the URL, revoke it immediately
+          URL.revokeObjectURL(url)
         }
       })
       .catch(err => {
@@ -40,8 +43,9 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
     return () => {
       isMounted = false
       // Revoke blob URL on cleanup
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl)
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current)
+        blobUrlRef.current = null
       }
     }
   }, [faction.folderName, faction.backgroundImage, faction.isLocal])

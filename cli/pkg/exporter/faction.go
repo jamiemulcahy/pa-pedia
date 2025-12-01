@@ -437,9 +437,10 @@ func (e *FactionExporter) CopyResourceToFile(resourcePath, destPath string) erro
 				continue
 			}
 
-			// Validate and copy from zip
-			if strings.Contains(file.Name, "..") {
-				return fmt.Errorf("invalid path in zip (contains ..): %s", file.Name)
+			// Validate path to prevent path traversal attacks
+			cleanPath := filepath.Clean(file.Name)
+			if strings.HasPrefix(cleanPath, "..") || filepath.IsAbs(cleanPath) {
+				return fmt.Errorf("invalid path in zip (path traversal attempt): %s", file.Name)
 			}
 			if file.UncompressedSize64 > maxFileSize {
 				return fmt.Errorf("file too large: %s (%d bytes)", file.Name, file.UncompressedSize64)
