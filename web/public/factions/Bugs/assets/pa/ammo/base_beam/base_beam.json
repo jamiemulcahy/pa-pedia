@@ -1,0 +1,1 @@
+{"ammo_type":"AMMO_Beam","audio_loop":"/SE/Impacts/laser_blast","fx_beam_spec":"/pa/effects/specs/default_beam.pfx","fx_collision_spec":"/pa/effects/specs/default_proj_explosion.pfx","collision_audio":"/SE/Impacts/laser_blast","damage":0,"recon":{"observable":{"ignore_radar":true}}}

@@ -29,7 +29,8 @@ describe('factionLoader', () => {
       const factions = await discoverFactions()
       expect(factions).toEqual([
         { id: 'MLA', isLocal: false },
-        { id: 'Legion', isLocal: false }
+        { id: 'Legion', isLocal: false },
+        { id: 'Bugs', isLocal: false }
       ])
     })
 
@@ -136,9 +137,10 @@ describe('factionLoader', () => {
   describe('loadAllFactionMetadata', () => {
     it('should load metadata for all factions', async () => {
       const metadataMap = await loadAllFactionMetadata()
-      expect(metadataMap.size).toBe(2)
+      expect(metadataMap.size).toBe(3)
       expect(metadataMap.has('MLA')).toBe(true)
       expect(metadataMap.has('Legion')).toBe(true)
+      expect(metadataMap.has('Bugs')).toBe(true)
     })
 
     it('should map by folder name, not identifier', async () => {
@@ -170,7 +172,7 @@ describe('factionLoader', () => {
 
     it('should call fetch for each faction', async () => {
       await loadAllFactionMetadata()
-      expect(global.fetch).toHaveBeenCalledTimes(2)
+      expect(global.fetch).toHaveBeenCalledTimes(3)
     })
 
     it('should return empty map when all factions are not found (404)', async () => {
