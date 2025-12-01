@@ -1,6 +1,113 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useFactions } from '@/hooks/useFactions'
+import { getFactionBackgroundPath, getLocalFactionBackgroundUrl } from '@/services/factionLoader'
+import type { FactionWithFolder } from '@/types/faction'
+
+interface FactionCardProps {
+  faction: FactionWithFolder
+  onDeleteClick: (factionId: string) => void
+}
+
+function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
+  const [localBackgroundUrl, setLocalBackgroundUrl] = useState<string | null>(null)
+  const blobUrlRef = useRef<string | null>(null)
+
+  // For static factions, compute the URL directly (no need for state)
+  const staticBackgroundUrl = !faction.isLocal && faction.backgroundImage
+    ? getFactionBackgroundPath(faction.folderName, faction.backgroundImage)
+    : null
+
+  // For local factions, load from IndexedDB asynchronously
+  useEffect(() => {
+    if (!faction.isLocal || !faction.backgroundImage) {
+      return
+    }
+
+    let isMounted = true
+
+    getLocalFactionBackgroundUrl(faction.folderName, faction.backgroundImage)
+      .then(url => {
+        if (isMounted && url) {
+          blobUrlRef.current = url
+          setLocalBackgroundUrl(url)
+        } else if (url) {
+          // Component unmounted before we could use the URL, revoke it immediately
+          URL.revokeObjectURL(url)
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load local faction background:', err)
+      })
+
+    return () => {
+      isMounted = false
+      // Revoke blob URL on cleanup
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current)
+        blobUrlRef.current = null
+      }
+    }
+  }, [faction.folderName, faction.backgroundImage, faction.isLocal])
+
+  // Use the appropriate URL based on faction type
+  const rawBackgroundUrl = faction.isLocal ? localBackgroundUrl : staticBackgroundUrl
+
+  // Sanitize URL to prevent XSS - only allow blob:, http:, https:, or relative paths
+  const backgroundUrl = rawBackgroundUrl && (
+    rawBackgroundUrl.startsWith('blob:') ||
+    rawBackgroundUrl.startsWith('http://') ||
+    rawBackgroundUrl.startsWith('https://') ||
+    rawBackgroundUrl.startsWith('/')
+  ) ? rawBackgroundUrl : null
+
+  return (
+    <div key={faction.folderName} className="relative group h-full">
+      <Link
+        to={`/faction/${faction.folderName}`}
+        className="block h-full border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden"
+      >
+        {/* Background image layer */}
+        {backgroundUrl && (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-10"
+            style={{ backgroundImage: `url(${backgroundUrl})` }}
+          />
+        )}
+        {/* Content layer */}
+        <div className="relative z-10 p-6 h-full flex flex-col">
+          <div className="flex items-start justify-between mb-2">
+            <div className="text-3xl font-display font-bold tracking-wide">{faction.displayName}</div>
+            {faction.isLocal && (
+              <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
+                LOCAL
+              </span>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">{faction.description}</div>
+          <div className="text-xs text-muted-foreground font-mono mt-auto">
+            {faction.author && `By ${faction.author} • `}
+            Version {faction.version}
+          </div>
+        </div>
+      </Link>
+      {faction.isLocal && (
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            onDeleteClick(faction.folderName)
+          }}
+          className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+          title="Delete local faction"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      )}
+    </div>
+  )
+}
 
 export function Home() {
   const { factions, loading, error, deleteFaction } = useFactions()
@@ -65,7 +172,7 @@ export function Home() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6 max-w-6xl mx-auto">
           {/* All card */}
           <Link
             to="/faction"
@@ -83,40 +190,11 @@ export function Home() {
             </div>
           </Link>
           {factions.map((faction) => (
-            <div key={faction.folderName} className="relative group h-full">
-              <Link
-                to={`/faction/${faction.folderName}`}
-                className="block h-full p-6 border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 flex flex-col"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="text-3xl font-display font-bold tracking-wide">{faction.displayName}</div>
-                  {faction.isLocal && (
-                    <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
-                      LOCAL
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground mb-2 font-medium flex-grow">{faction.description}</div>
-                <div className="text-xs text-muted-foreground font-mono mt-auto">
-                  {faction.author && `By ${faction.author} • `}
-                  Version {faction.version}
-                </div>
-              </Link>
-              {faction.isLocal && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setDeleteConfirm(faction.folderName)
-                  }}
-                  className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Delete local faction"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              )}
-            </div>
+            <FactionCard
+              key={faction.folderName}
+              faction={faction}
+              onDeleteClick={setDeleteConfirm}
+            />
           ))}
         </div>
       </div>

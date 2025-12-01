@@ -395,7 +395,7 @@ export function FactionDetail() {
             />
           ))
         )}
-      </div>
+    </div>
   )
 
   // Wrap with CurrentFactionProvider only for single faction mode

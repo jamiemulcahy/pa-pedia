@@ -3,6 +3,7 @@ module github.com/jamiemulcahy/pa-pedia
 go 1.24.6
 
 require (
+	github.com/creativeprojects/go-selfupdate v1.5.1
 	github.com/invopop/jsonschema v0.13.0
 	github.com/spf13/cobra v1.10.1
 )
@@ -13,7 +14,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/creativeprojects/go-selfupdate v1.5.1 // indirect
 	github.com/davidmz/go-pageant v1.0.2 // indirect
 	github.com/go-fed/httpsig v1.1.0 // indirect
 	github.com/google/go-github/v30 v30.1.0 // indirect

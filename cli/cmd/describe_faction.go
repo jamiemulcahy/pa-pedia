@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/exporter"
 	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
@@ -330,6 +331,12 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 		return fmt.Errorf("failed to export faction: %w", err)
 	}
 
+	// Copy background image if specified
+	factionDir := filepath.Join(outputDir, exporter.SanitizeFolderName(metadata.DisplayName))
+	if err := copyBackgroundImage(profile, factionDir, exp); err != nil {
+		return fmt.Errorf("failed to copy background image: %w", err)
+	}
+
 	fmt.Println("\n✓ Faction extraction complete!")
 	fmt.Printf("Faction '%s' exported to: %s\n", profile.DisplayName, outputDir)
 	return nil
@@ -343,4 +350,28 @@ func showAvailableMods(missingModID string, allMods map[string]*loader.ModInfo) 
 		fmt.Printf("  - %s (%s)\n", id, info.DisplayName)
 	}
 	fmt.Println()
+}
+
+// copyBackgroundImage copies the background image from mod sources to faction output.
+// The background image path is a PA resource path (e.g., "/ui/mods/my_mod/img/bg.png").
+// The image is copied to assets/ mirroring the original path structure.
+func copyBackgroundImage(profile *models.FactionProfile, factionDir string, exp *exporter.FactionExporter) error {
+	// No background image specified
+	if profile.BackgroundImage == "" {
+		return nil
+	}
+
+	// Mirror the original path in assets/ folder (consistent with other assets)
+	normalizedPath := filepath.ToSlash(filepath.Clean(profile.BackgroundImage))
+	normalizedPath = strings.TrimPrefix(normalizedPath, "/")
+	dstPath := filepath.Join(factionDir, "assets", normalizedPath)
+
+	// Copy from mod sources using the exporter
+	if err := exp.CopyResourceToFile(profile.BackgroundImage, dstPath); err != nil {
+		fmt.Printf("Warning: Could not copy background image: %v\n", err)
+		return nil // Non-fatal - faction can still be exported without background
+	}
+
+	logVerbose("Copied background image: %s -> %s", profile.BackgroundImage, dstPath)
+	return nil
 }

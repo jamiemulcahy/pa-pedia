@@ -24,4 +24,9 @@ type FactionProfile struct {
 
 	// Description provides context about the faction.
 	Description string `json:"description,omitempty" jsonschema:"description=Brief description of the faction"`
+
+	// BackgroundImage is an optional resource path to a background image within the mod sources.
+	// Uses the same path format as other PA resources (e.g., "/ui/mods/my_mod/img/background.png").
+	// The image will be loaded from mod sources and copied to the faction output folder during export.
+	BackgroundImage string `json:"backgroundImage,omitempty" jsonschema:"description=Resource path to background image within mod sources (e.g. /ui/mods/my_mod/img/bg.png)"`
 }

@@ -30,7 +30,7 @@
         },
         "backgroundImage": {
           "type": "string",
-          "description": "Resource path to background image within mod sources (e.g. /ui/mods/my_mod/img/bg.png)"
+          "description": "Path to background image relative to profile file location"
         }
       },
       "additionalProperties": false,

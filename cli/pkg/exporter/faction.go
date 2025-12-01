@@ -31,7 +31,7 @@ func NewFactionExporter(outputDir string, l *loader.Loader, verbose bool) *Facti
 // ExportFaction exports a faction using the new assets structure
 func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units []models.Unit) error {
 	// Create faction folder
-	factionDir := filepath.Join(e.OutputDir, sanitizeFolderName(metadata.DisplayName))
+	factionDir := filepath.Join(e.OutputDir, SanitizeFolderName(metadata.DisplayName))
 
 	if e.Verbose {
 		fmt.Printf("Creating faction folder: %s\n", factionDir)
@@ -418,6 +418,95 @@ func (e *FactionExporter) copyFromFilesystem(srcPath, destPath string) error {
 	return nil
 }
 
+// CopyResourceToFile copies a resource from the loader sources to a destination file.
+// The resourcePath should be a PA resource path (e.g., "/ui/mods/my_mod/img/bg.png").
+// Returns nil if the resource was copied successfully, or an error if not found or copy failed.
+func (e *FactionExporter) CopyResourceToFile(resourcePath, destPath string) error {
+	// Normalize the resource path
+	normalizedPath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(resourcePath)), "/")
+
+	// Search through all sources (first-wins priority)
+	for _, src := range e.Loader.Sources() {
+		if src.IsZip {
+			// Check in zip
+			if src.ZipReader == nil {
+				continue
+			}
+			file, found := src.ZipIndex()[normalizedPath]
+			if !found {
+				continue
+			}
+
+			// Validate path to prevent path traversal attacks
+			cleanPath := filepath.Clean(file.Name)
+			if strings.HasPrefix(cleanPath, "..") || filepath.IsAbs(cleanPath) {
+				return fmt.Errorf("invalid path in zip (path traversal attempt): %s", file.Name)
+			}
+			if file.UncompressedSize64 > maxFileSize {
+				return fmt.Errorf("file too large: %s (%d bytes)", file.Name, file.UncompressedSize64)
+			}
+
+			// Create destination directory
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory: %w", err)
+			}
+
+			// Extract from zip
+			rc, err := file.Open()
+			if err != nil {
+				return fmt.Errorf("failed to open file in zip: %w", err)
+			}
+			defer rc.Close()
+
+			destFile, err := os.Create(destPath)
+			if err != nil {
+				return fmt.Errorf("failed to create destination file: %w", err)
+			}
+			defer destFile.Close()
+
+			// Use LimitReader to prevent decompression bombs
+			limitedReader := io.LimitReader(rc, int64(maxFileSize)+1)
+			n, err := io.Copy(destFile, limitedReader)
+			if err != nil {
+				return fmt.Errorf("failed to copy file from zip: %w", err)
+			}
+			if n > int64(maxFileSize) {
+				os.Remove(destPath)
+				return fmt.Errorf("file exceeded size limit during extraction")
+			}
+
+			if e.Verbose {
+				fmt.Printf("  Copied resource: %s -> %s\n", resourcePath, destPath)
+			}
+			return nil
+		} else {
+			// Check in directory
+			fullPath := filepath.Join(src.Path, normalizedPath)
+			info, err := os.Stat(fullPath)
+			if err != nil || info.IsDir() {
+				continue
+			}
+
+			// Create destination directory
+			if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+				return fmt.Errorf("failed to create destination directory: %w", err)
+			}
+
+			// Copy from filesystem
+			if err := e.copyFromFilesystem(fullPath, destPath); err != nil {
+				return err
+			}
+
+			if e.Verbose {
+				fmt.Printf("  Copied resource: %s -> %s\n", resourcePath, destPath)
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf("resource not found in any source: %s", resourcePath)
+}
+
 // writeMetadata writes the metadata.json file
 func (e *FactionExporter) writeMetadata(factionDir string, metadata models.FactionMetadata) error {
 	metadataPath := filepath.Join(factionDir, "metadata.json")
@@ -475,8 +564,8 @@ func determineUnitSource(resourceName string) string {
 	return "unknown"
 }
 
-// sanitizeFolderName converts a faction name to a valid folder name
-func sanitizeFolderName(name string) string {
+// SanitizeFolderName converts a faction name to a valid folder name
+func SanitizeFolderName(name string) string {
 	// Replace invalid characters with hyphens
 	sanitized := strings.Map(func(r rune) rune {
 		if r == ' ' {
@@ -601,6 +690,13 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		metadata.Mods = profile.Mods
 	} else {
 		metadata.Type = "base-game"
+	}
+
+	// Set background image path if provided (mirrors original path in assets/, actual copy happens in describe_faction)
+	if profile.BackgroundImage != "" {
+		normalizedPath := filepath.ToSlash(filepath.Clean(profile.BackgroundImage))
+		normalizedPath = strings.TrimPrefix(normalizedPath, "/")
+		metadata.BackgroundImage = "assets/" + normalizedPath
 	}
 
 	return metadata

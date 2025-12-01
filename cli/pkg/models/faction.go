@@ -9,8 +9,9 @@ type FactionMetadata struct {
 	Description string   `json:"description,omitempty" jsonschema:"description=Brief description of the faction"`
 	DateCreated string   `json:"dateCreated,omitempty" jsonschema:"description=ISO 8601 date when faction was created (YYYY-MM-DD)"`
 	Build       string   `json:"build,omitempty" jsonschema:"description=PA game build number this faction targets"`
-	Type        string   `json:"type" jsonschema:"required,enum=base-game,enum=mod,description=Type of faction (base-game or mod)"`
-	Mods        []string `json:"mods,omitempty" jsonschema:"description=List of mod identifiers that compose this faction"`
+	Type            string   `json:"type" jsonschema:"required,enum=base-game,enum=mod,description=Type of faction (base-game or mod)"`
+	Mods            []string `json:"mods,omitempty" jsonschema:"description=List of mod identifiers that compose this faction"`
+	BackgroundImage string   `json:"backgroundImage,omitempty" jsonschema:"description=Path to faction background image relative to faction folder root"`
 }
 
 // FactionDatabase represents the units.json file for a faction folder

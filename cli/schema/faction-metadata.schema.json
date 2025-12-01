@@ -47,6 +47,10 @@
           },
           "type": "array",
           "description": "List of mod identifiers that compose this faction"
+        },
+        "backgroundImage": {
+          "type": "string",
+          "description": "Path to faction background image relative to faction folder root"
         }
       },
       "additionalProperties": false,
