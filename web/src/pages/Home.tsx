@@ -70,7 +70,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
         {/* Background image layer */}
         {backgroundUrl && (
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-10"
+            className="absolute inset-0 bg-cover bg-center opacity-30"
             style={{ backgroundImage: `url(${backgroundUrl})` }}
           />
         )}
