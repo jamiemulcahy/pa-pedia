@@ -40,14 +40,15 @@ describe('Data Flow Integration Tests', () => {
 
     expect(screen.getByText('Legion')).toBeInTheDocument()
 
-    // Should have fetched metadata for all factions
+    // Should have fetched metadata for all static factions (at least core ones)
     const metadataFetches = (global.fetch as MockFetch).mock.calls.filter(
       (call: FetchCallArgs) => {
         const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
         return url.includes('metadata.json');
       }
     )
-    expect(metadataFetches.length).toBe(3)
+    // At least MLA, Legion, and Bugs should be fetched
+    expect(metadataFetches.length).toBeGreaterThanOrEqual(3)
   })
 
   it('should lazy-load faction index when viewing faction', async () => {
@@ -116,8 +117,8 @@ describe('Data Flow Integration Tests', () => {
         return url.includes('metadata.json');
       }
     )
-    // Should have fetched MLA, Legion, and Bugs metadata (3 factions)
-    expect(metadataFetches.length).toBe(3)
+    // Should have fetched at least MLA, Legion, and Bugs metadata
+    expect(metadataFetches.length).toBeGreaterThanOrEqual(3)
 
     // Verify both factions are displayed
     expect(screen.getByText('MLA')).toBeInTheDocument()

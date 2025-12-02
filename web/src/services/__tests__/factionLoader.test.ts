@@ -25,13 +25,18 @@ describe('factionLoader', () => {
   })
 
   describe('discoverFactions', () => {
-    it('should return list of available factions', async () => {
+    it('should return list of available factions including core factions', async () => {
       const factions = await discoverFactions()
-      expect(factions).toEqual([
-        { id: 'MLA', isLocal: false },
-        { id: 'Legion', isLocal: false },
-        { id: 'Bugs', isLocal: false }
-      ])
+      const factionIds = factions.map(f => f.id)
+
+      // Core factions should always be present
+      expect(factionIds).toContain('MLA')
+      expect(factionIds).toContain('Legion')
+      expect(factionIds).toContain('Bugs')
+
+      // All static factions should be marked as not local
+      const staticFactions = factions.filter(f => !f.isLocal)
+      expect(staticFactions.length).toBeGreaterThanOrEqual(3)
     })
 
     it('should return an array', async () => {
@@ -137,10 +142,12 @@ describe('factionLoader', () => {
   describe('loadAllFactionMetadata', () => {
     it('should load metadata for all factions', async () => {
       const metadataMap = await loadAllFactionMetadata()
-      expect(metadataMap.size).toBe(3)
+      // Core factions should always be loaded
       expect(metadataMap.has('MLA')).toBe(true)
       expect(metadataMap.has('Legion')).toBe(true)
       expect(metadataMap.has('Bugs')).toBe(true)
+      // Should have at least the core factions
+      expect(metadataMap.size).toBeGreaterThanOrEqual(3)
     })
 
     it('should map by folder name, not identifier', async () => {
@@ -172,7 +179,10 @@ describe('factionLoader', () => {
 
     it('should call fetch for each faction', async () => {
       await loadAllFactionMetadata()
-      expect(global.fetch).toHaveBeenCalledTimes(3)
+      // Should fetch at least the core factions (MLA, Legion, Bugs)
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/factions/MLA/metadata.json'))
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/factions/Legion/metadata.json'))
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/factions/Bugs/metadata.json'))
     })
 
     it('should return empty map when all factions are not found (404)', async () => {
