@@ -54,6 +54,19 @@ export const mockBugsMetadata: FactionMetadataWithLocal = {
   isLocal: false
 }
 
+export const mockExilesMetadata: FactionMetadataWithLocal = {
+  identifier: 'exiles',
+  displayName: 'Exiles',
+  version: '1.0.0',
+  author: 'Nik',
+  description: 'Exiles faction for testing',
+  dateCreated: '2025-01-25',
+  build: '456789',
+  type: 'mod',
+  mods: ['com.pa.nik.exiles'],
+  isLocal: false
+}
+
 /**
  * Mock resolved units (defined before index since index references them)
  */
@@ -479,6 +492,24 @@ export const mockBugsIndex: FactionIndex = {
   ]
 }
 
+export const mockExilesIndex: FactionIndex = {
+  units: [
+    {
+      identifier: 'exile_tank',
+      displayName: 'Exile Tank',
+      unitTypes: ['Mobile', 'Land', 'Basic', 'Tank'],
+      source: '/pa/units/exiles/tank/tank.json',
+      files: [
+        {
+          path: '/pa/units/exiles/tank/tank.json',
+          source: 'mod'
+        }
+      ],
+      unit: mockTankUnit
+    }
+  ]
+}
+
 /**
  * Factory function to create mock fetch responses
  */
@@ -520,6 +551,9 @@ export function setupMockFetch() {
     if (urlString.includes('/factions/Bugs/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockBugsMetadata))
     }
+    if (urlString.includes('/factions/Exiles/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockExilesMetadata))
+    }
 
     // Faction indexes (now include embedded units, no need for separate resolved files)
     if (urlString.includes('/factions/MLA/units.json')) {
@@ -530,6 +564,9 @@ export function setupMockFetch() {
     }
     if (urlString.includes('/factions/Bugs/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockBugsIndex))
+    }
+    if (urlString.includes('/factions/Exiles/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockExilesIndex))
     }
 
     // Default: return generic JSON for asset requests

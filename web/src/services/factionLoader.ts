@@ -18,7 +18,7 @@ export interface FactionDiscoveryEntry {
  * Includes both static factions and local (user-uploaded) factions
  */
 export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
-  const staticFactions: FactionDiscoveryEntry[] = ['MLA', 'Legion', 'Bugs'].map(id => ({
+  const staticFactions: FactionDiscoveryEntry[] = ['MLA', 'Legion', 'Bugs', 'Exiles'].map(id => ({
     id,
     isLocal: false,
   }))
