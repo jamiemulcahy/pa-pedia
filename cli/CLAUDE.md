@@ -160,16 +160,28 @@ Add JSON files to `./profiles/` directory.
 - Local profiles override built-in profiles with the same ID
 - Only `.json` files are loaded; directories are ignored
 
+**Metadata Auto-Detection**:
+For modded factions, metadata is automatically extracted from the primary mod's `modinfo.json`:
+- `version` - Mod version (e.g., "1.2.3")
+- `author` - Mod author
+- `description` - Mod description
+- `dateCreated` - From mod's `date` field
+- `build` - Target PA build number
+
+Profile values override auto-detected values when specified. Base game factions (no mods) must specify metadata in the profile.
+
 **Profile schema** (`profiles/queller.json`):
 ```json
 {
   "displayName": "Queller AI",
   "factionUnitType": "Custom3",
   "mods": ["com.pa.queller.server", "com.pa.queller.client"],
-  "author": "Queller Team",
-  "description": "Advanced AI faction with unique macro mechanics"
+  "backgroundImage": "ui/mods/queller/img/splash.png"
 }
 ```
+
+Optional override fields (auto-detected from primary mod if not specified):
+- `author`, `description`, `version`, `dateCreated`, `build`
 
 **Required fields**: `displayName`, `factionUnitType`
 
