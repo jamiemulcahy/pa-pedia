@@ -280,7 +280,8 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
           className="modal-content flex-1 overflow-auto p-4 relative min-h-0"
           style={{
             scrollbarWidth: 'thin',
-            scrollbarColor: isDarkMode ? '#4b5563 #1f2937' : '#9ca3af #e5e7eb'
+            scrollbarColor: isDarkMode ? '#4b5563 #1f2937' : '#9ca3af #e5e7eb',
+            overscrollBehavior: 'contain'
           }}
         >
           {loading && (
