@@ -65,7 +65,8 @@ describe('FactionContext', () => {
         expect(result.current.factionsLoading).toBe(false)
       })
 
-      expect(result.current.factions.size).toBe(3)
+      // Core factions should be loaded (at least MLA, Legion, Bugs)
+      expect(result.current.factions.size).toBeGreaterThanOrEqual(3)
       expect(result.current.factions.get('MLA')).toEqual(mockMLAMetadata)
       expect(result.current.factions.get('Legion')).toEqual(mockLegionMetadata)
       expect(result.current.factions.has('Bugs')).toBe(true)

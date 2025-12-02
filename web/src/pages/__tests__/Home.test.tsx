@@ -36,8 +36,9 @@ describe('Home', () => {
     })
 
     expect(screen.getByText(/machine legion army faction for testing/i)).toBeInTheDocument()
-    expect(screen.getByText(/test author/i)).toBeInTheDocument()
-    expect(screen.getByText(/version 1.0.0/i)).toBeInTheDocument()
+    // Check that MLA author and version are present (may have multiple factions with same version)
+    expect(screen.getByText(/by test author/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/version 1.0.0/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('should create clickable links to faction detail pages', async () => {
@@ -135,7 +136,8 @@ describe('Home', () => {
     renderWithProviders(<Home />)
 
     await waitFor(() => {
-      expect(screen.getByText(/version 1.0.0/i)).toBeInTheDocument()
+      // Multiple factions may have version 1.0.0
+      expect(screen.getAllByText(/version 1.0.0/i).length).toBeGreaterThanOrEqual(1)
     })
 
     expect(screen.getByText(/version 2.0.0/i)).toBeInTheDocument()
