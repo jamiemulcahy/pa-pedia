@@ -22,11 +22,23 @@
         },
         "author": {
           "type": "string",
-          "description": "Faction or profile author"
+          "description": "Faction or profile author (auto-detected from primary mod if not specified)"
         },
         "description": {
           "type": "string",
-          "description": "Brief description of the faction"
+          "description": "Brief description of the faction (auto-detected from primary mod if not specified)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version (auto-detected from primary mod if not specified)"
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "ISO 8601 date (auto-detected from primary mod if not specified)"
+        },
+        "build": {
+          "type": "string",
+          "description": "PA game build number (auto-detected from primary mod if not specified)"
         },
         "backgroundImage": {
           "type": "string",

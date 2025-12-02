@@ -20,10 +20,25 @@ type FactionProfile struct {
 	Mods []string `json:"mods,omitempty" jsonschema:"description=Mod identifiers that layer on base game in priority order (empty for base game only)"`
 
 	// Author credit for the faction/profile.
-	Author string `json:"author,omitempty" jsonschema:"description=Faction or profile author"`
+	// For modded factions, auto-detected from primary mod's modinfo.json if not specified.
+	Author string `json:"author,omitempty" jsonschema:"description=Faction or profile author (auto-detected from primary mod if not specified)"`
 
 	// Description provides context about the faction.
-	Description string `json:"description,omitempty" jsonschema:"description=Brief description of the faction"`
+	// For modded factions, auto-detected from primary mod's modinfo.json if not specified.
+	Description string `json:"description,omitempty" jsonschema:"description=Brief description of the faction (auto-detected from primary mod if not specified)"`
+
+	// Version is the semantic version for this faction export.
+	// For modded factions, auto-detected from primary mod's modinfo.json if not specified.
+	// Defaults to "1.0.0" if not specified and no mod version is available.
+	Version string `json:"version,omitempty" jsonschema:"description=Semantic version (auto-detected from primary mod if not specified)"`
+
+	// DateCreated is the ISO 8601 date (YYYY-MM-DD) when the faction was created.
+	// For modded factions, auto-detected from primary mod's modinfo.json date field if not specified.
+	DateCreated string `json:"dateCreated,omitempty" jsonschema:"description=ISO 8601 date (auto-detected from primary mod if not specified)"`
+
+	// Build is the PA game build number this faction targets.
+	// For modded factions, auto-detected from primary mod's modinfo.json if not specified.
+	Build string `json:"build,omitempty" jsonschema:"description=PA game build number (auto-detected from primary mod if not specified)"`
 
 	// BackgroundImage is an optional resource path to a background image within the mod sources.
 	// Uses the same path format as other PA resources (e.g., "/ui/mods/my_mod/img/background.png").

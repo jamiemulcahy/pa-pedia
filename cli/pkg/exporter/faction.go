@@ -656,32 +656,59 @@ func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mo
 
 // CreateMetadataFromProfile creates faction metadata from a profile and optional resolved mods.
 // This is the unified way to create metadata for both base-game and modded factions.
+//
+// For modded factions, metadata is auto-detected from the primary mod (first in the list)
+// with profile values taking precedence when specified. This allows mod metadata from
+// modinfo.json to be used as defaults while still allowing profile overrides.
+//
+// Priority: Profile values > Primary mod values > Defaults
 func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*loader.ModInfo) models.FactionMetadata {
 	metadata := models.FactionMetadata{
 		Identifier:  profile.ID,
 		DisplayName: profile.DisplayName,
-		Version:     "1.0.0",
 	}
 
-	// Use profile author if provided, otherwise collect from mods
+	// Get primary mod for auto-detection (first mod in the list has highest priority)
+	var primaryMod *loader.ModInfo
+	if len(resolvedMods) > 0 {
+		primaryMod = resolvedMods[0]
+	}
+
+	// Version: profile > primary mod > default "1.0.0"
+	if profile.Version != "" {
+		metadata.Version = profile.Version
+	} else if primaryMod != nil && primaryMod.Version != "" {
+		metadata.Version = primaryMod.Version
+	} else {
+		metadata.Version = "1.0.0"
+	}
+
+	// Author: profile > primary mod > empty
 	if profile.Author != "" {
 		metadata.Author = profile.Author
-	} else if len(resolvedMods) > 0 {
-		// Collect unique authors from mods
-		authors := make([]string, 0, len(resolvedMods))
-		seenAuthors := make(map[string]bool)
-		for _, mod := range resolvedMods {
-			if mod.Author != "" && !seenAuthors[mod.Author] {
-				authors = append(authors, mod.Author)
-				seenAuthors[mod.Author] = true
-			}
-		}
-		metadata.Author = strings.Join(authors, ", ")
+	} else if primaryMod != nil && primaryMod.Author != "" {
+		metadata.Author = primaryMod.Author
 	}
 
-	// Use profile description if provided
+	// Description: profile > primary mod > empty
 	if profile.Description != "" {
 		metadata.Description = profile.Description
+	} else if primaryMod != nil && primaryMod.Description != "" {
+		metadata.Description = primaryMod.Description
+	}
+
+	// DateCreated: profile > primary mod > empty
+	if profile.DateCreated != "" {
+		metadata.DateCreated = profile.DateCreated
+	} else if primaryMod != nil && primaryMod.Date != "" {
+		metadata.DateCreated = primaryMod.Date
+	}
+
+	// Build: profile > primary mod > empty
+	if profile.Build != "" {
+		metadata.Build = profile.Build
+	} else if primaryMod != nil && primaryMod.Build != "" {
+		metadata.Build = primaryMod.Build
 	}
 
 	// Set type based on whether mods are involved
