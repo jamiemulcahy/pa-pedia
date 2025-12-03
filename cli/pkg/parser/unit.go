@@ -163,6 +163,11 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 	// Parse spawn layers
 	parseSpawnLayers(data, unit)
 
+	// Parse spawn unit on death (unit-level)
+	if spawnUnit := loader.GetString(data, "spawn_unit_on_death", ""); spawnUnit != "" {
+		unit.Specs.Special.SpawnUnitOnDeath = spawnUnit
+	}
+
 	// Parse recon
 	parseRecon(data, unit)
 
@@ -211,20 +216,7 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 		}
 
 		if isWeapon || isDeathWeapon {
-			weapon, err := ParseWeapon(l, specID, nil)
-			if err == nil {
-				weapon.Count = count
-				weapon.DeathExplosion = isDeathWeapon
-
-				// Handle projectiles_per_fire override
-				if ppf, ok := tool["projectiles_per_fire"]; ok {
-					if ppfInt, ok := ppf.(float64); ok {
-						weapon.ProjectilesPerFire = int(ppfInt)
-						// Recalculate DPS with new projectiles_per_fire
-						weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
-					}
-				}
-
+			if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
 				unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 			}
 		} else if isBuildArm {
@@ -234,29 +226,70 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 				unit.Specs.Economy.BuildArms = append(unit.Specs.Economy.BuildArms, *buildArm)
 			}
 		} else {
-			// Check tool_type in the actual tool spec
-			toolSpec, err := l.GetJSON(specID)
-			if err == nil {
-				toolType := loader.GetString(toolSpec, "tool_type", "")
-				if toolType == "TOOL_Weapon" {
-					weapon, err := ParseWeapon(l, specID, nil)
-					if err == nil {
-						weapon.Count = count
-						weapon.DeathExplosion = isDeathWeapon
-						if ppf, ok := tool["projectiles_per_fire"]; ok {
-							if ppfInt, ok := ppf.(float64); ok {
-								weapon.ProjectilesPerFire = int(ppfInt)
-								weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
-							}
-						}
-						unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
-					}
+			// Check tool_type in the actual tool spec (following base_spec inheritance)
+			toolType := getToolType(l, specID)
+			if toolType == "TOOL_Weapon" {
+				if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
+					unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 				}
 			}
 		}
 	}
 
 	return nil
+}
+
+// parseWeaponWithOverrides parses a weapon and applies tool-level overrides
+func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]interface{}, count int, isDeathWeapon bool) *models.Weapon {
+	weapon, err := ParseWeapon(l, specID, nil)
+	if err != nil {
+		return nil
+	}
+
+	weapon.Count = count
+	weapon.DeathExplosion = isDeathWeapon
+
+	// Handle projectiles_per_fire override from unit's tool definition
+	if ppf, ok := tool["projectiles_per_fire"]; ok {
+		if ppfInt, ok := ppf.(float64); ok {
+			weapon.ProjectilesPerFire = int(ppfInt)
+			// Recalculate DPS with new projectiles_per_fire
+			weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+		}
+	}
+
+	return weapon
+}
+
+// getToolType returns the tool_type for a spec, following base_spec inheritance
+func getToolType(l *loader.Loader, specID string) string {
+	visited := make(map[string]bool)
+	return getToolTypeRecursive(l, specID, visited)
+}
+
+func getToolTypeRecursive(l *loader.Loader, specID string, visited map[string]bool) string {
+	// Prevent infinite loops
+	if visited[specID] {
+		return ""
+	}
+	visited[specID] = true
+
+	toolSpec, err := l.GetJSON(specID)
+	if err != nil {
+		return ""
+	}
+
+	// Check if this spec has tool_type directly
+	if toolType := loader.GetString(toolSpec, "tool_type", ""); toolType != "" {
+		return toolType
+	}
+
+	// Follow base_spec if present
+	if baseSpec := loader.GetString(toolSpec, "base_spec", ""); baseSpec != "" {
+		return getToolTypeRecursive(l, baseSpec, visited)
+	}
+
+	return ""
 }
 
 // extractToolName extracts the tool name from a resource path

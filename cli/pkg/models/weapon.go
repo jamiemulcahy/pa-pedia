@@ -56,17 +56,19 @@ type Weapon struct {
 
 // Ammo represents detailed projectile specifications
 type Ammo struct {
-	ResourceName     string  `json:"resourceName" jsonschema:"required,description=Full PA resource path to ammo JSON"`
-	SafeName         string  `json:"safeName" jsonschema:"required,description=Short identifier for ammo"`
-	Name             string  `json:"name,omitempty" jsonschema:"description=Human-readable ammo name"`
-	Damage           float64 `json:"damage,omitempty" jsonschema:"description=Direct hit damage"`
-	FullDamageRadius float64 `json:"fullDamageRadius,omitempty" jsonschema:"description=Radius where full damage applies"`
-	SplashDamage     float64 `json:"splashDamage,omitempty" jsonschema:"description=Area of effect damage"`
-	SplashRadius     float64 `json:"splashRadius,omitempty" jsonschema:"description=Splash damage radius"`
-	MuzzleVelocity   float64 `json:"muzzleVelocity,omitempty" jsonschema:"description=Initial velocity"`
-	MaxVelocity      float64 `json:"maxVelocity,omitempty" jsonschema:"description=Maximum velocity (for guided projectiles)"`
-	Lifetime         float64 `json:"lifetime,omitempty" jsonschema:"description=Projectile lifetime in seconds"`
-	MetalCost        float64 `json:"metalCost,omitempty" jsonschema:"description=Metal cost per projectile"`
+	ResourceName                 string  `json:"resourceName" jsonschema:"required,description=Full PA resource path to ammo JSON"`
+	SafeName                     string  `json:"safeName" jsonschema:"required,description=Short identifier for ammo"`
+	Name                         string  `json:"name,omitempty" jsonschema:"description=Human-readable ammo name"`
+	Damage                       float64 `json:"damage,omitempty" jsonschema:"description=Direct hit damage"`
+	FullDamageRadius             float64 `json:"fullDamageRadius,omitempty" jsonschema:"description=Radius where full damage applies"`
+	SplashDamage                 float64 `json:"splashDamage,omitempty" jsonschema:"description=Area of effect damage"`
+	SplashRadius                 float64 `json:"splashRadius,omitempty" jsonschema:"description=Splash damage radius"`
+	MuzzleVelocity               float64 `json:"muzzleVelocity,omitempty" jsonschema:"description=Initial velocity"`
+	MaxVelocity                  float64 `json:"maxVelocity,omitempty" jsonschema:"description=Maximum velocity (for guided projectiles)"`
+	Lifetime                     float64 `json:"lifetime,omitempty" jsonschema:"description=Projectile lifetime in seconds"`
+	MetalCost                    float64 `json:"metalCost,omitempty" jsonschema:"description=Metal cost per projectile"`
+	SpawnUnitOnDeath             string  `json:"spawnUnitOnDeath,omitempty" jsonschema:"description=PA resource path of unit spawned when projectile ends"`
+	SpawnUnitOnDeathWithVelocity bool    `json:"spawnUnitOnDeathWithVelocity,omitempty" jsonschema:"description=Whether spawned unit inherits projectile velocity"`
 }
 
 // BuildArm represents a construction tool
