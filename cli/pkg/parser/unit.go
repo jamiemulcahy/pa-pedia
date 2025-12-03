@@ -216,20 +216,7 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 		}
 
 		if isWeapon || isDeathWeapon {
-			weapon, err := ParseWeapon(l, specID, nil)
-			if err == nil {
-				weapon.Count = count
-				weapon.DeathExplosion = isDeathWeapon
-
-				// Handle projectiles_per_fire override
-				if ppf, ok := tool["projectiles_per_fire"]; ok {
-					if ppfInt, ok := ppf.(float64); ok {
-						weapon.ProjectilesPerFire = int(ppfInt)
-						// Recalculate DPS with new projectiles_per_fire
-						weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
-					}
-				}
-
+			if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
 				unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 			}
 		} else if isBuildArm {
@@ -242,16 +229,7 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 			// Check tool_type in the actual tool spec (following base_spec inheritance)
 			toolType := getToolType(l, specID)
 			if toolType == "TOOL_Weapon" {
-				weapon, err := ParseWeapon(l, specID, nil)
-				if err == nil {
-					weapon.Count = count
-					weapon.DeathExplosion = isDeathWeapon
-					if ppf, ok := tool["projectiles_per_fire"]; ok {
-						if ppfInt, ok := ppf.(float64); ok {
-							weapon.ProjectilesPerFire = int(ppfInt)
-							weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
-						}
-					}
+				if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
 					unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 				}
 			}
@@ -259,6 +237,28 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 	}
 
 	return nil
+}
+
+// parseWeaponWithOverrides parses a weapon and applies tool-level overrides
+func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]interface{}, count int, isDeathWeapon bool) *models.Weapon {
+	weapon, err := ParseWeapon(l, specID, nil)
+	if err != nil {
+		return nil
+	}
+
+	weapon.Count = count
+	weapon.DeathExplosion = isDeathWeapon
+
+	// Handle projectiles_per_fire override from unit's tool definition
+	if ppf, ok := tool["projectiles_per_fire"]; ok {
+		if ppfInt, ok := ppf.(float64); ok {
+			weapon.ProjectilesPerFire = int(ppfInt)
+			// Recalculate DPS with new projectiles_per_fire
+			weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+		}
+	}
+
+	return weapon
 }
 
 // getToolType returns the tool_type for a spec, following base_spec inheritance

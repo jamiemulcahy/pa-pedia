@@ -35,6 +35,8 @@ export const SpawnUnitLink: React.FC<SpawnUnitLinkProps> = ({
   const { units } = useFaction(factionId);
 
   // Look up unit by resourceName (handles collision cases where identifier differs from filename)
+  // Example: "/pa/units/air/l_air_bomb/triggered/l_air_bomb.json" has identifier "triggered"
+  // because "l_air_bomb" was already taken by "/pa/units/air/l_air_bomb/l_air_bomb.json"
   const unitEntry = units?.find(u => u.unit.resourceName === resourcePath);
 
   const velocityNote = withVelocity ? ' (inherits velocity)' : '';
