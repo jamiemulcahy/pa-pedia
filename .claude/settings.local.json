@@ -23,7 +23,8 @@
       "Bash(git pull:*)",
       "Bash(npm run lint)",
       "Bash(gh release:*)",
-      "Bash(./build-and-run.bat)"
+      "Bash(./build-and-run.bat)",
+      "Bash(gh issue view:*)"
     ],
     "deny": [],
     "ask": []

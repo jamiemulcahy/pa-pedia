@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import Select from 'react-select'
 import { useFactionContext } from '@/contexts/FactionContext'
 import { selectStyles, type SelectOption } from './selectStyles'
+import { findBestMatchingUnit } from '@/utils/unitMatcher'
 
 interface FactionOption extends SelectOption {
   isLocal: boolean
@@ -13,9 +14,11 @@ interface BreadcrumbNavProps {
   unitId?: string
   /** Optional callback for custom navigation (used in comparison mode) */
   onUnitChange?: (factionId: string, unitId: string) => void
+  /** Source unit types for auto-matching when faction changes (comparison mode) */
+  sourceUnitTypes?: string[]
 }
 
-export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNavProps) {
+export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes }: BreadcrumbNavProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { factions, getFactionIndex, loadFaction } = useFactionContext()
@@ -69,6 +72,17 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange }: BreadcrumbNav
       setIsLoadingFaction(true)
       try {
         await loadFaction(option.value)
+
+        // Auto-match unit if in comparison mode with source types
+        if (sourceUnitTypes && onUnitChange) {
+          const factionIndex = getFactionIndex(option.value)
+          if (factionIndex) {
+            const match = findBestMatchingUnit(sourceUnitTypes, factionIndex.units)
+            if (match) {
+              onUnitChange(option.value, match.identifier)
+            }
+          }
+        }
       } catch (error) {
         console.error('Failed to load faction:', error)
       } finally {
