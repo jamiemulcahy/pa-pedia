@@ -83,6 +83,9 @@ func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty b
 		return fmt.Errorf("failed to build build tree: %w", err)
 	}
 
+	// Discover and add spawned units (units referenced by spawn_unit_on_death)
+	db.discoverSpawnedUnits(verbose)
+
 	// Apply corrections
 	db.applyCorrections()
 
@@ -227,6 +230,111 @@ func (db *Database) setAccessible(unit *models.Unit) {
 		if builtUnit, ok := db.Units[buildableID]; ok {
 			db.setAccessible(builtUnit)
 		}
+	}
+}
+
+// discoverSpawnedUnits finds and adds units referenced by spawn_unit_on_death fields
+// This includes both unit-level spawns (when a unit dies) and ammo-level spawns (when projectiles hit/expire)
+// Uses a queue-based approach to handle recursive spawns (unit A spawns B, B spawns C)
+func (db *Database) discoverSpawnedUnits(verbose bool) {
+	// Collect all spawn unit resource paths from existing units
+	spawnQueue := make([]string, 0)
+	visited := make(map[string]bool)
+
+	// Mark all existing units as visited
+	for _, unit := range db.Units {
+		visited[unit.ResourceName] = true
+	}
+
+	// Collect initial spawn references from all units
+	for _, unit := range db.Units {
+		// Unit-level spawn
+		if unit.Specs.Special != nil && unit.Specs.Special.SpawnUnitOnDeath != "" {
+			path := unit.Specs.Special.SpawnUnitOnDeath
+			if !visited[path] {
+				spawnQueue = append(spawnQueue, path)
+				visited[path] = true
+			}
+		}
+
+		// Ammo-level spawns from weapons
+		if unit.Specs.Combat != nil {
+			for _, weapon := range unit.Specs.Combat.Weapons {
+				if weapon.Ammo != nil && weapon.Ammo.SpawnUnitOnDeath != "" {
+					path := weapon.Ammo.SpawnUnitOnDeath
+					if !visited[path] {
+						spawnQueue = append(spawnQueue, path)
+						visited[path] = true
+					}
+				}
+			}
+		}
+	}
+
+	if len(spawnQueue) == 0 {
+		if verbose {
+			fmt.Printf("  No spawned units to discover\n")
+		}
+		return
+	}
+
+	if verbose {
+		fmt.Printf("  Discovering spawned units (%d initial references)...\n", len(spawnQueue))
+	}
+
+	// Process queue - parse each spawned unit and check for further spawns
+	addedCount := 0
+	for len(spawnQueue) > 0 {
+		// Dequeue
+		resourcePath := spawnQueue[0]
+		spawnQueue = spawnQueue[1:]
+
+		// Parse the spawned unit
+		unit, err := ParseUnit(db.Loader, resourcePath, nil)
+		if err != nil {
+			if verbose {
+				fmt.Printf("    Warning: failed to parse spawned unit %s: %v\n", resourcePath, err)
+			}
+			continue
+		}
+
+		// Skip base templates
+		if unit.BaseTemplate {
+			continue
+		}
+
+		// Add to database (spawned units are not accessible via build tree)
+		db.Units[unit.ID] = unit
+		addedCount++
+
+		if verbose {
+			fmt.Printf("    Added spawned unit: %s (%s)\n", unit.DisplayName, unit.ID)
+		}
+
+		// Check this unit for further spawn references
+		if unit.Specs.Special != nil && unit.Specs.Special.SpawnUnitOnDeath != "" {
+			path := unit.Specs.Special.SpawnUnitOnDeath
+			if !visited[path] {
+				spawnQueue = append(spawnQueue, path)
+				visited[path] = true
+			}
+		}
+
+		if unit.Specs.Combat != nil {
+			for _, weapon := range unit.Specs.Combat.Weapons {
+				if weapon.Ammo != nil && weapon.Ammo.SpawnUnitOnDeath != "" {
+					path := weapon.Ammo.SpawnUnitOnDeath
+					if !visited[path] {
+						spawnQueue = append(spawnQueue, path)
+						visited[path] = true
+					}
+				}
+			}
+		}
+	}
+
+	if verbose {
+		fmt.Printf("  Added %d spawned units\n", addedCount)
 	}
 }
 

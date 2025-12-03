@@ -2,13 +2,20 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
+import { SpawnUnitLink } from './SpawnUnitLink';
+import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import type { Ammo } from '@/types/faction';
 
 interface AmmoSectionProps {
   ammo: Ammo;
+  /** Optional faction ID override (used for comparison mode) */
+  factionId?: string;
 }
 
-export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo }) => {
+export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId: propFactionId }) => {
+  const { factionId: contextFactionId } = useCurrentFaction();
+  const factionId = propFactionId || contextFactionId;
+
   return (
     <StatSection title="Ammo">
       <div className="py-1">
@@ -37,6 +44,18 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo }) => {
       )}
       <StatRow label="Collision check" value="enemies" />
       <StatRow label="Collision response" value="impact" />
+      {ammo.spawnUnitOnDeath && (
+        <StatRow
+          label="Spawns on death"
+          value={
+            <SpawnUnitLink
+              resourcePath={ammo.spawnUnitOnDeath}
+              withVelocity={ammo.spawnUnitOnDeathWithVelocity}
+              factionId={factionId}
+            />
+          }
+        />
+      )}
     </StatSection>
   );
 };

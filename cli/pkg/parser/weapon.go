@@ -213,6 +213,10 @@ func ParseAmmo(l *loader.Loader, resourceName string, baseAmmo *models.Ammo) (*m
 	ammo.Lifetime = loader.GetFloat(data, "lifetime", ammo.Lifetime)
 	ammo.MetalCost = loader.GetFloat(data, "build_metal_cost", ammo.MetalCost)
 
+	// Parse spawn unit on death (ammo-level)
+	ammo.SpawnUnitOnDeath = loader.GetString(data, "spawn_unit_on_death", ammo.SpawnUnitOnDeath)
+	ammo.SpawnUnitOnDeathWithVelocity = loader.GetBool(data, "spawn_unit_on_death_with_velocity", ammo.SpawnUnitOnDeathWithVelocity)
+
 	return ammo, nil
 }
 

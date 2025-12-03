@@ -51,6 +51,8 @@ export interface Ammo {
   maxVelocity?: number;
   lifetime?: number;
   metalCost?: number;
+  spawnUnitOnDeath?: string;
+  spawnUnitOnDeathWithVelocity?: boolean;
 }
 
 export interface Weapon {
@@ -147,6 +149,7 @@ export interface SpecialSpecs {
   spawnLayers?: string[];
   amphibious?: boolean;
   hover?: boolean;
+  spawnUnitOnDeath?: string;
 }
 
 export interface UnitSpecs {

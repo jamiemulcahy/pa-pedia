@@ -279,7 +279,7 @@ export function UnitDetail() {
                         weapon2 ? (
                           <div className="space-y-6">
                             <WeaponSection weapon={weapon2} />
-                            {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} />}
+                            {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} factionId={compareFactionId || factionId} />}
                           </div>
                         ) : (
                           <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
@@ -306,7 +306,7 @@ export function UnitDetail() {
                       compareSelfDestruct ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareSelfDestruct} />
-                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} />}
+                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
@@ -332,7 +332,7 @@ export function UnitDetail() {
                       compareDeathExplosion ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareDeathExplosion} />
-                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} />}
+                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
