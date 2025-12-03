@@ -61,15 +61,22 @@ describe('unitMatcher', () => {
       expect(score).toBe(0)
     })
 
-    it('should count each matching type once regardless of duplicates in candidate', () => {
-      // Note: In practice, PA units don't have duplicate types, but we test edge case behavior
+    it('should ignore duplicate types in candidate array', () => {
       const score = calculateTypeMatchScore(
         ['Mobile', 'Land'],
         ['Mobile', 'Mobile', 'Land', 'Land']
       )
-      // Current implementation counts each occurrence - this is acceptable since
-      // real PA data doesn't have duplicates
-      expect(score).toBe(4)
+      // Duplicates are deduplicated via Set, so only unique matches count
+      expect(score).toBe(2)
+    })
+
+    it('should ignore duplicate types in source array', () => {
+      const score = calculateTypeMatchScore(
+        ['Mobile', 'Mobile', 'Land'],
+        ['Mobile', 'Land', 'Basic']
+      )
+      // Source duplicates are also ignored
+      expect(score).toBe(2)
     })
   })
 

@@ -104,7 +104,7 @@ export function UnitDetail() {
                     params.set('compare', `${newFactionId}/${newUnitId}`)
                     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
                   }}
-                  sourceUnitTypes={unit?.unitTypes}
+                  sourceUnitTypes={unit.unitTypes}
                 />
               </div>
               <div className="flex items-center gap-2 justify-end sm:flex-shrink-0">

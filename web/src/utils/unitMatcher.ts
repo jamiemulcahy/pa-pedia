@@ -1,17 +1,21 @@
 import type { UnitIndexEntry } from '@/types/faction'
 
+/** Minimum matching types required for a valid match */
+const DEFAULT_MIN_MATCH_SCORE = 2
+
 /**
  * Calculate match score between two units based on unit type overlap.
- * Higher score = better match.
+ * Higher score = better match. Duplicates in either array are ignored.
  */
 export function calculateTypeMatchScore(
   sourceTypes: string[],
   candidateTypes: string[]
 ): number {
   const sourceSet = new Set(sourceTypes)
+  const candidateSet = new Set(candidateTypes)
   let matchCount = 0
 
-  for (const type of candidateTypes) {
+  for (const type of candidateSet) {
     if (sourceSet.has(type)) matchCount++
   }
 
@@ -29,7 +33,7 @@ export function calculateTypeMatchScore(
 export function findBestMatchingUnit(
   sourceUnitTypes: string[],
   targetUnits: UnitIndexEntry[],
-  minMatchScore: number = 2
+  minMatchScore: number = DEFAULT_MIN_MATCH_SCORE
 ): UnitIndexEntry | null {
   let bestMatch: UnitIndexEntry | null = null
   let bestScore = 0

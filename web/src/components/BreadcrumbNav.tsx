@@ -80,6 +80,8 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             const match = findBestMatchingUnit(sourceUnitTypes, factionIndex.units)
             if (match) {
               onUnitChange(option.value, match.identifier)
+            } else {
+              console.debug('No matching unit found for auto-selection in faction:', option.value)
             }
           }
         }
