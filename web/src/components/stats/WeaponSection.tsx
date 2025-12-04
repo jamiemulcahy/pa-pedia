@@ -11,6 +11,11 @@ interface WeaponSectionProps {
 export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
   const title = 'Weapon';
 
+  // Calculate burst DPS for weapons with ammo system
+  const burstDps = weapon.ammoPerShot && weapon.ammoDemand && weapon.damage
+    ? Math.round((weapon.ammoPerShot / weapon.ammoDemand) * weapon.damage * 100) / 100
+    : undefined;
+
   // Format target layers
   const formatTargetLayers = (layers?: string[]) => {
     if (!layers || layers.length === 0) return undefined;
@@ -38,10 +43,19 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
         <StatRow label="Projectiles per fire" value={weapon.projectilesPerFire} />
       )}
       {weapon.damage !== undefined && (
+        <StatRow label="Damage" value={weapon.damage.toFixed(0)} />
+      )}
+      {weapon.rateOfFire !== undefined && (
         <StatRow
-          label="Damage"
-          value={`${weapon.damage.toFixed(1)} DPS: ${weapon.count}x${weapon.damage.toFixed(0)} damage every ${(1 / weapon.rateOfFire).toFixed(2)} seconds (${weapon.rateOfFire.toFixed(1)} shots per second)`}
+          label="Rate of Fire"
+          value={`${weapon.rateOfFire.toFixed(1)}/s (every ${(1 / weapon.rateOfFire).toFixed(2)}s)`}
         />
+      )}
+      {weapon.dps !== undefined && weapon.dps > 0 && (
+        <StatRow label="DPS" value={weapon.dps.toFixed(1)} />
+      )}
+      {burstDps !== undefined && burstDps !== weapon.dps && (
+        <StatRow label="DPS (Burst)" value={burstDps.toFixed(1)} />
       )}
       {weapon.yawRange !== undefined && (
         <StatRow label="Yaw" value={`${weapon.yawRange}° at ${weapon.yawRate}° per second`} />
