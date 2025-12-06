@@ -181,4 +181,55 @@ describe('WeaponSection', () => {
       })).toBeInTheDocument()
     })
   })
+
+  describe('weapon count display', () => {
+    it('should show "Weapon" title when count is 1', () => {
+      renderWeaponSection(mockBasicWeapon)
+
+      expect(screen.getByText('Weapon')).toBeInTheDocument()
+    })
+
+    it('should show "Weapon ×3" title when count is 3', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        count: 3,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Weapon ×3')).toBeInTheDocument()
+    })
+
+    it('should multiply DPS by count', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        count: 3,
+        dps: 40, // per-turret DPS
+      }
+      renderWeaponSection(weapon)
+
+      // Total DPS = 40 * 3 = 120
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '120' || false
+      })).toBeInTheDocument()
+    })
+
+    it('should multiply burst DPS by count', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        count: 2,
+        ammoDemand: 100,
+        ammoPerShot: 200,
+        damage: 50,
+        dps: 25,
+      }
+      renderWeaponSection(weapon)
+
+      // Burst DPS per turret = (200 / 100) * 50 = 100
+      // Total burst DPS = 100 * 2 = 200
+      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '200' || false
+      })).toBeInTheDocument()
+    })
+  })
 })
