@@ -19,7 +19,9 @@ function calculateBurstDps(weapon: Weapon): number | undefined {
 }
 
 export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon }) => {
-  const title = 'Weapon';
+  const count = weapon.count ?? 1;
+  const compareCount = compareWeapon?.count ?? 1;
+  const title = count > 1 ? `Weapon ×${count}` : 'Weapon';
 
   // Calculate burst DPS for weapons with ammo system
   // Burst DPS = (ammo consumed per shot / ammo demand) * damage * projectiles per fire
@@ -83,8 +85,8 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           label="DPS"
           value={
             <ComparisonValue
-              value={Number(weapon.dps.toFixed(1))}
-              compareValue={compareWeapon?.dps ? Number(compareWeapon.dps.toFixed(1)) : undefined}
+              value={Number((weapon.dps * count).toFixed(1))}
+              compareValue={compareWeapon?.dps ? Number((compareWeapon.dps * compareCount).toFixed(1)) : undefined}
               comparisonType="higher-better"
             />
           }
@@ -95,8 +97,8 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           label="DPS (Burst)"
           value={
             <ComparisonValue
-              value={Number(burstDps.toFixed(1))}
-              compareValue={compareBurstDps ? Number(compareBurstDps.toFixed(1)) : undefined}
+              value={Number((burstDps * count).toFixed(1))}
+              compareValue={compareBurstDps ? Number((compareBurstDps * compareCount).toFixed(1)) : undefined}
               comparisonType="higher-better"
             />
           }
