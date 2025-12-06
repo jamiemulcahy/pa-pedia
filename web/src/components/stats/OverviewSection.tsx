@@ -3,6 +3,7 @@ import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
+import { SpawnUnitLink } from './SpawnUnitLink';
 import type { Unit } from '@/types/faction';
 
 interface OverviewSectionProps {
@@ -91,6 +92,17 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
       )}
       {buildLocations.length > 0 && (
         <StatRow label="Build locations" value={buildLocations.join(', ')} />
+      )}
+      {specs.special?.spawnUnitOnDeath && (
+        <StatRow
+          label="Spawns on death"
+          value={
+            <SpawnUnitLink
+              resourcePath={specs.special.spawnUnitOnDeath}
+              factionId={factionId}
+            />
+          }
+        />
       )}
     </StatSection>
   );

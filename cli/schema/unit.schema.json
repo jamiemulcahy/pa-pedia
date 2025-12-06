@@ -48,6 +48,14 @@
         "metalCost": {
           "type": "number",
           "description": "Metal cost per projectile"
+        },
+        "spawnUnitOnDeath": {
+          "type": "string",
+          "description": "PA resource path of unit spawned when projectile ends"
+        },
+        "spawnUnitOnDeathWithVelocity": {
+          "type": "boolean",
+          "description": "Whether spawned unit inherits projectile velocity"
         }
       },
       "additionalProperties": false,
@@ -293,6 +301,10 @@
         "hover": {
           "type": "boolean",
           "description": "Hovers above ground"
+        },
+        "spawnUnitOnDeath": {
+          "type": "string",
+          "description": "PA resource path of unit spawned when this unit dies"
         }
       },
       "additionalProperties": false,

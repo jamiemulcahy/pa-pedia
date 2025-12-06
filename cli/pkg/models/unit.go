@@ -93,9 +93,10 @@ type StorageSpecs struct {
 
 // SpecialSpecs contains special attributes
 type SpecialSpecs struct {
-	SpawnLayers []string `json:"spawnLayers,omitempty" jsonschema:"description=Valid spawn/movement layers (e.g. ['WL_LandHorizontal' 'WL_Water'])"`
-	Amphibious  bool     `json:"amphibious,omitempty" jsonschema:"description=Can traverse both land and water"`
-	Hover       bool     `json:"hover,omitempty" jsonschema:"description=Hovers above ground"`
+	SpawnLayers      []string `json:"spawnLayers,omitempty" jsonschema:"description=Valid spawn/movement layers (e.g. ['WL_LandHorizontal' 'WL_Water'])"`
+	Amphibious       bool     `json:"amphibious,omitempty" jsonschema:"description=Can traverse both land and water"`
+	Hover            bool     `json:"hover,omitempty" jsonschema:"description=Hovers above ground"`
+	SpawnUnitOnDeath string   `json:"spawnUnitOnDeath,omitempty" jsonschema:"description=PA resource path of unit spawned when this unit dies"`
 }
 
 // BuildRelationships defines build tree connections
