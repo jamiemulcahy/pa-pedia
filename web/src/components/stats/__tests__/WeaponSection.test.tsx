@@ -10,9 +10,9 @@ const mockBasicWeapon: Weapon = {
   safeName: 'tank_tool_weapon',
   name: 'Tank Cannon',
   count: 1,
-  rateOfFire: 1,
-  damage: 50,
-  dps: 50,
+  rateOfFire: 2,
+  damage: 75,
+  dps: 150,
   maxRange: 100,
 }
 
@@ -51,21 +51,28 @@ describe('WeaponSection', () => {
       renderWeaponSection(mockBasicWeapon)
 
       expect(screen.getByText('Damage:')).toBeInTheDocument()
-      expect(screen.getByText('50')).toBeInTheDocument()
+      expect(screen.getByText('75')).toBeInTheDocument()
     })
 
     it('should render rate of fire', () => {
       renderWeaponSection(mockBasicWeapon)
 
       expect(screen.getByText('Rate of Fire:')).toBeInTheDocument()
-      expect(screen.getByText('1.0/s (every 1.00s)')).toBeInTheDocument()
+      // Number(2.0.toFixed(1)) converts "2.0" to number 2, rendered as "2"
+      // Look for the span containing value+suffix
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '2/s' || false
+      })).toBeInTheDocument()
     })
 
     it('should render DPS', () => {
       renderWeaponSection(mockBasicWeapon)
 
       expect(screen.getByText('DPS:')).toBeInTheDocument()
-      expect(screen.getByText('50.0')).toBeInTheDocument()
+      // Number(150.0.toFixed(1)) converts to 150, rendered as "150"
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '150' || false
+      })).toBeInTheDocument()
     })
 
     it('should render range', () => {
@@ -88,7 +95,9 @@ describe('WeaponSection', () => {
 
       expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
       // Burst DPS = (ammoPerShot / ammoDemand) * damage = (400 / 200) * 160 = 320
-      expect(screen.getByText('320.0')).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '320' || false
+      })).toBeInTheDocument()
     })
 
     it('should calculate burst DPS correctly', () => {
@@ -102,7 +111,9 @@ describe('WeaponSection', () => {
       renderWeaponSection(weapon)
 
       // Burst DPS = (200 / 100) * 50 = 100
-      expect(screen.getByText('100.0')).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '100' || false
+      })).toBeInTheDocument()
     })
 
     it('should not render burst DPS when equal to regular DPS', () => {
@@ -165,7 +176,9 @@ describe('WeaponSection', () => {
 
       // Burst DPS = (200 / 100) * 50 * 3 = 300
       expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
-      expect(screen.getByText('300.0')).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '300' || false
+      })).toBeInTheDocument()
     })
   })
 })

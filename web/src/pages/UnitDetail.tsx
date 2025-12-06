@@ -269,7 +269,7 @@ export function UnitDetail() {
                     <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                       {weapon1 ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={weapon1} />
+                          <WeaponSection weapon={weapon1} compareWeapon={weapon2} />
                           {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
                         </div>
                       ) : (
@@ -278,7 +278,7 @@ export function UnitDetail() {
                       {compareUnit ? (
                         weapon2 ? (
                           <div className="space-y-6">
-                            <WeaponSection weapon={weapon2} />
+                            <WeaponSection weapon={weapon2} compareWeapon={weapon1} />
                             {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} />}
                           </div>
                         ) : (
@@ -296,7 +296,7 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {selfDestructWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={selfDestructWeapon} />
+                        <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareSelfDestruct} />
                         {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} />}
                       </div>
                     ) : (
@@ -305,7 +305,7 @@ export function UnitDetail() {
                     {compareUnit ? (
                       compareSelfDestruct ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={compareSelfDestruct} />
+                          <WeaponSection weapon={compareSelfDestruct} compareWeapon={selfDestructWeapon} />
                           {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} />}
                         </div>
                       ) : (
@@ -322,7 +322,7 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {deathExplosionWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={deathExplosionWeapon} />
+                        <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareDeathExplosion} />
                         {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />}
                       </div>
                     ) : (
@@ -331,7 +331,7 @@ export function UnitDetail() {
                     {compareUnit ? (
                       compareDeathExplosion ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={compareDeathExplosion} />
+                          <WeaponSection weapon={compareDeathExplosion} compareWeapon={deathExplosionWeapon} />
                           {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} />}
                         </div>
                       ) : (
