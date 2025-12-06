@@ -2,14 +2,30 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
+import { ComparisonValue } from '../ComparisonValue';
 import type { Weapon } from '@/types/faction';
 
 interface WeaponSectionProps {
   weapon: Weapon;
+  compareWeapon?: Weapon;
 }
 
-export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
+// Helper to calculate burst DPS
+function calculateBurstDps(weapon: Weapon): number | undefined {
+  const projectiles = weapon.projectilesPerFire ?? 1;
+  return weapon.ammoPerShot && weapon.ammoDemand && weapon.ammoDemand > 0 && weapon.damage
+    ? (weapon.ammoPerShot / weapon.ammoDemand) * weapon.damage * projectiles
+    : undefined;
+}
+
+export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon }) => {
   const title = 'Weapon';
+
+  // Calculate burst DPS for weapons with ammo system
+  // Burst DPS = (ammo consumed per shot / ammo demand) * damage * projectiles per fire
+  // This represents instantaneous damage potential before ammo depletion
+  const burstDps = calculateBurstDps(weapon);
+  const compareBurstDps = compareWeapon ? calculateBurstDps(compareWeapon) : undefined;
 
   // Format target layers
   const formatTargetLayers = (layers?: string[]) => {
@@ -40,7 +56,50 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon }) => {
       {weapon.damage !== undefined && (
         <StatRow
           label="Damage"
-          value={`${weapon.damage.toFixed(1)} DPS: ${weapon.count}x${weapon.damage.toFixed(0)} damage every ${(1 / weapon.rateOfFire).toFixed(2)} seconds (${weapon.rateOfFire.toFixed(1)} shots per second)`}
+          value={
+            <ComparisonValue
+              value={Number(weapon.damage.toFixed(0))}
+              compareValue={compareWeapon?.damage ? Number(compareWeapon.damage.toFixed(0)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
+        />
+      )}
+      {weapon.rateOfFire !== undefined && (
+        <StatRow
+          label="Rate of Fire"
+          value={
+            <ComparisonValue
+              value={Number(weapon.rateOfFire.toFixed(1))}
+              compareValue={compareWeapon?.rateOfFire ? Number(compareWeapon.rateOfFire.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              suffix="/s"
+            />
+          }
+        />
+      )}
+      {weapon.dps !== undefined && weapon.dps > 0 && (
+        <StatRow
+          label="DPS"
+          value={
+            <ComparisonValue
+              value={Number(weapon.dps.toFixed(1))}
+              compareValue={compareWeapon?.dps ? Number(compareWeapon.dps.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
+        />
+      )}
+      {burstDps !== undefined && burstDps !== weapon.dps && (
+        <StatRow
+          label="DPS (Burst)"
+          value={
+            <ComparisonValue
+              value={Number(burstDps.toFixed(1))}
+              compareValue={compareBurstDps ? Number(compareBurstDps.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
         />
       )}
       {weapon.yawRange !== undefined && (
