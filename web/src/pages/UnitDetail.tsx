@@ -238,9 +238,18 @@ export function UnitDetail() {
 
                 {/* Unit Types row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <UnitTypesSection unitTypes={unit.unitTypes} />
+                  <UnitTypesSection
+                    unitTypes={unit.unitTypes}
+                    compareUnitTypes={compareUnit?.unitTypes}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
                   {compareUnit ? (
-                    <UnitTypesSection unitTypes={compareUnit.unitTypes} />
+                    <UnitTypesSection
+                      unitTypes={compareUnit.unitTypes}
+                      compareUnitTypes={unit.unitTypes}
+                      showDifferencesOnly={showDifferencesOnly}
+                      isComparisonSide
+                    />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}
