@@ -39,11 +39,13 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
   const compareBuildRange = compareEconomy?.buildRange;
 
   // Derived build arm stats
+  // Build power cost: total effective metal cost per unit of build rate
+  // Includes metal cost + energy consumption converted to metal equivalent (energy × 2/3)
   const costEffectiveness = buildRate > 0 && economy.buildCost > 0
-    ? economy.buildCost / buildRate
+    ? (economy.buildCost + energyConsumption * (2/3)) / buildRate
     : undefined;
   const compareCostEffectiveness = compareBuildRate && compareBuildRate > 0 && compareEconomy?.buildCost
-    ? compareEconomy.buildCost / compareBuildRate
+    ? (compareEconomy.buildCost + (compareEnergyConsumption || 0) * (2/3)) / compareBuildRate
     : undefined;
   const energyEfficiency = economy.buildInefficiency;
   const compareEnergyEfficiency = compareEconomy?.buildInefficiency;
@@ -181,13 +183,13 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
       )}
       {costEffectiveness !== undefined && showRow(costEffDiff) && (
         <StatRow
-          label="Cost-effectiveness"
+          label="Build power cost"
           value={
             <ComparisonValue
               value={Number(costEffectiveness.toFixed(1))}
               compareValue={compareCostEffectiveness ? Number(compareCostEffectiveness.toFixed(1)) : undefined}
               comparisonType="lower-better"
-              suffix=" metal per metal/s"
+              suffix=" metal"
               hideDiff={hideDiff}
             />
           }
