@@ -34,8 +34,10 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
   const compareBuildRange = compareEconomy?.buildRange;
 
   // Derived build arm stats
-  const costEffectiveness = buildRate > 0 ? economy.buildCost / buildRate : undefined;
-  const compareCostEffectiveness = compareBuildRate && compareBuildRate > 0 && compareEconomy
+  const costEffectiveness = buildRate > 0 && economy.buildCost > 0
+    ? economy.buildCost / buildRate
+    : undefined;
+  const compareCostEffectiveness = compareBuildRate && compareBuildRate > 0 && compareEconomy?.buildCost
     ? compareEconomy.buildCost / compareBuildRate
     : undefined;
   const energyEfficiency = economy.buildInefficiency;

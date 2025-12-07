@@ -230,7 +230,7 @@ export function UnitDetail() {
 
                 {/* Economy row (includes production, storage, and build arm stats) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <EconomySection economy={specs.economy} compareEconomy={compareSpecs?.economy} />
+                  <EconomySection economy={specs.economy} />
                   {compareUnit ? (
                     <EconomySection economy={compareSpecs!.economy} compareEconomy={specs.economy} />
                   ) : (
@@ -359,7 +359,7 @@ export function UnitDetail() {
                 {/* Storage row */}
                 {((specs.storage?.unitStorage ?? 0) > 0 || (compareSpecs?.storage?.unitStorage ?? 0) > 0) && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <StorageSection storage={specs.storage} compareStorage={compareSpecs?.storage} />
+                    <StorageSection storage={specs.storage} />
                     {compareUnit ? (
                       <StorageSection storage={compareSpecs?.storage} compareStorage={specs.storage} />
                     ) : (

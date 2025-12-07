@@ -15,7 +15,7 @@ export const StorageSection: React.FC<StorageSectionProps> = ({
 }) => {
   const unitStorage = storage?.unitStorage || 0;
 
-  if (unitStorage <= 0) return null;
+  if (!storage || unitStorage <= 0) return null;
 
   const compareUnitStorage = compareStorage?.unitStorage;
   const storedUnitType = storage?.storedUnitType || 'unit';

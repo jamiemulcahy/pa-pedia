@@ -196,5 +196,17 @@ describe('EconomySection', () => {
 
       expect(screen.queryByText('Build rate:')).not.toBeInTheDocument()
     })
+
+    it('should handle zero buildCost gracefully', () => {
+      const economy: EconomySpecs = {
+        buildCost: 0,
+        buildRate: 10,
+      }
+      render(<EconomySection economy={economy} />)
+
+      // Should still render build rate but not cost-effectiveness
+      expect(screen.getByText('Build rate:')).toBeInTheDocument()
+      expect(screen.queryByText('Cost-effectiveness:')).not.toBeInTheDocument()
+    })
   })
 })
