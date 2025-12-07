@@ -8,12 +8,23 @@ interface PhysicsSectionProps {
   mobility: MobilitySpecs;
   special?: SpecialSpecs;
   compareMobility?: MobilitySpecs;
+  compareSpecial?: SpecialSpecs;
+  showDifferencesOnly?: boolean;
+}
+
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | boolean | undefined, b: number | boolean | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
 }
 
 export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
   mobility,
   special,
   compareMobility,
+  compareSpecial,
+  showDifferencesOnly,
 }) => {
   const hasAnyStats =
     mobility.moveSpeed !== undefined ||
@@ -23,9 +34,27 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
 
   if (!hasAnyStats) return null;
 
+  // Check which rows have differences
+  const speedDiff = isDifferent(mobility.moveSpeed, compareMobility?.moveSpeed);
+  const accelDiff = isDifferent(mobility.acceleration, compareMobility?.acceleration);
+  const brakeDiff = isDifferent(mobility.brake, compareMobility?.brake);
+  const turnDiff = isDifferent(mobility.turnSpeed, compareMobility?.turnSpeed);
+  const amphibDiff = isDifferent(special?.amphibious, compareSpecial?.amphibious);
+  const hoverDiff = isDifferent(special?.hover, compareSpecial?.hover);
+
+  // In diff mode with compare mobility, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareMobility ||
+    speedDiff || accelDiff || brakeDiff || turnDiff || amphibDiff || hoverDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareMobility || hasDiff;
+
   return (
     <StatSection title="Physics">
-      {mobility.moveSpeed !== undefined && (
+      {mobility.moveSpeed !== undefined && showRow(speedDiff) && (
         <StatRow
           label="Max speed"
           value={
@@ -37,7 +66,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
           }
         />
       )}
-      {mobility.acceleration !== undefined && (
+      {mobility.acceleration !== undefined && showRow(accelDiff) && (
         <StatRow
           label="Acceleration"
           value={
@@ -49,7 +78,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
           }
         />
       )}
-      {mobility.brake !== undefined && (
+      {mobility.brake !== undefined && showRow(brakeDiff) && (
         <StatRow
           label="Braking rate"
           value={
@@ -61,7 +90,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
           }
         />
       )}
-      {mobility.turnSpeed !== undefined && (
+      {mobility.turnSpeed !== undefined && showRow(turnDiff) && (
         <StatRow
           label="Turn rate"
           value={
@@ -73,10 +102,10 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
           }
         />
       )}
-      {special?.amphibious && (
+      {special?.amphibious && showRow(amphibDiff) && (
         <StatRow label="Amphibious" value="Yes" />
       )}
-      {special?.hover && (
+      {special?.hover && showRow(hoverDiff) && (
         <StatRow label="Hover" value="Yes" />
       )}
     </StatSection>

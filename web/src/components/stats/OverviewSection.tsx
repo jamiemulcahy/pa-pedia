@@ -10,9 +10,17 @@ interface OverviewSectionProps {
   unit: Unit;
   compareUnit?: Unit;
   factionId?: string;
+  showDifferencesOnly?: boolean;
 }
 
-export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId }) => {
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
+}
+
+export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId, showDifferencesOnly }) => {
   const { specs } = unit;
   const maxRange = specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -32,6 +40,33 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
   if (unit.unitTypes.includes('Orbital')) buildLocations.push('orbital');
   if (specs.special?.amphibious) buildLocations.push('water');
 
+  const compareBuildLocations: string[] = [];
+  if (compareUnit) {
+    if (compareUnit.unitTypes.includes('Land')) compareBuildLocations.push('land');
+    if (compareUnit.unitTypes.includes('Naval') || compareUnit.unitTypes.includes('Sea')) compareBuildLocations.push('water surface');
+    if (compareUnit.unitTypes.includes('Air')) compareBuildLocations.push('air');
+    if (compareUnit.unitTypes.includes('Orbital')) compareBuildLocations.push('orbital');
+    if (compareUnit.specs.special?.amphibious) compareBuildLocations.push('water');
+  }
+
+  // Check which rows have differences (when in comparison mode)
+  const hpDiff = isDifferent(specs.combat.health, compareUnit?.specs.combat.health);
+  const costDiff = isDifferent(specs.economy.buildCost, compareUnit?.specs.economy.buildCost);
+  const rangeDiff = isDifferent(maxRange, compareMaxRange);
+  const dpsDiff = isDifferent(specs.combat.dps, compareUnit?.specs.combat.dps);
+  const buildLocDiff = buildLocations.join(',') !== compareBuildLocations.join(',');
+  const spawnDiff = specs.special?.spawnUnitOnDeath !== compareUnit?.specs.special?.spawnUnitOnDeath;
+
+  // In diff mode with compare unit, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareUnit ||
+    hpDiff || costDiff || rangeDiff || dpsDiff || buildLocDiff || spawnDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareUnit || hasDiff;
+
   return (
     <StatSection title="Overview">
       <div className="py-1">
@@ -41,32 +76,36 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
           factionId={factionId}
         />
       </div>
-      <StatRow
-        label="HP"
-        value={
-          <ComparisonValue
-            value={specs.combat.health}
-            compareValue={compareUnit?.specs.combat.health}
-            comparisonType="higher-better"
-            formatDiff={(d) => Math.abs(d).toLocaleString()}
-          />
-        }
-      />
-      <StatRow
-        label="Build cost"
-        value={
-          <span>
+      {showRow(hpDiff) && (
+        <StatRow
+          label="HP"
+          value={
             <ComparisonValue
-              value={specs.economy.buildCost}
-              compareValue={compareUnit?.specs.economy.buildCost}
-              comparisonType="lower-better"
+              value={specs.combat.health}
+              compareValue={compareUnit?.specs.combat.health}
+              comparisonType="higher-better"
               formatDiff={(d) => Math.abs(d).toLocaleString()}
             />
-            {' metal'}
-          </span>
-        }
-      />
-      {maxRange !== undefined && maxRange > 0 && (
+          }
+        />
+      )}
+      {showRow(costDiff) && (
+        <StatRow
+          label="Build cost"
+          value={
+            <span>
+              <ComparisonValue
+                value={specs.economy.buildCost}
+                compareValue={compareUnit?.specs.economy.buildCost}
+                comparisonType="lower-better"
+                formatDiff={(d) => Math.abs(d).toLocaleString()}
+              />
+              {' metal'}
+            </span>
+          }
+        />
+      )}
+      {maxRange !== undefined && maxRange > 0 && showRow(rangeDiff) && (
         <StatRow
           label="Maximum range"
           value={
@@ -78,7 +117,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
           }
         />
       )}
-      {specs.combat.dps !== undefined && specs.combat.dps > 0 && (
+      {specs.combat.dps !== undefined && specs.combat.dps > 0 && showRow(dpsDiff) && (
         <StatRow
           label="Total DPS"
           value={
@@ -90,10 +129,10 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
           }
         />
       )}
-      {buildLocations.length > 0 && (
+      {buildLocations.length > 0 && showRow(buildLocDiff) && (
         <StatRow label="Build locations" value={buildLocations.join(', ')} />
       )}
-      {specs.special?.spawnUnitOnDeath && (
+      {specs.special?.spawnUnitOnDeath && showRow(spawnDiff) && (
         <StatRow
           label="Spawns on death"
           value={

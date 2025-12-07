@@ -93,4 +93,66 @@ describe('ReconSection', () => {
 
     expect(screen.getByText('No underwater vision:')).toBeInTheDocument()
   })
+
+  describe('showDifferencesOnly', () => {
+    it('should show only rows with differences when enabled', () => {
+      render(
+        <ReconSection
+          recon={mockRecon}
+          compareRecon={mockCompareRecon}
+          showDifferencesOnly={true}
+        />
+      )
+
+      // Vision and Radar have differences, should be shown
+      expect(screen.getByText('Vision radius:')).toBeInTheDocument()
+      expect(screen.getByText('Radar radius:')).toBeInTheDocument()
+
+      // Sonar is equal (150 vs 150), should be hidden
+      expect(screen.queryByText('Sonar radius:')).not.toBeInTheDocument()
+    })
+
+    it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
+      const equalRecon: ReconSpecs = {
+        visionRadius: 100,
+        radarRadius: 200,
+      }
+      const { container } = render(
+        <ReconSection
+          recon={equalRecon}
+          compareRecon={equalRecon}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should show all rows when showDifferencesOnly is false', () => {
+      render(
+        <ReconSection
+          recon={mockRecon}
+          compareRecon={mockCompareRecon}
+          showDifferencesOnly={false}
+        />
+      )
+
+      expect(screen.getByText('Vision radius:')).toBeInTheDocument()
+      expect(screen.getByText('Radar radius:')).toBeInTheDocument()
+      expect(screen.getByText('Sonar radius:')).toBeInTheDocument()
+    })
+
+    it('should show all rows when no compareRecon even with showDifferencesOnly', () => {
+      render(
+        <ReconSection
+          recon={mockRecon}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(screen.getByText('Vision radius:')).toBeInTheDocument()
+      expect(screen.getByText('Radar radius:')).toBeInTheDocument()
+      expect(screen.getByText('Sonar radius:')).toBeInTheDocument()
+    })
+  })
 })

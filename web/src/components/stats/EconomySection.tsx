@@ -7,11 +7,20 @@ import type { EconomySpecs } from '@/types/faction';
 interface EconomySectionProps {
   economy: EconomySpecs;
   compareEconomy?: EconomySpecs;
+  showDifferencesOnly?: boolean;
+}
+
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
 }
 
 export const EconomySection: React.FC<EconomySectionProps> = ({
   economy,
   compareEconomy,
+  showDifferencesOnly,
 }) => {
   // Production stats
   const metalProduction = economy.production?.metal || 0;
@@ -50,10 +59,32 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
 
   if (!hasProductionStats && !hasStorageStats && !hasBuildArmStats) return null;
 
+  // Check which rows have differences
+  const metalProdDiff = isDifferent(metalProduction, compareMetalProduction || 0);
+  const energyProdDiff = isDifferent(energyProduction, compareEnergyProduction || 0);
+  const metalStorDiff = isDifferent(metalStorage, compareMetalStorage || 0);
+  const energyStorDiff = isDifferent(energyStorage, compareEnergyStorage || 0);
+  const buildRateDiff = isDifferent(buildRate, compareBuildRate || 0);
+  const energyConsDiff = isDifferent(energyConsumption, compareEnergyConsumption || 0);
+  const buildRangeDiff = isDifferent(buildRange, compareBuildRange || 0);
+  const costEffDiff = isDifferent(costEffectiveness, compareCostEffectiveness);
+  const energyEffDiff = isDifferent(energyEfficiency, compareEnergyEfficiency);
+
+  // In diff mode with compare economy, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareEconomy ||
+    metalProdDiff || energyProdDiff || metalStorDiff || energyStorDiff ||
+    buildRateDiff || energyConsDiff || buildRangeDiff || costEffDiff || energyEffDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareEconomy || hasDiff;
+
   return (
     <StatSection title="Economy">
       {/* Production stats */}
-      {metalProduction > 0 && (
+      {metalProduction > 0 && showRow(metalProdDiff) && (
         <StatRow
           label="Metal production"
           value={
@@ -66,7 +97,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyProduction > 0 && (
+      {energyProduction > 0 && showRow(energyProdDiff) && (
         <StatRow
           label="Energy production"
           value={
@@ -81,7 +112,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
       )}
 
       {/* Storage stats */}
-      {metalStorage > 0 && (
+      {metalStorage > 0 && showRow(metalStorDiff) && (
         <StatRow
           label="Metal storage"
           value={
@@ -93,7 +124,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyStorage > 0 && (
+      {energyStorage > 0 && showRow(energyStorDiff) && (
         <StatRow
           label="Energy storage"
           value={
@@ -107,7 +138,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
       )}
 
       {/* Build arm stats */}
-      {buildRate > 0 && (
+      {buildRate > 0 && showRow(buildRateDiff) && (
         <StatRow
           label="Build rate"
           value={
@@ -120,7 +151,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyConsumption > 0 && (
+      {energyConsumption > 0 && showRow(energyConsDiff) && (
         <StatRow
           label="Build energy"
           value={
@@ -133,7 +164,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {buildRange > 0 && (
+      {buildRange > 0 && showRow(buildRangeDiff) && (
         <StatRow
           label="Build range"
           value={
@@ -145,7 +176,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {costEffectiveness !== undefined && (
+      {costEffectiveness !== undefined && showRow(costEffDiff) && (
         <StatRow
           label="Cost-effectiveness"
           value={
@@ -158,7 +189,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyEfficiency !== undefined && energyEfficiency > 0 && (
+      {energyEfficiency !== undefined && energyEfficiency > 0 && showRow(energyEffDiff) && (
         <StatRow
           label="Energy efficiency"
           value={

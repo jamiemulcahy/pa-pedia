@@ -8,6 +8,14 @@ import type { Weapon } from '@/types/faction';
 interface WeaponSectionProps {
   weapon: Weapon;
   compareWeapon?: Weapon;
+  showDifferencesOnly?: boolean;
+}
+
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | string | undefined, b: number | string | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
 }
 
 // Helper to calculate burst DPS
@@ -18,7 +26,7 @@ function calculateBurstDps(weapon: Weapon): number | undefined {
     : undefined;
 }
 
-export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon }) => {
+export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon, showDifferencesOnly }) => {
   const count = weapon.count ?? 1;
   const compareCount = compareWeapon?.count ?? 1;
   const title = count > 1 ? `Weapon ×${count}` : 'Weapon';
@@ -38,6 +46,35 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   // Extract weapon ID from resource name (last part after last slash)
   const weaponId = weapon.resourceName.split('/').pop() || weapon.resourceName;
 
+  // Check which rows have differences
+  const rangeDiff = isDifferent(weapon.maxRange, compareWeapon?.maxRange);
+  const projDiff = isDifferent(weapon.projectilesPerFire, compareWeapon?.projectilesPerFire);
+  const damageDiff = isDifferent(weapon.damage, compareWeapon?.damage);
+  const rofDiff = isDifferent(weapon.rateOfFire, compareWeapon?.rateOfFire);
+  const dpsDiff = isDifferent(weapon.dps ? weapon.dps * count : undefined, compareWeapon?.dps ? compareWeapon.dps * compareCount : undefined);
+  const burstDpsDiff = isDifferent(burstDps ? burstDps * count : undefined, compareBurstDps ? compareBurstDps * compareCount : undefined);
+  const yawDiff = isDifferent(weapon.yawRange, compareWeapon?.yawRange) || isDifferent(weapon.yawRate, compareWeapon?.yawRate);
+  const pitchDiff = isDifferent(weapon.pitchRange, compareWeapon?.pitchRange) || isDifferent(weapon.pitchRate, compareWeapon?.pitchRate);
+  const targetsDiff = formatTargetLayers(weapon.targetLayers) !== formatTargetLayers(compareWeapon?.targetLayers);
+  const ammoSourceDiff = isDifferent(weapon.ammoSource, compareWeapon?.ammoSource);
+  const ammoCapDiff = isDifferent(weapon.ammoCapacity, compareWeapon?.ammoCapacity);
+  const ammoDrainDiff = isDifferent(weapon.ammoDrainTime, compareWeapon?.ammoDrainTime);
+  const ammoRechargeDiff = isDifferent(weapon.ammoRechargeTime, compareWeapon?.ammoRechargeTime);
+  const metalShotDiff = isDifferent(weapon.metalPerShot, compareWeapon?.metalPerShot);
+  const energyShotDiff = isDifferent(weapon.energyPerShot, compareWeapon?.energyPerShot);
+
+  // In diff mode with compare weapon, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareWeapon ||
+    rangeDiff || projDiff || damageDiff || rofDiff || dpsDiff || burstDpsDiff ||
+    yawDiff || pitchDiff || targetsDiff || ammoSourceDiff || ammoCapDiff ||
+    ammoDrainDiff || ammoRechargeDiff || metalShotDiff || energyShotDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareWeapon || hasDiff;
+
   return (
     <StatSection title={title}>
       <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
@@ -49,13 +86,13 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           displayName="View Blueprint"
         />
       </div>
-      {weapon.maxRange !== undefined && (
+      {weapon.maxRange !== undefined && showRow(rangeDiff) && (
         <StatRow label="Range" value={weapon.maxRange} />
       )}
-      {weapon.projectilesPerFire !== undefined && (
+      {weapon.projectilesPerFire !== undefined && showRow(projDiff) && (
         <StatRow label="Projectiles per fire" value={weapon.projectilesPerFire} />
       )}
-      {weapon.damage !== undefined && (
+      {weapon.damage !== undefined && showRow(damageDiff) && (
         <StatRow
           label="Damage"
           value={
@@ -67,7 +104,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {weapon.rateOfFire !== undefined && (
+      {weapon.rateOfFire !== undefined && showRow(rofDiff) && (
         <StatRow
           label="Rate of Fire"
           value={
@@ -80,7 +117,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {weapon.dps !== undefined && weapon.dps > 0 && (
+      {weapon.dps !== undefined && weapon.dps > 0 && showRow(dpsDiff) && (
         <StatRow
           label="DPS"
           value={
@@ -92,7 +129,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {burstDps !== undefined && burstDps !== weapon.dps && (
+      {burstDps !== undefined && burstDps !== weapon.dps && showRow(burstDpsDiff) && (
         <StatRow
           label="DPS (Burst)"
           value={
@@ -104,33 +141,33 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {weapon.yawRange !== undefined && (
+      {weapon.yawRange !== undefined && showRow(yawDiff) && (
         <StatRow label="Yaw" value={`${weapon.yawRange}° at ${weapon.yawRate}° per second`} />
       )}
-      {weapon.pitchRange !== undefined && (
+      {weapon.pitchRange !== undefined && showRow(pitchDiff) && (
         <StatRow label="Pitch" value={`${weapon.pitchRange}° at ${weapon.pitchRate}° per second`} />
       )}
-      {formatTargetLayers(weapon.targetLayers) && (
+      {formatTargetLayers(weapon.targetLayers) && showRow(targetsDiff) && (
         <StatRow label="Targets" value={formatTargetLayers(weapon.targetLayers)} />
       )}
-      {weapon.ammoSource && (
+      {weapon.ammoSource && showRow(ammoSourceDiff) && (
         <StatRow label="Ammo source" value={weapon.ammoSource} />
       )}
-      {weapon.ammoCapacity !== undefined && weapon.ammoCapacity > 0 && (
+      {weapon.ammoCapacity !== undefined && weapon.ammoCapacity > 0 && showRow(ammoCapDiff) && (
         <>
           <StatRow label="Ammo capacity" value={weapon.ammoCapacity} />
-          {weapon.ammoDrainTime !== undefined && (
+          {weapon.ammoDrainTime !== undefined && showRow(ammoDrainDiff) && (
             <StatRow label="Ammo drain time" value={`${weapon.ammoDrainTime.toFixed(1)}s`} />
           )}
-          {weapon.ammoRechargeTime !== undefined && (
+          {weapon.ammoRechargeTime !== undefined && showRow(ammoRechargeDiff) && (
             <StatRow label="Ammo recharge time" value={`${weapon.ammoRechargeTime.toFixed(1)}s`} />
           )}
         </>
       )}
-      {weapon.metalPerShot !== undefined && weapon.metalPerShot > 0 && (
+      {weapon.metalPerShot !== undefined && weapon.metalPerShot > 0 && showRow(metalShotDiff) && (
         <StatRow label="Metal per shot" value={weapon.metalPerShot} />
       )}
-      {weapon.energyPerShot !== undefined && weapon.energyPerShot > 0 && (
+      {weapon.energyPerShot !== undefined && weapon.energyPerShot > 0 && showRow(energyShotDiff) && (
         <StatRow label="Energy per shot" value={weapon.energyPerShot} />
       )}
     </StatSection>

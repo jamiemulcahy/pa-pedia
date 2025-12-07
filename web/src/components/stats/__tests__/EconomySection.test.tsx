@@ -209,4 +209,72 @@ describe('EconomySection', () => {
       expect(screen.queryByText('Cost-effectiveness:')).not.toBeInTheDocument()
     })
   })
+
+  describe('showDifferencesOnly', () => {
+    it('should show only rows with differences when enabled', () => {
+      const economy: EconomySpecs = {
+        buildCost: 150,
+        buildRate: 10,
+        buildRange: 60,
+      }
+      const compareEconomy: EconomySpecs = {
+        buildCost: 150,
+        buildRate: 15,  // Different
+        buildRange: 60, // Same
+      }
+      render(
+        <EconomySection
+          economy={economy}
+          compareEconomy={compareEconomy}
+          showDifferencesOnly={true}
+        />
+      )
+
+      // Build rate has difference
+      expect(screen.getByText('Build rate:')).toBeInTheDocument()
+
+      // Build range is equal, should be hidden
+      expect(screen.queryByText('Build range:')).not.toBeInTheDocument()
+    })
+
+    it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
+      const economy: EconomySpecs = {
+        buildCost: 150,
+        buildRate: 10,
+        production: { metal: 5 },
+      }
+      const { container } = render(
+        <EconomySection
+          economy={economy}
+          compareEconomy={economy}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should show all rows when showDifferencesOnly is false', () => {
+      const economy: EconomySpecs = {
+        buildCost: 150,
+        buildRate: 10,
+        buildRange: 60,
+      }
+      const compareEconomy: EconomySpecs = {
+        buildCost: 150,
+        buildRate: 15,
+        buildRange: 60,
+      }
+      render(
+        <EconomySection
+          economy={economy}
+          compareEconomy={compareEconomy}
+          showDifferencesOnly={false}
+        />
+      )
+
+      expect(screen.getByText('Build rate:')).toBeInTheDocument()
+      expect(screen.getByText('Build range:')).toBeInTheDocument()
+    })
+  })
 })

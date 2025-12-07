@@ -7,9 +7,17 @@ import type { ReconSpecs } from '@/types/faction';
 interface ReconSectionProps {
   recon: ReconSpecs;
   compareRecon?: ReconSpecs;
+  showDifferencesOnly?: boolean;
 }
 
-export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon }) => {
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
+}
+
+export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon, showDifferencesOnly }) => {
   const hasAnyRecon =
     recon.visionRadius !== undefined ||
     recon.underwaterVisionRadius !== undefined ||
@@ -21,9 +29,28 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
 
   if (!hasAnyRecon) return null;
 
+  // Check which rows have differences
+  const visionDiff = isDifferent(recon.visionRadius, compareRecon?.visionRadius);
+  const underwaterDiff = isDifferent(recon.underwaterVisionRadius, compareRecon?.underwaterVisionRadius);
+  const orbitalVisionDiff = isDifferent(recon.orbitalVisionRadius, compareRecon?.orbitalVisionRadius);
+  const mineDiff = isDifferent(recon.mineVisionRadius, compareRecon?.mineVisionRadius);
+  const radarDiff = isDifferent(recon.radarRadius, compareRecon?.radarRadius);
+  const sonarDiff = isDifferent(recon.sonarRadius, compareRecon?.sonarRadius);
+  const orbitalRadarDiff = isDifferent(recon.orbitalRadarRadius, compareRecon?.orbitalRadarRadius);
+
+  // In diff mode with compare recon, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareRecon ||
+    visionDiff || underwaterDiff || orbitalVisionDiff || mineDiff || radarDiff || sonarDiff || orbitalRadarDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareRecon || hasDiff;
+
   return (
     <StatSection title="Recon">
-      {recon.visionRadius !== undefined && (
+      {recon.visionRadius !== undefined && showRow(visionDiff) && (
         <StatRow
           label="Vision radius"
           value={
@@ -35,7 +62,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
           }
         />
       )}
-      {recon.underwaterVisionRadius !== undefined && recon.underwaterVisionRadius > 0 ? (
+      {recon.underwaterVisionRadius !== undefined && recon.underwaterVisionRadius > 0 && showRow(underwaterDiff) ? (
         <StatRow
           label="Underwater vision radius"
           value={
@@ -46,10 +73,10 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
             />
           }
         />
-      ) : recon.visionRadius !== undefined && (
+      ) : recon.visionRadius !== undefined && showRow(underwaterDiff) && (
         <StatRow label="No underwater vision" value="" />
       )}
-      {recon.orbitalVisionRadius !== undefined && (
+      {recon.orbitalVisionRadius !== undefined && showRow(orbitalVisionDiff) && (
         <StatRow
           label="Orbital vision radius"
           value={
@@ -61,7 +88,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
           }
         />
       )}
-      {recon.mineVisionRadius !== undefined && (
+      {recon.mineVisionRadius !== undefined && showRow(mineDiff) && (
         <StatRow
           label="Mine vision radius"
           value={
@@ -73,7 +100,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
           }
         />
       )}
-      {recon.radarRadius !== undefined && (
+      {recon.radarRadius !== undefined && showRow(radarDiff) && (
         <StatRow
           label="Radar radius"
           value={
@@ -85,7 +112,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
           }
         />
       )}
-      {recon.sonarRadius !== undefined && (
+      {recon.sonarRadius !== undefined && showRow(sonarDiff) && (
         <StatRow
           label="Sonar radius"
           value={
@@ -97,7 +124,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon 
           }
         />
       )}
-      {recon.orbitalRadarRadius !== undefined && (
+      {recon.orbitalRadarRadius !== undefined && showRow(orbitalRadarDiff) && (
         <StatRow
           label="Orbital radar radius"
           value={

@@ -101,4 +101,65 @@ describe('PhysicsSection', () => {
 
     expect(screen.getByText('Physics')).toBeInTheDocument()
   })
+
+  describe('showDifferencesOnly', () => {
+    it('should show only rows with differences when enabled', () => {
+      render(
+        <PhysicsSection
+          mobility={mockMobility}
+          compareMobility={mockCompareMobility}
+          showDifferencesOnly={true}
+        />
+      )
+
+      // Speed, Acceleration, Brake have differences
+      expect(screen.getByText('Max speed:')).toBeInTheDocument()
+      expect(screen.getByText('Acceleration:')).toBeInTheDocument()
+      expect(screen.getByText('Braking rate:')).toBeInTheDocument()
+
+      // Turn rate is equal (90 vs 90), should be hidden
+      expect(screen.queryByText('Turn rate:')).not.toBeInTheDocument()
+    })
+
+    it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
+      const { container } = render(
+        <PhysicsSection
+          mobility={mockMobility}
+          compareMobility={mockMobility}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should show all rows when showDifferencesOnly is false', () => {
+      render(
+        <PhysicsSection
+          mobility={mockMobility}
+          compareMobility={mockCompareMobility}
+          showDifferencesOnly={false}
+        />
+      )
+
+      expect(screen.getByText('Max speed:')).toBeInTheDocument()
+      expect(screen.getByText('Acceleration:')).toBeInTheDocument()
+      expect(screen.getByText('Braking rate:')).toBeInTheDocument()
+      expect(screen.getByText('Turn rate:')).toBeInTheDocument()
+    })
+
+    it('should show all rows when no compareMobility even with showDifferencesOnly', () => {
+      render(
+        <PhysicsSection
+          mobility={mockMobility}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(screen.getByText('Max speed:')).toBeInTheDocument()
+      expect(screen.getByText('Acceleration:')).toBeInTheDocument()
+      expect(screen.getByText('Braking rate:')).toBeInTheDocument()
+      expect(screen.getByText('Turn rate:')).toBeInTheDocument()
+    })
+  })
 })
