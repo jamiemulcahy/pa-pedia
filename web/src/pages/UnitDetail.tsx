@@ -56,9 +56,8 @@ export function UnitDetail() {
     compareFactionId || '',
     compareUnitId || ''
   )
-  // Get units lists for both factions (needed for cross-faction Built By comparison)
+  // Get primary faction units (needed for cross-faction Built By comparison)
   const { units: primaryUnits } = useFaction(factionId || '')
-  const { units: compareUnits } = useFaction(compareFactionId || '')
 
   const handleSwap = () => {
     if (compareFactionId && compareUnitId) {
