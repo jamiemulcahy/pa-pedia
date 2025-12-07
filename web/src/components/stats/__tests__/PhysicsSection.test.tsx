@@ -96,6 +96,19 @@ describe('PhysicsSection', () => {
     expect(container.firstChild).toBeNull()
   })
 
+  it('should render when only compare unit has stats', () => {
+    // This unit has no mobility stats, but compare unit does
+    render(
+      <PhysicsSection
+        mobility={{}}
+        compareMobility={mockCompareMobility}
+      />
+    )
+
+    // Should still render since compare has data
+    expect(screen.getByText('Physics')).toBeInTheDocument()
+  })
+
   it('should render Physics title', () => {
     render(<PhysicsSection mobility={mockMobility} />)
 

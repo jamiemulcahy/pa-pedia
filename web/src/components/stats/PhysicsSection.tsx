@@ -28,13 +28,22 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
   showDifferencesOnly,
   hideDiff,
 }) => {
+  // Check if this unit has any stats
   const hasAnyStats =
     mobility.moveSpeed !== undefined ||
     mobility.acceleration !== undefined ||
     mobility.brake !== undefined ||
     mobility.turnSpeed !== undefined;
 
-  if (!hasAnyStats) return null;
+  // Also check if compare unit has stats (for showing differences)
+  const compareHasAnyStats =
+    compareMobility?.moveSpeed !== undefined ||
+    compareMobility?.acceleration !== undefined ||
+    compareMobility?.brake !== undefined ||
+    compareMobility?.turnSpeed !== undefined;
+
+  // Show section if either unit has stats
+  if (!hasAnyStats && !compareHasAnyStats) return null;
 
   // Check which rows have differences
   const speedDiff = isDifferent(mobility.moveSpeed, compareMobility?.moveSpeed);
