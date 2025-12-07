@@ -137,7 +137,7 @@ jobs:
             --title "Latest Release ($VERSION)" \
             --notes "This release always points to the latest stable version. Currently: $VERSION
 
-For changelog and details, see the [$VERSION release](https://github.com/${{ github.repository }}/releases/tag/$VERSION)." \
+          For changelog and details, see the [$VERSION release](https://github.com/${{ github.repository }}/releases/tag/$VERSION)." \
             latest-assets/*
 
           echo "Successfully updated 'latest' release to $VERSION"
