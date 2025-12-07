@@ -119,12 +119,12 @@ describe('EconomySection', () => {
       expect(screen.getByText('60')).toBeInTheDocument()
     })
 
-    it('should render cost-effectiveness', () => {
+    it('should render build power cost', () => {
       render(<EconomySection economy={mockFabricatorEconomy} />)
 
-      expect(screen.getByText('Cost-effectiveness:')).toBeInTheDocument()
-      // 150 / 10 = 15
-      expect(screen.getByText('15 metal per metal/s')).toBeInTheDocument()
+      expect(screen.getByText('Build power cost:')).toBeInTheDocument()
+      // (150 + 1000 * 2/3) / 10 = (150 + 666.67) / 10 = 81.7
+      expect(screen.getByText('81.7 metal')).toBeInTheDocument()
     })
 
     it('should render energy efficiency', () => {
@@ -160,7 +160,7 @@ describe('EconomySection', () => {
       expect(screen.getByText('(-200 energy/s)')).toBeInTheDocument()
     })
 
-    it('should show comparison values for cost-effectiveness', () => {
+    it('should show comparison values for build power cost', () => {
       render(
         <EconomySection
           economy={mockFabricatorEconomy}
@@ -168,8 +168,9 @@ describe('EconomySection', () => {
         />
       )
 
-      // Cost-effectiveness: 150/10=15 vs 300/15=20, diff = -5 (lower is better)
-      expect(screen.getByText('(-5 metal per metal/s)')).toBeInTheDocument()
+      // Build power cost: (150 + 1000*2/3)/10=81.7 vs (300 + 1200*2/3)/15=73.3
+      // diff = 81.7 - 73.3 = 8.4 (higher is worse, so shows as +8.4)
+      expect(screen.getByText('(+8.4 metal)')).toBeInTheDocument()
     })
   })
 
@@ -204,9 +205,9 @@ describe('EconomySection', () => {
       }
       render(<EconomySection economy={economy} />)
 
-      // Should still render build rate but not cost-effectiveness
+      // Should still render build rate but not build power cost
       expect(screen.getByText('Build rate:')).toBeInTheDocument()
-      expect(screen.queryByText('Cost-effectiveness:')).not.toBeInTheDocument()
+      expect(screen.queryByText('Build power cost:')).not.toBeInTheDocument()
     })
   })
 
