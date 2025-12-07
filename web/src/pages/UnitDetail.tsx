@@ -12,6 +12,8 @@ import { AmmoSection } from '@/components/stats/AmmoSection'
 import { TargetPrioritiesSection } from '@/components/stats/TargetPrioritiesSection'
 import { BuiltBySection } from '@/components/stats/BuiltBySection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
+import { EconomySection } from '@/components/stats/EconomySection'
+import { StorageSection } from '@/components/stats/StorageSection'
 import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
 
 export function UnitDetail() {
@@ -226,6 +228,16 @@ export function UnitDetail() {
                   )}
                 </div>
 
+                {/* Economy row (includes production, storage, and build arm stats) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  <EconomySection economy={specs.economy} compareEconomy={compareSpecs?.economy} />
+                  {compareUnit ? (
+                    <EconomySection economy={compareSpecs!.economy} compareEconomy={specs.economy} />
+                  ) : (
+                    <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                  )}
+                </div>
+
                 {/* Physics row */}
                 {showMobility && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
@@ -344,6 +356,18 @@ export function UnitDetail() {
                   </div>
                 )}
 
+                {/* Storage row */}
+                {((specs.storage?.unitStorage ?? 0) > 0 || (compareSpecs?.storage?.unitStorage ?? 0) > 0) && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <StorageSection storage={specs.storage} compareStorage={compareSpecs?.storage} />
+                    {compareUnit ? (
+                      <StorageSection storage={compareSpecs?.storage} compareStorage={specs.storage} />
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                )}
+
                 {/* Target priorities row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                   <TargetPrioritiesSection weapons={regularWeapons} />
@@ -401,6 +425,8 @@ export function UnitDetail() {
             <div className="md:col-span-2 space-y-6">
               <OverviewSection unit={unit} />
 
+              <EconomySection economy={specs.economy} />
+
               {specs.mobility && (
                 <PhysicsSection mobility={specs.mobility} special={specs.special} />
               )}
@@ -433,6 +459,8 @@ export function UnitDetail() {
                   )}
                 </>
               )}
+
+              <StorageSection storage={specs.storage} />
 
               <TargetPrioritiesSection weapons={regularWeapons} />
             </div>
