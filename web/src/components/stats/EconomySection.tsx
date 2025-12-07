@@ -8,6 +8,7 @@ interface EconomySectionProps {
   economy: EconomySpecs;
   compareEconomy?: EconomySpecs;
   showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -21,6 +22,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
   economy,
   compareEconomy,
   showDifferencesOnly,
+  hideDiff,
 }) => {
   // Production stats
   const metalProduction = economy.production?.metal || 0;
@@ -93,6 +95,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareMetalProduction ? Number(compareMetalProduction.toFixed(1)) : undefined}
               comparisonType="higher-better"
               suffix="/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -106,6 +109,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareEnergyProduction ? Number(compareEnergyProduction.toFixed(0)) : undefined}
               comparisonType="higher-better"
               suffix="/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -120,6 +124,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               value={Number(metalStorage.toFixed(0))}
               compareValue={compareMetalStorage ? Number(compareMetalStorage.toFixed(0)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -132,6 +137,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               value={Number(energyStorage.toFixed(0))}
               compareValue={compareEnergyStorage ? Number(compareEnergyStorage.toFixed(0)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -147,6 +153,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareBuildRate ? Number(compareBuildRate.toFixed(1)) : undefined}
               comparisonType="higher-better"
               suffix=" metal/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -160,6 +167,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareEnergyConsumption ? Number(compareEnergyConsumption.toFixed(0)) : undefined}
               comparisonType="lower-better"
               suffix=" energy/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -172,6 +180,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               value={Number(buildRange.toFixed(0))}
               compareValue={compareBuildRange ? Number(compareBuildRange.toFixed(0)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -185,6 +194,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareCostEffectiveness ? Number(compareCostEffectiveness.toFixed(1)) : undefined}
               comparisonType="lower-better"
               suffix=" metal per metal/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -198,6 +208,7 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
               compareValue={compareEnergyEfficiency ? Number(compareEnergyEfficiency.toFixed(1)) : undefined}
               comparisonType="lower-better"
               suffix=" energy/metal"
+              hideDiff={hideDiff}
             />
           }
         />

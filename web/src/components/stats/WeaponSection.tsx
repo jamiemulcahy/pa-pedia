@@ -9,6 +9,7 @@ interface WeaponSectionProps {
   weapon: Weapon;
   compareWeapon?: Weapon;
   showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -26,7 +27,7 @@ function calculateBurstDps(weapon: Weapon): number | undefined {
     : undefined;
 }
 
-export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon, showDifferencesOnly }) => {
+export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon, showDifferencesOnly, hideDiff }) => {
   const count = weapon.count ?? 1;
   const compareCount = compareWeapon?.count ?? 1;
   const title = count > 1 ? `Weapon ×${count}` : 'Weapon';
@@ -100,6 +101,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
               value={Number(weapon.damage.toFixed(0))}
               compareValue={compareWeapon?.damage ? Number(compareWeapon.damage.toFixed(0)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -113,6 +115,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
               compareValue={compareWeapon?.rateOfFire ? Number(compareWeapon.rateOfFire.toFixed(1)) : undefined}
               comparisonType="higher-better"
               suffix="/s"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -125,6 +128,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
               value={Number((weapon.dps * count).toFixed(1))}
               compareValue={compareWeapon?.dps ? Number((compareWeapon.dps * compareCount).toFixed(1)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -137,6 +141,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
               value={Number((burstDps * count).toFixed(1))}
               compareValue={compareBurstDps ? Number((compareBurstDps * compareCount).toFixed(1)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />

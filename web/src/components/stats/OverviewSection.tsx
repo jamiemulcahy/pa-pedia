@@ -11,6 +11,8 @@ interface OverviewSectionProps {
   compareUnit?: Unit;
   factionId?: string;
   showDifferencesOnly?: boolean;
+  /** Hide diff indicators (for primary unit side) */
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -20,7 +22,7 @@ function isDifferent(a: number | undefined, b: number | undefined): boolean {
   return a !== b;
 }
 
-export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId, showDifferencesOnly }) => {
+export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId, showDifferencesOnly, hideDiff }) => {
   const { specs } = unit;
   const maxRange = specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -85,6 +87,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
               compareValue={compareUnit?.specs.combat.health}
               comparisonType="higher-better"
               formatDiff={(d) => Math.abs(d).toLocaleString()}
+              hideDiff={hideDiff}
             />
           }
         />
@@ -99,6 +102,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
                 compareValue={compareUnit?.specs.economy.buildCost}
                 comparisonType="lower-better"
                 formatDiff={(d) => Math.abs(d).toLocaleString()}
+                hideDiff={hideDiff}
               />
               {' metal'}
             </span>
@@ -113,6 +117,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
               value={maxRange}
               compareValue={compareMaxRange}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -125,6 +130,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
               value={Number(specs.combat.dps.toFixed(1))}
               compareValue={compareUnit?.specs.combat.dps ? Number(compareUnit.specs.combat.dps.toFixed(1)) : undefined}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />

@@ -140,4 +140,49 @@ describe('ComparisonValue', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument()
     expect(screen.queryByText(/[+-]/)).not.toBeInTheDocument()
   })
+
+  describe('hideDiff', () => {
+    it('should hide diff indicator when hideDiff is true', () => {
+      render(
+        <ComparisonValue
+          value={150}
+          compareValue={100}
+          comparisonType="higher-better"
+          hideDiff
+        />
+      )
+
+      expect(screen.getByText('150')).toBeInTheDocument()
+      expect(screen.queryByText('(+50)')).not.toBeInTheDocument()
+    })
+
+    it('should show diff indicator when hideDiff is false', () => {
+      render(
+        <ComparisonValue
+          value={150}
+          compareValue={100}
+          comparisonType="higher-better"
+          hideDiff={false}
+        />
+      )
+
+      expect(screen.getByText('150')).toBeInTheDocument()
+      expect(screen.getByText('(+50)')).toBeInTheDocument()
+    })
+
+    it('should still show value with suffix when hideDiff is true', () => {
+      render(
+        <ComparisonValue
+          value={150}
+          compareValue={100}
+          comparisonType="higher-better"
+          suffix="/s"
+          hideDiff
+        />
+      )
+
+      expect(screen.getByText('150/s')).toBeInTheDocument()
+      expect(screen.queryByText('(+50/s)')).not.toBeInTheDocument()
+    })
+  })
 })

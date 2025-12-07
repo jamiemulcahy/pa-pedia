@@ -248,7 +248,7 @@ export function UnitDetail() {
 
                 {/* Overview row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <OverviewSection unit={unit} compareUnit={compareUnit} showDifferencesOnly={showDifferencesOnly} />
+                  <OverviewSection unit={unit} compareUnit={compareUnit} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   {compareUnit ? (
                     <OverviewSection unit={compareUnit} compareUnit={unit} factionId={compareFactionId} showDifferencesOnly={showDifferencesOnly} />
                   ) : (
@@ -258,7 +258,7 @@ export function UnitDetail() {
 
                 {/* Economy row (includes production, storage, and build arm stats) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <EconomySection economy={specs.economy} compareEconomy={compareSpecs?.economy} showDifferencesOnly={showDifferencesOnly} />
+                  <EconomySection economy={specs.economy} compareEconomy={compareSpecs?.economy} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   {compareUnit ? (
                     <EconomySection economy={compareSpecs!.economy} compareEconomy={specs.economy} showDifferencesOnly={showDifferencesOnly} />
                   ) : (
@@ -270,7 +270,7 @@ export function UnitDetail() {
                 {showMobility && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {specs.mobility ? (
-                      <PhysicsSection mobility={specs.mobility} special={specs.special} compareMobility={compareSpecs?.mobility} compareSpecial={compareSpecs?.special} showDifferencesOnly={showDifferencesOnly} />
+                      <PhysicsSection mobility={specs.mobility} special={specs.special} compareMobility={compareSpecs?.mobility} compareSpecial={compareSpecs?.special} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
                     )}
@@ -290,7 +290,7 @@ export function UnitDetail() {
                 {showRecon && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {specs.recon ? (
-                      <ReconSection recon={specs.recon} compareRecon={compareSpecs?.recon} showDifferencesOnly={showDifferencesOnly} />
+                      <ReconSection recon={specs.recon} compareRecon={compareSpecs?.recon} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
                     )}
@@ -311,8 +311,8 @@ export function UnitDetail() {
                   <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {weapon1 ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={weapon1} compareWeapon={weapon2} showDifferencesOnly={showDifferencesOnly} />
-                        {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
+                        <WeaponSection weapon={weapon1} compareWeapon={weapon2} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} compareAmmo={weapon2?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
@@ -321,7 +321,7 @@ export function UnitDetail() {
                       weapon2 ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={weapon2} compareWeapon={weapon1} showDifferencesOnly={showDifferencesOnly} />
-                          {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} factionId={compareFactionId || factionId} />}
+                          {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} compareAmmo={weapon1?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
@@ -337,8 +337,8 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {selfDestructWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareSelfDestruct} showDifferencesOnly={showDifferencesOnly} />
-                        {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} />}
+                        <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareSelfDestruct} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} compareAmmo={compareSelfDestruct?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
@@ -347,7 +347,7 @@ export function UnitDetail() {
                       compareSelfDestruct ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareSelfDestruct} compareWeapon={selfDestructWeapon} showDifferencesOnly={showDifferencesOnly} />
-                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} factionId={compareFactionId || factionId} />}
+                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} compareAmmo={selfDestructWeapon?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
@@ -363,8 +363,8 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {deathExplosionWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareDeathExplosion} showDifferencesOnly={showDifferencesOnly} />
-                        {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />}
+                        <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareDeathExplosion} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} compareAmmo={compareDeathExplosion?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
@@ -373,7 +373,7 @@ export function UnitDetail() {
                       compareDeathExplosion ? (
                         <div className="space-y-6">
                           <WeaponSection weapon={compareDeathExplosion} compareWeapon={deathExplosionWeapon} showDifferencesOnly={showDifferencesOnly} />
-                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} factionId={compareFactionId || factionId} />}
+                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} compareAmmo={deathExplosionWeapon?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
@@ -387,7 +387,7 @@ export function UnitDetail() {
                 {/* Storage row */}
                 {((specs.storage?.unitStorage ?? 0) > 0 || (compareSpecs?.storage?.unitStorage ?? 0) > 0) && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <StorageSection storage={specs.storage} compareStorage={compareSpecs?.storage} showDifferencesOnly={showDifferencesOnly} />
+                    <StorageSection storage={specs.storage} compareStorage={compareSpecs?.storage} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     {compareUnit ? (
                       <StorageSection storage={compareSpecs?.storage} compareStorage={specs.storage} showDifferencesOnly={showDifferencesOnly} />
                     ) : (

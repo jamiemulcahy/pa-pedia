@@ -3,18 +3,46 @@ import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { SpawnUnitLink } from './SpawnUnitLink';
+import { ComparisonValue } from '../ComparisonValue';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import type { Ammo } from '@/types/faction';
 
 interface AmmoSectionProps {
   ammo: Ammo;
+  compareAmmo?: Ammo;
+  showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
   /** Optional faction ID override (used for comparison mode) */
   factionId?: string;
 }
 
-export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId: propFactionId }) => {
+/** Check if two values are different (for comparison filtering) */
+function isDifferent(a: number | string | undefined, b: number | string | undefined): boolean {
+  if (a === undefined && b === undefined) return false;
+  if (a === undefined || b === undefined) return true;
+  return a !== b;
+}
+
+export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, showDifferencesOnly, hideDiff, factionId: propFactionId }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
+
+  // Check which rows have differences
+  const damageDiff = isDifferent(ammo.damage, compareAmmo?.damage);
+  const splashDamageDiff = isDifferent(ammo.splashDamage, compareAmmo?.splashDamage) || isDifferent(ammo.splashRadius, compareAmmo?.splashRadius);
+  const muzzleVelDiff = isDifferent(ammo.muzzleVelocity, compareAmmo?.muzzleVelocity);
+  const maxVelDiff = isDifferent(ammo.maxVelocity, compareAmmo?.maxVelocity);
+  const spawnDiff = isDifferent(ammo.spawnUnitOnDeath, compareAmmo?.spawnUnitOnDeath);
+
+  // In diff mode with compare ammo, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareAmmo ||
+    damageDiff || splashDamageDiff || muzzleVelDiff || maxVelDiff || spawnDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareAmmo || hasDiff;
 
   return (
     <StatSection title="Ammo">
@@ -24,27 +52,68 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, factionId: propF
           displayName="View Blueprint"
         />
       </div>
-      <StatRow label="Type" value="Projectile" />
-      <StatRow label="Flight type" value="Ballistic" />
-      <StatRow label="Damage target" value="HitPoints" />
-      {ammo.damage !== undefined && (
-        <StatRow label="Damage" value={ammo.damage} />
-      )}
-      {ammo.splashDamage !== undefined && ammo.splashRadius !== undefined && (
+      {ammo.damage !== undefined && showRow(damageDiff) && (
         <StatRow
-          label="Burn damage"
-          value={`${ammo.splashDamage}, radius ${ammo.splashRadius}`}
+          label="Damage"
+          value={
+            <ComparisonValue
+              value={ammo.damage}
+              compareValue={compareAmmo?.damage}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
         />
       )}
-      {ammo.muzzleVelocity !== undefined && (
-        <StatRow label="Muzzle velocity" value={ammo.muzzleVelocity.toFixed(1)} />
+      {ammo.splashDamage !== undefined && ammo.splashRadius !== undefined && showRow(splashDamageDiff) && (
+        <StatRow
+          label="Burn damage"
+          value={
+            <span>
+              <ComparisonValue
+                value={ammo.splashDamage}
+                compareValue={compareAmmo?.splashDamage}
+                comparisonType="higher-better"
+                hideDiff={hideDiff}
+              />
+              {`, radius `}
+              <ComparisonValue
+                value={ammo.splashRadius}
+                compareValue={compareAmmo?.splashRadius}
+                comparisonType="higher-better"
+                hideDiff={hideDiff}
+              />
+            </span>
+          }
+        />
       )}
-      {ammo.maxVelocity !== undefined && (
-        <StatRow label="Max velocity" value={ammo.maxVelocity.toFixed(1)} />
+      {ammo.muzzleVelocity !== undefined && showRow(muzzleVelDiff) && (
+        <StatRow
+          label="Muzzle velocity"
+          value={
+            <ComparisonValue
+              value={Number(ammo.muzzleVelocity.toFixed(1))}
+              compareValue={compareAmmo?.muzzleVelocity ? Number(compareAmmo.muzzleVelocity.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
       )}
-      <StatRow label="Collision check" value="enemies" />
-      <StatRow label="Collision response" value="impact" />
-      {ammo.spawnUnitOnDeath && (
+      {ammo.maxVelocity !== undefined && showRow(maxVelDiff) && (
+        <StatRow
+          label="Max velocity"
+          value={
+            <ComparisonValue
+              value={Number(ammo.maxVelocity.toFixed(1))}
+              compareValue={compareAmmo?.maxVelocity ? Number(compareAmmo.maxVelocity.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {ammo.spawnUnitOnDeath && showRow(spawnDiff) && (
         <StatRow
           label="Spawns on death"
           value={

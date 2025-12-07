@@ -8,6 +8,7 @@ interface ReconSectionProps {
   recon: ReconSpecs;
   compareRecon?: ReconSpecs;
   showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -17,7 +18,7 @@ function isDifferent(a: number | undefined, b: number | undefined): boolean {
   return a !== b;
 }
 
-export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon, showDifferencesOnly }) => {
+export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon, showDifferencesOnly, hideDiff }) => {
   const hasAnyRecon =
     recon.visionRadius !== undefined ||
     recon.underwaterVisionRadius !== undefined ||
@@ -58,6 +59,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.visionRadius}
               compareValue={compareRecon?.visionRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -70,6 +72,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.underwaterVisionRadius}
               compareValue={compareRecon?.underwaterVisionRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -84,6 +87,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.orbitalVisionRadius}
               compareValue={compareRecon?.orbitalVisionRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -96,6 +100,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.mineVisionRadius}
               compareValue={compareRecon?.mineVisionRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -108,6 +113,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.radarRadius}
               compareValue={compareRecon?.radarRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -120,6 +126,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.sonarRadius}
               compareValue={compareRecon?.sonarRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -132,6 +139,7 @@ export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon,
               value={recon.orbitalRadarRadius}
               compareValue={compareRecon?.orbitalRadarRadius}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />

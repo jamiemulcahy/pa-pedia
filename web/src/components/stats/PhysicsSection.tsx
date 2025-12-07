@@ -10,6 +10,7 @@ interface PhysicsSectionProps {
   compareMobility?: MobilitySpecs;
   compareSpecial?: SpecialSpecs;
   showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -25,6 +26,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
   compareMobility,
   compareSpecial,
   showDifferencesOnly,
+  hideDiff,
 }) => {
   const hasAnyStats =
     mobility.moveSpeed !== undefined ||
@@ -62,6 +64,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.moveSpeed}
               compareValue={compareMobility?.moveSpeed}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -74,6 +77,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.acceleration}
               compareValue={compareMobility?.acceleration}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -86,6 +90,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.brake}
               compareValue={compareMobility?.brake}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
@@ -98,6 +103,7 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.turnSpeed}
               compareValue={compareMobility?.turnSpeed}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />

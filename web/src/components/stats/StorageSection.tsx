@@ -8,6 +8,7 @@ interface StorageSectionProps {
   storage?: StorageSpecs;
   compareStorage?: StorageSpecs;
   showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 /** Check if two values are different (for comparison filtering) */
@@ -21,6 +22,7 @@ export const StorageSection: React.FC<StorageSectionProps> = ({
   storage,
   compareStorage,
   showDifferencesOnly,
+  hideDiff,
 }) => {
   const unitStorage = storage?.unitStorage || 0;
 
@@ -54,6 +56,7 @@ export const StorageSection: React.FC<StorageSectionProps> = ({
               compareValue={compareUnitStorage}
               comparisonType="higher-better"
               suffix={` ${storedUnitType}${unitStorage !== 1 ? 's' : ''}`}
+              hideDiff={hideDiff}
             />
           }
         />
