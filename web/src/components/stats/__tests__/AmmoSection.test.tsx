@@ -7,6 +7,7 @@ import type { Ammo } from '@/types/faction'
 
 const mockAmmo: Ammo = {
   resourceName: '/pa/ammo/test_ammo/test_ammo.json',
+  safeName: 'test_ammo',
   damage: 100,
   splashDamage: 20,
   splashRadius: 5,
@@ -16,6 +17,7 @@ const mockAmmo: Ammo = {
 
 const mockCompareAmmo: Ammo = {
   resourceName: '/pa/ammo/compare_ammo/compare_ammo.json',
+  safeName: 'compare_ammo',
   damage: 80,
   splashDamage: 25,
   splashRadius: 5,
@@ -105,6 +107,7 @@ describe('AmmoSection', () => {
     it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
       const equalAmmo: Ammo = {
         resourceName: '/pa/ammo/equal/equal.json',
+        safeName: 'equal',
         damage: 100,
         muzzleVelocity: 150,
       }
