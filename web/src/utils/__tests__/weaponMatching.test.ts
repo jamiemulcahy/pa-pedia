@@ -227,5 +227,30 @@ describe('weaponMatching', () => {
       const underwaterMatch = result.find(([, w2]) => w2?.resourceName === 'underwater_target')
       expect(underwaterMatch![0]).toBeUndefined()
     })
+
+    it('should preserve order from primary weapon list', () => {
+      const weapons1 = [
+        createMockWeapon('weapon_a', ['LandHorizontal']),
+        createMockWeapon('weapon_b', ['Air']),
+        createMockWeapon('weapon_c', ['WaterSurface']),
+      ]
+      const weapons2 = [
+        createMockWeapon('weapon_x', ['Air']),
+        createMockWeapon('weapon_y', ['LandHorizontal']),
+        createMockWeapon('weapon_z', ['WaterSurface']),
+      ]
+
+      const result = matchWeaponsByTargetLayers(weapons1, weapons2)
+
+      // Should maintain order from weapons1 for matched pairs
+      expect(result[0][0]?.resourceName).toBe('weapon_a')
+      expect(result[1][0]?.resourceName).toBe('weapon_b')
+      expect(result[2][0]?.resourceName).toBe('weapon_c')
+
+      // Matches should be correct despite different order in weapons2
+      expect(result[0][1]?.resourceName).toBe('weapon_y') // land matches land
+      expect(result[1][1]?.resourceName).toBe('weapon_x') // air matches air
+      expect(result[2][1]?.resourceName).toBe('weapon_z') // water matches water
+    })
   })
 })

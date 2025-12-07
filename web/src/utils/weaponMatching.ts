@@ -2,7 +2,14 @@ import type { Weapon } from '@/types/faction';
 
 /**
  * Calculates the overlap between two sets of target layers.
- * Higher score means better match.
+ *
+ * @param layers1 - First weapon's target layers
+ * @param layers2 - Second weapon's target layers
+ * @returns Number of overlapping layers (0 if no overlap or either is undefined/empty)
+ *
+ * @example
+ * calculateLayerOverlap(['LandHorizontal', 'WaterSurface'], ['LandHorizontal', 'Air']) // returns 1
+ * calculateLayerOverlap(['LandHorizontal'], ['Air']) // returns 0
  */
 function calculateLayerOverlap(layers1?: string[], layers2?: string[]): number {
   if (!layers1?.length || !layers2?.length) {
@@ -40,9 +47,6 @@ export function matchWeaponsByTargetLayers(
   const result: [Weapon | undefined, Weapon | undefined][] = [];
   const usedIndices2 = new Set<number>();
 
-  // Track which weapons from list 2 have been matched
-  const matched2: boolean[] = new Array(weapons2.length).fill(false);
-
   // For each weapon in list 1, find the best match in list 2
   for (const weapon1 of weapons1) {
     let bestMatchIndex = -1;
@@ -63,7 +67,6 @@ export function matchWeaponsByTargetLayers(
     if (bestMatchIndex >= 0 && bestMatchScore > 0) {
       result.push([weapon1, weapons2[bestMatchIndex]]);
       usedIndices2.add(bestMatchIndex);
-      matched2[bestMatchIndex] = true;
     } else {
       // No compatible weapon found
       result.push([weapon1, undefined]);
@@ -72,7 +75,7 @@ export function matchWeaponsByTargetLayers(
 
   // Add any unmatched weapons from list 2
   for (let j = 0; j < weapons2.length; j++) {
-    if (!matched2[j]) {
+    if (!usedIndices2.has(j)) {
       result.push([undefined, weapons2[j]]);
     }
   }
