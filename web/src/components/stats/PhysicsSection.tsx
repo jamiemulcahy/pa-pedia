@@ -2,30 +2,64 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import type { MobilitySpecs, SpecialSpecs } from '@/types/faction';
 
 interface PhysicsSectionProps {
   mobility: MobilitySpecs;
   special?: SpecialSpecs;
   compareMobility?: MobilitySpecs;
+  compareSpecial?: SpecialSpecs;
+  showDifferencesOnly?: boolean;
+  hideDiff?: boolean;
 }
 
 export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
   mobility,
   special,
   compareMobility,
+  compareSpecial,
+  showDifferencesOnly,
+  hideDiff,
 }) => {
+  // Check if this unit has any stats
   const hasAnyStats =
     mobility.moveSpeed !== undefined ||
     mobility.acceleration !== undefined ||
     mobility.brake !== undefined ||
     mobility.turnSpeed !== undefined;
 
-  if (!hasAnyStats) return null;
+  // Also check if compare unit has stats (for showing differences)
+  const compareHasAnyStats =
+    compareMobility?.moveSpeed !== undefined ||
+    compareMobility?.acceleration !== undefined ||
+    compareMobility?.brake !== undefined ||
+    compareMobility?.turnSpeed !== undefined;
+
+  // Show section if either unit has stats
+  if (!hasAnyStats && !compareHasAnyStats) return null;
+
+  // Check which rows have differences
+  const speedDiff = isDifferent(mobility.moveSpeed, compareMobility?.moveSpeed);
+  const accelDiff = isDifferent(mobility.acceleration, compareMobility?.acceleration);
+  const brakeDiff = isDifferent(mobility.brake, compareMobility?.brake);
+  const turnDiff = isDifferent(mobility.turnSpeed, compareMobility?.turnSpeed);
+  const amphibDiff = isDifferent(special?.amphibious, compareSpecial?.amphibious);
+  const hoverDiff = isDifferent(special?.hover, compareSpecial?.hover);
+
+  // In diff mode with compare mobility, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !compareMobility ||
+    speedDiff || accelDiff || brakeDiff || turnDiff || amphibDiff || hoverDiff;
+
+  if (!hasAnyDifference) {
+    return null;
+  }
+
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareMobility || hasDiff;
 
   return (
     <StatSection title="Physics">
-      {mobility.moveSpeed !== undefined && (
+      {mobility.moveSpeed !== undefined && showRow(speedDiff) && (
         <StatRow
           label="Max speed"
           value={
@@ -33,11 +67,12 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.moveSpeed}
               compareValue={compareMobility?.moveSpeed}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
       )}
-      {mobility.acceleration !== undefined && (
+      {mobility.acceleration !== undefined && showRow(accelDiff) && (
         <StatRow
           label="Acceleration"
           value={
@@ -45,11 +80,12 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.acceleration}
               compareValue={compareMobility?.acceleration}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
       )}
-      {mobility.brake !== undefined && (
+      {mobility.brake !== undefined && showRow(brakeDiff) && (
         <StatRow
           label="Braking rate"
           value={
@@ -57,11 +93,12 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.brake}
               compareValue={compareMobility?.brake}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
       )}
-      {mobility.turnSpeed !== undefined && (
+      {mobility.turnSpeed !== undefined && showRow(turnDiff) && (
         <StatRow
           label="Turn rate"
           value={
@@ -69,14 +106,15 @@ export const PhysicsSection: React.FC<PhysicsSectionProps> = ({
               value={mobility.turnSpeed}
               compareValue={compareMobility?.turnSpeed}
               comparisonType="higher-better"
+              hideDiff={hideDiff}
             />
           }
         />
       )}
-      {special?.amphibious && (
+      {special?.amphibious && showRow(amphibDiff) && (
         <StatRow label="Amphibious" value="Yes" />
       )}
-      {special?.hover && (
+      {special?.hover && showRow(hoverDiff) && (
         <StatRow label="Hover" value="Yes" />
       )}
     </StatSection>

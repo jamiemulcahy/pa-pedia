@@ -24,6 +24,17 @@ export function UnitDetail() {
   // Parse comparison parameters from URL
   const compareParam = searchParams.get('compare')
   const isComparing = compareParam !== null
+  const showDifferencesOnly = searchParams.get('diffOnly') === '1'
+
+  const toggleDifferencesOnly = () => {
+    const params = new URLSearchParams(searchParams)
+    if (showDifferencesOnly) {
+      params.delete('diffOnly')
+    } else {
+      params.set('diffOnly', '1')
+    }
+    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
+  }
 
   // Check if user came from "All" view
   const fromAll = searchParams.get('from') === 'all'
@@ -112,16 +123,33 @@ export function UnitDetail() {
               </div>
               <div className="flex items-center gap-2 justify-end sm:flex-shrink-0">
                 {compareUnit && (
-                  <button
-                    onClick={handleSwap}
-                    className="p-2 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                    title="Swap primary and comparison units"
-                    aria-label="Swap primary and comparison units"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                  </button>
+                  <>
+                    <button
+                      onClick={toggleDifferencesOnly}
+                      className={`p-2 text-sm font-medium rounded-lg transition-colors ${
+                        showDifferencesOnly
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-gray-600 hover:bg-gray-700 text-white'
+                      }`}
+                      title={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
+                      aria-label={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
+                      aria-pressed={showDifferencesOnly}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={handleSwap}
+                      className="p-2 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                      title="Swap primary and comparison units"
+                      aria-label="Swap primary and comparison units"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => navigate(`/faction/${factionId}/unit/${unitId}`)}
@@ -210,9 +238,18 @@ export function UnitDetail() {
 
                 {/* Unit Types row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <UnitTypesSection unitTypes={unit.unitTypes} />
+                  <UnitTypesSection
+                    unitTypes={unit.unitTypes}
+                    compareUnitTypes={compareUnit?.unitTypes}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
                   {compareUnit ? (
-                    <UnitTypesSection unitTypes={compareUnit.unitTypes} />
+                    <UnitTypesSection
+                      unitTypes={compareUnit.unitTypes}
+                      compareUnitTypes={unit.unitTypes}
+                      showDifferencesOnly={showDifferencesOnly}
+                      isComparisonSide
+                    />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}
@@ -220,9 +257,9 @@ export function UnitDetail() {
 
                 {/* Overview row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <OverviewSection unit={unit} />
+                  <OverviewSection unit={unit} compareUnit={compareUnit} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   {compareUnit ? (
-                    <OverviewSection unit={compareUnit} compareUnit={unit} factionId={compareFactionId} />
+                    <OverviewSection unit={compareUnit} compareUnit={unit} factionId={compareFactionId} showDifferencesOnly={showDifferencesOnly} />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}
@@ -230,9 +267,9 @@ export function UnitDetail() {
 
                 {/* Economy row (includes production, storage, and build arm stats) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <EconomySection economy={specs.economy} />
+                  <EconomySection economy={specs.economy} compareEconomy={compareSpecs?.economy} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   {compareUnit ? (
-                    <EconomySection economy={compareSpecs!.economy} compareEconomy={specs.economy} />
+                    <EconomySection economy={compareSpecs!.economy} compareEconomy={specs.economy} showDifferencesOnly={showDifferencesOnly} />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}
@@ -242,13 +279,13 @@ export function UnitDetail() {
                 {showMobility && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {specs.mobility ? (
-                      <PhysicsSection mobility={specs.mobility} special={specs.special} />
+                      <PhysicsSection mobility={specs.mobility} special={specs.special} compareMobility={compareSpecs?.mobility} compareSpecial={compareSpecs?.special} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
                     )}
                     {compareUnit ? (
                       compareSpecs?.mobility ? (
-                        <PhysicsSection mobility={compareSpecs.mobility} special={compareSpecs.special} compareMobility={specs.mobility} />
+                        <PhysicsSection mobility={compareSpecs.mobility} special={compareSpecs.special} compareMobility={specs.mobility} compareSpecial={specs.special} showDifferencesOnly={showDifferencesOnly} />
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No mobility data</div>
                       )
@@ -262,13 +299,13 @@ export function UnitDetail() {
                 {showRecon && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {specs.recon ? (
-                      <ReconSection recon={specs.recon} />
+                      <ReconSection recon={specs.recon} compareRecon={compareSpecs?.recon} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
                     )}
                     {compareUnit ? (
                       compareSpecs?.recon ? (
-                        <ReconSection recon={compareSpecs.recon} compareRecon={specs.recon} />
+                        <ReconSection recon={compareSpecs.recon} compareRecon={specs.recon} showDifferencesOnly={showDifferencesOnly} />
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No recon data</div>
                       )
@@ -283,8 +320,8 @@ export function UnitDetail() {
                   <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {weapon1 ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={weapon1} compareWeapon={weapon2} />
-                        {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
+                        <WeaponSection weapon={weapon1} compareWeapon={weapon2} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} compareAmmo={weapon2?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
@@ -292,8 +329,8 @@ export function UnitDetail() {
                     {compareUnit ? (
                       weapon2 ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={weapon2} compareWeapon={weapon1} />
-                          {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} factionId={compareFactionId || factionId} />}
+                          <WeaponSection weapon={weapon2} compareWeapon={weapon1} showDifferencesOnly={showDifferencesOnly} />
+                          {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} compareAmmo={weapon1?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
@@ -309,8 +346,8 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {selfDestructWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareSelfDestruct} />
-                        {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} />}
+                        <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareSelfDestruct} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {selfDestructWeapon.ammoDetails && <AmmoSection ammo={selfDestructWeapon.ammoDetails} compareAmmo={compareSelfDestruct?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
@@ -318,8 +355,8 @@ export function UnitDetail() {
                     {compareUnit ? (
                       compareSelfDestruct ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={compareSelfDestruct} compareWeapon={selfDestructWeapon} />
-                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} factionId={compareFactionId || factionId} />}
+                          <WeaponSection weapon={compareSelfDestruct} compareWeapon={selfDestructWeapon} showDifferencesOnly={showDifferencesOnly} />
+                          {compareSelfDestruct.ammoDetails && <AmmoSection ammo={compareSelfDestruct.ammoDetails} compareAmmo={selfDestructWeapon?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No self-destruct</div>
@@ -335,8 +372,8 @@ export function UnitDetail() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                     {deathExplosionWeapon ? (
                       <div className="space-y-6">
-                        <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareDeathExplosion} />
-                        {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} />}
+                        <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareDeathExplosion} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        {deathExplosionWeapon.ammoDetails && <AmmoSection ammo={deathExplosionWeapon.ammoDetails} compareAmmo={compareDeathExplosion?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />}
                       </div>
                     ) : (
                       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
@@ -344,8 +381,8 @@ export function UnitDetail() {
                     {compareUnit ? (
                       compareDeathExplosion ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={compareDeathExplosion} compareWeapon={deathExplosionWeapon} />
-                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} factionId={compareFactionId || factionId} />}
+                          <WeaponSection weapon={compareDeathExplosion} compareWeapon={deathExplosionWeapon} showDifferencesOnly={showDifferencesOnly} />
+                          {compareDeathExplosion.ammoDetails && <AmmoSection ammo={compareDeathExplosion.ammoDetails} compareAmmo={deathExplosionWeapon?.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No death explosion</div>
@@ -359,9 +396,9 @@ export function UnitDetail() {
                 {/* Storage row */}
                 {((specs.storage?.unitStorage ?? 0) > 0 || (compareSpecs?.storage?.unitStorage ?? 0) > 0) && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                    <StorageSection storage={specs.storage} />
+                    <StorageSection storage={specs.storage} compareStorage={compareSpecs?.storage} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     {compareUnit ? (
-                      <StorageSection storage={compareSpecs?.storage} compareStorage={specs.storage} />
+                      <StorageSection storage={compareSpecs?.storage} compareStorage={specs.storage} showDifferencesOnly={showDifferencesOnly} />
                     ) : (
                       <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                     )}
@@ -370,9 +407,18 @@ export function UnitDetail() {
 
                 {/* Target priorities row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <TargetPrioritiesSection weapons={regularWeapons} />
+                  <TargetPrioritiesSection
+                    weapons={regularWeapons}
+                    compareWeapons={compareRegularWeapons}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
                   {compareUnit ? (
-                    <TargetPrioritiesSection weapons={compareRegularWeapons} />
+                    <TargetPrioritiesSection
+                      weapons={compareRegularWeapons}
+                      compareWeapons={regularWeapons}
+                      showDifferencesOnly={showDifferencesOnly}
+                      isComparisonSide
+                    />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}
@@ -380,9 +426,22 @@ export function UnitDetail() {
 
                 {/* Built by row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <BuiltBySection builtBy={buildRelationships?.builtBy} buildCost={specs.economy.buildCost} factionId={factionId} />
+                  <BuiltBySection
+                    builtBy={buildRelationships?.builtBy}
+                    buildCost={specs.economy.buildCost}
+                    factionId={factionId}
+                    compareBuiltBy={compareUnit?.buildRelationships?.builtBy}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
                   {compareUnit ? (
-                    <BuiltBySection builtBy={compareUnit.buildRelationships?.builtBy} buildCost={compareUnit.specs.economy.buildCost} factionId={compareFactionId} />
+                    <BuiltBySection
+                      builtBy={compareUnit.buildRelationships?.builtBy}
+                      buildCost={compareUnit.specs.economy.buildCost}
+                      factionId={compareFactionId}
+                      compareBuiltBy={buildRelationships?.builtBy}
+                      showDifferencesOnly={showDifferencesOnly}
+                      isComparisonSide
+                    />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}

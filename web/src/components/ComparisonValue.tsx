@@ -7,6 +7,8 @@ interface ComparisonValueProps {
   formatDiff?: (diff: number) => string;
   /** Unit suffix like 'm', 's', '/s' */
   suffix?: string;
+  /** Hide the diff indicator (used for primary unit side in comparisons) */
+  hideDiff?: boolean;
 }
 
 export function ComparisonValue({
@@ -15,9 +17,10 @@ export function ComparisonValue({
   comparisonType = 'neutral',
   formatDiff,
   suffix = '',
+  hideDiff = false,
 }: ComparisonValueProps) {
-  // If no comparison or values aren't numbers, just show the value
-  if (compareValue === undefined || typeof value !== 'number' || typeof compareValue !== 'number') {
+  // If no comparison, values aren't numbers, or diff is hidden, just show the value
+  if (hideDiff || compareValue === undefined || typeof value !== 'number' || typeof compareValue !== 'number') {
     return (
       <span>
         {value}{suffix}

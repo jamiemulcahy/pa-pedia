@@ -92,4 +92,53 @@ describe('StorageSection', () => {
 
     expect(screen.getByText('Unit Storage')).toBeInTheDocument()
   })
+
+  describe('showDifferencesOnly', () => {
+    it('should show capacity when values differ and showDifferencesOnly enabled', () => {
+      render(
+        <StorageSection
+          storage={mockStorage}
+          compareStorage={mockCompareStorage}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(screen.getByText('Capacity:')).toBeInTheDocument()
+    })
+
+    it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
+      const { container } = render(
+        <StorageSection
+          storage={mockStorage}
+          compareStorage={mockStorage}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(container.firstChild).toBeNull()
+    })
+
+    it('should show all rows when showDifferencesOnly is false', () => {
+      render(
+        <StorageSection
+          storage={mockStorage}
+          compareStorage={mockStorage}
+          showDifferencesOnly={false}
+        />
+      )
+
+      expect(screen.getByText('Capacity:')).toBeInTheDocument()
+    })
+
+    it('should show all rows when no compareStorage even with showDifferencesOnly', () => {
+      render(
+        <StorageSection
+          storage={mockStorage}
+          showDifferencesOnly={true}
+        />
+      )
+
+      expect(screen.getByText('Capacity:')).toBeInTheDocument()
+    })
+  })
 })

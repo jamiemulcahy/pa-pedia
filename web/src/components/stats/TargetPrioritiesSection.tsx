@@ -4,26 +4,94 @@ import type { Weapon } from '@/types/faction';
 
 interface TargetPrioritiesSectionProps {
   weapons?: Weapon[];
+  /** Weapons from the comparison unit (for showing diff on comparison side) */
+  compareWeapons?: Weapon[];
+  /** When true, only show section if there are differences */
+  showDifferencesOnly?: boolean;
+  /** When true, this is the comparison side and should show the merged diff view */
+  isComparisonSide?: boolean;
 }
 
-export const TargetPrioritiesSection: React.FC<TargetPrioritiesSectionProps> = ({ weapons }) => {
+/** Extract unique target layers from weapons */
+function getTargetLayers(weapons?: Weapon[]): Set<string> {
+  const layers = new Set<string>();
+  weapons?.forEach(weapon => {
+    weapon.targetLayers?.forEach(layer => layers.add(layer));
+  });
+  return layers;
+}
+
+export const TargetPrioritiesSection: React.FC<TargetPrioritiesSectionProps> = ({
+  weapons,
+  compareWeapons,
+  showDifferencesOnly,
+  isComparisonSide,
+}) => {
   if (!weapons || weapons.length === 0) return null;
 
-  // Extract unique target layers from all weapons
-  const allTargetLayers = new Set<string>();
-  weapons.forEach(weapon => {
-    weapon.targetLayers?.forEach(layer => allTargetLayers.add(layer));
-  });
+  const thisTargets = getTargetLayers(weapons);
+  const compareTargets = getTargetLayers(compareWeapons);
 
-  if (allTargetLayers.size === 0) return null;
+  if (thisTargets.size === 0) return null;
 
-  // Format target priorities as lines
-  const targetLines = Array.from(allTargetLayers);
+  // Check if there are any differences
+  const allTargets = new Set([...thisTargets, ...compareTargets]);
+  const hasDifferences = compareWeapons && (
+    thisTargets.size !== compareTargets.size ||
+    [...thisTargets].some(t => !compareTargets.has(t)) ||
+    [...compareTargets].some(t => !thisTargets.has(t))
+  );
 
+  // In diff mode with comparison, hide if no differences
+  if (showDifferencesOnly && compareWeapons && !hasDifferences) {
+    return null;
+  }
+
+  // Sort targets alphabetically for consistent display
+  const sortedTargets = Array.from(allTargets).sort();
+
+  // For comparison side with compare data, show merged diff view
+  if (isComparisonSide && compareWeapons) {
+    return (
+      <StatSection title="Target Priorities">
+        <div className="space-y-1">
+          {sortedTargets.map((target, idx) => {
+            const inThis = thisTargets.has(target);
+            const inCompare = compareTargets.has(target);
+
+            if (inThis && inCompare) {
+              // Both have it - normal display
+              return (
+                <p key={idx} className="text-gray-900 dark:text-gray-100">
+                  {target}
+                </p>
+              );
+            } else if (inThis && !inCompare) {
+              // Only this unit (comparison) has it - gained (green +)
+              return (
+                <p key={idx} className="text-green-600 dark:text-green-400">
+                  <span className="font-medium">+</span> {target}
+                </p>
+              );
+            } else {
+              // Only compare (primary) has it - lost (red -)
+              return (
+                <p key={idx} className="text-red-600 dark:text-red-400">
+                  <span className="font-medium">−</span> {target}
+                </p>
+              );
+            }
+          })}
+        </div>
+      </StatSection>
+    );
+  }
+
+  // Primary side or no comparison - show simple list
   return (
     <StatSection title="Target Priorities">
       <div className="space-y-1">
-        {targetLines.map((target, idx) => (
+        {Array.from(thisTargets).sort().map((target, idx) => (
           <p key={idx} className="text-gray-900 dark:text-gray-100">{target}</p>
         ))}
       </div>
