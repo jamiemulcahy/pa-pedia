@@ -417,9 +417,22 @@ export function UnitDetail() {
 
                 {/* Built by row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                  <BuiltBySection builtBy={buildRelationships?.builtBy} buildCost={specs.economy.buildCost} factionId={factionId} />
+                  <BuiltBySection
+                    builtBy={buildRelationships?.builtBy}
+                    buildCost={specs.economy.buildCost}
+                    factionId={factionId}
+                    compareBuiltBy={compareUnit?.buildRelationships?.builtBy}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
                   {compareUnit ? (
-                    <BuiltBySection builtBy={compareUnit.buildRelationships?.builtBy} buildCost={compareUnit.specs.economy.buildCost} factionId={compareFactionId} />
+                    <BuiltBySection
+                      builtBy={compareUnit.buildRelationships?.builtBy}
+                      buildCost={compareUnit.specs.economy.buildCost}
+                      factionId={compareFactionId}
+                      compareBuiltBy={buildRelationships?.builtBy}
+                      showDifferencesOnly={showDifferencesOnly}
+                      isComparisonSide
+                    />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
                   )}

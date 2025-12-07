@@ -10,12 +10,21 @@ interface BuiltBySectionProps {
   buildCost: number;
   /** Optional faction ID override (used for comparison mode) */
   factionId?: string;
+  /** Builders from the other unit (for showing diff on comparison side) */
+  compareBuiltBy?: string[];
+  /** When true, only show section if there are differences */
+  showDifferencesOnly?: boolean;
+  /** When true, this is the comparison side and should show the merged diff view */
+  isComparisonSide?: boolean;
 }
 
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   builtBy,
   buildCost,
-  factionId: propFactionId
+  factionId: propFactionId,
+  compareBuiltBy,
+  showDifferencesOnly,
+  isComparisonSide,
 }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
@@ -23,8 +32,28 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
 
   if (!builtBy || builtBy.length === 0) return null;
 
+  const thisBuilders = new Set(builtBy);
+  const compareBuilders = new Set(compareBuiltBy || []);
+
+  // Check if there are any differences
+  const hasDifferences = compareBuiltBy && (
+    thisBuilders.size !== compareBuilders.size ||
+    [...thisBuilders].some(b => !compareBuilders.has(b)) ||
+    [...compareBuilders].some(b => !thisBuilders.has(b))
+  );
+
+  // In diff mode with comparison, hide if no differences
+  if (showDifferencesOnly && compareBuiltBy && !hasDifferences) {
+    return null;
+  }
+
+  // Get all builders to show (merged for comparison side)
+  const allBuilderIds = isComparisonSide && compareBuiltBy
+    ? new Set([...thisBuilders, ...compareBuilders])
+    : thisBuilders;
+
   // Get builder units with their build rates
-  const builders = builtBy
+  const builders = Array.from(allBuilderIds)
     .map(builderId => {
       const builder = units?.find(u => u.identifier === builderId);
       if (!builder) return null;
@@ -36,11 +65,13 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
         id: builderId,
         name: builder.displayName,
         tier: builder.unit.tier,
-        buildTime
+        buildTime,
+        inThis: thisBuilders.has(builderId),
+        inCompare: compareBuilders.has(builderId),
       };
     })
     .filter((b): b is NonNullable<typeof b> => b !== null)
-    .sort((a, b) => a.tier - b.tier);
+    .sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
 
   const formatBuildTime = (seconds: number): string => {
     if (seconds === 0) return '0:00';
@@ -64,22 +95,46 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
         label=""
         value={
           <div className="space-y-1">
-            {builders.map(builder => (
-              <div key={builder.id} className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 w-6">
-                  {getTierLabel(builder.tier)}
-                </span>
-                <Link
-                  to={`/faction/${factionId}/unit/${builder.id}`}
-                  className="text-blue-600 dark:text-blue-400 hover:underline flex-1"
-                >
-                  {builder.name}
-                </Link>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  {formatBuildTime(builder.buildTime)}
-                </span>
-              </div>
-            ))}
+            {builders.map(builder => {
+              // Determine styling based on comparison
+              const showDiff = isComparisonSide && compareBuiltBy;
+              const isAdded = showDiff && builder.inThis && !builder.inCompare;
+              const isRemoved = showDiff && !builder.inThis && builder.inCompare;
+
+              return (
+                <div key={builder.id} className="flex items-center gap-2">
+                  {showDiff && (
+                    <span className={`w-3 font-medium ${
+                      isAdded ? 'text-green-600 dark:text-green-400' :
+                      isRemoved ? 'text-red-600 dark:text-red-400' :
+                      'text-transparent'
+                    }`}>
+                      {isAdded ? '+' : isRemoved ? '−' : ''}
+                    </span>
+                  )}
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 w-6">
+                    {getTierLabel(builder.tier)}
+                  </span>
+                  <Link
+                    to={`/faction/${factionId}/unit/${builder.id}`}
+                    className={`hover:underline flex-1 ${
+                      isAdded ? 'text-green-600 dark:text-green-400' :
+                      isRemoved ? 'text-red-600 dark:text-red-400' :
+                      'text-blue-600 dark:text-blue-400'
+                    }`}
+                  >
+                    {builder.name}
+                  </Link>
+                  <span className={`text-sm ${
+                    isAdded ? 'text-green-600 dark:text-green-400' :
+                    isRemoved ? 'text-red-600 dark:text-red-400' :
+                    'text-gray-600 dark:text-gray-400'
+                  }`}>
+                    {formatBuildTime(builder.buildTime)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         }
       />
