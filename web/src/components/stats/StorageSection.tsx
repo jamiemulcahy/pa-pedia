@@ -2,6 +2,7 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import type { StorageSpecs } from '@/types/faction';
 
 interface StorageSectionProps {
@@ -9,13 +10,6 @@ interface StorageSectionProps {
   compareStorage?: StorageSpecs;
   showDifferencesOnly?: boolean;
   hideDiff?: boolean;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | string | undefined, b: number | string | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 export const StorageSection: React.FC<StorageSectionProps> = ({

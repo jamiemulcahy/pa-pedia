@@ -2,6 +2,7 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import type { ReconSpecs } from '@/types/faction';
 
 interface ReconSectionProps {
@@ -9,13 +10,6 @@ interface ReconSectionProps {
   compareRecon?: ReconSpecs;
   showDifferencesOnly?: boolean;
   hideDiff?: boolean;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | undefined, b: number | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 export const ReconSection: React.FC<ReconSectionProps> = ({ recon, compareRecon, showDifferencesOnly, hideDiff }) => {

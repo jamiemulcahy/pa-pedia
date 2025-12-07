@@ -3,6 +3,7 @@ import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import type { Weapon } from '@/types/faction';
 
 interface WeaponSectionProps {
@@ -10,13 +11,6 @@ interface WeaponSectionProps {
   compareWeapon?: Weapon;
   showDifferencesOnly?: boolean;
   hideDiff?: boolean;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | string | undefined, b: number | string | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 // Helper to calculate burst DPS

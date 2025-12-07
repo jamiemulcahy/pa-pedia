@@ -8,6 +8,10 @@ const mockWeapons: Weapon[] = [
   {
     resourceName: '/pa/units/land/tank/tank_tool_weapon.json',
     safeName: 'tank_tool_weapon',
+    count: 1,
+    rateOfFire: 1,
+    damage: 100,
+    dps: 100,
     targetLayers: ['Land', 'Naval'],
   },
 ]
@@ -16,11 +20,19 @@ const mockWeaponsMultiple: Weapon[] = [
   {
     resourceName: '/pa/units/land/tank/tank_tool_weapon.json',
     safeName: 'tank_tool_weapon',
+    count: 1,
+    rateOfFire: 1,
+    damage: 100,
+    dps: 100,
     targetLayers: ['Land', 'Naval'],
   },
   {
     resourceName: '/pa/units/land/tank/tank_aa_weapon.json',
     safeName: 'tank_aa_weapon',
+    count: 1,
+    rateOfFire: 2,
+    damage: 50,
+    dps: 100,
     targetLayers: ['Air'],
   },
 ]
@@ -29,6 +41,10 @@ const mockCompareWeapons: Weapon[] = [
   {
     resourceName: '/pa/units/land/bot/bot_tool_weapon.json',
     safeName: 'bot_tool_weapon',
+    count: 1,
+    rateOfFire: 1.5,
+    damage: 80,
+    dps: 120,
     targetLayers: ['Land', 'Orbital'],
   },
 ]
@@ -64,7 +80,7 @@ describe('TargetPrioritiesSection', () => {
 
   it('should return null when weapons have no target layers', () => {
     const weaponsNoTargets: Weapon[] = [
-      { resourceName: '/pa/test.json', safeName: 'test' },
+      { resourceName: '/pa/test.json', safeName: 'test', count: 1, rateOfFire: 1, damage: 0, dps: 0 },
     ]
     const { container } = renderWithRouter(
       <TargetPrioritiesSection weapons={weaponsNoTargets} />

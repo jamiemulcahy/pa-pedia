@@ -4,6 +4,7 @@ import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { SpawnUnitLink } from './SpawnUnitLink';
+import { isDifferent } from '@/utils/comparison';
 import type { Unit } from '@/types/faction';
 
 interface OverviewSectionProps {
@@ -13,13 +14,6 @@ interface OverviewSectionProps {
   showDifferencesOnly?: boolean;
   /** Hide diff indicators (for primary unit side) */
   hideDiff?: boolean;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | undefined, b: number | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareUnit, factionId, showDifferencesOnly, hideDiff }) => {

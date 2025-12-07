@@ -2,6 +2,7 @@ import React from 'react';
 import { StatSection } from '../StatSection';
 import { StatRow } from '../StatRow';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import type { MobilitySpecs, SpecialSpecs } from '@/types/faction';
 
 interface PhysicsSectionProps {
@@ -11,13 +12,6 @@ interface PhysicsSectionProps {
   compareSpecial?: SpecialSpecs;
   showDifferencesOnly?: boolean;
   hideDiff?: boolean;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | boolean | undefined, b: number | boolean | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 export const PhysicsSection: React.FC<PhysicsSectionProps> = ({

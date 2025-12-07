@@ -14,25 +14,49 @@ const mockUnits = [
   {
     identifier: 'basic_bot_factory',
     displayName: 'Bot Factory',
+    unitTypes: ['Factory', 'Structure'],
+    source: 'base',
+    files: [],
     unit: {
+      id: 'basic_bot_factory',
+      resourceName: '/pa/units/land/bot_factory/bot_factory.json',
+      displayName: 'Bot Factory',
       tier: 1,
-      specs: { economy: { buildRate: 15 } },
+      unitTypes: ['Factory', 'Structure'],
+      accessible: true,
+      specs: { combat: { health: 5000 }, economy: { buildCost: 800, buildRate: 15 } },
     },
   },
   {
     identifier: 'advanced_bot_factory',
     displayName: 'Advanced Bot Factory',
+    unitTypes: ['Factory', 'Structure'],
+    source: 'base',
+    files: [],
     unit: {
+      id: 'advanced_bot_factory',
+      resourceName: '/pa/units/land/bot_factory_adv/bot_factory_adv.json',
+      displayName: 'Advanced Bot Factory',
       tier: 2,
-      specs: { economy: { buildRate: 30 } },
+      unitTypes: ['Factory', 'Structure'],
+      accessible: true,
+      specs: { combat: { health: 7500 }, economy: { buildCost: 2000, buildRate: 30 } },
     },
   },
   {
     identifier: 'basic_vehicle_factory',
     displayName: 'Vehicle Factory',
+    unitTypes: ['Factory', 'Structure'],
+    source: 'base',
+    files: [],
     unit: {
+      id: 'basic_vehicle_factory',
+      resourceName: '/pa/units/land/vehicle_factory/vehicle_factory.json',
+      displayName: 'Vehicle Factory',
       tier: 1,
-      specs: { economy: { buildRate: 15 } },
+      unitTypes: ['Factory', 'Structure'],
+      accessible: true,
+      specs: { combat: { health: 5000 }, economy: { buildCost: 800, buildRate: 15 } },
     },
   },
 ]
@@ -48,11 +72,14 @@ function renderBuiltBySection(props: React.ComponentProps<typeof BuiltBySection>
 describe('BuiltBySection', () => {
   beforeEach(() => {
     vi.mocked(useFactionHook.useFaction).mockReturnValue({
-      faction: null,
+      metadata: undefined,
+      index: undefined,
       units: mockUnits,
       loading: false,
       error: null,
-    } as ReturnType<typeof useFactionHook.useFaction>)
+      exists: true,
+      factionsLoading: false,
+    })
   })
 
   it('should render builders', () => {

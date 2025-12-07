@@ -4,6 +4,7 @@ import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { SpawnUnitLink } from './SpawnUnitLink';
 import { ComparisonValue } from '../ComparisonValue';
+import { isDifferent } from '@/utils/comparison';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import type { Ammo } from '@/types/faction';
 
@@ -14,13 +15,6 @@ interface AmmoSectionProps {
   hideDiff?: boolean;
   /** Optional faction ID override (used for comparison mode) */
   factionId?: string;
-}
-
-/** Check if two values are different (for comparison filtering) */
-function isDifferent(a: number | string | undefined, b: number | string | undefined): boolean {
-  if (a === undefined && b === undefined) return false;
-  if (a === undefined || b === undefined) return true;
-  return a !== b;
 }
 
 export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, showDifferencesOnly, hideDiff, factionId: propFactionId }) => {
