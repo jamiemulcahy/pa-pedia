@@ -12,6 +12,7 @@ import { AmmoSection } from '@/components/stats/AmmoSection'
 import { TargetPrioritiesSection } from '@/components/stats/TargetPrioritiesSection'
 import { BuiltBySection } from '@/components/stats/BuiltBySection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
+import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
 
 export function UnitDetail() {
   const { factionId, unitId } = useParams<{ factionId: string; unitId: string }>()
@@ -162,7 +163,11 @@ export function UnitDetail() {
             const showRecon = specs.recon || compareSpecs?.recon
             const showSelfDestruct = selfDestructWeapon || compareSelfDestruct
             const showDeathExplosion = deathExplosionWeapon || compareDeathExplosion
-            const maxWeaponCount = Math.max(regularWeapons.length, compareRegularWeapons.length)
+
+            // Match weapons by target layer compatibility instead of by index
+            const matchedWeapons = compareUnit
+              ? matchWeaponsByTargetLayers(regularWeapons, compareRegularWeapons)
+              : regularWeapons.map(w => [w, undefined] as [typeof w, undefined])
 
             // Placeholder component for when no comparison unit is selected
             const ComparisonPlaceholder = () => (
@@ -261,35 +266,31 @@ export function UnitDetail() {
                   </div>
                 )}
 
-                {/* Weapons rows */}
-                {Array.from({ length: maxWeaponCount || regularWeapons.length }).map((_, index) => {
-                  const weapon1 = regularWeapons[index]
-                  const weapon2 = compareRegularWeapons[index]
-                  return (
-                    <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                      {weapon1 ? (
+                {/* Weapons rows - matched by target layer compatibility */}
+                {matchedWeapons.map(([weapon1, weapon2], index) => (
+                  <div key={`weapon-row-${index}`} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    {weapon1 ? (
+                      <div className="space-y-6">
+                        <WeaponSection weapon={weapon1} compareWeapon={weapon2} />
+                        {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
+                    )}
+                    {compareUnit ? (
+                      weapon2 ? (
                         <div className="space-y-6">
-                          <WeaponSection weapon={weapon1} compareWeapon={weapon2} />
-                          {weapon1.ammoDetails && <AmmoSection ammo={weapon1.ammoDetails} />}
+                          <WeaponSection weapon={weapon2} compareWeapon={weapon1} />
+                          {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} factionId={compareFactionId || factionId} />}
                         </div>
                       ) : (
-                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
-                      )}
-                      {compareUnit ? (
-                        weapon2 ? (
-                          <div className="space-y-6">
-                            <WeaponSection weapon={weapon2} compareWeapon={weapon1} />
-                            {weapon2.ammoDetails && <AmmoSection ammo={weapon2.ammoDetails} factionId={compareFactionId || factionId} />}
-                          </div>
-                        ) : (
-                          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No weapon {index + 1}</div>
-                        )
-                      ) : (
-                        <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
-                      )}
-                    </div>
-                  )
-                })}
+                        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center">No matching weapon</div>
+                      )
+                    ) : (
+                      <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />
+                    )}
+                  </div>
+                ))}
 
                 {/* Self-destruct row */}
                 {showSelfDestruct && (
