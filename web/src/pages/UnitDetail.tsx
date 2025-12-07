@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
+import { useFaction } from '@/hooks/useFaction'
 import { UnitIcon } from '@/components/UnitIcon'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { BreadcrumbNav } from '@/components/BreadcrumbNav'
@@ -55,6 +56,9 @@ export function UnitDetail() {
     compareFactionId || '',
     compareUnitId || ''
   )
+  // Get units lists for both factions (needed for cross-faction Built By comparison)
+  const { units: primaryUnits } = useFaction(factionId || '')
+  const { units: compareUnits } = useFaction(compareFactionId || '')
 
   const handleSwap = () => {
     if (compareFactionId && compareUnitId) {
@@ -441,6 +445,7 @@ export function UnitDetail() {
                       compareBuiltBy={buildRelationships?.builtBy}
                       showDifferencesOnly={showDifferencesOnly}
                       isComparisonSide
+                      compareUnits={primaryUnits}
                     />
                   ) : (
                     <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/30" />

@@ -34,7 +34,7 @@ export const UnitTypesSection: React.FC<UnitTypesSectionProps> = ({
     return null;
   }
 
-  // Get all types to show (merged for comparison side)
+  // Get all types to show (merged only on comparison side)
   const allTypes = isComparisonSide && compareUnitTypes
     ? new Set([...thisTypes, ...compareTypes])
     : thisTypes;
@@ -46,7 +46,7 @@ export const UnitTypesSection: React.FC<UnitTypesSectionProps> = ({
     <StatSection title="Unit Types">
       <div className="flex flex-wrap gap-2">
         {sortedTypes.map(type => {
-          const showDiff = isComparisonSide && compareUnitTypes;
+          const showDiff = isComparisonSide && !!compareUnitTypes;
           const inThis = thisTypes.has(type);
           const inCompare = compareTypes.has(type);
           const isAdded = showDiff && inThis && !inCompare;

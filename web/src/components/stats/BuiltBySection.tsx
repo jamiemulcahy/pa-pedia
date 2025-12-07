@@ -4,6 +4,7 @@ import { StatSection } from '../StatSection';
 import { StatLink } from '../StatRow';
 import { useFaction } from '@/hooks/useFaction';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
+import type { UnitIndexEntry } from '@/types/faction';
 
 interface BuiltBySectionProps {
   builtBy?: string[];
@@ -16,6 +17,8 @@ interface BuiltBySectionProps {
   showDifferencesOnly?: boolean;
   /** When true, this is the comparison side and should show the merged diff view */
   isComparisonSide?: boolean;
+  /** Units from the other faction (for cross-faction comparison) */
+  compareUnits?: UnitIndexEntry[];
 }
 
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
@@ -25,6 +28,7 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   compareBuiltBy,
   showDifferencesOnly,
   isComparisonSide,
+  compareUnits,
 }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
@@ -47,15 +51,26 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
     return null;
   }
 
-  // Get all builders to show (merged for comparison side)
+  // Get all builders to show (merged only on comparison side)
   const allBuilderIds = isComparisonSide && compareBuiltBy
     ? new Set([...thisBuilders, ...compareBuilders])
     : thisBuilders;
 
   // Get builder units with their build rates
+  // For comparison side, we need to look up units from both factions
   const builders = Array.from(allBuilderIds)
     .map(builderId => {
-      const builder = units?.find(u => u.identifier === builderId);
+      // First try to find in this faction's units
+      let builder = units?.find(u => u.identifier === builderId);
+      let builderFactionId = factionId;
+
+      // If not found and we have compareUnits, try the other faction
+      if (!builder && compareUnits) {
+        builder = compareUnits.find(u => u.identifier === builderId);
+        // For cross-faction builders, we don't have the faction ID, so use contextFactionId
+        builderFactionId = contextFactionId;
+      }
+
       if (!builder) return null;
 
       const buildRate = builder.unit.specs.economy.buildRate || 0;
@@ -68,6 +83,7 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
         buildTime,
         inThis: thisBuilders.has(builderId),
         inCompare: compareBuilders.has(builderId),
+        factionId: builderFactionId,
       };
     })
     .filter((b): b is NonNullable<typeof b> => b !== null)
@@ -96,8 +112,8 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
         value={
           <div className="space-y-1">
             {builders.map(builder => {
-              // Determine styling based on comparison
-              const showDiff = isComparisonSide && compareBuiltBy;
+              // Only show diff styling on comparison side
+              const showDiff = isComparisonSide && !!compareBuiltBy;
               const isAdded = showDiff && builder.inThis && !builder.inCompare;
               const isRemoved = showDiff && !builder.inThis && builder.inCompare;
 
@@ -116,7 +132,7 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
                     {getTierLabel(builder.tier)}
                   </span>
                   <Link
-                    to={`/faction/${factionId}/unit/${builder.id}`}
+                    to={`/faction/${builder.factionId}/unit/${builder.id}`}
                     className={`hover:underline flex-1 ${
                       isAdded ? 'text-green-600 dark:text-green-400' :
                       isRemoved ? 'text-red-600 dark:text-red-400' :
