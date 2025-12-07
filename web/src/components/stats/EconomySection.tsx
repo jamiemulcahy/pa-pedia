@@ -1,0 +1,176 @@
+import React from 'react';
+import { StatSection } from '../StatSection';
+import { StatRow } from '../StatRow';
+import { ComparisonValue } from '../ComparisonValue';
+import type { EconomySpecs } from '@/types/faction';
+
+interface EconomySectionProps {
+  economy: EconomySpecs;
+  compareEconomy?: EconomySpecs;
+}
+
+export const EconomySection: React.FC<EconomySectionProps> = ({
+  economy,
+  compareEconomy,
+}) => {
+  // Production stats
+  const metalProduction = economy.production?.metal || 0;
+  const energyProduction = economy.production?.energy || 0;
+  const compareMetalProduction = compareEconomy?.production?.metal;
+  const compareEnergyProduction = compareEconomy?.production?.energy;
+
+  // Storage stats
+  const metalStorage = economy.storage?.metal || 0;
+  const energyStorage = economy.storage?.energy || 0;
+  const compareMetalStorage = compareEconomy?.storage?.metal;
+  const compareEnergyStorage = compareEconomy?.storage?.energy;
+
+  // Build arm stats
+  const buildRate = economy.buildRate || 0;
+  const compareBuildRate = compareEconomy?.buildRate;
+  const energyConsumption = economy.toolConsumption?.energy || 0;
+  const compareEnergyConsumption = compareEconomy?.toolConsumption?.energy;
+  const buildRange = economy.buildRange || 0;
+  const compareBuildRange = compareEconomy?.buildRange;
+
+  // Derived build arm stats
+  const costEffectiveness = buildRate > 0 && economy.buildCost > 0
+    ? economy.buildCost / buildRate
+    : undefined;
+  const compareCostEffectiveness = compareBuildRate && compareBuildRate > 0 && compareEconomy?.buildCost
+    ? compareEconomy.buildCost / compareBuildRate
+    : undefined;
+  const energyEfficiency = economy.buildInefficiency;
+  const compareEnergyEfficiency = compareEconomy?.buildInefficiency;
+
+  // Check if we have any economy stats to display
+  const hasProductionStats = metalProduction > 0 || energyProduction > 0;
+  const hasStorageStats = metalStorage > 0 || energyStorage > 0;
+  const hasBuildArmStats = buildRate > 0;
+
+  if (!hasProductionStats && !hasStorageStats && !hasBuildArmStats) return null;
+
+  return (
+    <StatSection title="Economy">
+      {/* Production stats */}
+      {metalProduction > 0 && (
+        <StatRow
+          label="Metal production"
+          value={
+            <ComparisonValue
+              value={Number(metalProduction.toFixed(1))}
+              compareValue={compareMetalProduction ? Number(compareMetalProduction.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              suffix="/s"
+            />
+          }
+        />
+      )}
+      {energyProduction > 0 && (
+        <StatRow
+          label="Energy production"
+          value={
+            <ComparisonValue
+              value={Number(energyProduction.toFixed(0))}
+              compareValue={compareEnergyProduction ? Number(compareEnergyProduction.toFixed(0)) : undefined}
+              comparisonType="higher-better"
+              suffix="/s"
+            />
+          }
+        />
+      )}
+
+      {/* Storage stats */}
+      {metalStorage > 0 && (
+        <StatRow
+          label="Metal storage"
+          value={
+            <ComparisonValue
+              value={Number(metalStorage.toFixed(0))}
+              compareValue={compareMetalStorage ? Number(compareMetalStorage.toFixed(0)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
+        />
+      )}
+      {energyStorage > 0 && (
+        <StatRow
+          label="Energy storage"
+          value={
+            <ComparisonValue
+              value={Number(energyStorage.toFixed(0))}
+              compareValue={compareEnergyStorage ? Number(compareEnergyStorage.toFixed(0)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
+        />
+      )}
+
+      {/* Build arm stats */}
+      {buildRate > 0 && (
+        <StatRow
+          label="Build rate"
+          value={
+            <ComparisonValue
+              value={Number(buildRate.toFixed(1))}
+              compareValue={compareBuildRate ? Number(compareBuildRate.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              suffix=" metal/s"
+            />
+          }
+        />
+      )}
+      {energyConsumption > 0 && (
+        <StatRow
+          label="Build energy"
+          value={
+            <ComparisonValue
+              value={Number(energyConsumption.toFixed(0))}
+              compareValue={compareEnergyConsumption ? Number(compareEnergyConsumption.toFixed(0)) : undefined}
+              comparisonType="lower-better"
+              suffix=" energy/s"
+            />
+          }
+        />
+      )}
+      {buildRange > 0 && (
+        <StatRow
+          label="Build range"
+          value={
+            <ComparisonValue
+              value={Number(buildRange.toFixed(0))}
+              compareValue={compareBuildRange ? Number(compareBuildRange.toFixed(0)) : undefined}
+              comparisonType="higher-better"
+            />
+          }
+        />
+      )}
+      {costEffectiveness !== undefined && (
+        <StatRow
+          label="Cost-effectiveness"
+          value={
+            <ComparisonValue
+              value={Number(costEffectiveness.toFixed(1))}
+              compareValue={compareCostEffectiveness ? Number(compareCostEffectiveness.toFixed(1)) : undefined}
+              comparisonType="lower-better"
+              suffix=" metal per metal/s"
+            />
+          }
+        />
+      )}
+      {energyEfficiency !== undefined && energyEfficiency > 0 && (
+        <StatRow
+          label="Energy efficiency"
+          value={
+            <ComparisonValue
+              value={Number(energyEfficiency.toFixed(1))}
+              compareValue={compareEnergyEfficiency ? Number(compareEnergyEfficiency.toFixed(1)) : undefined}
+              comparisonType="lower-better"
+              suffix=" energy/metal"
+            />
+          }
+        />
+      )}
+    </StatSection>
+  );
+};

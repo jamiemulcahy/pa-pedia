@@ -24,7 +24,9 @@
       "Bash(npm run lint)",
       "Bash(gh release:*)",
       "Bash(./build-and-run.bat)",
-      "Bash(gh issue view:*)"
+      "Bash(gh issue view:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:palobby.com)"
     ],
     "deny": [],
     "ask": []
