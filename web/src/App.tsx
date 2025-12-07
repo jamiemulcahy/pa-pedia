@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Header } from '@/components/Header'
+import { ScrollToTop } from '@/components/ScrollToTop'
 import { FactionUpload } from '@/components/FactionUpload'
 import { CliDownload } from '@/components/CliDownload'
 import { Home } from '@/pages/Home'
@@ -15,6 +16,7 @@ function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <ScrollToTop />
       <ErrorBoundary>
         <FactionProvider>
           <div className="min-h-screen bg-background text-foreground">
