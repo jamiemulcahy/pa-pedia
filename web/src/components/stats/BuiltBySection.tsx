@@ -64,11 +64,11 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
       let builder = units?.find(u => u.identifier === builderId);
       let builderFactionId = factionId;
 
-      // If not found and we have compareUnits, try the other faction
+      // If not found and we have compareUnits, try the primary faction's units
       if (!builder && compareUnits) {
         builder = compareUnits.find(u => u.identifier === builderId);
-        // For cross-faction builders, we don't have the faction ID, so use contextFactionId
-        builderFactionId = contextFactionId;
+        // For cross-faction builders, link to the primary faction
+        builderFactionId = contextFactionId || factionId;
       }
 
       if (!builder) return null;
