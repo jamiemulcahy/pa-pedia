@@ -116,6 +116,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 		// Track files for this unit's index entry
 		indexFiles := make([]models.UnitFile, 0)
 		primaryJSONFound := false
+		iconFound := false
 
 		// Copy all spec files to assets with PA path structure
 		for resourcePath, specInfo := range specFiles {
@@ -205,6 +206,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 			}
 
 			copiedAssets[assetPath] = true
+			iconFound = true
 			indexFiles = append(indexFiles, models.UnitFile{
 				Path:   assetPath,
 				Source: fileInfo.Source,
@@ -216,9 +218,14 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 			fmt.Fprintf(os.Stderr, "\nWarning: Primary file not found for unit %s\n", unit.ID)
 		}
 
-		// Update unit image path to new assets structure
-		unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
-		unit.Image = filepath.ToSlash(filepath.Join("assets", unitDir, unit.ID+"_icon_buildbar.png"))
+		// Only set unit image path if an icon was actually found and copied
+		if iconFound {
+			unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
+			unit.Image = filepath.ToSlash(filepath.Join("assets", unitDir, unit.ID+"_icon_buildbar.png"))
+		} else {
+			// Clear any default image path since no icon exists
+			unit.Image = ""
+		}
 
 		// Create index entry with embedded unit data
 		indexEntry := models.UnitIndexEntry{
