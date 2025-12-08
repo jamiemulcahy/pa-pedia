@@ -6,9 +6,12 @@ import { setupMockFetch, mockTankUnit, type MockFetch } from '@/tests/mocks/fact
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import type { Unit } from '@/types/faction'
 
-function renderUnitDetail(factionId: string, unitId: string) {
+function renderUnitDetail(factionId: string, unitId: string, searchParams?: string) {
+  const url = searchParams
+    ? `/faction/${factionId}/unit/${unitId}?${searchParams}`
+    : `/faction/${factionId}/unit/${unitId}`
   return renderWithProviders(
-    <MemoryRouter initialEntries={[`/faction/${factionId}/unit/${unitId}`]}>
+    <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route path="/faction/:factionId/unit/:unitId" element={<UnitDetail />} />
         <Route path="/faction/:factionId" element={<div>Faction Detail</div>} />
@@ -248,5 +251,133 @@ describe('UnitDetail', () => {
     })
 
     expect(screen.queryByText('Built By')).not.toBeInTheDocument()
+  })
+
+  describe('Comparison Mode', () => {
+    it('should render Compare button in non-comparison mode', async () => {
+      renderUnitDetail('MLA', 'tank')
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /compare/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should enter comparison mode with compare URL parameter', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        // Should show Add button (comparison mode controls)
+        expect(screen.getByRole('button', { name: /add/i })).toBeInTheDocument()
+      })
+
+      // Should show exit comparison button
+      expect(screen.getByRole('button', { name: /exit comparison/i })).toBeInTheDocument()
+    })
+
+    it('should render comparison unit when specified in URL', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        // Primary unit should be visible
+        expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+      })
+
+      // Comparison unit should also be visible
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Bot' })).toBeInTheDocument()
+      })
+    })
+
+    it('should support multiple comparison units in URL', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot,MLA/air_fighter')
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Bot' })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Fighter' })).toBeInTheDocument()
+      })
+    })
+
+    it('should show filter toggle in comparison mode', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /show (all stats|differences only)/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should show remove buttons for comparison units', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Bot' })).toBeInTheDocument()
+      })
+
+      // Should have remove button
+      expect(screen.getByRole('button', { name: /remove from comparison/i })).toBeInTheDocument()
+    })
+
+    it('should show swap button for comparison units with selected unit', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Bot' })).toBeInTheDocument()
+      })
+
+      // Should have swap button
+      expect(screen.getByRole('button', { name: /swap with primary/i })).toBeInTheDocument()
+    })
+
+    it('should show pending selection placeholder for empty unit slot', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/')
+
+      await waitFor(() => {
+        expect(screen.getByText(/select a unit above/i)).toBeInTheDocument()
+      })
+    })
+
+    it('should limit comparison units to maximum of 6', async () => {
+      // URL with 7 comparison units - should only parse 6
+      const manyUnits = 'compare=MLA/bot,MLA/air_fighter,MLA/vehicle_factory,MLA/bot,MLA/air_fighter,MLA/vehicle_factory,MLA/bot'
+      renderUnitDetail('MLA', 'tank', manyUnits)
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+      })
+
+      // Should not show Add button when at max
+      await waitFor(() => {
+        // Wait for comparison units to load
+        expect(screen.getAllByRole('heading', { name: 'Bot' }).length).toBeGreaterThanOrEqual(1)
+      })
+
+      // Add button should not be visible when at max (6 comparison units)
+      expect(screen.queryByRole('button', { name: /add/i })).not.toBeInTheDocument()
+    })
+
+    it('should support cross-faction comparison', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=Legion/legion_tank')
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Legion Tank' })).toBeInTheDocument()
+      })
+    })
+
+    it('should render multiple faction selectors in comparison mode', async () => {
+      renderUnitDetail('MLA', 'tank', 'compare=MLA/bot')
+
+      await waitFor(() => {
+        // Should have multiple faction selectors (one for primary, one for comparison)
+        const factionSelectors = screen.getAllByLabelText('Select faction')
+        expect(factionSelectors.length).toBeGreaterThanOrEqual(2)
+      })
+    })
   })
 })

@@ -111,7 +111,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
   return (
     <nav aria-label="Unit navigation" className="w-full sm:w-auto">
       <div className="flex flex-col sm:flex-row sm:inline-flex items-stretch sm:items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="w-full sm:w-auto sm:min-w-[180px]">
+        <div className="w-full sm:w-auto sm:min-w-[140px]">
           <Select<FactionOption>
             options={factionOptions}
             value={selectedFaction}
@@ -121,6 +121,8 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             isSearchable
             aria-label="Select faction"
             formatOptionLabel={formatFactionOption}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
           />
         </div>
 
@@ -137,6 +139,8 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             isLoading={isLoadingFaction}
             aria-label="Select unit"
             noOptionsMessage={() => unitOptions.length === 0 ? "Loading units..." : "No units found"}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
           />
         </div>
       </div>
