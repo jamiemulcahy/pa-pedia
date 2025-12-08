@@ -26,6 +26,8 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const compareCount = compareWeapon?.count ?? 1;
 
   // Determine section title based on weapon type
+  // Note: deathExplosion takes precedence because in PA, a weapon triggers
+  // either on death (passive) or on self-destruct command (active), not both
   let baseTitle = 'Weapon';
   if (weapon.deathExplosion) {
     baseTitle = 'Death Explosion';

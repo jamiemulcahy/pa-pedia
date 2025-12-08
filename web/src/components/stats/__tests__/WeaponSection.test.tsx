@@ -230,6 +230,17 @@ describe('WeaponSection', () => {
       expect(screen.getByText('Death Explosion ×2')).toBeInTheDocument()
     })
 
+    it('should show "Self-Destruct ×2" when self-destruct has count > 1', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        selfDestruct: true,
+        count: 2,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Self-Destruct ×2')).toBeInTheDocument()
+    })
+
     it('should multiply DPS by count', () => {
       const weapon: Weapon = {
         ...mockBasicWeapon,
