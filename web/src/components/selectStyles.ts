@@ -82,4 +82,8 @@ export const selectStyles: StylesConfig<any, false> = {
     ...base,
     color: 'rgb(156, 163, 175)', // gray-400
   }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999, // Ensure portal renders above everything
+  }),
 }
