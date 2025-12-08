@@ -15,6 +15,10 @@ interface UnitCategorySectionProps {
   compact?: boolean
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
+  /** Props for the drag handle element (from useSortable) */
+  dragHandleProps?: React.HTMLAttributes<HTMLElement>
+  /** Whether this section is currently being dragged */
+  isDragging?: boolean
 }
 
 export function UnitCategorySection({
@@ -28,40 +32,65 @@ export function UnitCategorySection({
   compact = false,
   showFactionBadge = false,
   getUnitFactionId,
+  dragHandleProps,
+  isDragging = false,
 }: UnitCategorySectionProps) {
   if (units.length === 0) {
     return null
   }
 
   return (
-    <section className="mb-6">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center gap-3 py-3 px-4 bg-muted/50 hover:bg-muted rounded-lg transition-colors text-left"
-        aria-expanded={isExpanded}
-        aria-controls={`category-${category}`}
-      >
-        <svg
-          className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
+    <section className={`mb-6 ${isDragging ? 'opacity-50' : ''}`}>
+      <div className="flex items-center gap-1">
+        {dragHandleProps && (
+          <span
+            {...dragHandleProps}
+            className="flex items-center justify-center w-8 h-10 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing rounded transition-colors"
+            aria-label={`Drag to reorder ${category} category`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="9" cy="6" r="1.5" />
+              <circle cx="15" cy="6" r="1.5" />
+              <circle cx="9" cy="12" r="1.5" />
+              <circle cx="15" cy="12" r="1.5" />
+              <circle cx="9" cy="18" r="1.5" />
+              <circle cx="15" cy="18" r="1.5" />
+            </svg>
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex-1 flex items-center gap-3 py-3 px-4 bg-muted/50 hover:bg-muted rounded-lg transition-colors text-left"
+          aria-expanded={isExpanded}
+          aria-controls={`category-${category}`}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-        <span className="sr-only">{isExpanded ? 'Collapse' : 'Expand'} {category} section</span>
-        <h2 className="text-xl font-display font-bold">{category}</h2>
-        <span className="px-2 py-0.5 text-sm font-mono bg-primary/20 text-primary rounded">
-          {units.length}
-        </span>
-      </button>
+          <svg
+            className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+          <span className="sr-only">{isExpanded ? 'Collapse' : 'Expand'} {category} section</span>
+          <h2 className="text-xl font-display font-bold">{category}</h2>
+          <span className="px-2 py-0.5 text-sm font-mono bg-primary/20 text-primary rounded">
+            {units.length}
+          </span>
+        </button>
+      </div>
 
       {isExpanded && (
         <div

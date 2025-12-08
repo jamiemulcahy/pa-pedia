@@ -27,13 +27,15 @@ describe('FactionDetail', () => {
   beforeEach(() => {
     setupMockFetch()
     // Reset localStorage to ensure clean state for each test
-    localStorage.removeItem('pa-pedia-view-mode')
+    localStorage.removeItem('pa-pedia-preferences')
+    localStorage.removeItem('pa-pedia-view-mode') // Legacy key
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
     // Clean up localStorage after each test
-    localStorage.removeItem('pa-pedia-view-mode')
+    localStorage.removeItem('pa-pedia-preferences')
+    localStorage.removeItem('pa-pedia-view-mode') // Legacy key
   })
 
   it('should render loading state initially', () => {
@@ -494,7 +496,7 @@ describe('FactionDetail', () => {
       const user = userEvent.setup()
 
       // Clear any existing preference
-      localStorage.removeItem('pa-pedia-view-mode')
+      localStorage.removeItem('pa-pedia-preferences')
 
       renderFactionDetail('MLA')
 
@@ -511,12 +513,19 @@ describe('FactionDetail', () => {
       expect(screen.getByRole('table')).toBeInTheDocument()
 
       // Check localStorage was updated
-      expect(localStorage.getItem('pa-pedia-view-mode')).toBe('table')
+      const storedPrefs = JSON.parse(localStorage.getItem('pa-pedia-preferences') || '{}')
+      expect(storedPrefs.viewMode).toBe('table')
     })
 
     it('should restore view mode preference from localStorage', async () => {
-      // Set preference to table before rendering
-      localStorage.setItem('pa-pedia-view-mode', 'table')
+      // Set preference to table before rendering (using new format)
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
 
       renderFactionDetail('MLA')
 
@@ -526,7 +535,26 @@ describe('FactionDetail', () => {
       })
 
       // Clean up
-      localStorage.removeItem('pa-pedia-view-mode')
+      localStorage.removeItem('pa-pedia-preferences')
+    })
+
+    it('should migrate legacy pa-pedia-view-mode to new preferences format', async () => {
+      // Set preference using legacy key
+      localStorage.setItem('pa-pedia-view-mode', 'table')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        // Should start in table view since the legacy preference was migrated
+        expect(screen.getByRole('table')).toBeInTheDocument()
+      })
+
+      // Legacy key should have been removed
+      expect(localStorage.getItem('pa-pedia-view-mode')).toBeNull()
+
+      // New preferences key should exist with migrated value
+      const storedPrefs = JSON.parse(localStorage.getItem('pa-pedia-preferences') || '{}')
+      expect(storedPrefs.viewMode).toBe('table')
     })
   })
 

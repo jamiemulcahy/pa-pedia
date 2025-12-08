@@ -2,30 +2,25 @@ import { useParams, Link } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
 import { useAllFactions, type UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
-import { UnitCategorySection } from '@/components/UnitCategorySection'
+import { SortableCategorySection } from '@/components/SortableCategorySection'
+import { CategoryDragOverlay } from '@/components/CategoryDragOverlay'
 import { UnitTable } from '@/components/UnitTable'
 import { FactionSelector } from '@/components/FactionSelector'
 import { useState, useCallback, useMemo } from 'react'
-import { groupUnitsByCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
+import { groupUnitsByCategory, type UnitCategory } from '@/utils/unitCategories'
+import { usePreferences } from '@/hooks/usePreferences'
+import { useCategoryOrder } from '@/hooks/useCategoryOrder'
+import {
+  DndContext,
+  closestCenter,
+  DragOverlay,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Select from 'react-select'
 import { selectStyles, type SelectOption } from '@/components/selectStyles'
 import type { UnitIndexEntry } from '@/types/faction'
-
-type ViewMode = 'grid' | 'table'
-
-const VIEW_MODE_STORAGE_KEY = 'pa-pedia-view-mode'
-
-function getStoredViewMode(): ViewMode {
-  try {
-    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
-    if (stored === 'table' || stored === 'grid') {
-      return stored
-    }
-  } catch {
-    // localStorage may not be available
-  }
-  return 'grid'
-}
 
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
@@ -44,38 +39,42 @@ export function FactionDetail() {
   const exists = isAllMode ? true : singleFaction.exists
   const factionsLoading = isAllMode ? allFactions.factionsLoading : singleFaction.factionsLoading
 
+  // Unified preferences with localStorage persistence
+  const { preferences, updatePreference } = usePreferences()
+  const { viewMode, compactView, showInaccessible, collapsedCategories: savedCollapsedCategories } = preferences
+
+  // Category ordering with drag-and-drop support
+  const { orderedCategories, isCustomOrder, reorder, resetToDefault } = useCategoryOrder()
+
+  // Local state (not persisted)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<UnitCategory>>(new Set())
-  const [compactView, setCompactView] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode)
-  const [showInaccessible, setShowInaccessible] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
 
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode)
-    try {
-      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode)
-    } catch {
-      // localStorage may not be available
-    }
-  }, [])
+  // Convert saved collapsed categories array to Set for efficient lookups
+  const collapsedCategories = useMemo(
+    () => new Set(savedCollapsedCategories),
+    [savedCollapsedCategories]
+  )
+
+  const handleViewModeChange = useCallback((mode: 'grid' | 'table') => {
+    updatePreference('viewMode', mode)
+  }, [updatePreference])
 
   const handleImageError = useCallback((unitId: string) => {
     setBrokenImages(prev => new Set(prev).add(unitId))
   }, [])
 
   const toggleCategory = useCallback((category: UnitCategory) => {
-    setCollapsedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }, [])
+    const current = new Set(savedCollapsedCategories)
+    if (current.has(category)) {
+      current.delete(category)
+    } else {
+      current.add(category)
+    }
+    updatePreference('collapsedCategories', Array.from(current))
+  }, [savedCollapsedCategories, updatePreference])
 
   // Get all unique unit types for filter (memoized for performance)
   // Must be called before any early returns to satisfy Rules of Hooks
@@ -137,8 +136,8 @@ export function FactionDetail() {
 
   // Calculate which categories have units (for expand/collapse all logic)
   const categoriesWithUnits = useMemo(() =>
-    CATEGORY_ORDER.filter(cat => (groupedUnits.get(cat)?.length ?? 0) > 0),
-    [groupedUnits]
+    orderedCategories.filter(cat => (groupedUnits.get(cat)?.length ?? 0) > 0),
+    [groupedUnits, orderedCategories]
   )
 
   // Check if all categories with units are expanded or collapsed
@@ -150,12 +149,26 @@ export function FactionDetail() {
   const toggleAllCategories = useCallback(() => {
     if (allExpanded) {
       // Collapse all
-      setCollapsedCategories(new Set(categoriesWithUnits))
+      updatePreference('collapsedCategories', categoriesWithUnits)
     } else {
       // Expand all
-      setCollapsedCategories(new Set())
+      updatePreference('collapsedCategories', [])
     }
-  }, [allExpanded, categoriesWithUnits])
+  }, [allExpanded, categoriesWithUnits, updatePreference])
+
+  // Drag-and-drop handlers
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveCategory(event.active.id as UnitCategory)
+  }, [])
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveCategory(null)
+
+    if (over && active.id !== over.id) {
+      reorder(active.id as string, over.id as string)
+    }
+  }, [reorder])
 
   // Show loading while factions metadata is being loaded
   if (factionsLoading) {
@@ -295,7 +308,7 @@ export function FactionDetail() {
           {inaccessibleCount > 0 && (
             <button
               type="button"
-              onClick={() => setShowInaccessible(!showInaccessible)}
+              onClick={() => updatePreference('showInaccessible', !showInaccessible)}
               className={`p-2 border rounded-md transition-colors ${
                 showInaccessible
                   ? 'bg-primary text-primary-foreground border-primary'
@@ -321,7 +334,7 @@ export function FactionDetail() {
           {viewMode === 'grid' && (
             <button
               type="button"
-              onClick={() => setCompactView(!compactView)}
+              onClick={() => updatePreference('compactView', !compactView)}
               className={`p-2 border rounded-md transition-colors ${
                 compactView
                   ? 'bg-primary text-primary-foreground border-primary'
@@ -362,6 +375,20 @@ export function FactionDetail() {
               )}
             </button>
           )}
+          {/* Reset category order - only visible in grid mode when custom order is active */}
+          {viewMode === 'grid' && isCustomOrder && (
+            <button
+              type="button"
+              onClick={resetToDefault}
+              className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
+              aria-label="Reset category order to default"
+              title="Reset category order"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -379,21 +406,40 @@ export function FactionDetail() {
             No units match your filters
           </div>
         ) : (
-          CATEGORY_ORDER.map((category) => (
-            <UnitCategorySection
-              key={category}
-              category={category}
-              units={groupedUnits.get(category) || []}
-              isExpanded={!collapsedCategories.has(category)}
-              onToggle={() => toggleCategory(category)}
-              factionId={factionId}
-              brokenImages={brokenImages}
-              onImageError={handleImageError}
-              compact={compactView}
-              showFactionBadge={isAllMode}
-              getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
-            />
-          ))
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={categoriesWithUnits}
+              strategy={verticalListSortingStrategy}
+            >
+              {orderedCategories.map((category) => (
+                <SortableCategorySection
+                  key={category}
+                  category={category}
+                  units={groupedUnits.get(category) || []}
+                  isExpanded={!collapsedCategories.has(category)}
+                  onToggle={() => toggleCategory(category)}
+                  factionId={factionId}
+                  brokenImages={brokenImages}
+                  onImageError={handleImageError}
+                  compact={compactView}
+                  showFactionBadge={isAllMode}
+                  getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+                />
+              ))}
+            </SortableContext>
+            <DragOverlay>
+              {activeCategory && (
+                <CategoryDragOverlay
+                  category={activeCategory}
+                  unitCount={groupedUnits.get(activeCategory)?.length ?? 0}
+                />
+              )}
+            </DragOverlay>
+          </DndContext>
         )}
     </div>
   )
