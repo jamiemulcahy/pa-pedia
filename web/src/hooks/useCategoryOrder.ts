@@ -47,10 +47,19 @@ export function useCategoryOrder(): UseCategoryOrderReturn {
   const reorder = useCallback((activeId: string, overId: string) => {
     if (activeId === overId) return
 
-    const oldIndex = orderedCategories.indexOf(activeId as UnitCategory)
-    const newIndex = orderedCategories.indexOf(overId as UnitCategory)
+    // Validate that IDs are valid categories before casting
+    const isValidCategory = (id: string): id is UnitCategory =>
+      orderedCategories.includes(id as UnitCategory)
 
-    if (oldIndex === -1 || newIndex === -1) return
+    if (!isValidCategory(activeId) || !isValidCategory(overId)) {
+      if (import.meta.env.DEV) {
+        console.warn(`Invalid category ID in reorder: ${activeId} or ${overId}`)
+      }
+      return
+    }
+
+    const oldIndex = orderedCategories.indexOf(activeId)
+    const newIndex = orderedCategories.indexOf(overId)
 
     const newOrder = arrayMove(orderedCategories, oldIndex, newIndex)
     updatePreference('categoryOrder', newOrder)

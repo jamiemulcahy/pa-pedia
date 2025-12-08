@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { UnitCategorySection } from '@/components/UnitCategorySection'
@@ -21,8 +22,9 @@ interface SortableCategorySectionProps {
 /**
  * Wrapper component that makes UnitCategorySection draggable using dnd-kit.
  * Provides drag handle and visual feedback during drag operations.
+ * Memoized to prevent unnecessary re-renders during drag operations.
  */
-export function SortableCategorySection({
+export const SortableCategorySection = memo(function SortableCategorySection({
   category,
   units,
   isExpanded,
@@ -71,4 +73,4 @@ export function SortableCategorySection({
       />
     </div>
   )
-}
+})

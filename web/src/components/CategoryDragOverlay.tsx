@@ -1,3 +1,4 @@
+import { DragHandleIcon } from '@/components/DragHandleIcon'
 import type { UnitCategory } from '@/utils/unitCategories'
 
 interface CategoryDragOverlayProps {
@@ -13,19 +14,7 @@ export function CategoryDragOverlay({ category, unitCount }: CategoryDragOverlay
   return (
     <div className="flex items-center gap-1 bg-background rounded-lg shadow-xl scale-[1.02] border border-primary">
       <span className="flex items-center justify-center w-8 h-10 text-muted-foreground cursor-grabbing">
-        <svg
-          className="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <circle cx="9" cy="6" r="1.5" />
-          <circle cx="15" cy="6" r="1.5" />
-          <circle cx="9" cy="12" r="1.5" />
-          <circle cx="15" cy="12" r="1.5" />
-          <circle cx="9" cy="18" r="1.5" />
-          <circle cx="15" cy="18" r="1.5" />
-        </svg>
+        <DragHandleIcon />
       </span>
       <div className="flex-1 flex items-center gap-3 py-3 px-4 bg-muted/50 rounded-lg">
         <svg

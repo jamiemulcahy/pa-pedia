@@ -20,6 +20,11 @@ const DEFAULT_PREFERENCES: Preferences = {
   showInaccessible: false,
 }
 
+/** Type guard for valid viewMode values */
+function isValidViewMode(value: unknown): value is 'grid' | 'table' {
+  return value === 'grid' || value === 'table'
+}
+
 /**
  * Validates that a value is a valid Preferences object.
  * Returns the validated preferences or null if invalid.
@@ -30,7 +35,7 @@ function validatePreferences(value: unknown): Preferences | null {
   const obj = value as Record<string, unknown>
 
   // Validate viewMode
-  if (obj.viewMode !== 'grid' && obj.viewMode !== 'table') return null
+  if (!isValidViewMode(obj.viewMode)) return null
 
   // Validate categoryOrder (null or array of strings)
   if (obj.categoryOrder !== null && !Array.isArray(obj.categoryOrder)) return null
@@ -92,8 +97,10 @@ function loadPreferences(): Preferences {
 function savePreferences(preferences: Preferences): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
-  } catch {
-    // localStorage may not be available
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('Failed to save preferences to localStorage:', error)
+    }
   }
 }
 
@@ -104,6 +111,9 @@ export interface UsePreferencesReturn {
   resetAllPreferences: () => void
 }
 
+/** Debounce delay for localStorage writes (ms) */
+const SAVE_DEBOUNCE_MS = 300
+
 /**
  * Unified preferences hook for managing all user preferences with localStorage persistence.
  */
@@ -111,13 +121,18 @@ export function usePreferences(): UsePreferencesReturn {
   const [preferences, setPreferences] = useState<Preferences>(loadPreferences)
   const isInitialized = useRef(false)
 
-  // Save to localStorage whenever preferences change (but not on initial load)
+  // Save to localStorage whenever preferences change (debounced, skip initial load)
   useEffect(() => {
-    if (isInitialized.current) {
-      savePreferences(preferences)
-    } else {
+    if (!isInitialized.current) {
       isInitialized.current = true
+      return
     }
+
+    const timeoutId = setTimeout(() => {
+      savePreferences(preferences)
+    }, SAVE_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeoutId)
   }, [preferences])
 
   const updatePreference = useCallback(<K extends keyof Preferences>(

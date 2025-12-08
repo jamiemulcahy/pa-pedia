@@ -51,6 +51,7 @@ export function FactionDetail() {
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
+  const [dragAnnouncement, setDragAnnouncement] = useState('')
 
   // Convert saved collapsed categories array to Set for efficient lookups
   const collapsedCategories = useMemo(
@@ -167,6 +168,7 @@ export function FactionDetail() {
 
     if (over && active.id !== over.id) {
       reorder(active.id as string, over.id as string)
+      setDragAnnouncement(`${active.id} category moved`)
     }
   }, [reorder])
 
@@ -227,6 +229,10 @@ export function FactionDetail() {
   // Content wrapped conditionally - only use CurrentFactionProvider for single faction mode
   const content = (
     <div className="container mx-auto px-4 py-8">
+      {/* Screen reader announcement for drag-and-drop operations */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {dragAnnouncement}
+      </div>
       <div className="mb-8">
         <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
         <div className="flex items-center gap-3 mb-2">

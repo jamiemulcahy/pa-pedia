@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { UnitIcon } from '@/components/UnitIcon'
+import { DragHandleIcon } from '@/components/DragHandleIcon'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
@@ -48,19 +49,7 @@ export function UnitCategorySection({
             className="flex items-center justify-center w-8 h-10 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing rounded transition-colors"
             aria-label={`Drag to reorder ${category} category`}
           >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle cx="9" cy="6" r="1.5" />
-              <circle cx="15" cy="6" r="1.5" />
-              <circle cx="9" cy="12" r="1.5" />
-              <circle cx="15" cy="12" r="1.5" />
-              <circle cx="9" cy="18" r="1.5" />
-              <circle cx="15" cy="18" r="1.5" />
-            </svg>
+            <DragHandleIcon />
           </span>
         )}
         <button
