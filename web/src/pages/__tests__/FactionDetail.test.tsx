@@ -27,13 +27,15 @@ describe('FactionDetail', () => {
   beforeEach(() => {
     setupMockFetch()
     // Reset localStorage to ensure clean state for each test
-    localStorage.removeItem('pa-pedia-view-mode')
+    localStorage.removeItem('pa-pedia-preferences')
+    localStorage.removeItem('pa-pedia-view-mode') // Legacy key
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
     // Clean up localStorage after each test
-    localStorage.removeItem('pa-pedia-view-mode')
+    localStorage.removeItem('pa-pedia-preferences')
+    localStorage.removeItem('pa-pedia-view-mode') // Legacy key
   })
 
   it('should render loading state initially', () => {
@@ -494,7 +496,7 @@ describe('FactionDetail', () => {
       const user = userEvent.setup()
 
       // Clear any existing preference
-      localStorage.removeItem('pa-pedia-view-mode')
+      localStorage.removeItem('pa-pedia-preferences')
 
       renderFactionDetail('MLA')
 
@@ -510,13 +512,22 @@ describe('FactionDetail', () => {
 
       expect(screen.getByRole('table')).toBeInTheDocument()
 
-      // Check localStorage was updated
-      expect(localStorage.getItem('pa-pedia-view-mode')).toBe('table')
+      // Wait for debounced localStorage write (300ms + buffer)
+      await waitFor(() => {
+        const storedPrefs = JSON.parse(localStorage.getItem('pa-pedia-preferences') || '{}')
+        expect(storedPrefs.viewMode).toBe('table')
+      }, { timeout: 500 })
     })
 
     it('should restore view mode preference from localStorage', async () => {
-      // Set preference to table before rendering
-      localStorage.setItem('pa-pedia-view-mode', 'table')
+      // Set preference to table before rendering (using new format)
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
 
       renderFactionDetail('MLA')
 
@@ -526,7 +537,26 @@ describe('FactionDetail', () => {
       })
 
       // Clean up
-      localStorage.removeItem('pa-pedia-view-mode')
+      localStorage.removeItem('pa-pedia-preferences')
+    })
+
+    it('should migrate legacy pa-pedia-view-mode to new preferences format', async () => {
+      // Set preference using legacy key
+      localStorage.setItem('pa-pedia-view-mode', 'table')
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        // Should start in table view since the legacy preference was migrated
+        expect(screen.getByRole('table')).toBeInTheDocument()
+      })
+
+      // Legacy key should have been removed
+      expect(localStorage.getItem('pa-pedia-view-mode')).toBeNull()
+
+      // New preferences key should exist with migrated value
+      const storedPrefs = JSON.parse(localStorage.getItem('pa-pedia-preferences') || '{}')
+      expect(storedPrefs.viewMode).toBe('table')
     })
   })
 
@@ -631,6 +661,100 @@ describe('FactionDetail', () => {
       await waitFor(() => {
         expect(within(table).getByRole('link', { name: 'Sea Mine' })).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('drag-and-drop category ordering', () => {
+    it('should show reset button when custom category order is active', async () => {
+      // Set custom order in localStorage
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: ['Tanks', 'Bots', 'Factories', 'Defenses', 'Structures', 'Vehicles', 'Air', 'Naval', 'Orbital', 'Titans', 'Commanders', 'Other'],
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /reset category order/i })).toBeInTheDocument()
+      })
+    })
+
+    it('should hide reset button with default order', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      expect(screen.queryByRole('button', { name: /reset category order/i })).not.toBeInTheDocument()
+    })
+
+    it('should reset category order when reset button is clicked', async () => {
+      const user = userEvent.setup()
+
+      // Set custom order in localStorage
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: ['Tanks', 'Bots', 'Factories', 'Defenses', 'Structures', 'Vehicles', 'Air', 'Naval', 'Orbital', 'Titans', 'Commanders', 'Other'],
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /reset category order/i })).toBeInTheDocument()
+      })
+
+      // Click reset button
+      await user.click(screen.getByRole('button', { name: /reset category order/i }))
+
+      // Reset button should disappear
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: /reset category order/i })).not.toBeInTheDocument()
+      })
+
+      // Wait for debounced localStorage write (300ms + buffer)
+      await waitFor(() => {
+        const storedPrefs = JSON.parse(localStorage.getItem('pa-pedia-preferences') || '{}')
+        expect(storedPrefs.categoryOrder).toBeNull()
+      }, { timeout: 500 })
+    })
+
+    it('should display drag handles on category headers in grid view', async () => {
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Check that drag handles are present (by aria-label)
+      const dragHandles = screen.getAllByLabelText(/drag to reorder .* category/i)
+      expect(dragHandles.length).toBeGreaterThan(0)
+    })
+
+    it('should not show drag handles in table view', async () => {
+      const user = userEvent.setup()
+
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to table view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+
+      await waitFor(() => {
+        expect(screen.getByRole('table')).toBeInTheDocument()
+      })
+
+      // Drag handles should not be present in table view
+      expect(screen.queryByLabelText(/drag to reorder .* category/i)).not.toBeInTheDocument()
     })
   })
 })
