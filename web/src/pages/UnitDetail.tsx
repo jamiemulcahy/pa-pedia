@@ -399,7 +399,10 @@ export function UnitDetail() {
                 </div>
               )}
 
-              {/* Weapon rows - one row per weapon */}
+              {/* Weapon rows - one row per weapon
+                  Note: Weapons are matched by array index position. If units have different
+                  weapon counts, comparison cells will be empty for mismatched positions.
+                  Future enhancement: consider semantic matching by target layers or damage type. */}
               {regularWeapons.map((weapon, wIndex) => (
                 <React.Fragment key={`weapon-row-${wIndex}`}>
                   <div className="flex gap-6 items-stretch">
