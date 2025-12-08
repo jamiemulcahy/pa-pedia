@@ -16,7 +16,15 @@ import { BuiltBySection } from '@/components/stats/BuiltBySection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
 import { EconomySection } from '@/components/stats/EconomySection'
 import { StorageSection } from '@/components/stats/StorageSection'
+import type { Weapon } from '@/types/faction'
 // Note: matchWeaponsByTargetLayers removed - using simpler index-based matching in column layout
+
+/** Filter to get regular weapons (excludes self-destruct and death explosions) */
+const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
+
+/** Get regular weapons from a weapons array */
+const getRegularWeapons = (weapons: Weapon[] | undefined) =>
+  weapons?.filter(isRegularWeapon) || []
 
 export function UnitDetail() {
   const { factionId, unitId } = useParams<{ factionId: string; unitId: string }>()
@@ -143,7 +151,7 @@ export function UnitDetail() {
   const weapons = specs.combat.weapons || []
 
   // Separate regular weapons from self-destruct and death explosion
-  const regularWeapons = weapons.filter(w => !w.selfDestruct && !w.deathExplosion)
+  const regularWeapons = getRegularWeapons(weapons)
   const selfDestructWeapon = weapons.find(w => w.selfDestruct)
   const deathExplosionWeapon = weapons.find(w => w.deathExplosion)
 
@@ -217,11 +225,11 @@ export function UnitDetail() {
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                   <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
                 </div>
-                {comparisonRefs.map((ref, index) => (
+                {comparisonRefs.map((_ref, index) => (
                   <div key={`nav-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                     <BreadcrumbNav
-                      factionId={ref.factionId}
-                      unitId={ref.unitId || undefined}
+                      factionId={_ref.factionId}
+                      unitId={_ref.unitId || undefined}
                       onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(index, newFactionId, newUnitId)}
                       sourceUnitTypes={unit.unitTypes}
                     />
@@ -240,15 +248,15 @@ export function UnitDetail() {
                     {unit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{unit.description}</p>}
                   </div>
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
-                  const isPendingSelection = !ref.unitId
+                  const isPendingSelection = !_ref.unitId
                   return (
                     <div key={`card-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                       <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-gray-800 relative h-full">
                         {/* Control buttons in top-right corner */}
                         <div className="absolute top-2 right-2 flex gap-1">
-                          {ref.unitId && (
+                          {_ref.unitId && (
                             <button
                               onClick={() => {
                                 const newCompareRefs = comparisonRefs.map((r, i) =>
@@ -256,7 +264,7 @@ export function UnitDetail() {
                                 )
                                 const params = new URLSearchParams()
                                 params.set('compare', newCompareRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
-                                navigate(`/faction/${ref.factionId}/unit/${ref.unitId}?${params.toString()}`)
+                                navigate(`/faction/${_ref.factionId}/unit/${_ref.unitId}?${params.toString()}`)
                               }}
                               className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                               title="Swap with primary unit"
@@ -285,7 +293,7 @@ export function UnitDetail() {
                         ) : compUnit ? (
                           <>
                             <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
-                              <UnitIcon imagePath={compUnit.image} alt={compUnit.displayName} className="max-w-full max-h-full object-contain" factionId={ref.factionId} />
+                              <UnitIcon imagePath={compUnit.image} alt={compUnit.displayName} className="max-w-full max-h-full object-contain" factionId={_ref.factionId} />
                             </div>
                             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{compUnit.displayName}</h2>
                             {compUnit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{compUnit.description}</p>}
@@ -310,7 +318,7 @@ export function UnitDetail() {
                     showDifferencesOnly={showDifferencesOnly}
                   />
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
                   return (
                     <div key={`types-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -332,12 +340,12 @@ export function UnitDetail() {
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                   <OverviewSection unit={unit} compareUnit={compareUnit} showDifferencesOnly={showDifferencesOnly} hideDiff />
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
                   return (
                     <div key={`overview-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                       {compUnit && (
-                        <OverviewSection unit={compUnit} compareUnit={unit} factionId={ref.factionId} showDifferencesOnly={showDifferencesOnly} />
+                        <OverviewSection unit={compUnit} compareUnit={unit} factionId={_ref.factionId} showDifferencesOnly={showDifferencesOnly} />
                       )}
                     </div>
                   )
@@ -349,7 +357,7 @@ export function UnitDetail() {
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                   <EconomySection economy={specs.economy} compareEconomy={compareUnit?.specs.economy} showDifferencesOnly={showDifferencesOnly} hideDiff />
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
                   return (
                     <div key={`economy-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -367,7 +375,7 @@ export function UnitDetail() {
                   <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                     <PhysicsSection mobility={specs.mobility} special={specs.special} compareMobility={compareUnit?.specs.mobility} compareSpecial={compareUnit?.specs.special} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   </div>
-                  {comparisonRefs.map((ref, index) => {
+                  {comparisonRefs.map((_ref, index) => {
                     const compUnit = comparisonUnits[index]
                     return (
                       <div key={`physics-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -386,7 +394,7 @@ export function UnitDetail() {
                   <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                     <ReconSection recon={specs.recon} compareRecon={compareUnit?.specs.recon} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   </div>
-                  {comparisonRefs.map((ref, index) => {
+                  {comparisonRefs.map((_ref, index) => {
                     const compUnit = comparisonUnits[index]
                     return (
                       <div key={`recon-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -407,11 +415,11 @@ export function UnitDetail() {
                 <React.Fragment key={`weapon-row-${wIndex}`}>
                   <div className="flex gap-6 items-stretch">
                     <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                      <WeaponSection weapon={weapon} compareWeapon={compareUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion)[wIndex]} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                      <WeaponSection weapon={weapon} compareWeapon={compareUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     </div>
-                    {comparisonRefs.map((ref, index) => {
+                    {comparisonRefs.map((_ref, index) => {
                       const compUnit = comparisonUnits[index]
-                      const compWeapon = compUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion)[wIndex]
+                      const compWeapon = compUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]
                       return (
                         <div key={`weapon-${wIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                           {compWeapon && (
@@ -424,15 +432,15 @@ export function UnitDetail() {
                   {weapon.ammoDetails && (
                     <div className="flex gap-6 items-stretch">
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                        <AmmoSection ammo={weapon.ammoDetails} compareAmmo={compareUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion)[wIndex]?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        <AmmoSection ammo={weapon.ammoDetails} compareAmmo={compareUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
                       </div>
-                      {comparisonRefs.map((ref, index) => {
+                      {comparisonRefs.map((_ref, index) => {
                         const compUnit = comparisonUnits[index]
-                        const compAmmo = compUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion)[wIndex]?.ammoDetails
+                        const compAmmo = compUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]?.ammoDetails
                         return (
                           <div key={`ammo-${wIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                             {compAmmo && (
-                              <AmmoSection ammo={compAmmo} compareAmmo={weapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={ref.factionId} />
+                              <AmmoSection ammo={compAmmo} compareAmmo={weapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
                             )}
                           </div>
                         )
@@ -449,7 +457,7 @@ export function UnitDetail() {
                     <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       <WeaponSection weapon={selfDestructWeapon} compareWeapon={compareUnit?.specs.combat.weapons?.find(w => w.selfDestruct)} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     </div>
-                    {comparisonRefs.map((ref, index) => {
+                    {comparisonRefs.map((_ref, index) => {
                       const compUnit = comparisonUnits[index]
                       const compWeapon = compUnit?.specs.combat.weapons?.find(w => w.selfDestruct)
                       return (
@@ -466,13 +474,13 @@ export function UnitDetail() {
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         <AmmoSection ammo={selfDestructWeapon.ammoDetails} compareAmmo={compareUnit?.specs.combat.weapons?.find(w => w.selfDestruct)?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
                       </div>
-                      {comparisonRefs.map((ref, index) => {
+                      {comparisonRefs.map((_ref, index) => {
                         const compUnit = comparisonUnits[index]
                         const compAmmo = compUnit?.specs.combat.weapons?.find(w => w.selfDestruct)?.ammoDetails
                         return (
                           <div key={`selfdestruct-ammo-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                             {compAmmo && (
-                              <AmmoSection ammo={compAmmo} compareAmmo={selfDestructWeapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={ref.factionId} />
+                              <AmmoSection ammo={compAmmo} compareAmmo={selfDestructWeapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
                             )}
                           </div>
                         )
@@ -489,7 +497,7 @@ export function UnitDetail() {
                     <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       <WeaponSection weapon={deathExplosionWeapon} compareWeapon={compareUnit?.specs.combat.weapons?.find(w => w.deathExplosion)} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     </div>
-                    {comparisonRefs.map((ref, index) => {
+                    {comparisonRefs.map((_ref, index) => {
                       const compUnit = comparisonUnits[index]
                       const compWeapon = compUnit?.specs.combat.weapons?.find(w => w.deathExplosion)
                       return (
@@ -506,13 +514,13 @@ export function UnitDetail() {
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         <AmmoSection ammo={deathExplosionWeapon.ammoDetails} compareAmmo={compareUnit?.specs.combat.weapons?.find(w => w.deathExplosion)?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
                       </div>
-                      {comparisonRefs.map((ref, index) => {
+                      {comparisonRefs.map((_ref, index) => {
                         const compUnit = comparisonUnits[index]
                         const compAmmo = compUnit?.specs.combat.weapons?.find(w => w.deathExplosion)?.ammoDetails
                         return (
                           <div key={`deathexp-ammo-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                             {compAmmo && (
-                              <AmmoSection ammo={compAmmo} compareAmmo={deathExplosionWeapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={ref.factionId} />
+                              <AmmoSection ammo={compAmmo} compareAmmo={deathExplosionWeapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
                             )}
                           </div>
                         )
@@ -528,7 +536,7 @@ export function UnitDetail() {
                   <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                     <StorageSection storage={specs.storage} compareStorage={compareUnit?.specs.storage} showDifferencesOnly={showDifferencesOnly} hideDiff />
                   </div>
-                  {comparisonRefs.map((ref, index) => {
+                  {comparisonRefs.map((_ref, index) => {
                     const compUnit = comparisonUnits[index]
                     return (
                       <div key={`storage-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -546,13 +554,13 @@ export function UnitDetail() {
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                   <TargetPrioritiesSection
                     weapons={regularWeapons}
-                    compareWeapons={compareUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion) || []}
+                    compareWeapons={compareUnit?.specs.combat.weapons?.filter(isRegularWeapon) || []}
                     showDifferencesOnly={showDifferencesOnly}
                   />
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
-                  const compRegularWeapons = compUnit?.specs.combat.weapons?.filter(w => !w.selfDestruct && !w.deathExplosion) || []
+                  const compRegularWeapons = compUnit?.specs.combat.weapons?.filter(isRegularWeapon) || []
                   return (
                     <div key={`priorities-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                       {compUnit && (
@@ -579,7 +587,7 @@ export function UnitDetail() {
                     showDifferencesOnly={showDifferencesOnly}
                   />
                 </div>
-                {comparisonRefs.map((ref, index) => {
+                {comparisonRefs.map((_ref, index) => {
                   const compUnit = comparisonUnits[index]
                   return (
                     <div key={`builtby-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
@@ -587,7 +595,7 @@ export function UnitDetail() {
                         <BuiltBySection
                           builtBy={compUnit.buildRelationships?.builtBy}
                           buildCost={compUnit.specs.economy.buildCost}
-                          factionId={ref.factionId}
+                          factionId={_ref.factionId}
                           compareBuiltBy={buildRelationships?.builtBy}
                           showDifferencesOnly={showDifferencesOnly}
                           isComparisonSide

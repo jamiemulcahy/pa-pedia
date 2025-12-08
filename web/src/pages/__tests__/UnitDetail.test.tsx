@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { UnitDetail } from '../UnitDetail'
 import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch, mockTankUnit, type MockFetch } from '@/tests/mocks/factionData'
