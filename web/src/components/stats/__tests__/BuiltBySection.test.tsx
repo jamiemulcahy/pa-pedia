@@ -59,6 +59,54 @@ const mockUnits = [
       specs: { combat: { health: 5000 }, economy: { buildCost: 800, buildRate: 15 } },
     },
   },
+  {
+    identifier: 'commander',
+    displayName: 'Commander',
+    unitTypes: ['Commander', 'Mobile'],
+    source: 'base',
+    files: [],
+    unit: {
+      id: 'commander',
+      resourceName: '/pa/units/commanders/imperial_invictus/imperial_invictus.json',
+      displayName: 'Commander',
+      tier: 3,
+      unitTypes: ['Commander', 'Mobile'],
+      accessible: true,
+      specs: { combat: { health: 12000 }, economy: { buildCost: 0, buildRate: 50 } },
+    },
+  },
+  {
+    identifier: 'commander_alpha',
+    displayName: 'Alpha Commander',
+    unitTypes: ['Commander', 'Mobile'],
+    source: 'base',
+    files: [],
+    unit: {
+      id: 'commander_alpha',
+      resourceName: '/pa/units/commanders/alpha/alpha.json',
+      displayName: 'Alpha Commander',
+      tier: 3,
+      unitTypes: ['Commander', 'Mobile'],
+      accessible: true,
+      specs: { combat: { health: 12000 }, economy: { buildCost: 0, buildRate: 40 } },
+    },
+  },
+  {
+    identifier: 'commander_beta',
+    displayName: 'Beta Commander',
+    unitTypes: ['Commander', 'Mobile'],
+    source: 'base',
+    files: [],
+    unit: {
+      id: 'commander_beta',
+      resourceName: '/pa/units/commanders/beta/beta.json',
+      displayName: 'Beta Commander',
+      tier: 3,
+      unitTypes: ['Commander', 'Mobile'],
+      accessible: true,
+      specs: { combat: { health: 12000 }, economy: { buildCost: 0, buildRate: 60 } },
+    },
+  },
 ]
 
 function renderBuiltBySection(props: React.ComponentProps<typeof BuiltBySection>) {
@@ -214,6 +262,97 @@ describe('BuiltBySection', () => {
 
       expect(screen.queryByText('+')).not.toBeInTheDocument()
       expect(screen.queryByText('−')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('commander aggregation', () => {
+    it('should aggregate multiple commanders into single "Commanders" entry', () => {
+      renderBuiltBySection({
+        builtBy: ['commander', 'commander_alpha', 'commander_beta'],
+        buildCost: 300,
+      })
+
+      // Should show "Commanders" instead of individual commander names
+      expect(screen.getByText('Commanders')).toBeInTheDocument()
+      expect(screen.queryByText('Commander')).not.toBeInTheDocument()
+      expect(screen.queryByText('Alpha Commander')).not.toBeInTheDocument()
+      expect(screen.queryByText('Beta Commander')).not.toBeInTheDocument()
+    })
+
+    it('should show fastest build time for aggregated commanders', () => {
+      // Build rates: commander=50, alpha=40, beta=60
+      // Build cost: 300
+      // Build times: 300/50=6s, 300/40=7.5s, 300/60=5s
+      // Fastest is beta at 5s = 0:05
+      renderBuiltBySection({
+        builtBy: ['commander', 'commander_alpha', 'commander_beta'],
+        buildCost: 300,
+      })
+
+      expect(screen.getByText('0:05')).toBeInTheDocument()
+    })
+
+    it('should render aggregated commanders as plain text, not a link', () => {
+      renderBuiltBySection({
+        builtBy: ['commander', 'commander_alpha'],
+        buildCost: 300,
+      })
+
+      // "Commanders" should not be a link
+      const commandersText = screen.getByText('Commanders')
+      expect(commandersText.tagName).toBe('SPAN')
+      expect(commandersText.closest('a')).toBeNull()
+    })
+
+    it('should render regular builders as links alongside aggregated commanders', () => {
+      renderBuiltBySection({
+        builtBy: ['basic_bot_factory', 'commander', 'commander_alpha'],
+        buildCost: 300,
+      })
+
+      // Bot Factory should be a link
+      const botFactoryLink = screen.getByRole('link', { name: 'Bot Factory' })
+      expect(botFactoryLink).toBeInTheDocument()
+
+      // Commanders should be plain text
+      const commandersText = screen.getByText('Commanders')
+      expect(commandersText.closest('a')).toBeNull()
+    })
+
+    it('should not aggregate a single commander', () => {
+      renderBuiltBySection({
+        builtBy: ['commander'],
+        buildCost: 300,
+      })
+
+      // Single commander should show as "Commanders" (aggregation still happens)
+      expect(screen.getByText('Commanders')).toBeInTheDocument()
+    })
+
+    it('should show diff styling for aggregated commanders in comparison mode', () => {
+      renderBuiltBySection({
+        builtBy: ['commander', 'commander_alpha'],
+        buildCost: 300,
+        compareBuiltBy: [],
+        isComparisonSide: true,
+      })
+
+      // Commanders entry should show + since it's only in this unit
+      expect(screen.getByText('+')).toBeInTheDocument()
+    })
+
+    it('should show - indicator when commanders removed in comparison', () => {
+      renderBuiltBySection({
+        builtBy: ['basic_bot_factory'],
+        buildCost: 300,
+        compareBuiltBy: ['basic_bot_factory', 'commander', 'commander_alpha'],
+        isComparisonSide: true,
+      })
+
+      // Commanders entry should show - since it's only in compare unit
+      expect(screen.getByText('−')).toBeInTheDocument()
+      // And Commanders should appear as aggregated text
+      expect(screen.getByText('Commanders')).toBeInTheDocument()
     })
   })
 })
