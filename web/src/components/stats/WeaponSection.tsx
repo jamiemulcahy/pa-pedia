@@ -24,7 +24,17 @@ function calculateBurstDps(weapon: Weapon): number | undefined {
 export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon, showDifferencesOnly, hideDiff }) => {
   const count = weapon.count ?? 1;
   const compareCount = compareWeapon?.count ?? 1;
-  const title = count > 1 ? `Weapon ×${count}` : 'Weapon';
+
+  // Determine section title based on weapon type
+  // Note: deathExplosion takes precedence because in PA, a weapon triggers
+  // either on death (passive) or on self-destruct command (active), not both
+  let baseTitle = 'Weapon';
+  if (weapon.deathExplosion) {
+    baseTitle = 'Death Explosion';
+  } else if (weapon.selfDestruct) {
+    baseTitle = 'Self-Destruct';
+  }
+  const title = count > 1 ? `${baseTitle} ×${count}` : baseTitle;
 
   // Calculate burst DPS for weapons with ammo system
   // Burst DPS = (ammo consumed per shot / ammo demand) * damage * projectiles per fire

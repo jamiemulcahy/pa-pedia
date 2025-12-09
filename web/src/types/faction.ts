@@ -69,7 +69,9 @@ export interface Weapon {
   splashDamage?: number;
   splashRadius?: number;
   fullDamageRadius?: number;
+  /** Weapon triggers on unit self-destruct command (e.g., boom bot) */
   selfDestruct?: boolean;
+  /** Weapon triggers on unit death (e.g., commander nuke, titan explosions) */
   deathExplosion?: boolean;
   ammoSource?: string;
   ammoDemand?: number;

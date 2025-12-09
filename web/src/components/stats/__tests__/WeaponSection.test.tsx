@@ -199,6 +199,48 @@ describe('WeaponSection', () => {
       expect(screen.getByText('Weapon ×3')).toBeInTheDocument()
     })
 
+    it('should show "Death Explosion" title for death explosion weapons', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        deathExplosion: true,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Death Explosion')).toBeInTheDocument()
+    })
+
+    it('should show "Self-Destruct" title for self-destruct weapons', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        selfDestruct: true,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Self-Destruct')).toBeInTheDocument()
+    })
+
+    it('should show "Death Explosion ×2" when death explosion has count > 1', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        deathExplosion: true,
+        count: 2,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Death Explosion ×2')).toBeInTheDocument()
+    })
+
+    it('should show "Self-Destruct ×2" when self-destruct has count > 1', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        selfDestruct: true,
+        count: 2,
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Self-Destruct ×2')).toBeInTheDocument()
+    })
+
     it('should multiply DPS by count', () => {
       const weapon: Weapon = {
         ...mockBasicWeapon,
