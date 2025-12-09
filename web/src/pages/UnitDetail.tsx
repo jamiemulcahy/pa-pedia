@@ -13,6 +13,7 @@ import { WeaponSection } from '@/components/stats/WeaponSection'
 import { AmmoSection } from '@/components/stats/AmmoSection'
 import { TargetPrioritiesSection } from '@/components/stats/TargetPrioritiesSection'
 import { BuiltBySection } from '@/components/stats/BuiltBySection'
+import { BuildsSection } from '@/components/stats/BuildsSection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
 import { EconomySection } from '@/components/stats/EconomySection'
 import { StorageSection } from '@/components/stats/StorageSection'
@@ -618,6 +619,37 @@ export function UnitDetail() {
                   )
                 })}
               </div>
+
+              {/* Builds row */}
+              <div className="flex gap-6 items-stretch">
+                <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                  <BuildsSection
+                    builds={buildRelationships?.builds}
+                    buildRate={specs.economy.buildRate || 0}
+                    factionId={factionId}
+                    compareBuilds={compareUnit?.buildRelationships?.builds}
+                    showDifferencesOnly={showDifferencesOnly}
+                  />
+                </div>
+                {comparisonRefs.map((_ref, index) => {
+                  const compUnit = comparisonUnits[index]
+                  return (
+                    <div key={`builds-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                      {compUnit && (
+                        <BuildsSection
+                          builds={compUnit.buildRelationships?.builds}
+                          buildRate={compUnit.specs.economy.buildRate || 0}
+                          factionId={_ref.factionId}
+                          compareBuilds={buildRelationships?.builds}
+                          showDifferencesOnly={showDifferencesOnly}
+                          isComparisonSide
+                          compareUnits={primaryUnits}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         ) : (
@@ -665,6 +697,11 @@ export function UnitDetail() {
               <BuiltBySection
                 builtBy={buildRelationships?.builtBy}
                 buildCost={specs.economy.buildCost}
+              />
+
+              <BuildsSection
+                builds={buildRelationships?.builds}
+                buildRate={specs.economy.buildRate || 0}
               />
             </div>
 
