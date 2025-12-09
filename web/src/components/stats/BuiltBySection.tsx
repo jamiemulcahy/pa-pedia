@@ -21,6 +21,18 @@ interface BuiltBySectionProps {
   compareUnits?: UnitIndexEntry[];
 }
 
+interface BuilderEntry {
+  id: string;
+  name: string;
+  tier: number;
+  buildTime: number;
+  inThis: boolean;
+  inCompare: boolean;
+  factionId: string;
+  isCommander: boolean;
+  isAggregated?: boolean;
+}
+
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   builtBy,
   buildCost,
@@ -58,7 +70,7 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
 
   // Get builder units with their build rates
   // For comparison side, we need to look up units from both factions
-  const builders = Array.from(allBuilderIds)
+  const allBuilders = Array.from(allBuilderIds)
     .map(builderId => {
       // First try to find in this faction's units
       let builder = units?.find(u => u.identifier === builderId);
@@ -75,6 +87,7 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
 
       const buildRate = builder.unit.specs.economy.buildRate || 0;
       const buildTime = buildRate > 0 ? buildCost / buildRate : 0;
+      const isCommander = builder.unitTypes?.includes('Commander') ?? false;
 
       return {
         id: builderId,
@@ -84,10 +97,45 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
         inThis: thisBuilders.has(builderId),
         inCompare: compareBuilders.has(builderId),
         factionId: builderFactionId,
+        isCommander,
       };
     })
-    .filter((b): b is NonNullable<typeof b> => b !== null)
-    .sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
+    .filter((b): b is NonNullable<typeof b> => b !== null);
+
+  // Separate commanders from regular builders
+  const commanderBuilders = allBuilders.filter(b => b.isCommander);
+  const regularBuilders = allBuilders.filter(b => !b.isCommander);
+
+  // Create aggregated commanders entry if there are any
+  let aggregatedCommanders: BuilderEntry | null = null;
+  if (commanderBuilders.length > 0) {
+    // Find fastest commander (tie-break by lower tier)
+    const fastest = commanderBuilders.reduce((min, b) => {
+      if (b.buildTime < min.buildTime) return b;
+      if (b.buildTime === min.buildTime && b.tier < min.tier) return b;
+      return min;
+    });
+    // Check if any commander is in this/compare for diff styling
+    const anyInThis = commanderBuilders.some(b => b.inThis);
+    const anyInCompare = commanderBuilders.some(b => b.inCompare);
+    aggregatedCommanders = {
+      id: 'commanders-aggregate',
+      name: 'Commanders',
+      tier: fastest.tier,
+      buildTime: fastest.buildTime,
+      inThis: anyInThis,
+      inCompare: anyInCompare,
+      factionId: fastest.factionId,
+      isCommander: true,
+      isAggregated: true,
+    };
+  }
+
+  // Combine regular builders with aggregated commanders
+  const builders: BuilderEntry[] = [
+    ...regularBuilders,
+    ...(aggregatedCommanders ? [aggregatedCommanders] : []),
+  ].sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
 
   const formatBuildTime = (seconds: number): string => {
     if (seconds === 0) return '0:00';
@@ -131,16 +179,26 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 w-6">
                     {getTierLabel(builder.tier)}
                   </span>
-                  <Link
-                    to={`/faction/${builder.factionId}/unit/${builder.id}`}
-                    className={`hover:underline flex-1 ${
+                  {builder.isAggregated ? (
+                    <span className={`flex-1 ${
                       isAdded ? 'text-green-600 dark:text-green-400' :
                       isRemoved ? 'text-red-600 dark:text-red-400' :
-                      'text-blue-600 dark:text-blue-400'
-                    }`}
-                  >
-                    {builder.name}
-                  </Link>
+                      'text-gray-900 dark:text-gray-100'
+                    }`}>
+                      {builder.name}
+                    </span>
+                  ) : (
+                    <Link
+                      to={`/faction/${builder.factionId}/unit/${builder.id}`}
+                      className={`hover:underline flex-1 ${
+                        isAdded ? 'text-green-600 dark:text-green-400' :
+                        isRemoved ? 'text-red-600 dark:text-red-400' :
+                        'text-blue-600 dark:text-blue-400'
+                      }`}
+                    >
+                      {builder.name}
+                    </Link>
+                  )}
                   <span className={`text-sm ${
                     isAdded ? 'text-green-600 dark:text-green-400' :
                     isRemoved ? 'text-red-600 dark:text-red-400' :
