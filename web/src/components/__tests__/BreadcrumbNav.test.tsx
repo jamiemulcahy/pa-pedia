@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, fireEvent } from '@testing-library/react'
 import { BreadcrumbNav } from '../BreadcrumbNav'
 import { renderWithProviders } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
@@ -15,14 +15,31 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
+interface RenderOptions {
+  factionId: string
+  unitId?: string
+  onUnitChange?: (factionId: string, unitId: string) => void
+  enableAllFactions?: boolean
+}
+
 function renderBreadcrumbNav(
-  factionId: string,
+  factionIdOrOptions: string | RenderOptions,
   unitId?: string,
   onUnitChange?: (factionId: string, unitId: string) => void
 ) {
+  // Support both old signature and new options object
+  const options: RenderOptions = typeof factionIdOrOptions === 'string'
+    ? { factionId: factionIdOrOptions, unitId, onUnitChange }
+    : factionIdOrOptions
+
   return renderWithProviders(
     <MemoryRouter>
-      <BreadcrumbNav factionId={factionId} unitId={unitId} onUnitChange={onUnitChange} />
+      <BreadcrumbNav
+        factionId={options.factionId}
+        unitId={options.unitId}
+        onUnitChange={options.onUnitChange}
+        enableAllFactions={options.enableAllFactions}
+      />
     </MemoryRouter>,
     { skipRouter: true }
   )
@@ -134,5 +151,92 @@ describe('BreadcrumbNav', () => {
 
     // Component renders successfully with callback
     expect(screen.getByLabelText('Unit navigation')).toBeInTheDocument()
+  })
+
+  describe('All Factions Feature', () => {
+    // Helper to open react-select dropdown
+    const openFactionDropdown = async () => {
+      const factionSelect = screen.getByLabelText('Select faction')
+      // react-select opens on focus + keyboard or mouseDown
+      fireEvent.focus(factionSelect)
+      fireEvent.keyDown(factionSelect, { key: 'ArrowDown', code: 'ArrowDown' })
+    }
+
+    it('should show "All" option when enableAllFactions is true', async () => {
+      renderBreadcrumbNav({
+        factionId: 'MLA',
+        unitId: 'tank',
+        enableAllFactions: true,
+      })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Select faction')).toBeInTheDocument()
+      })
+
+      // Open the dropdown
+      await openFactionDropdown()
+
+      // Wait for options to be rendered - "All" should be the first option
+      await waitFor(() => {
+        expect(screen.getByText('All')).toBeInTheDocument()
+      })
+    })
+
+    it('should show "All" option when onUnitChange callback is provided', async () => {
+      const onUnitChange = vi.fn()
+      renderBreadcrumbNav({
+        factionId: 'MLA',
+        unitId: 'tank',
+        onUnitChange,
+      })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Select faction')).toBeInTheDocument()
+      })
+
+      // Open the dropdown
+      await openFactionDropdown()
+
+      // "All" should be available
+      await waitFor(() => {
+        expect(screen.getByText('All')).toBeInTheDocument()
+      })
+    })
+
+    it('should NOT show "All" option when neither enableAllFactions nor onUnitChange is provided', async () => {
+      renderBreadcrumbNav({
+        factionId: 'MLA',
+        unitId: 'tank',
+      })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Select faction')).toBeInTheDocument()
+      })
+
+      // Open the dropdown
+      await openFactionDropdown()
+
+      // Wait for options to render - check for menu listbox indicating dropdown is open
+      await waitFor(() => {
+        // MLA will appear multiple times (selected value + dropdown option)
+        expect(screen.getAllByText('MLA').length).toBeGreaterThanOrEqual(1)
+      })
+
+      // "All" option should NOT be present (check exact match to avoid matching partial text)
+      const allOptions = screen.queryAllByText('All')
+      expect(allOptions.length).toBe(0)
+    })
+
+    it('should render successfully with enableAllFactions prop', async () => {
+      renderBreadcrumbNav({
+        factionId: 'MLA',
+        unitId: 'tank',
+        enableAllFactions: true,
+      })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Unit navigation')).toBeInTheDocument()
+      })
+    })
   })
 })
