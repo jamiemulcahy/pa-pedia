@@ -26,7 +26,11 @@
       "Bash(./build-and-run.bat)",
       "Bash(gh issue view:*)",
       "Bash(find:*)",
-      "WebFetch(domain:palobby.com)"
+      "WebFetch(domain:palobby.com)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh issue list:*)"
     ],
     "deny": [],
     "ask": []

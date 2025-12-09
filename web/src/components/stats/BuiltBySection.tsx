@@ -21,6 +21,18 @@ interface BuiltBySectionProps {
   compareUnits?: UnitIndexEntry[];
 }
 
+interface BuilderEntry {
+  id: string;
+  name: string;
+  tier: number;
+  buildTime: number;
+  inThis: boolean;
+  inCompare: boolean;
+  factionId: string;
+  isCommander: boolean;
+  isAggregated?: boolean;
+}
+
 export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   builtBy,
   buildCost,
@@ -95,24 +107,14 @@ export const BuiltBySection: React.FC<BuiltBySectionProps> = ({
   const regularBuilders = allBuilders.filter(b => !b.isCommander);
 
   // Create aggregated commanders entry if there are any
-  type BuilderEntry = {
-    id: string;
-    name: string;
-    tier: number;
-    buildTime: number;
-    inThis: boolean;
-    inCompare: boolean;
-    factionId: string;
-    isCommander: boolean;
-    isAggregated?: boolean;
-  };
-
   let aggregatedCommanders: BuilderEntry | null = null;
   if (commanderBuilders.length > 0) {
-    // Find fastest commander
-    const fastest = commanderBuilders.reduce((min, b) =>
-      b.buildTime < min.buildTime ? b : min
-    );
+    // Find fastest commander (tie-break by lower tier)
+    const fastest = commanderBuilders.reduce((min, b) => {
+      if (b.buildTime < min.buildTime) return b;
+      if (b.buildTime === min.buildTime && b.tier < min.tier) return b;
+      return min;
+    });
     // Check if any commander is in this/compare for diff styling
     const anyInThis = commanderBuilders.some(b => b.inThis);
     const anyInCompare = commanderBuilders.some(b => b.inCompare);
