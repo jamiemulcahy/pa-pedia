@@ -227,7 +227,7 @@ export function UnitDetail() {
               {/* Nav row */}
               <div className="flex gap-6 items-stretch">
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                  <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
+                  <BreadcrumbNav factionId={factionId || ''} unitId={unitId} enableAllFactions />
                 </div>
                 {comparisonRefs.map((_ref, index) => (
                   <div key={`nav-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">

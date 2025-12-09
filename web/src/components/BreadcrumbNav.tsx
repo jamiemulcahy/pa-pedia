@@ -5,8 +5,15 @@ import { useFactionContext } from '@/contexts/FactionContext'
 import { selectStyles, type SelectOption } from './selectStyles'
 import { findBestMatchingUnit } from '@/utils/unitMatcher'
 
+const ALL_FACTIONS_VALUE = '__all__'
+
 interface FactionOption extends SelectOption {
   isLocal: boolean
+}
+
+interface UnitOptionWithFaction extends SelectOption {
+  factionId: string
+  factionName: string
 }
 
 interface BreadcrumbNavProps {
@@ -16,36 +23,84 @@ interface BreadcrumbNavProps {
   onUnitChange?: (factionId: string, unitId: string) => void
   /** Source unit types for auto-matching when faction changes (comparison mode) */
   sourceUnitTypes?: string[]
+  /** Enable "All factions" option even without onUnitChange (for primary unit in comparison mode) */
+  enableAllFactions?: boolean
 }
 
-export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes }: BreadcrumbNavProps) {
+export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes, enableAllFactions }: BreadcrumbNavProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { factions, getFactionIndex, loadFaction } = useFactionContext()
+  const { factions, getFactionIndex, loadFaction, factionIndexes } = useFactionContext()
 
   // Track selected faction for filtering units (may differ from URL during selection)
   const [selectedFactionId, setSelectedFactionId] = useState(factionId)
   const [isLoadingFaction, setIsLoadingFaction] = useState(false)
 
+  // Show "All factions" when explicitly enabled or when onUnitChange is provided (comparison slots)
+  const showAllFactionsOption = enableAllFactions || !!onUnitChange
+  const isAllFactionsSelected = selectedFactionId === ALL_FACTIONS_VALUE
+
   // Get faction options - use Map key (folder name) for URL, not metadata.identifier
   const factionOptions = useMemo(() => {
-    return Array.from(factions.entries()).map(([folderId, faction]) => ({
+    const options: FactionOption[] = Array.from(factions.entries()).map(([folderId, faction]) => ({
       value: folderId,
       label: faction.displayName,
       isLocal: faction.isLocal,
     }))
-  }, [factions])
+
+    // Add "All" option at the start when enabled
+    if (showAllFactionsOption) {
+      options.unshift({
+        value: ALL_FACTIONS_VALUE,
+        label: 'All',
+        isLocal: false,
+      })
+    }
+
+    return options
+  }, [factions, showAllFactionsOption])
 
   // Get unit options for selected faction (not necessarily current URL faction)
-  const unitOptions = useMemo(() => {
+  // When "All factions" is selected, aggregate units from all loaded factions
+  const unitOptions = useMemo((): UnitOptionWithFaction[] => {
+    if (isAllFactionsSelected) {
+      // Aggregate units from ALL loaded faction indexes
+      const allUnits: UnitOptionWithFaction[] = []
+
+      for (const [facId, index] of factionIndexes.entries()) {
+        const factionMeta = factions.get(facId)
+        const factionName = factionMeta?.displayName || facId
+
+        for (const entry of index.units) {
+          allUnits.push({
+            value: `${facId}/${entry.identifier}`, // Encode faction in value
+            label: entry.displayName,
+            factionId: facId,
+            factionName: factionName,
+          })
+        }
+      }
+
+      // Sort by unit name, then by faction
+      return allUnits.sort((a, b) =>
+        a.label.localeCompare(b.label) || a.factionName.localeCompare(b.factionName)
+      )
+    }
+
+    // Single faction mode
     const factionIndex = getFactionIndex(selectedFactionId)
     if (!factionIndex) return []
+
+    const factionMeta = factions.get(selectedFactionId)
+    const factionName = factionMeta?.displayName || selectedFactionId
 
     return factionIndex.units.map(entry => ({
       value: entry.identifier,
       label: entry.displayName,
+      factionId: selectedFactionId,
+      factionName: factionName,
     })).sort((a, b) => a.label.localeCompare(b.label))
-  }, [selectedFactionId, getFactionIndex])
+  }, [selectedFactionId, getFactionIndex, isAllFactionsSelected, factionIndexes, factions])
 
   // Current selections
   const selectedFaction = factionOptions.find(opt => opt.value === selectedFactionId) || null
@@ -68,7 +123,23 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
   const handleFactionChange = async (option: FactionOption | null) => {
     if (option) {
       setSelectedFactionId(option.value)
-      // Load faction data if not already loaded (for unit options)
+
+      // Handle "All factions" selection - load all faction indexes
+      if (option.value === ALL_FACTIONS_VALUE) {
+        setIsLoadingFaction(true)
+        try {
+          // Load all factions in parallel
+          const factionIds = Array.from(factions.keys())
+          await Promise.all(factionIds.map(id => loadFaction(id)))
+        } catch (error) {
+          console.error('Failed to load factions:', error)
+        } finally {
+          setIsLoadingFaction(false)
+        }
+        return
+      }
+
+      // Load single faction data if not already loaded (for unit options)
       setIsLoadingFaction(true)
       try {
         await loadFaction(option.value)
@@ -93,20 +164,37 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
     }
   }
 
-  const handleUnitChange = (option: SelectOption | null) => {
+  const handleUnitChange = (option: UnitOptionWithFaction | null) => {
     if (option) {
+      // In "All factions" mode, the value is "factionId/unitId"
+      // In single faction mode, value is just "unitId"
+      const targetFactionId = isAllFactionsSelected ? option.factionId : selectedFactionId
+      const targetUnitId = isAllFactionsSelected ? option.value.split('/')[1] : option.value
+
       if (onUnitChange) {
-        onUnitChange(selectedFactionId, option.value)
+        onUnitChange(targetFactionId, targetUnitId)
       } else {
         // Preserve compare parameter when changing primary unit
         const compareParam = searchParams.get('compare')
         const url = compareParam
-          ? `/faction/${selectedFactionId}/unit/${option.value}?compare=${compareParam}`
-          : `/faction/${selectedFactionId}/unit/${option.value}`
+          ? `/faction/${targetFactionId}/unit/${targetUnitId}?compare=${compareParam}`
+          : `/faction/${targetFactionId}/unit/${targetUnitId}`
         navigate(url)
       }
     }
   }
+
+  // Custom format for unit options - show faction tag when in "All factions" mode
+  const formatUnitOption = (option: UnitOptionWithFaction) => (
+    <div className="flex items-center justify-between gap-2 w-full">
+      <span className="truncate">{option.label}</span>
+      {isAllFactionsSelected && (
+        <span className="px-1.5 py-0.5 text-xs font-medium bg-gray-600 text-gray-200 rounded flex-shrink-0">
+          {option.factionName}
+        </span>
+      )}
+    </div>
+  )
 
   return (
     <nav aria-label="Unit navigation" className="w-full sm:w-auto">
@@ -128,8 +216,8 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
 
         <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline self-center">&rarr;</span>
 
-        <div className="w-full sm:w-auto sm:min-w-[200px]">
-          <Select<SelectOption>
+        <div className={`w-full sm:w-auto ${isAllFactionsSelected ? 'sm:min-w-[280px]' : 'sm:min-w-[200px]'}`}>
+          <Select<UnitOptionWithFaction>
             options={unitOptions}
             value={selectedUnit}
             onChange={handleUnitChange}
@@ -139,6 +227,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             isLoading={isLoadingFaction}
             aria-label="Select unit"
             noOptionsMessage={() => unitOptions.length === 0 ? "Loading units..." : "No units found"}
+            formatOptionLabel={formatUnitOption}
             menuPortalTarget={document.body}
             menuPosition="fixed"
           />
