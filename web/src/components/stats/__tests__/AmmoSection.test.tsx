@@ -82,6 +82,42 @@ describe('AmmoSection', () => {
     expect(screen.getByText('30')).toBeInTheDocument()
   })
 
+  it('should compare falloff weapons correctly', () => {
+    const falloffAmmo1: Ammo = {
+      resourceName: '/pa/ammo/nuke1/nuke1.json',
+      safeName: 'nuke1',
+      damage: 3000,
+      splashRadius: 130,
+    }
+    const falloffAmmo2: Ammo = {
+      resourceName: '/pa/ammo/nuke2/nuke2.json',
+      safeName: 'nuke2',
+      damage: 2500,
+      splashRadius: 130,
+    }
+    renderAmmoSection({
+      ammo: falloffAmmo1,
+      compareAmmo: falloffAmmo2,
+    })
+
+    // Both damage and splash damage show +500 diff (splash derives from base damage)
+    expect(screen.getAllByText('(+500)')).toHaveLength(2)
+  })
+
+  it('should not show splash damage when splashRadius is 0', () => {
+    const noSplashAmmo: Ammo = {
+      resourceName: '/pa/ammo/bullet/bullet.json',
+      safeName: 'bullet',
+      damage: 50,
+      splashRadius: 0,
+    }
+    renderAmmoSection({ ammo: noSplashAmmo })
+
+    expect(screen.getByText('Damage:')).toBeInTheDocument()
+    expect(screen.queryByText('Splash damage:')).not.toBeInTheDocument()
+    expect(screen.queryByText('Splash radius:')).not.toBeInTheDocument()
+  })
+
   it('should render muzzle velocity', () => {
     renderAmmoSection({ ammo: mockAmmo })
 

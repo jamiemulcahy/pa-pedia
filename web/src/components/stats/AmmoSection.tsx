@@ -21,9 +21,12 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
 
-  // For falloff weapons (splashRadius exists but splashDamage doesn't), use base damage as splash damage
-  const effectiveSplashDamage = ammo.splashDamage ?? (ammo.splashRadius !== undefined ? ammo.damage : undefined);
-  const compareEffectiveSplashDamage = compareAmmo?.splashDamage ?? (compareAmmo?.splashRadius !== undefined ? compareAmmo?.damage : undefined);
+  // Falloff weapons have splashRadius but no explicit splashDamage - use base damage for full damage at epicenter
+  const getEffectiveSplashDamage = (a?: Ammo) =>
+    a?.splashDamage ?? (a?.splashRadius ? a.damage : undefined);
+
+  const effectiveSplashDamage = getEffectiveSplashDamage(ammo);
+  const compareEffectiveSplashDamage = getEffectiveSplashDamage(compareAmmo);
 
   // Check which rows have differences
   const damageDiff = isDifferent(ammo.damage, compareAmmo?.damage);
@@ -78,7 +81,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
           }
         />
       )}
-      {ammo.splashRadius !== undefined && showRow(splashRadiusDiff) && (
+      {ammo.splashRadius && showRow(splashRadiusDiff) && (
         <StatRow
           label="Splash radius"
           value={
