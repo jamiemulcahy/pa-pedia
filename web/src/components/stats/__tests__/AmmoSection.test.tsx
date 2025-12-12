@@ -41,10 +41,10 @@ describe('AmmoSection', () => {
     expect(screen.getByText('100')).toBeInTheDocument()
   })
 
-  it('should render burn damage with radius', () => {
+  it('should render splash damage with radius', () => {
     renderAmmoSection({ ammo: mockAmmo })
 
-    expect(screen.getByText('Burn damage:')).toBeInTheDocument()
+    expect(screen.getByText('Splash damage:')).toBeInTheDocument()
     expect(screen.getByText('20')).toBeInTheDocument()
   })
 
@@ -100,8 +100,8 @@ describe('AmmoSection', () => {
       expect(screen.queryByText('Max velocity:')).not.toBeInTheDocument()
 
       // Splash radius is equal (5 vs 5), but splash damage differs (20 vs 25)
-      // so burn damage row should still show
-      expect(screen.getByText('Burn damage:')).toBeInTheDocument()
+      // so splash damage row should still show
+      expect(screen.getByText('Splash damage:')).toBeInTheDocument()
     })
 
     it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
