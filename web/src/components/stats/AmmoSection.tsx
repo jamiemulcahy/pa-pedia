@@ -61,7 +61,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
       )}
       {ammo.splashDamage !== undefined && ammo.splashRadius !== undefined && showRow(splashDamageDiff) && (
         <StatRow
-          label="Burn damage"
+          label="Splash damage"
           value={
             <span>
               <ComparisonValue
