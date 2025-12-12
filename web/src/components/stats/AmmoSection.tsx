@@ -21,16 +21,25 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
 
+  // Falloff weapons have splashRadius but no explicit splashDamage - use base damage for full damage at epicenter
+  const getEffectiveSplashDamage = (a?: Ammo) =>
+    a?.splashDamage ?? (a?.splashRadius ? a.damage : undefined);
+
+  const effectiveSplashDamage = getEffectiveSplashDamage(ammo);
+  const compareEffectiveSplashDamage = getEffectiveSplashDamage(compareAmmo);
+
   // Check which rows have differences
   const damageDiff = isDifferent(ammo.damage, compareAmmo?.damage);
-  const splashDamageDiff = isDifferent(ammo.splashDamage, compareAmmo?.splashDamage) || isDifferent(ammo.splashRadius, compareAmmo?.splashRadius);
+  const splashDamageDiff = isDifferent(effectiveSplashDamage, compareEffectiveSplashDamage);
+  const splashRadiusDiff = isDifferent(ammo.splashRadius, compareAmmo?.splashRadius);
+  const fullDamageRadiusDiff = isDifferent(ammo.fullDamageRadius, compareAmmo?.fullDamageRadius);
   const muzzleVelDiff = isDifferent(ammo.muzzleVelocity, compareAmmo?.muzzleVelocity);
   const maxVelDiff = isDifferent(ammo.maxVelocity, compareAmmo?.maxVelocity);
   const spawnDiff = isDifferent(ammo.spawnUnitOnDeath, compareAmmo?.spawnUnitOnDeath);
 
   // In diff mode with compare ammo, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !compareAmmo ||
-    damageDiff || splashDamageDiff || muzzleVelDiff || maxVelDiff || spawnDiff;
+    damageDiff || splashDamageDiff || splashRadiusDiff || fullDamageRadiusDiff || muzzleVelDiff || maxVelDiff || spawnDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -59,25 +68,42 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
           }
         />
       )}
-      {ammo.splashDamage !== undefined && ammo.splashRadius !== undefined && showRow(splashDamageDiff) && (
+      {effectiveSplashDamage !== undefined && showRow(splashDamageDiff) && (
         <StatRow
           label="Splash damage"
           value={
-            <span>
-              <ComparisonValue
-                value={ammo.splashDamage}
-                compareValue={compareAmmo?.splashDamage}
-                comparisonType="higher-better"
-                hideDiff={hideDiff}
-              />
-              {`, radius `}
-              <ComparisonValue
-                value={ammo.splashRadius}
-                compareValue={compareAmmo?.splashRadius}
-                comparisonType="higher-better"
-                hideDiff={hideDiff}
-              />
-            </span>
+            <ComparisonValue
+              value={effectiveSplashDamage}
+              compareValue={compareEffectiveSplashDamage}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {ammo.splashRadius && showRow(splashRadiusDiff) && (
+        <StatRow
+          label="Splash radius"
+          value={
+            <ComparisonValue
+              value={ammo.splashRadius}
+              compareValue={compareAmmo?.splashRadius}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {ammo.fullDamageRadius !== undefined && showRow(fullDamageRadiusDiff) && (
+        <StatRow
+          label="Full damage radius"
+          value={
+            <ComparisonValue
+              value={ammo.fullDamageRadius}
+              compareValue={compareAmmo?.fullDamageRadius}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
           }
         />
       )}
