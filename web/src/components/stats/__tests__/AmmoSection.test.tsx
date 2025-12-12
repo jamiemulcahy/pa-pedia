@@ -41,11 +41,45 @@ describe('AmmoSection', () => {
     expect(screen.getByText('100')).toBeInTheDocument()
   })
 
-  it('should render splash damage with radius', () => {
+  it('should render splash damage separately from radius', () => {
     renderAmmoSection({ ammo: mockAmmo })
 
     expect(screen.getByText('Splash damage:')).toBeInTheDocument()
     expect(screen.getByText('20')).toBeInTheDocument()
+    expect(screen.getByText('Splash radius:')).toBeInTheDocument()
+    expect(screen.getByText('5')).toBeInTheDocument()
+  })
+
+  it('should render full damage radius when present', () => {
+    const ammoWithFullDamageRadius: Ammo = {
+      ...mockAmmo,
+      fullDamageRadius: 10,
+    }
+    renderAmmoSection({ ammo: ammoWithFullDamageRadius })
+
+    expect(screen.getByText('Full damage radius:')).toBeInTheDocument()
+    expect(screen.getByText('10')).toBeInTheDocument()
+  })
+
+  it('should use base damage as splash damage for falloff weapons', () => {
+    // Falloff weapons have splashRadius but no splashDamage
+    const falloffAmmo: Ammo = {
+      resourceName: '/pa/ammo/nuke/nuke.json',
+      safeName: 'nuke',
+      damage: 3000,
+      splashRadius: 130,
+      fullDamageRadius: 30,
+    }
+    renderAmmoSection({ ammo: falloffAmmo })
+
+    expect(screen.getByText('Damage:')).toBeInTheDocument()
+    expect(screen.getByText('Splash damage:')).toBeInTheDocument()
+    // Splash damage should equal base damage (3000) for falloff weapons
+    expect(screen.getAllByText('3000')).toHaveLength(2) // Once for damage, once for splash
+    expect(screen.getByText('Splash radius:')).toBeInTheDocument()
+    expect(screen.getByText('130')).toBeInTheDocument()
+    expect(screen.getByText('Full damage radius:')).toBeInTheDocument()
+    expect(screen.getByText('30')).toBeInTheDocument()
   })
 
   it('should render muzzle velocity', () => {
@@ -99,9 +133,11 @@ describe('AmmoSection', () => {
       // Max velocity is equal (200.3 vs 200.3), should be hidden
       expect(screen.queryByText('Max velocity:')).not.toBeInTheDocument()
 
-      // Splash radius is equal (5 vs 5), but splash damage differs (20 vs 25)
-      // so splash damage row should still show
+      // Splash damage differs (20 vs 25), should show
       expect(screen.getByText('Splash damage:')).toBeInTheDocument()
+
+      // Splash radius is equal (5 vs 5), should be hidden
+      expect(screen.queryByText('Splash radius:')).not.toBeInTheDocument()
     })
 
     it('should return null when all values are equal and showDifferencesOnly is enabled', () => {
