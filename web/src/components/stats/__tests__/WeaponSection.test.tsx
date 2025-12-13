@@ -44,7 +44,8 @@ describe('WeaponSection', () => {
     it('should render weapon title', () => {
       renderWeaponSection(mockBasicWeapon)
 
-      expect(screen.getByText('tank_tool_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available, falls back to weapon ID)
+      expect(screen.getByText('Tank Cannon')).toBeInTheDocument()
     })
 
     it('should render damage', () => {

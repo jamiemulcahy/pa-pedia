@@ -21,6 +21,12 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
 
+  // Extract ammo ID from resource name (last part after last slash)
+  const ammoId = ammo.resourceName.split('/').pop() || ammo.resourceName;
+
+  // Display name: prefer explicit name, fall back to ammo ID
+  const displayName = ammo.name || ammoId;
+
   // Falloff weapons have splashRadius but no explicit splashDamage - use base damage for full damage at epicenter
   const getEffectiveSplashDamage = (a?: Ammo) =>
     a?.splashDamage ?? (a?.splashRadius ? a.damage : undefined);
@@ -48,7 +54,11 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareAmmo || hasDiff;
 
   return (
-    <StatSection title="Ammo">
+    <StatSection title="Ammo" subtitle={displayName}>
+      {/* Show name on small screens where subtitle is hidden */}
+      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 md:hidden">
+        {displayName}
+      </h3>
       <div className="py-1">
         <BlueprintLink
           resourceName={ammo.resourceName}

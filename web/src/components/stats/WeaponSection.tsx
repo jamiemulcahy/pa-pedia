@@ -51,6 +51,9 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   // Extract weapon ID from resource name (last part after last slash)
   const weaponId = weapon.resourceName.split('/').pop() || weapon.resourceName;
 
+  // Display name: prefer explicit name, fall back to weapon ID
+  const displayName = weapon.name || weaponId;
+
   // Check which rows have differences
   const rangeDiff = isDifferent(weapon.maxRange, compareWeapon?.maxRange);
   const projDiff = isDifferent(weapon.projectilesPerFire, compareWeapon?.projectilesPerFire);
@@ -81,9 +84,10 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareWeapon || hasDiff;
 
   return (
-    <StatSection title={title}>
-      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
-        {weaponId}
+    <StatSection title={title} subtitle={displayName}>
+      {/* Show name on small screens where subtitle is hidden */}
+      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 md:hidden">
+        {displayName}
       </h3>
       <div className="py-1">
         <BlueprintLink

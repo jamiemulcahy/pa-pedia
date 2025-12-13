@@ -94,8 +94,8 @@ describe('UnitDetail', () => {
       expect(screen.getByText('Weapon')).toBeInTheDocument()
     })
 
-    // Weapon ID is displayed as the title
-    expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+    // Weapon name is displayed (uses weapon.name when available, falls back to weapon ID)
+    expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     expect(screen.getByText('Range:')).toBeInTheDocument()
     // Value 100 appears multiple times, check it exists
     expect(screen.getAllByText('100').length).toBeGreaterThanOrEqual(1)
