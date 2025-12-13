@@ -5,6 +5,7 @@ import {
   getLocalFactionIndex,
   getLocalAssetUrl,
 } from './localFactionStorage'
+import { STATIC_FACTIONS } from '@/constants/factions'
 
 const FACTIONS_BASE_PATH = `${import.meta.env.BASE_URL}factions`
 
@@ -18,7 +19,7 @@ export interface FactionDiscoveryEntry {
  * Includes both static factions and local (user-uploaded) factions
  */
 export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
-  const staticFactions: FactionDiscoveryEntry[] = ['MLA', 'Legion', 'Bugs', 'Exiles'].map(id => ({
+  const staticFactions: FactionDiscoveryEntry[] = STATIC_FACTIONS.map(id => ({
     id,
     isLocal: false,
   }))
