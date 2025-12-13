@@ -99,7 +99,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
         <StatRow label="Range" value={weapon.maxRange} />
       )}
       {weapon.projectilesPerFire !== undefined && showRow(projDiff) && (
-        <StatRow label="Projectiles per fire" value={weapon.projectilesPerFire} />
+        <StatRow label="Projectiles per shot" value={weapon.projectilesPerFire} />
       )}
       {weapon.damage !== undefined && showRow(damageDiff) && (
         <StatRow
