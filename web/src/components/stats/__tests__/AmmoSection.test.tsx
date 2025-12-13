@@ -75,11 +75,16 @@ describe('AmmoSection', () => {
     expect(screen.getByText('Damage:')).toBeInTheDocument()
     expect(screen.getByText('Splash damage:')).toBeInTheDocument()
     // Splash damage should equal base damage (3000) for falloff weapons
-    expect(screen.getAllByText('3000')).toHaveLength(2) // Once for damage, once for splash
+    // 3000 appears in: damage row, splash damage row, and falloff breakdown
+    expect(screen.getAllByText(/3.?000/)).toHaveLength(3) // May have comma or not depending on locale
     expect(screen.getByText('Splash radius:')).toBeInTheDocument()
-    expect(screen.getByText('130')).toBeInTheDocument()
+    // 130 appears in: splash radius row and falloff breakdown
+    expect(screen.getAllByText('130')).toHaveLength(2)
     expect(screen.getByText('Full damage radius:')).toBeInTheDocument()
+    // 30 appears in full damage radius row
     expect(screen.getByText('30')).toBeInTheDocument()
+    // Falloff breakdown shows the range
+    expect(screen.getByText('0-30')).toBeInTheDocument()
   })
 
   it('should compare falloff weapons correctly', () => {
@@ -239,6 +244,117 @@ describe('AmmoSection', () => {
 
       expect(screen.getByText('(+20)')).toBeInTheDocument()
       expect(screen.getByText('(+30)')).toBeInTheDocument()
+    })
+  })
+
+  describe('damage falloff breakdown', () => {
+    it('should show falloff breakdown when both splashRadius and fullDamageRadius are present', () => {
+      const falloffAmmo: Ammo = {
+        resourceName: '/pa/ammo/nuke/nuke.json',
+        safeName: 'nuke',
+        damage: 3000,
+        splashRadius: 130,
+        fullDamageRadius: 30,
+      }
+      renderAmmoSection({ ammo: falloffAmmo })
+
+      expect(screen.getByTestId('damage-falloff')).toBeInTheDocument()
+      expect(screen.getByText('Damage falloff:')).toBeInTheDocument()
+      // Full damage at epicenter (0-30)
+      expect(screen.getByText('0-30')).toBeInTheDocument()
+      expect(screen.getByText(/3.?000 \(100%\)/)).toBeInTheDocument()
+      // Midpoint: (30+130)/2 = 80, damage = 3000 * (1 - (80-30)/(130-30)) = 1500
+      expect(screen.getByText('80')).toBeInTheDocument()
+      expect(screen.getByText(/1.?500 \(50%\)/)).toBeInTheDocument()
+      // Edge of splash radius
+      expect(screen.getAllByText('130')).toHaveLength(2) // In splash radius row and falloff
+      expect(screen.getByText('0 (0%)')).toBeInTheDocument()
+    })
+
+    it('should not show falloff breakdown when fullDamageRadius is missing', () => {
+      const noFullRadiusAmmo: Ammo = {
+        resourceName: '/pa/ammo/grenade/grenade.json',
+        safeName: 'grenade',
+        damage: 100,
+        splashDamage: 50,
+        splashRadius: 20,
+      }
+      renderAmmoSection({ ammo: noFullRadiusAmmo })
+
+      expect(screen.queryByTestId('damage-falloff')).not.toBeInTheDocument()
+    })
+
+    it('should not show falloff breakdown when splashRadius is missing', () => {
+      const noSplashRadiusAmmo: Ammo = {
+        resourceName: '/pa/ammo/bullet/bullet.json',
+        safeName: 'bullet',
+        damage: 100,
+        fullDamageRadius: 10,
+      }
+      renderAmmoSection({ ammo: noSplashRadiusAmmo })
+
+      expect(screen.queryByTestId('damage-falloff')).not.toBeInTheDocument()
+    })
+
+    it('should not show falloff breakdown when fullDamageRadius >= splashRadius', () => {
+      const noFalloffAmmo: Ammo = {
+        resourceName: '/pa/ammo/laser/laser.json',
+        safeName: 'laser',
+        damage: 100,
+        splashDamage: 100,
+        splashRadius: 10,
+        fullDamageRadius: 10, // Equal to splash radius - no falloff
+      }
+      renderAmmoSection({ ammo: noFalloffAmmo })
+
+      expect(screen.queryByTestId('damage-falloff')).not.toBeInTheDocument()
+    })
+
+    it('should not show falloff breakdown in showDifferencesOnly mode', () => {
+      const falloffAmmo: Ammo = {
+        resourceName: '/pa/ammo/nuke/nuke.json',
+        safeName: 'nuke',
+        damage: 3000,
+        splashRadius: 130,
+        fullDamageRadius: 30,
+      }
+      const compareAmmo: Ammo = {
+        resourceName: '/pa/ammo/nuke2/nuke2.json',
+        safeName: 'nuke2',
+        damage: 2500,
+        splashRadius: 130,
+        fullDamageRadius: 30,
+      }
+      renderAmmoSection({
+        ammo: falloffAmmo,
+        compareAmmo,
+        showDifferencesOnly: true,
+      })
+
+      // Falloff breakdown should be hidden in diff mode
+      expect(screen.queryByTestId('damage-falloff')).not.toBeInTheDocument()
+    })
+
+    it('should calculate falloff correctly with different radius values', () => {
+      const customFalloffAmmo: Ammo = {
+        resourceName: '/pa/ammo/custom/custom.json',
+        safeName: 'custom',
+        damage: 1000,
+        splashRadius: 100,
+        fullDamageRadius: 20,
+      }
+      renderAmmoSection({ ammo: customFalloffAmmo })
+
+      expect(screen.getByTestId('damage-falloff')).toBeInTheDocument()
+      // Full damage at epicenter (0-20)
+      expect(screen.getByText('0-20')).toBeInTheDocument()
+      expect(screen.getByText(/1.?000 \(100%\)/)).toBeInTheDocument()
+      // Midpoint: (20+100)/2 = 60, damage = 1000 * (1 - (60-20)/(100-20)) = 500
+      expect(screen.getByText('60')).toBeInTheDocument()
+      expect(screen.getByText('500 (50%)')).toBeInTheDocument()
+      // Edge of splash radius
+      expect(screen.getAllByText('100')).toHaveLength(2) // In splash radius row and falloff
+      expect(screen.getByText('0 (0%)')).toBeInTheDocument()
     })
   })
 })
