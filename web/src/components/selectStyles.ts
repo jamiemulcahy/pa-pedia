@@ -15,6 +15,7 @@ export const selectStyles: StylesConfig<any, false> = {
   control: (base, state) => ({
     ...base,
     backgroundColor: 'rgb(31, 41, 55)', // gray-800
+    cursor: 'pointer',
     borderColor: state.isFocused ? 'rgb(59, 130, 246)' : 'rgb(75, 85, 99)', // blue-500 : gray-600
     borderRadius: '0.375rem',
     minHeight: '38px',
