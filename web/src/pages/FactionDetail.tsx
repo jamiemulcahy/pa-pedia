@@ -6,6 +6,9 @@ import { SortableCategorySection } from '@/components/SortableCategorySection'
 import { CategoryDragOverlay } from '@/components/CategoryDragOverlay'
 import { UnitTable } from '@/components/UnitTable'
 import { FactionSelector } from '@/components/FactionSelector'
+import { SEO } from '@/components/SEO'
+import { JsonLd } from '@/components/JsonLd'
+import { createWebPageSchema } from '@/components/seoSchemas'
 import { useState, useCallback, useMemo } from 'react'
 import { groupUnitsByCategory, type UnitCategory } from '@/utils/unitCategories'
 import { usePreferences } from '@/hooks/usePreferences'
@@ -226,9 +229,27 @@ export function FactionDetail() {
     return isAllMode ? (unit as UnitIndexEntryWithFaction).factionId : factionId
   }
 
+  // SEO data based on mode
+  const seoTitle = isAllMode ? 'All Factions' : metadata?.displayName
+  const seoDescription = isAllMode
+    ? `Browse all units from every Planetary Annihilation: Titans faction. Compare stats, weapons, and build costs across ${factionCount} factions.`
+    : metadata
+      ? `${metadata.displayName} faction unit database for Planetary Annihilation: Titans. Browse ${filteredUnits.length} units with detailed stats, weapons, and build information.`
+      : undefined
+  const seoPath = `/faction${id ? `/${id}` : ''}`
+
   // Content wrapped conditionally - only use CurrentFactionProvider for single faction mode
   const content = (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={seoPath}
+      />
+      {seoDescription && (
+        <JsonLd schema={createWebPageSchema(seoTitle || 'Faction Units', seoPath, seoDescription)} />
+      )}
+      <div className="container mx-auto px-4 py-8">
       {/* Screen reader announcement for drag-and-drop operations */}
       <div role="status" aria-live="polite" className="sr-only">
         {dragAnnouncement}
@@ -448,7 +469,8 @@ export function FactionDetail() {
             </DragOverlay>
           </DndContext>
         )}
-    </div>
+      </div>
+    </>
   )
 
   // Wrap with CurrentFactionProvider only for single faction mode

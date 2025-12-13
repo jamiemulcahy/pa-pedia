@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useFactions } from '@/hooks/useFactions'
 import { getFactionBackgroundPath, getLocalFactionBackgroundUrl } from '@/services/factionLoader'
+import { SEO } from '@/components/SEO'
+import { JsonLd } from '@/components/JsonLd'
+import { WEBSITE_SCHEMA, PA_TITANS_GAME } from '@/components/seoSchemas'
 import type { FactionWithFolder } from '@/types/faction'
 
 interface FactionCardProps {
@@ -170,8 +173,14 @@ export function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid">
+    <>
+      <SEO
+        canonicalPath="/"
+        description="Browse unit databases for Planetary Annihilation: Titans factions. View detailed stats, weapons, build costs, and more for MLA, Legion, Bugs, Exiles, and custom factions."
+      />
+      <JsonLd schema={[WEBSITE_SCHEMA, PA_TITANS_GAME]} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6 max-w-7xl mx-auto">
           {factions.map((faction) => (
             <FactionCard
@@ -230,6 +239,7 @@ export function Home() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }

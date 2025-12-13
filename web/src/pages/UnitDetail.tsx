@@ -5,6 +5,9 @@ import { useComparisonUnits } from '@/hooks/useComparisonUnits'
 import { useFaction } from '@/hooks/useFaction'
 import { UnitIcon } from '@/components/UnitIcon'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { SEO } from '@/components/SEO'
+import { JsonLd } from '@/components/JsonLd'
+import { createWebPageSchema } from '@/components/seoSchemas'
 import { BreadcrumbNav } from '@/components/BreadcrumbNav'
 import { OverviewSection } from '@/components/stats/OverviewSection'
 import { PhysicsSection } from '@/components/stats/PhysicsSection'
@@ -160,8 +163,18 @@ export function UnitDetail() {
   const anyComparisonHasSelfDestruct = comparisonUnits.some(u => u?.specs.combat.weapons?.some(w => w.selfDestruct))
   const anyComparisonHasDeathExplosion = comparisonUnits.some(u => u?.specs.combat.weapons?.some(w => w.deathExplosion))
 
+  // SEO data for unit page
+  const unitDescription = `${unit.displayName} - ${unit.unitTypes.join(', ')} unit in Planetary Annihilation: Titans. Health: ${specs.combat.health}${specs.economy.buildCost ? `, Build Cost: ${specs.economy.buildCost}` : ''}${specs.combat.dps ? `, DPS: ${specs.combat.dps.toFixed(1)}` : ''}.`
+  const seoPath = `/faction/${factionId}/unit/${unitId}`
+
   return (
     <CurrentFactionProvider factionId={factionId || ''}>
+      <SEO
+        title={`${unit.displayName} - ${factionId}`}
+        description={unitDescription}
+        canonicalPath={seoPath}
+      />
+      <JsonLd schema={createWebPageSchema(`${unit.displayName} - ${factionId}`, seoPath, unitDescription, true)} />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Top row: Back link + comparison controls */}
         <div className="flex items-center justify-between mb-4">
