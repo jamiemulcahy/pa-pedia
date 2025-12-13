@@ -30,7 +30,9 @@
       "Bash(gh pr checks:*)",
       "Bash(gh run view:*)",
       "Bash(gh pr list:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(gh label list:*)",
+      "Bash(npm run generate-sitemap:*)"
     ],
     "deny": [],
     "ask": []
