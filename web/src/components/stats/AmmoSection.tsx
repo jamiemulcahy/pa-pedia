@@ -34,6 +34,27 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const effectiveSplashDamage = getEffectiveSplashDamage(ammo);
   const compareEffectiveSplashDamage = getEffectiveSplashDamage(compareAmmo);
 
+  // Calculate damage falloff breakdown for splash weapons
+  const calculateFalloffBreakdown = (damage: number, fullRadius: number, splashRadius: number) => {
+    const midRadius = Math.round((fullRadius + splashRadius) / 2);
+    const midDamage = Math.round(damage * (1 - (midRadius - fullRadius) / (splashRadius - fullRadius)));
+    return [
+      { radius: `0-${fullRadius}`, damage, percent: 100 },
+      { radius: `${midRadius}`, damage: midDamage, percent: 50 },
+      { radius: `${splashRadius}`, damage: 0, percent: 0 },
+    ];
+  };
+
+  // Determine if we should show falloff breakdown
+  const showFalloff = effectiveSplashDamage !== undefined &&
+    ammo.fullDamageRadius !== undefined &&
+    ammo.splashRadius !== undefined &&
+    ammo.fullDamageRadius < ammo.splashRadius;
+
+  const falloffBreakdown = showFalloff
+    ? calculateFalloffBreakdown(effectiveSplashDamage!, ammo.fullDamageRadius!, ammo.splashRadius!)
+    : null;
+
   // Check which rows have differences
   const damageDiff = isDifferent(ammo.damage, compareAmmo?.damage);
   const splashDamageDiff = isDifferent(effectiveSplashDamage, compareEffectiveSplashDamage);
@@ -116,6 +137,19 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
             />
           }
         />
+      )}
+      {falloffBreakdown && !showDifferencesOnly && (
+        <div className="mt-2 mb-3" data-testid="damage-falloff">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Damage falloff:</div>
+          <div className="text-sm pl-4 space-y-0.5">
+            {falloffBreakdown.map((entry, idx) => (
+              <div key={idx} className="flex justify-between text-gray-700 dark:text-gray-300">
+                <span>{entry.radius}</span>
+                <span>{entry.damage.toLocaleString()} ({entry.percent}%)</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
       {ammo.muzzleVelocity !== undefined && showRow(muzzleVelDiff) && (
         <StatRow
