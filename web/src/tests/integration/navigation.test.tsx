@@ -105,7 +105,8 @@ describe('Navigation Integration Tests', () => {
     // Step 3: Unit detail route (separate render to test route works)
     renderApp('/faction/MLA/unit/tank')
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
       expect(screen.getByText(/back to faction/i)).toBeInTheDocument()
     })
   })
@@ -131,14 +132,16 @@ describe('Navigation Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Navigate to Bot unit
     renderApp('/faction/MLA/unit/bot')
 
     await waitFor(() => {
-      expect(screen.getByText('bot_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Rifle')).toBeInTheDocument()
     })
   })
 

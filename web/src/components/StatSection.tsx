@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 
 interface StatSectionProps {
   title: string;
+  /** Optional item name shown after title on larger screens (e.g., "Weapon: Uber Cannon") */
+  subtitle?: string;
   children: React.ReactNode;
   className?: string;
   defaultExpanded?: boolean;
@@ -9,6 +11,7 @@ interface StatSectionProps {
 
 export const StatSection: React.FC<StatSectionProps> = ({
   title,
+  subtitle,
   children,
   className = '',
   defaultExpanded = true
@@ -29,8 +32,16 @@ export const StatSection: React.FC<StatSectionProps> = ({
         aria-controls={contentId}
         title={isExpanded ? 'Click to collapse' : 'Click to expand'}
       >
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {title}
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center min-w-0">
+          <span className="flex-shrink-0">{title}</span>
+          {subtitle && (
+            <span
+              className="hidden md:inline ml-1 font-normal text-gray-600 dark:text-gray-400 truncate"
+              title={subtitle}
+            >
+              : {subtitle}
+            </span>
+          )}
         </h2>
         <svg
           className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}

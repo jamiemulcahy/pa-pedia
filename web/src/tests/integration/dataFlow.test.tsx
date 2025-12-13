@@ -95,7 +95,8 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Unit data comes from the index, so no additional fetch is needed
@@ -150,7 +151,8 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Verify unit data is displayed correctly - use heading for unique match
@@ -173,14 +175,16 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Load second unit
     renderApp('/faction/MLA/unit/bot')
 
     await waitFor(() => {
-      expect(screen.getByText('bot_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Rifle')).toBeInTheDocument()
     })
 
     // Both units come from the same units.json fetch
@@ -201,9 +205,9 @@ describe('Data Flow Integration Tests', () => {
 
     // Both should load successfully
     await waitFor(() => {
-      // At least one should have loaded
+      // At least one should have loaded (check weapon names instead of weapon IDs)
       expect(
-        screen.queryByText('tank_weapon.json') || screen.queryByText('bot_weapon.json')
+        screen.queryByText('Main Cannon') || screen.queryByText('Rifle')
       ).toBeTruthy()
     })
   })
@@ -243,7 +247,8 @@ describe('Data Flow Integration Tests', () => {
     // Go to unit (unit data is in the index, no additional fetch)
     renderApp('/faction/MLA/unit/tank')
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Verify order: metadata should be fetched before index
@@ -349,7 +354,8 @@ describe('Data Flow Integration Tests', () => {
     renderApp('/faction/MLA/unit/tank')
 
     await waitFor(() => {
-      expect(screen.getByText('tank_weapon.json')).toBeInTheDocument()
+      // Weapon name is displayed (uses weapon.name when available)
+      expect(screen.getByText('Main Cannon')).toBeInTheDocument()
     })
 
     // Verify the necessary fetches were made
