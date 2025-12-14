@@ -114,7 +114,7 @@ export function CategoryListColumn({
         <button
           type="button"
           onClick={onToggleExpand}
-          className="w-full text-sm text-primary hover:bg-muted/50 py-2 text-center border-t transition-colors"
+          className="w-full text-sm text-primary hover:bg-muted/50 hover:underline py-2 text-center border-t transition-colors"
         >
           {isExpanded ? 'Show less' : `Show ${hiddenCount} more`}
         </button>
