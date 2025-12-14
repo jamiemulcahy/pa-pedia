@@ -363,6 +363,7 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
+      // Click once to cycle from grid -> table
       const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
       await user.click(viewToggle)
 
@@ -373,7 +374,7 @@ describe('FactionDetail', () => {
       expect(screen.queryByRole('heading', { name: 'Tanks' })).not.toBeInTheDocument()
     })
 
-    it('should switch back to grid view when toggle is clicked again', async () => {
+    it('should cycle back to grid view when toggle is clicked through all modes', async () => {
       const user = userEvent.setup()
       renderFactionDetail('MLA')
 
@@ -381,22 +382,23 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Switch to table view
-      const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
-      await user.click(viewToggle)
-
+      // Click 1: grid -> table (button says "switch to table")
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
       expect(screen.getByRole('table')).toBeInTheDocument()
 
-      // Switch back to grid view
-      const gridToggle = screen.getByRole('button', { name: /switch to grid view/i })
-      await user.click(gridToggle)
+      // Click 2: table -> list (button says "switch to list")
+      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+
+      // Click 3: list -> grid (button says "switch to grid")
+      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
 
       // Grid view should be back
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
     })
 
-    it('should update toggle button label based on current view', async () => {
+    it('should update toggle button label based on next view', async () => {
       const user = userEvent.setup()
       renderFactionDetail('MLA')
 
@@ -404,13 +406,19 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // In grid view, button should say "switch to table view"
+      // In grid view, button should show next mode is table
       expect(screen.getByRole('button', { name: /switch to table view/i })).toBeInTheDocument()
 
-      // Click to switch to table view
+      // Click to cycle to table view
       await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
-      // Now button should say "switch to grid view"
+      // Now button should show next mode is list
+      expect(screen.getByRole('button', { name: /switch to list view/i })).toBeInTheDocument()
+
+      // Click to cycle to list view
+      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
+
+      // Now button should show next mode is grid
       expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
     })
 
@@ -425,7 +433,7 @@ describe('FactionDetail', () => {
       // Compact button visible in grid mode
       expect(screen.getByRole('button', { name: /switch to compact view/i })).toBeInTheDocument()
 
-      // Switch to table view
+      // Switch to table view (click once to cycle grid -> table)
       await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       // Compact button should be hidden
@@ -755,6 +763,68 @@ describe('FactionDetail', () => {
 
       // Drag handles should not be present in table view
       expect(screen.queryByLabelText(/drag to reorder .* category/i)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('list view', () => {
+    it('should render list view when toggled to list mode', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Click twice to get to list view (grid -> table -> list)
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
+
+      // List view should show category headers but not table
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+      // Category headers should be present
+      expect(screen.getByText('Tanks')).toBeInTheDocument()
+    })
+
+    it('should show show all/hide all button in list mode', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Should not show the list toggle button in grid mode
+      expect(screen.queryByRole('button', { name: /show all units/i })).not.toBeInTheDocument()
+
+      // Switch to list view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
+
+      // Should show the show all button in list mode
+      expect(screen.getByRole('button', { name: /show all units/i })).toBeInTheDocument()
+    })
+
+    it('should toggle show all/hide all state when button is clicked', async () => {
+      const user = userEvent.setup()
+      renderFactionDetail('MLA')
+
+      await waitFor(() => {
+        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+      })
+
+      // Switch to list view
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
+      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
+
+      // Initially shows "show all" (categories are collapsed)
+      const showAllButton = screen.getByRole('button', { name: /show all units/i })
+      expect(showAllButton).toBeInTheDocument()
+
+      // Click to expand all
+      await user.click(showAllButton)
+
+      // Now should show "hide extra" option
+      expect(screen.getByRole('button', { name: /hide extra units/i })).toBeInTheDocument()
     })
   })
 })
