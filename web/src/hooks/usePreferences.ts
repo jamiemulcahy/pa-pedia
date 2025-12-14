@@ -5,7 +5,7 @@ const STORAGE_KEY = 'pa-pedia-preferences'
 const OLD_VIEW_MODE_KEY = 'pa-pedia-view-mode'
 
 export interface Preferences {
-  viewMode: 'grid' | 'table'
+  viewMode: 'grid' | 'table' | 'list'
   categoryOrder: UnitCategory[] | null // null = default order
   collapsedCategories: UnitCategory[]
   compactView: boolean
@@ -21,8 +21,8 @@ const DEFAULT_PREFERENCES: Preferences = {
 }
 
 /** Type guard for valid viewMode values */
-function isValidViewMode(value: unknown): value is 'grid' | 'table' {
-  return value === 'grid' || value === 'table'
+function isValidViewMode(value: unknown): value is 'grid' | 'table' | 'list' {
+  return value === 'grid' || value === 'table' || value === 'list'
 }
 
 /**

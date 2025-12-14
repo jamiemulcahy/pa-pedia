@@ -5,6 +5,7 @@ import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { SortableCategorySection } from '@/components/SortableCategorySection'
 import { CategoryDragOverlay } from '@/components/CategoryDragOverlay'
 import { UnitTable } from '@/components/UnitTable'
+import { UnitListView } from '@/components/UnitListView'
 import { FactionSelector } from '@/components/FactionSelector'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
@@ -24,6 +25,8 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Select from 'react-select'
 import { selectStyles, type SelectOption } from '@/components/selectStyles'
 import type { UnitIndexEntry } from '@/types/faction'
+
+const VIEW_MODES = ['grid', 'table', 'list'] as const
 
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
@@ -55,6 +58,7 @@ export function FactionDetail() {
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
   const [dragAnnouncement, setDragAnnouncement] = useState('')
+  const [listExpandedCategories, setListExpandedCategories] = useState<Set<UnitCategory>>(new Set())
 
   // Convert saved collapsed categories array to Set for efficient lookups
   const collapsedCategories = useMemo(
@@ -62,9 +66,11 @@ export function FactionDetail() {
     [savedCollapsedCategories]
   )
 
-  const handleViewModeChange = useCallback((mode: 'grid' | 'table') => {
-    updatePreference('viewMode', mode)
-  }, [updatePreference])
+  const cycleViewMode = useCallback(() => {
+    const currentIndex = VIEW_MODES.indexOf(viewMode)
+    const nextIndex = (currentIndex + 1) % VIEW_MODES.length
+    updatePreference('viewMode', VIEW_MODES[nextIndex])
+  }, [viewMode, updatePreference])
 
   const handleImageError = useCallback((unitId: string) => {
     setBrokenImages(prev => new Set(prev).add(unitId))
@@ -79,6 +85,19 @@ export function FactionDetail() {
     }
     updatePreference('collapsedCategories', Array.from(current))
   }, [savedCollapsedCategories, updatePreference])
+
+  // Toggle a single category's expanded state in list view
+  const toggleListCategoryExpanded = useCallback((category: UnitCategory) => {
+    setListExpandedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(category)) {
+        next.delete(category)
+      } else {
+        next.add(category)
+      }
+      return next
+    })
+  }, [])
 
   // Get all unique unit types for filter (memoized for performance)
   // Must be called before any early returns to satisfy Rules of Hooks
@@ -159,6 +178,22 @@ export function FactionDetail() {
       updatePreference('collapsedCategories', [])
     }
   }, [allExpanded, categoriesWithUnits, updatePreference])
+
+  // Check if all list view categories are expanded (showing all units)
+  const allListCategoriesExpanded = useMemo(() =>
+    categoriesWithUnits.length > 0 && categoriesWithUnits.every(cat => listExpandedCategories.has(cat)),
+    [categoriesWithUnits, listExpandedCategories]
+  )
+
+  const toggleAllListCategories = useCallback(() => {
+    if (allListCategoriesExpanded) {
+      // Collapse all (show only first 10)
+      setListExpandedCategories(new Set())
+    } else {
+      // Expand all (show all units)
+      setListExpandedCategories(new Set(categoriesWithUnits))
+    }
+  }, [allListCategoriesExpanded, categoriesWithUnits])
 
   // Drag-and-drop handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -359,8 +394,28 @@ export function FactionDetail() {
               )}
             </button>
           )}
-          {/* Reset category order - only visible in grid mode when custom order is active */}
-          {viewMode === 'grid' && isCustomOrder && (
+          {/* Show all/hide all - only visible in list mode */}
+          {viewMode === 'list' && (
+            <button
+              type="button"
+              onClick={toggleAllListCategories}
+              className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
+              aria-label={allListCategoriesExpanded ? 'Hide extra units in all categories' : 'Show all units in all categories'}
+              title={allListCategoriesExpanded ? 'Hide extra units' : 'Show all units'}
+            >
+              {allListCategoriesExpanded ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              )}
+            </button>
+          )}
+          {/* Reset category order - visible in grid/list mode when custom order is active */}
+          {(viewMode === 'grid' || viewMode === 'list') && isCustomOrder && (
             <button
               type="button"
               onClick={resetToDefault}
@@ -399,19 +454,34 @@ export function FactionDetail() {
               )}
             </button>
           )}
-          {/* View mode toggle - always visible, placed last so it stays in position */}
+          {/* View mode toggle - cycles: grid -> table -> list -> grid */}
+          {/* Shows icon for NEXT mode (what clicking will switch to) */}
           <button
             type="button"
-            onClick={() => handleViewModeChange(viewMode === 'grid' ? 'table' : 'grid')}
+            onClick={cycleViewMode}
             className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
-            aria-label={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
-            title={viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'}
+            aria-label={`Switch to ${VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length]} view`}
+            title={`Switch to ${VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length]} view`}
           >
-            {viewMode === 'grid' ? (
+            {/* Grid view -> show table icon (next mode) */}
+            {viewMode === 'grid' && (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M3 6h18M3 18h18" />
+                {/* Table with header row and columns */}
+                <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={2} />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9h18M9 9v12M15 9v12" />
               </svg>
-            ) : (
+            )}
+            {/* Table view -> show list icon (next mode) */}
+            {viewMode === 'table' && (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 6h13M8 12h13M8 18h13" />
+                <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
+                <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
+              </svg>
+            )}
+            {/* List view -> show grid icon (next mode) */}
+            {viewMode === 'list' && (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
@@ -439,26 +509,40 @@ export function FactionDetail() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-            <SortableContext
-              items={categoriesWithUnits}
-              strategy={verticalListSortingStrategy}
-            >
-              {orderedCategories.map((category) => (
-                <SortableCategorySection
-                  key={category}
-                  category={category}
-                  units={groupedUnits.get(category) || []}
-                  isExpanded={!collapsedCategories.has(category)}
-                  onToggle={() => toggleCategory(category)}
-                  factionId={factionId}
-                  brokenImages={brokenImages}
-                  onImageError={handleImageError}
-                  compact={compactView}
-                  showFactionBadge={isAllMode}
-                  getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
-                />
-              ))}
-            </SortableContext>
+            {viewMode === 'list' ? (
+              <UnitListView
+                groupedUnits={groupedUnits}
+                orderedCategories={orderedCategories}
+                factionId={factionId}
+                brokenImages={brokenImages}
+                onImageError={handleImageError}
+                showFactionBadge={isAllMode}
+                getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+                expandedCategories={listExpandedCategories}
+                onToggleCategoryExpanded={toggleListCategoryExpanded}
+              />
+            ) : (
+              <SortableContext
+                items={categoriesWithUnits}
+                strategy={verticalListSortingStrategy}
+              >
+                {orderedCategories.map((category) => (
+                  <SortableCategorySection
+                    key={category}
+                    category={category}
+                    units={groupedUnits.get(category) || []}
+                    isExpanded={!collapsedCategories.has(category)}
+                    onToggle={() => toggleCategory(category)}
+                    factionId={factionId}
+                    brokenImages={brokenImages}
+                    onImageError={handleImageError}
+                    compact={compactView}
+                    showFactionBadge={isAllMode}
+                    getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+                  />
+                ))}
+              </SortableContext>
+            )}
             <DragOverlay>
               {activeCategory && (
                 <CategoryDragOverlay
