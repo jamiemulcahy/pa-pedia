@@ -58,7 +58,6 @@ export function FactionDetail() {
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
   const [dragAnnouncement, setDragAnnouncement] = useState('')
-  const [listExpandedCategories, setListExpandedCategories] = useState<Set<UnitCategory>>(new Set())
 
   // Convert saved collapsed categories array to Set for efficient lookups
   const collapsedCategories = useMemo(
@@ -86,18 +85,6 @@ export function FactionDetail() {
     updatePreference('collapsedCategories', Array.from(current))
   }, [savedCollapsedCategories, updatePreference])
 
-  // Toggle a single category's expanded state in list view
-  const toggleListCategoryExpanded = useCallback((category: UnitCategory) => {
-    setListExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }, [])
 
   // Get all unique unit types for filter (memoized for performance)
   // Must be called before any early returns to satisfy Rules of Hooks
@@ -179,21 +166,6 @@ export function FactionDetail() {
     }
   }, [allExpanded, categoriesWithUnits, updatePreference])
 
-  // Check if all list view categories are expanded (showing all units)
-  const allListCategoriesExpanded = useMemo(() =>
-    categoriesWithUnits.length > 0 && categoriesWithUnits.every(cat => listExpandedCategories.has(cat)),
-    [categoriesWithUnits, listExpandedCategories]
-  )
-
-  const toggleAllListCategories = useCallback(() => {
-    if (allListCategoriesExpanded) {
-      // Collapse all (show only first 10)
-      setListExpandedCategories(new Set())
-    } else {
-      // Expand all (show all units)
-      setListExpandedCategories(new Set(categoriesWithUnits))
-    }
-  }, [allListCategoriesExpanded, categoriesWithUnits])
 
   // Drag-and-drop handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -394,26 +366,6 @@ export function FactionDetail() {
               )}
             </button>
           )}
-          {/* Show all/hide all - only visible in list mode */}
-          {viewMode === 'list' && (
-            <button
-              type="button"
-              onClick={toggleAllListCategories}
-              className="p-2 border rounded-md bg-background hover:bg-muted transition-colors"
-              aria-label={allListCategoriesExpanded ? 'Hide extra units in all categories' : 'Show all units in all categories'}
-              title={allListCategoriesExpanded ? 'Hide extra units' : 'Show all units'}
-            >
-              {allListCategoriesExpanded ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              )}
-            </button>
-          )}
           {/* Reset category order - visible in grid/list mode when custom order is active */}
           {(viewMode === 'grid' || viewMode === 'list') && isCustomOrder && (
             <button
@@ -518,8 +470,6 @@ export function FactionDetail() {
                 onImageError={handleImageError}
                 showFactionBadge={isAllMode}
                 getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
-                expandedCategories={listExpandedCategories}
-                onToggleCategoryExpanded={toggleListCategoryExpanded}
               />
             ) : (
               <SortableContext

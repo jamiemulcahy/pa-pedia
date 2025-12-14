@@ -12,8 +12,6 @@ interface SortableCategoryListColumnProps {
   factionId: string
   brokenImages: Set<string>
   onImageError: (unitId: string) => void
-  isExpanded: boolean
-  onToggleExpand: () => void
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
 }
@@ -29,8 +27,6 @@ export const SortableCategoryListColumn = memo(function SortableCategoryListColu
   factionId,
   brokenImages,
   onImageError,
-  isExpanded,
-  onToggleExpand,
   showFactionBadge = false,
   getUnitFactionId,
 }: SortableCategoryListColumnProps) {
@@ -61,8 +57,6 @@ export const SortableCategoryListColumn = memo(function SortableCategoryListColu
         factionId={factionId}
         brokenImages={brokenImages}
         onImageError={onImageError}
-        isExpanded={isExpanded}
-        onToggleExpand={onToggleExpand}
         showFactionBadge={showFactionBadge}
         getUnitFactionId={getUnitFactionId}
         dragHandleProps={{ ...attributes, ...listeners }}

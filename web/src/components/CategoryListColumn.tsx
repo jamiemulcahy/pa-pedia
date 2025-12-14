@@ -5,16 +5,12 @@ import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
 
-const COLLAPSED_LIMIT = 10
-
 interface CategoryListColumnProps {
   category: UnitCategory
   units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
   factionId: string
   brokenImages: Set<string>
   onImageError: (unitId: string) => void
-  isExpanded: boolean
-  onToggleExpand: () => void
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
   dragHandleProps?: React.HTMLAttributes<HTMLElement>
@@ -27,8 +23,6 @@ export function CategoryListColumn({
   factionId,
   brokenImages,
   onImageError,
-  isExpanded,
-  onToggleExpand,
   showFactionBadge = false,
   getUnitFactionId,
   dragHandleProps,
@@ -37,10 +31,6 @@ export function CategoryListColumn({
   if (units.length === 0) {
     return null
   }
-
-  const displayedUnits = isExpanded ? units : units.slice(0, COLLAPSED_LIMIT)
-  const hiddenCount = units.length - COLLAPSED_LIMIT
-  const showMoreButton = units.length > COLLAPSED_LIMIT
 
   return (
     <div
@@ -65,7 +55,7 @@ export function CategoryListColumn({
 
       {/* Unit list */}
       <div className="py-1" role="list">
-        {displayedUnits.map((unit) => {
+        {units.map((unit) => {
           const unitFactionId = getUnitFactionId ? getUnitFactionId(unit) : factionId
           const factionDisplayName = showFactionBadge
             ? (unit as UnitIndexEntryWithFaction).factionDisplayName
@@ -109,16 +99,6 @@ export function CategoryListColumn({
         })}
       </div>
 
-      {/* Show more/less button */}
-      {showMoreButton && (
-        <button
-          type="button"
-          onClick={onToggleExpand}
-          className="w-full text-sm text-primary hover:bg-muted/50 hover:underline py-2 text-center border-t transition-colors"
-        >
-          {isExpanded ? 'Show less' : `Show ${hiddenCount} more`}
-        </button>
-      )}
     </div>
   )
 }

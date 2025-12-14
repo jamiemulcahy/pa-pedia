@@ -784,47 +784,5 @@ describe('FactionDetail', () => {
       // Category headers should be present
       expect(screen.getByText('Tanks')).toBeInTheDocument()
     })
-
-    it('should show show all/hide all button in list mode', async () => {
-      const user = userEvent.setup()
-      renderFactionDetail('MLA')
-
-      await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-      })
-
-      // Should not show the list toggle button in grid mode
-      expect(screen.queryByRole('button', { name: /show all units/i })).not.toBeInTheDocument()
-
-      // Switch to list view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
-      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
-
-      // Should show the show all button in list mode
-      expect(screen.getByRole('button', { name: /show all units/i })).toBeInTheDocument()
-    })
-
-    it('should toggle show all/hide all state when button is clicked', async () => {
-      const user = userEvent.setup()
-      renderFactionDetail('MLA')
-
-      await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-      })
-
-      // Switch to list view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
-      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
-
-      // Initially shows "show all" (categories are collapsed)
-      const showAllButton = screen.getByRole('button', { name: /show all units/i })
-      expect(showAllButton).toBeInTheDocument()
-
-      // Click to expand all
-      await user.click(showAllButton)
-
-      // Now should show "hide extra" option
-      expect(screen.getByRole('button', { name: /hide extra units/i })).toBeInTheDocument()
-    })
   })
 })
