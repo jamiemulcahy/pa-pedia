@@ -1,9 +1,20 @@
 import { useMemo } from 'react'
+import Masonry from 'react-masonry-css'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { SortableCategoryListColumn } from '@/components/SortableCategoryListColumn'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
+
+// Responsive breakpoints for masonry columns (matches Tailwind breakpoints)
+const MASONRY_BREAKPOINTS = {
+  default: 5,  // xl and above
+  1280: 5,     // xl
+  1024: 4,     // lg
+  768: 3,      // md
+  640: 2,      // sm
+  0: 1,        // mobile
+}
 
 interface UnitListViewProps {
   groupedUnits: Map<UnitCategory, (UnitIndexEntry | UnitIndexEntryWithFaction)[]>
@@ -13,8 +24,6 @@ interface UnitListViewProps {
   onImageError: (unitId: string) => void
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
-  expandedCategories: Set<UnitCategory>
-  onToggleCategoryExpanded: (category: UnitCategory) => void
 }
 
 export function UnitListView({
@@ -25,8 +34,6 @@ export function UnitListView({
   onImageError,
   showFactionBadge = false,
   getUnitFactionId,
-  expandedCategories,
-  onToggleCategoryExpanded,
 }: UnitListViewProps) {
 
   // Filter to only categories that have units
@@ -45,27 +52,30 @@ export function UnitListView({
 
   return (
     <SortableContext items={categoriesWithUnits} strategy={rectSortingStrategy}>
-      {/* CSS Grid with horizontal flow (left-to-right, top-to-bottom) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-start">
+      {/* Masonry layout with horizontal reading order */}
+      <Masonry
+        breakpointCols={MASONRY_BREAKPOINTS}
+        className="flex -ml-4 w-auto"
+        columnClassName="pl-4 bg-clip-padding"
+      >
         {categoriesWithUnits.map((category) => {
           const units = groupedUnits.get(category) || []
 
           return (
-            <SortableCategoryListColumn
-              key={category}
-              category={category}
-              units={units}
-              factionId={factionId}
-              brokenImages={brokenImages}
-              onImageError={onImageError}
-              isExpanded={expandedCategories.has(category)}
-              onToggleExpand={() => onToggleCategoryExpanded(category)}
-              showFactionBadge={showFactionBadge}
-              getUnitFactionId={getUnitFactionId}
-            />
+            <div key={category} className="mb-4">
+              <SortableCategoryListColumn
+                category={category}
+                units={units}
+                factionId={factionId}
+                brokenImages={brokenImages}
+                onImageError={onImageError}
+                showFactionBadge={showFactionBadge}
+                getUnitFactionId={getUnitFactionId}
+              />
+            </div>
           )
         })}
-      </div>
+      </Masonry>
     </SortableContext>
   )
 }
