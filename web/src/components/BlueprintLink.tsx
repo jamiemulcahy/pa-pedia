@@ -6,12 +6,14 @@ interface BlueprintLinkProps {
   resourceName: string;
   displayName?: string;
   factionId?: string;
+  resolvedData?: object;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
   resourceName,
   displayName,
-  factionId: propFactionId
+  factionId: propFactionId,
+  resolvedData
 }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
@@ -37,6 +39,7 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
         onClose={() => setIsModalOpen(false)}
         blueprintPath={getBlueprintPath()}
         title={`Blueprint: ${resourceName}`}
+        resolvedData={resolvedData}
       />
     </>
   );

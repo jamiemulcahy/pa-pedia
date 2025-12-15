@@ -70,6 +70,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ unit, compareU
           resourceName={unit.resourceName}
           displayName="View Blueprint"
           factionId={factionId}
+          resolvedData={unit}
         />
       </div>
       {showRow(hpDiff) && (

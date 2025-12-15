@@ -119,4 +119,82 @@ describe('BlueprintLink', () => {
       expect(screen.queryByText('Blueprint: /pa/units/land/tank/tank.json')).not.toBeInTheDocument()
     })
   })
+
+  describe('resolved data prop', () => {
+    const mockResolvedData = {
+      id: 'tank',
+      displayName: 'Ant',
+      tier: 1,
+      specs: {
+        combat: { health: 200, dps: 45.5 }
+      }
+    }
+
+    it('should not show toggle when resolvedData is not provided', async () => {
+      const user = userEvent.setup()
+      render(
+        <BlueprintLink
+          resourceName="/pa/units/land/tank/tank.json"
+          displayName="View Blueprint"
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      await user.click(screen.getByText('View Blueprint'))
+
+      await waitFor(() => {
+        expect(screen.getByText('Blueprint: /pa/units/land/tank/tank.json')).toBeInTheDocument()
+      })
+
+      // Toggle buttons should not be present
+      expect(screen.queryByRole('button', { name: 'Raw' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Resolved' })).not.toBeInTheDocument()
+    })
+
+    it('should show toggle when resolvedData is provided', async () => {
+      const user = userEvent.setup()
+      render(
+        <BlueprintLink
+          resourceName="/pa/units/land/tank/tank.json"
+          displayName="View Blueprint"
+          resolvedData={mockResolvedData}
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      await user.click(screen.getByText('View Blueprint'))
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+    })
+
+    it('should display resolved data when Resolved button is clicked', async () => {
+      const user = userEvent.setup()
+      render(
+        <BlueprintLink
+          resourceName="/pa/units/land/tank/tank.json"
+          displayName="View Blueprint"
+          resolvedData={mockResolvedData}
+        />,
+        { wrapper: TestWrapper }
+      )
+
+      await user.click(screen.getByText('View Blueprint'))
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Click Resolved button
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      // Should show resolved content
+      await waitFor(() => {
+        expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
+        expect(screen.getByText(/"Ant"/)).toBeInTheDocument()
+      })
+    })
+  })
 })

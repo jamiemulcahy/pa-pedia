@@ -559,4 +559,328 @@ describe('BlueprintModal', () => {
       })
     })
   })
+
+  describe('resolved view', () => {
+    const mockResolvedData = {
+      id: 'tank',
+      displayName: 'Ant',
+      tier: 1,
+      unitTypes: ['Mobile', 'Tank', 'Land', 'Basic'],
+      specs: {
+        combat: {
+          health: 200,
+          dps: 45.5
+        }
+      }
+    }
+
+    function renderModalWithResolved(props: {
+      isOpen: boolean
+      onClose: () => void
+      blueprintPath: string
+      title: string
+      resolvedData?: object
+    }) {
+      return renderWithFactionProvider(
+        <CurrentFactionProvider factionId="MLA">
+          <BlueprintModal {...props} />
+        </CurrentFactionProvider>
+      )
+    }
+
+    it('should not show toggle when resolvedData is not provided', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ test: 'data' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint'
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText(/"test"/)).toBeInTheDocument()
+      })
+
+      // Toggle buttons should not be present
+      expect(screen.queryByRole('button', { name: 'Raw' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Resolved' })).not.toBeInTheDocument()
+    })
+
+    it('should show toggle when resolvedData is provided', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ test: 'data' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+    })
+
+    it('should default to raw view', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        // Should show raw content
+        expect(screen.getByText(/"rawField"/)).toBeInTheDocument()
+        expect(screen.getByText(/"rawValue"/)).toBeInTheDocument()
+      })
+
+      // Should not show resolved content
+      expect(screen.queryByText(/"displayName"/)).not.toBeInTheDocument()
+    })
+
+    it('should switch to resolved view when clicking Resolved button', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Click Resolved button
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      // Should show resolved content
+      await waitFor(() => {
+        expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
+        expect(screen.getByText(/"Ant"/)).toBeInTheDocument()
+        expect(screen.getByText(/"dps"/)).toBeInTheDocument()
+      })
+    })
+
+    it('should switch back to raw view when clicking Raw button', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Switch to resolved
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
+      })
+
+      // Switch back to raw
+      await user.click(screen.getByRole('button', { name: 'Raw' }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/"rawField"/)).toBeInTheDocument()
+      })
+    })
+
+    it('should not show loading state in resolved view', async () => {
+      const user = userEvent.setup()
+
+      // Slow fetch that would show loading in raw mode
+      global.fetch = vi.fn().mockImplementation(
+        () => new Promise(resolve => setTimeout(() => {
+          resolve({
+            ok: true,
+            headers: new Headers({ 'content-type': 'application/json' }),
+            json: async () => ({ rawField: 'rawValue' })
+          } as Response)
+        }, 100))
+      )
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      // Wait for toggle to appear
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Switch to resolved immediately
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      // Should show resolved content immediately without loading
+      expect(screen.queryByText('Loading blueprint...')).not.toBeInTheDocument()
+      expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
+    })
+
+    it('should hide base_spec link in resolved view', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({
+          unit: 'tank',
+          base_spec: '/pa/units/land/base_vehicle/base_vehicle.json'
+        })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      // Wait for base_spec link to appear in raw view
+      await waitFor(() => {
+        expect(screen.getByText('Inherits from:')).toBeInTheDocument()
+      })
+
+      // Switch to resolved view
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      // Base spec link should be hidden
+      await waitFor(() => {
+        expect(screen.queryByText('Inherits from:')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should reset to raw view when modal reopens', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      const { rerender } = renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      // Switch to resolved
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
+      })
+
+      // Close modal
+      rerender(
+        <CurrentFactionProvider factionId="MLA">
+          <BlueprintModal
+            isOpen={false}
+            onClose={mockOnClose}
+            blueprintPath="/path/to/blueprint.json"
+            title="Test Blueprint"
+            resolvedData={mockResolvedData}
+          />
+        </CurrentFactionProvider>
+      )
+
+      // Reopen modal
+      rerender(
+        <CurrentFactionProvider factionId="MLA">
+          <BlueprintModal
+            isOpen={true}
+            onClose={mockOnClose}
+            blueprintPath="/path/to/blueprint.json"
+            title="Test Blueprint"
+            resolvedData={mockResolvedData}
+          />
+        </CurrentFactionProvider>
+      )
+
+      // Should be back to raw view
+      await waitFor(() => {
+        expect(screen.getByText(/"rawField"/)).toBeInTheDocument()
+      })
+    })
+
+    it('should show copy button in resolved view', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Switch to resolved
+      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+
+      // Copy button should be present
+      await waitFor(() => {
+        expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
+      })
+    })
+  })
 })
