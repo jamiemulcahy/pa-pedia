@@ -1,6 +1,6 @@
 {
   "displayName": "Exiles",
   "factionUnitType": "Custom6",
-  "mods": ["com.pa.nik.exiles", "com.pa.nik.exiles_client"],
-  "backgroundImage": "/ui/mods/com.pa.nik.exiles/img/background12.png"
+  "mods": ["github.com/NikolaMX/Exiles-Faction"],
+  "backgroundImage": "/ui/mods/com.pa.nik.exiles/img/background.png"
 }
