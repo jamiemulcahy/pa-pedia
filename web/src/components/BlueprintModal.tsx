@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import { getLocalAsset } from '@/services/localFactionStorage';
+import type { Unit, Weapon, Ammo } from '@/types/faction';
 
 type ViewMode = 'raw' | 'resolved';
 
@@ -11,7 +12,7 @@ interface BlueprintModalProps {
   onClose: () => void;
   blueprintPath: string;
   title: string;
-  resolvedData?: object;
+  resolvedData?: Unit | Weapon | Ammo;
 }
 
 export const BlueprintModal: React.FC<BlueprintModalProps> = ({
@@ -262,9 +263,12 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
           <div className="flex items-center gap-2">
             {/* View mode toggle - only shown when resolved data is available */}
             {resolvedData && (
-              <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
+              <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1" role="tablist" aria-label="View mode">
                 <button
                   onClick={() => handleViewModeChange('raw')}
+                  role="tab"
+                  aria-selected={viewMode === 'raw'}
+                  aria-controls="blueprint-content"
                   className={`px-3 py-1 text-sm rounded transition-colors ${
                     viewMode === 'raw'
                       ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100'
@@ -275,6 +279,9 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
                 </button>
                 <button
                   onClick={() => handleViewModeChange('resolved')}
+                  role="tab"
+                  aria-selected={viewMode === 'resolved'}
+                  aria-controls="blueprint-content"
                   className={`px-3 py-1 text-sm rounded transition-colors ${
                     viewMode === 'resolved'
                       ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100'
@@ -332,6 +339,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
         {/* Content */}
         <div
           className="modal-content flex-1 overflow-auto p-4 relative min-h-0"
+          id="blueprint-content"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: isDarkMode ? '#4b5563 #1f2937' : '#9ca3af #e5e7eb',
@@ -351,7 +359,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
               }}
               showLineNumbers
             >
-              {JSON.stringify(resolvedData, null, 2)}
+              {getDisplayContent()}
             </SyntaxHighlighter>
           )}
           {/* Raw view - with loading and error states */}
@@ -379,7 +387,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
                   }}
                   showLineNumbers
                 >
-                  {blueprintContent}
+                  {getDisplayContent()}
                 </SyntaxHighlighter>
               )}
             </>

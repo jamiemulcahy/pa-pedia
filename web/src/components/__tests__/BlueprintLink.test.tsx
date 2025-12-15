@@ -147,8 +147,8 @@ describe('BlueprintLink', () => {
       })
 
       // Toggle buttons should not be present
-      expect(screen.queryByRole('button', { name: 'Raw' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'Resolved' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: 'Raw' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: 'Resolved' })).not.toBeInTheDocument()
     })
 
     it('should show toggle when resolvedData is provided', async () => {
@@ -165,8 +165,8 @@ describe('BlueprintLink', () => {
       await user.click(screen.getByText('View Blueprint'))
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Raw' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
     })
 
@@ -184,11 +184,11 @@ describe('BlueprintLink', () => {
       await user.click(screen.getByText('View Blueprint'))
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
 
       // Click Resolved button
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       // Should show resolved content
       await waitFor(() => {

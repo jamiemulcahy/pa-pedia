@@ -607,8 +607,8 @@ describe('BlueprintModal', () => {
       })
 
       // Toggle buttons should not be present
-      expect(screen.queryByRole('button', { name: 'Raw' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'Resolved' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: 'Raw' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('tab', { name: 'Resolved' })).not.toBeInTheDocument()
     })
 
     it('should show toggle when resolvedData is provided', async () => {
@@ -627,8 +627,8 @@ describe('BlueprintModal', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Raw' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Raw' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
     })
 
@@ -675,11 +675,11 @@ describe('BlueprintModal', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
 
       // Click Resolved button
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       // Should show resolved content
       await waitFor(() => {
@@ -707,18 +707,18 @@ describe('BlueprintModal', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
 
       // Switch to resolved
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       await waitFor(() => {
         expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
       })
 
       // Switch back to raw
-      await user.click(screen.getByRole('button', { name: 'Raw' }))
+      await user.click(screen.getByRole('tab', { name: 'Raw' }))
 
       await waitFor(() => {
         expect(screen.getByText(/"rawField"/)).toBeInTheDocument()
@@ -749,11 +749,11 @@ describe('BlueprintModal', () => {
 
       // Wait for toggle to appear
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
 
       // Switch to resolved immediately
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       // Should show resolved content immediately without loading
       expect(screen.queryByText('Loading blueprint...')).not.toBeInTheDocument()
@@ -786,7 +786,7 @@ describe('BlueprintModal', () => {
       })
 
       // Switch to resolved view
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       // Base spec link should be hidden
       await waitFor(() => {
@@ -813,9 +813,9 @@ describe('BlueprintModal', () => {
 
       // Switch to resolved
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       await waitFor(() => {
         expect(screen.getByText(/"displayName"/)).toBeInTheDocument()
@@ -871,15 +871,75 @@ describe('BlueprintModal', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Resolved' })).toBeInTheDocument()
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
       })
 
       // Switch to resolved
-      await user.click(screen.getByRole('button', { name: 'Resolved' }))
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
 
       // Copy button should be present
       await waitFor(() => {
         expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
+      })
+    })
+
+    it('should handle empty object as resolvedData gracefully', async () => {
+      const user = userEvent.setup()
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ rawField: 'rawValue' })
+      } as Response)
+
+      // Pass an empty object (edge case)
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: {} as any
+      })
+
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: 'Resolved' })).toBeInTheDocument()
+      })
+
+      // Switch to resolved view with empty object
+      await user.click(screen.getByRole('tab', { name: 'Resolved' }))
+
+      // Should not crash - the syntax highlighter will render the empty object
+      // We verify by checking the content area exists and no error is shown
+      await waitFor(() => {
+        expect(screen.queryByText(/error/i)).not.toBeInTheDocument()
+        expect(screen.getByLabelText('Copy to clipboard')).toBeInTheDocument()
+      })
+    })
+
+    it('should have proper accessibility attributes on toggle buttons', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ test: 'data' })
+      } as Response)
+
+      renderModalWithResolved({
+        isOpen: true,
+        onClose: mockOnClose,
+        blueprintPath: '/path/to/blueprint.json',
+        title: 'Test Blueprint',
+        resolvedData: mockResolvedData
+      })
+
+      await waitFor(() => {
+        const rawTab = screen.getByRole('tab', { name: 'Raw' })
+        const resolvedTab = screen.getByRole('tab', { name: 'Resolved' })
+
+        // Check ARIA attributes
+        expect(rawTab).toHaveAttribute('aria-selected', 'true')
+        expect(resolvedTab).toHaveAttribute('aria-selected', 'false')
+        expect(rawTab).toHaveAttribute('aria-controls', 'blueprint-content')
+        expect(resolvedTab).toHaveAttribute('aria-controls', 'blueprint-content')
       })
     })
   })

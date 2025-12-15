@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { BlueprintModal } from './BlueprintModal';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
+import type { Unit, Weapon, Ammo } from '@/types/faction';
 
 interface BlueprintLinkProps {
   resourceName: string;
   displayName?: string;
   factionId?: string;
-  resolvedData?: object;
+  resolvedData?: Unit | Weapon | Ammo;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
