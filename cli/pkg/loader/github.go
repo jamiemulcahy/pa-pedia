@@ -117,8 +117,8 @@ func DownloadGitHubArchive(src *GitHubSource, verbose bool) (string, error) {
 
 	// Create temp file for the download
 	// Sanitize ref for use in filename (replace / with _ to handle branch names like feature/foo)
-	safeRef := strings.ReplaceAll(src.Ref, "/", "_")
-	filename := fmt.Sprintf("pa-pedia-%s_%s_%s-*.zip", src.Owner, src.Repo, safeRef)
+	filenameSafeRef := strings.ReplaceAll(src.Ref, "/", "_")
+	filename := fmt.Sprintf("pa-pedia-%s_%s_%s-*.zip", src.Owner, src.Repo, filenameSafeRef)
 	tmpFile, err := os.CreateTemp("", filename)
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp file: %w", err)
@@ -151,9 +151,9 @@ func LoadModInfoFromGitHubArchive(src *GitHubSource, zipPath string) (*ModInfo, 
 	// GitHub archives have a root directory named "{repo}-{ref}/"
 	// We need to look for modinfo.json inside this directory and strip this prefix when loading
 	// Sanitize ref to prevent path traversal (defense-in-depth, GitHub likely sanitizes too)
-	safeRef := strings.ReplaceAll(src.Ref, "..", "")
-	safeRef = strings.ReplaceAll(safeRef, "\\", "")
-	rootPrefix := fmt.Sprintf("%s-%s/", src.Repo, safeRef)
+	pathSafeRef := strings.ReplaceAll(src.Ref, "..", "")
+	pathSafeRef = strings.ReplaceAll(pathSafeRef, "\\", "")
+	rootPrefix := fmt.Sprintf("%s-%s/", src.Repo, pathSafeRef)
 
 	// Look for modinfo.json
 	var modinfoFile *zip.File
