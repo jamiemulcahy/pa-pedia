@@ -65,6 +65,10 @@ MANUAL MODE (Fallback):
   # List available profiles
   pa-pedia describe-faction --list-profiles
 
+  # GitHub repository as mod source (no local download needed)
+  pa-pedia describe-faction --profile mla --mod "github.com/user/my-mod" --pa-root "C:/PA/media"
+  pa-pedia describe-faction --profile mla --mod "github.com/user/repo/tree/v2.0" --pa-root "C:/PA/media"
+
   # Manual mode (fallback)
   pa-pedia describe-faction --name MLA --faction-unit-type Custom58 --pa-root "C:/PA/media"
   pa-pedia describe-faction --name Legion --faction-unit-type Custom1 \
@@ -84,7 +88,7 @@ func init() {
 	// Args-based flags (fallback)
 	describeFactionCmd.Flags().StringVar(&factionNameFlag, "name", "", "Faction display name (fallback mode)")
 	describeFactionCmd.Flags().StringVar(&factionUnitTypeFlag, "faction-unit-type", "", "Faction unit type identifier (e.g., 'Custom1' for Legion, 'Custom58' for MLA)")
-	describeFactionCmd.Flags().StringArrayVar(&modIDs, "mod", []string{}, "Mod identifier(s) to include (repeatable, first has priority)")
+	describeFactionCmd.Flags().StringArrayVar(&modIDs, "mod", []string{}, "Mod source(s) to include - local mod ID or GitHub URL (repeatable, first has priority)")
 
 	// Common flags
 	describeFactionCmd.Flags().StringVar(&paRoot, "pa-root", "", "Path to PA Titans media directory")
@@ -125,6 +129,12 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("profile '%s' not found\n\nUse --list-profiles to see available profiles", profileFlag)
 		}
 		logVerbose("Using profile: %s (%s)", profile.ID, profile.DisplayName)
+
+		// Append any --mod flags to the profile's mods (CLI flags take priority)
+		if len(modIDs) > 0 {
+			// CLI mods go first (highest priority)
+			profile.Mods = append(modIDs, profile.Mods...)
+		}
 	} else if factionNameFlag != "" {
 		// Args-based mode - create a temporary profile from args
 		if factionUnitTypeFlag == "" {
@@ -147,10 +157,17 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--pa-root is required")
 	}
 
-	// Validate --data-root for factions with mods
-	if len(profile.Mods) > 0 && paDataRoot == "" {
-		return fmt.Errorf("--data-root is required when mods are involved\n\nProfile '%s' requires mods: %v\n\nCommon locations:\n  Windows: %%LOCALAPPDATA%%\\Uber Entertainment\\Planetary Annihilation\n  macOS: ~/Library/Application Support/Uber Entertainment/Planetary Annihilation\n  Linux: ~/.local/Uber Entertainment/Planetary Annihilation",
-			profile.ID, profile.Mods)
+	// Validate --data-root for factions with local mods (not needed for GitHub-only mods)
+	hasLocalMods := false
+	for _, mod := range profile.Mods {
+		if !loader.IsGitHubURL(mod) {
+			hasLocalMods = true
+			break
+		}
+	}
+	if hasLocalMods && paDataRoot == "" {
+		return fmt.Errorf("--data-root is required when local mods are involved\n\nProfile '%s' has local mods that need to be discovered\n\nCommon locations:\n  Windows: %%LOCALAPPDATA%%\\Uber Entertainment\\Planetary Annihilation\n  macOS: ~/Library/Application Support/Uber Entertainment/Planetary Annihilation\n  Linux: ~/.local/Uber Entertainment/Planetary Annihilation",
+			profile.ID)
 	}
 
 	// Validate data-root structure if provided
@@ -245,39 +262,68 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 
 	// If profile has mods, discover and resolve them
 	if len(profile.Mods) > 0 {
-		fmt.Println("Discovering mods from all locations...")
-		allMods, err := loader.FindAllMods(paDataRoot, verbose)
-		if err != nil {
-			return fmt.Errorf("failed to discover mods: %w", err)
-		}
-
-		fmt.Printf("Found %d total mods across all locations\n", len(allMods))
-		if verbose {
-			for id, mod := range allMods {
-				fmt.Printf("  - %s (%s) [%s]\n", id, mod.DisplayName, mod.SourceType)
-			}
-		}
-		fmt.Println()
-
-		// Resolve requested mods in priority order
-		fmt.Println("Resolving requested mods...")
-		resolvedMods = make([]*loader.ModInfo, 0, len(profile.Mods))
-		for _, modID := range profile.Mods {
-			modInfo, ok := allMods[modID]
-			if !ok {
-				showAvailableMods(modID, allMods)
-				return fmt.Errorf("mod not found: %s", modID)
-			}
-
-			resolvedMods = append(resolvedMods, modInfo)
-			fmt.Printf("  ✓ %s (%s) [%s]\n", modInfo.Identifier, modInfo.DisplayName, modInfo.SourceType)
-			if modInfo.IsZipped {
-				fmt.Printf("    Source: %s (zip)\n", modInfo.ZipPath)
+		// Separate GitHub mods from local mods
+		var githubModURLs []string
+		var localModIDs []string
+		for _, mod := range profile.Mods {
+			if loader.IsGitHubURL(mod) {
+				githubModURLs = append(githubModURLs, mod)
 			} else {
-				fmt.Printf("    Source: %s (directory)\n", modInfo.Directory)
+				localModIDs = append(localModIDs, mod)
 			}
 		}
-		fmt.Println()
+
+		resolvedMods = make([]*loader.ModInfo, 0, len(profile.Mods))
+
+		// Resolve GitHub mods first (they have highest priority as they appear first in the list)
+		if len(githubModURLs) > 0 {
+			fmt.Println("Resolving GitHub mods...")
+			for _, url := range githubModURLs {
+				modInfo, err := loader.ResolveGitHubMod(url, verbose)
+				if err != nil {
+					return fmt.Errorf("failed to resolve GitHub mod: %w", err)
+				}
+				resolvedMods = append(resolvedMods, modInfo)
+				fmt.Printf("  ✓ %s (%s) [%s]\n", modInfo.Identifier, modInfo.DisplayName, modInfo.SourceType)
+				fmt.Printf("    Source: %s (zip)\n", modInfo.ZipPath)
+			}
+			fmt.Println()
+		}
+
+		// Resolve local mods (if any)
+		if len(localModIDs) > 0 {
+			fmt.Println("Discovering local mods...")
+			allMods, err := loader.FindAllMods(paDataRoot, verbose)
+			if err != nil {
+				return fmt.Errorf("failed to discover mods: %w", err)
+			}
+
+			fmt.Printf("Found %d total mods across all locations\n", len(allMods))
+			if verbose {
+				for id, mod := range allMods {
+					fmt.Printf("  - %s (%s) [%s]\n", id, mod.DisplayName, mod.SourceType)
+				}
+			}
+			fmt.Println()
+
+			fmt.Println("Resolving requested local mods...")
+			for _, modID := range localModIDs {
+				modInfo, ok := allMods[modID]
+				if !ok {
+					showAvailableMods(modID, allMods)
+					return fmt.Errorf("mod not found: %s", modID)
+				}
+
+				resolvedMods = append(resolvedMods, modInfo)
+				fmt.Printf("  ✓ %s (%s) [%s]\n", modInfo.Identifier, modInfo.DisplayName, modInfo.SourceType)
+				if modInfo.IsZipped {
+					fmt.Printf("    Source: %s (zip)\n", modInfo.ZipPath)
+				} else {
+					fmt.Printf("    Source: %s (directory)\n", modInfo.Directory)
+				}
+			}
+			fmt.Println()
+		}
 	}
 
 	// Create multi-source loader (works for both base game and modded)

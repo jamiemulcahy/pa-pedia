@@ -13,12 +13,13 @@ import (
 
 // Source represents a data source (directory or zip file)
 type Source struct {
-	Type       ModSourceType         // Type of source (pa, pa_ex1, server_mods, etc.)
-	Path       string                // Directory path or zip file path
-	IsZip      bool                  // Whether this is a zip file
-	ZipReader  *zip.ReadCloser       // Zip reader if IsZip is true
-	Identifier string                // Source identifier (pa, pa_ex1, or mod identifier)
-	zipIndex   map[string]*zip.File  // Index of zip files by normalized path (populated once on open)
+	Type          ModSourceType        // Type of source (pa, pa_ex1, server_mods, etc.)
+	Path          string               // Directory path or zip file path
+	IsZip         bool                 // Whether this is a zip file
+	ZipReader     *zip.ReadCloser      // Zip reader if IsZip is true
+	Identifier    string               // Source identifier (pa, pa_ex1, or mod identifier)
+	zipIndex      map[string]*zip.File // Index of zip files by normalized path (populated once on open)
+	zipPathPrefix string               // Prefix to strip from zip paths (for GitHub archives)
 }
 
 // ZipIndex returns the zip file index for this source (O(1) file lookups)
@@ -78,16 +79,21 @@ func NewMultiSourceLoader(paRoot string, expansion string, mods []*ModInfo) (*Lo
 			for _, file := range zipReader.File {
 				// Normalize path for consistent lookups (remove leading slash, convert to forward slashes)
 				normalizedPath := strings.TrimPrefix(filepath.ToSlash(file.Name), "/")
+				// Strip prefix if set (for GitHub archives which have repo-branch/ prefix)
+				if mod.ZipPathPrefix != "" {
+					normalizedPath = strings.TrimPrefix(normalizedPath, mod.ZipPathPrefix)
+				}
 				zipIndex[normalizedPath] = file
 			}
 
 			l.sources = append(l.sources, Source{
-				Type:       mod.SourceType,
-				Path:       mod.ZipPath,
-				IsZip:      true,
-				ZipReader:  zipReader,
-				Identifier: mod.Identifier,
-				zipIndex:   zipIndex,
+				Type:          mod.SourceType,
+				Path:          mod.ZipPath,
+				IsZip:         true,
+				ZipReader:     zipReader,
+				Identifier:    mod.Identifier,
+				zipIndex:      zipIndex,
+				zipPathPrefix: mod.ZipPathPrefix,
 			})
 		} else {
 			// Regular directory
