@@ -18,23 +18,25 @@ const (
 	ModSourceServerMods ModSourceType = "server_mods" // User-installed server mods (highest priority)
 	ModSourceClientMods ModSourceType = "client_mods" // User-installed client mods (medium priority)
 	ModSourceDownload   ModSourceType = "download"    // PA-managed downloads as zip files (lowest priority)
+	ModSourceGitHub     ModSourceType = "github"      // GitHub repository (downloaded on-demand)
 	ModSourceBaseGame   ModSourceType = "pa"          // Base game files
 	ModSourceExpansion  ModSourceType = "pa_ex1"      // Titans expansion
 )
 
 // ModInfo represents metadata about a PA server mod
 type ModInfo struct {
-	Identifier  string        `json:"identifier"`
-	DisplayName string        `json:"display_name"`
-	Description string        `json:"description"`
-	Version     string        `json:"version"`
-	Author      string        `json:"author"`
-	Date        string        `json:"date"`
-	Build       string        `json:"build"`
-	Directory   string        `json:"-"` // Not in JSON, added by loader (for extracted mods)
-	ZipPath     string        `json:"-"` // Path to zip file (for zipped mods)
-	SourceType  ModSourceType `json:"-"` // Where this mod was found
-	IsZipped    bool          `json:"-"` // Whether this mod is in a zip file
+	Identifier    string        `json:"identifier"`
+	DisplayName   string        `json:"display_name"`
+	Description   string        `json:"description"`
+	Version       string        `json:"version"`
+	Author        string        `json:"author"`
+	Date          string        `json:"date"`
+	Build         string        `json:"build"`
+	Directory     string        `json:"-"` // Not in JSON, added by loader (for extracted mods)
+	ZipPath       string        `json:"-"` // Path to zip file (for zipped mods)
+	ZipPathPrefix string        `json:"-"` // Prefix to strip from zip paths (for GitHub archives)
+	SourceType    ModSourceType `json:"-"` // Where this mod was found
+	IsZipped      bool          `json:"-"` // Whether this mod is in a zip file
 }
 
 // GetDefaultPADataRoot returns the platform-specific default PA data directory

@@ -111,6 +111,39 @@ pa-pedia describe-faction --name "My Faction" \
   --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation"
 ```
 
+### GitHub Repository Sources
+
+Use GitHub repositories directly as mod sources without downloading them manually. The `--mod` flag accepts both local mod IDs and GitHub URLs.
+
+```bash
+# Use a GitHub repo as mod source (downloads automatically)
+pa-pedia describe-faction --profile mla \
+  --mod "github.com/NiklasKroworsch/Exiles" \
+  --pa-root "C:/PA/media"
+
+# Specify a branch or tag
+pa-pedia describe-faction --profile mla \
+  --mod "github.com/user/repo/tree/v2.0" \
+  --pa-root "C:/PA/media"
+
+# Mix local and GitHub mods (first listed has highest priority)
+pa-pedia describe-faction --name "Custom" \
+  --faction-unit-type Custom99 \
+  --mod "github.com/user/remote-mod" \
+  --mod com.pa.local-mod \
+  --pa-root "C:/PA/media" \
+  --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation"
+```
+
+GitHub URLs can also be used in profile `mods` arrays:
+```json
+{
+  "displayName": "Exiles",
+  "factionUnitType": "Custom6",
+  "mods": ["github.com/NiklasKroworsch/Exiles"]
+}
+```
+
 ## Flags
 
 ### Profile-Based Flags (Recommended)
@@ -127,7 +160,7 @@ pa-pedia describe-faction --name "My Faction" \
 |------|----------|---------|-------------|
 | `--name` | Yes* | - | Faction display name |
 | `--faction-unit-type` | Yes | - | Faction unit type identifier (e.g., `Custom58`, `Custom1`) |
-| `--mod` | No | - | Mod ID(s) to merge (repeatable, first = highest priority) |
+| `--mod` | No | - | Mod source(s) - local mod ID or GitHub URL (repeatable, first = highest priority) |
 
 *Either `--profile` or `--name` is required (mutually exclusive).
 
@@ -136,7 +169,7 @@ pa-pedia describe-faction --name "My Faction" \
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
 | `--pa-root` | Yes | - | PA media directory path |
-| `--data-root` | For mods | - | PA data directory (for mod discovery) |
+| `--data-root` | For local mods | - | PA data directory (for local mod discovery, not needed for GitHub-only mods) |
 | `--output` | No | `./factions` | Output directory |
 | `--allow-empty` | No | `false` | Allow exporting factions with 0 units |
 | `-v, --verbose` | No | `false` | Enable verbose logging |

@@ -27,16 +27,33 @@ PA-Pedia consists of:
 
 ```bash
 # Extract base game faction (MLA)
-pa-pedia describe-faction --name mla \
+pa-pedia describe-faction --profile mla \
   --pa-root "C:/PA/media" \
   --output "./factions"
 
-# Extract custom faction with multiple mods
+# Extract custom faction with local mods
 pa-pedia describe-faction --name "Legion Enhanced" \
   --pa-root "C:/PA/media" \
   --mod com.pa.legion-expansion \
   --mod com.pa.legion-client \
+  --data-root "%LOCALAPPDATA%/Uber Entertainment/Planetary Annihilation" \
   --output "./factions"
+```
+
+#### Using GitHub Repositories
+
+The `--mod` flag accepts both local mod IDs and GitHub URLs:
+
+```bash
+# Use a GitHub repo directly as mod source
+pa-pedia describe-faction --profile mla \
+  --mod "github.com/NiklasKroworsch/Exiles" \
+  --pa-root "C:/PA/media"
+
+# Specify a specific branch or tag
+pa-pedia describe-faction --profile mla \
+  --mod "github.com/user/repo/tree/v2.0" \
+  --pa-root "C:/PA/media"
 ```
 
 ### Output Structure
