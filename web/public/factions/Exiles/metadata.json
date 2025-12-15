@@ -1,15 +1,14 @@
 {
   "identifier": "exiles",
   "displayName": "Exiles",
-  "version": "0.6.2",
+  "version": "0.6.5",
   "author": "NikolaMX, BOIYOUSAYWHAT",
   "description": "Adds a high-tech Energy-based Faction. Development Ongoing",
-  "dateCreated": "2025-11-25",
+  "dateCreated": "2025-12-15",
   "build": "124610",
   "type": "mod",
   "mods": [
-    "com.pa.nik.exiles",
-    "com.pa.nik.exiles_client"
+    "github.com/NikolaMX/Exiles-Faction"
   ],
-  "backgroundImage": "assets/ui/mods/com.pa.nik.exiles/img/background12.png"
+  "backgroundImage": "assets/ui/mods/com.pa.nik.exiles/img/background.png"
 }
