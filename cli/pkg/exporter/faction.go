@@ -362,6 +362,12 @@ func (e *FactionExporter) copyFromZip(fileInfo *loader.UnitFileInfo, destPath st
 	// Clean path first to ensure consistent separators, then convert to forward slashes
 	normalizedFullPath := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(fileInfo.FullPath)), "/")
 
+	// Strip any zip path prefix (e.g., "Exiles-Faction-main/" for GitHub archives)
+	// The zip index was built with prefixes stripped, so we need to strip here too
+	if prefix := source.ZipPathPrefix(); prefix != "" {
+		normalizedFullPath = strings.TrimPrefix(normalizedFullPath, prefix)
+	}
+
 	// Use zip index for O(1) lookup instead of O(n) scan
 	file, found := source.ZipIndex()[normalizedFullPath]
 	if !found {
