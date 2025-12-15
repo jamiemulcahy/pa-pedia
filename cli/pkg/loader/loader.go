@@ -28,6 +28,11 @@ func (s *Source) ZipIndex() map[string]*zip.File {
 	return s.zipIndex
 }
 
+// ZipPathPrefix returns the prefix to strip from zip paths (for GitHub archives)
+func (s *Source) ZipPathPrefix() string {
+	return s.zipPathPrefix
+}
+
 // Loader handles loading and caching JSON files from PA installation and mods
 type Loader struct {
 	sources     []Source                        // Priority-ordered sources to search
@@ -788,20 +793,26 @@ func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[s
 
 	// Search zip entries
 	for _, file := range src.ZipReader.File {
+		// Normalize the zip path by stripping any prefix (e.g., "Exiles-Faction-main/" for GitHub archives)
+		normalizedPath := file.Name
+		if src.zipPathPrefix != "" {
+			normalizedPath = strings.TrimPrefix(normalizedPath, src.zipPathPrefix)
+		}
+
 		// Check if file is in unit directory
-		if strings.HasPrefix(file.Name, unitDirNorm+"/") {
-			relPath := strings.TrimPrefix(file.Name, unitDirNorm+"/")
+		if strings.HasPrefix(normalizedPath, unitDirNorm+"/") {
+			relPath := strings.TrimPrefix(normalizedPath, unitDirNorm+"/")
 			// Skip subdirectories - we only want files directly in the unit directory
 			// (not nested directories). relPath should not contain "/" for direct children.
 			if !strings.Contains(relPath, "/") && relPath != "" {
-				filename := filepath.Base(file.Name)
+				filename := filepath.Base(normalizedPath)
 				// Only include essential files
 				if !shouldIncludeUnitFile(filename, unitID) {
 					continue
 				}
 				files[filename] = &UnitFileInfo{
 					RelativePath: filename,
-					FullPath:     file.Name,
+					FullPath:     file.Name, // Keep original path for actual file access
 					Source:       src.Identifier,
 					IsFromZip:    true,
 				}
@@ -810,11 +821,11 @@ func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[s
 
 		// Also check for icon files (may be in different locations)
 		iconName := unitID + "_icon_buildbar.png"
-		if strings.HasSuffix(file.Name, iconName) {
+		if strings.HasSuffix(normalizedPath, iconName) {
 			if _, exists := files[iconName]; !exists {
 				files[iconName] = &UnitFileInfo{
 					RelativePath: iconName,
-					FullPath:     file.Name,
+					FullPath:     file.Name, // Keep original path for actual file access
 					Source:       src.Identifier,
 					IsFromZip:    true,
 				}
