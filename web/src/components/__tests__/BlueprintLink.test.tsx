@@ -6,6 +6,7 @@ import { BlueprintLink } from '../BlueprintLink'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { setupMockFetch } from '@/tests/mocks/factionData'
+import type { Unit } from '@/types/faction'
 
 // Wrapper that provides necessary contexts for BlueprintLink
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -123,12 +124,16 @@ describe('BlueprintLink', () => {
   describe('resolved data prop', () => {
     const mockResolvedData = {
       id: 'tank',
+      resourceName: '/pa/units/land/tank/tank.json',
       displayName: 'Ant',
       tier: 1,
+      unitTypes: ['Mobile', 'Tank', 'Land', 'Basic'],
+      accessible: true,
       specs: {
-        combat: { health: 200, dps: 45.5 }
+        combat: { health: 200, dps: 45.5 },
+        economy: { buildCost: 100 }
       }
-    }
+    } as Unit
 
     it('should not show toggle when resolvedData is not provided', async () => {
       const user = userEvent.setup()

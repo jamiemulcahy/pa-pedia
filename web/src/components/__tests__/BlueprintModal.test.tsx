@@ -5,6 +5,7 @@ import { BlueprintModal } from '../BlueprintModal'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { renderWithFactionProvider } from '@/tests/helpers'
 import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockBugsMetadata, mockExilesMetadata, mockMLAIndex, mockLegionIndex, mockBugsIndex, mockExilesIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
+import type { Unit } from '@/types/faction'
 
 function renderModal(props: {
   isOpen: boolean
@@ -563,24 +564,23 @@ describe('BlueprintModal', () => {
   describe('resolved view', () => {
     const mockResolvedData = {
       id: 'tank',
+      resourceName: '/pa/units/land/tank/tank.json',
       displayName: 'Ant',
       tier: 1,
       unitTypes: ['Mobile', 'Tank', 'Land', 'Basic'],
+      accessible: true,
       specs: {
         combat: {
           health: 200,
           dps: 45.5
+        },
+        economy: {
+          buildCost: 100
         }
       }
-    }
+    } as Unit
 
-    function renderModalWithResolved(props: {
-      isOpen: boolean
-      onClose: () => void
-      blueprintPath: string
-      title: string
-      resolvedData?: object
-    }) {
+    function renderModalWithResolved(props: Parameters<typeof BlueprintModal>[0]) {
       return renderWithFactionProvider(
         <CurrentFactionProvider factionId="MLA">
           <BlueprintModal {...props} />
