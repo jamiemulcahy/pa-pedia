@@ -3,19 +3,24 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import { getLocalAsset } from '@/services/localFactionStorage';
+import type { Unit, Weapon, Ammo } from '@/types/faction';
+
+type ViewMode = 'raw' | 'resolved';
 
 interface BlueprintModalProps {
   isOpen: boolean;
   onClose: () => void;
   blueprintPath: string;
   title: string;
+  resolvedData?: Unit | Weapon | Ammo;
 }
 
 export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   isOpen,
   onClose,
   blueprintPath,
-  title
+  title,
+  resolvedData
 }) => {
   const { factionId, isLocal } = useCurrentFaction();
   const [blueprintContent, setBlueprintContent] = useState<string>('');
@@ -27,6 +32,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   const [viewingBaseSpec, setViewingBaseSpec] = useState(false);
   const [currentPath, setCurrentPath] = useState(blueprintPath);
   const [pathHistory, setPathHistory] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>('raw');
 
   // Detect dark mode
   useEffect(() => {
@@ -59,6 +65,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       setCurrentPath(blueprintPath);
       setPathHistory([]);
       setViewingBaseSpec(false);
+      setViewMode('raw');
     }
   }, [isOpen, blueprintPath]);
 
@@ -97,6 +104,11 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       setBlueprintContent('');
       setError(null);
       setBaseSpec(null);
+      return;
+    }
+
+    // Skip fetching when viewing resolved data
+    if (viewMode === 'resolved') {
       return;
     }
 
@@ -170,16 +182,34 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     loadBlueprint();
 
     return () => controller.abort();
-  }, [isOpen, currentPath, isLocal, factionId]);
+  }, [isOpen, currentPath, isLocal, factionId, viewMode]);
+
+  // Get the content to display based on current view mode
+  const getDisplayContent = useCallback(() => {
+    if (viewMode === 'resolved' && resolvedData) {
+      return JSON.stringify(resolvedData, null, 2);
+    }
+    return blueprintContent;
+  }, [viewMode, resolvedData, blueprintContent]);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(blueprintContent);
+      await navigator.clipboard.writeText(getDisplayContent());
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
+  };
+
+  // Handle switching view modes
+  const handleViewModeChange = (mode: ViewMode) => {
+    if (mode === 'resolved') {
+      // Reset base spec navigation when switching to resolved view
+      setPathHistory([]);
+      setViewingBaseSpec(false);
+    }
+    setViewMode(mode);
   };
 
   if (!isOpen) return null;
@@ -231,7 +261,38 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            {blueprintContent && (
+            {/* View mode toggle - only shown when resolved data is available */}
+            {resolvedData && (
+              <div className="flex rounded-lg bg-gray-100 dark:bg-gray-700 p-1" role="tablist" aria-label="View mode">
+                <button
+                  onClick={() => handleViewModeChange('raw')}
+                  role="tab"
+                  aria-selected={viewMode === 'raw'}
+                  aria-controls="blueprint-content"
+                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                    viewMode === 'raw'
+                      ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Raw
+                </button>
+                <button
+                  onClick={() => handleViewModeChange('resolved')}
+                  role="tab"
+                  aria-selected={viewMode === 'resolved'}
+                  aria-controls="blueprint-content"
+                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                    viewMode === 'resolved'
+                      ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Resolved
+                </button>
+              </div>
+            )}
+            {(blueprintContent || (viewMode === 'resolved' && resolvedData)) && (
               <button
                 onClick={handleCopy}
                 className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
@@ -259,8 +320,8 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
           </div>
         </div>
 
-        {/* Base spec link */}
-        {baseSpec && (
+        {/* Base spec link - only shown in raw mode */}
+        {baseSpec && viewMode === 'raw' && (
           <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 flex-shrink-0">
             <button
               onClick={handleViewBaseSpec}
@@ -278,23 +339,15 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
         {/* Content */}
         <div
           className="modal-content flex-1 overflow-auto p-4 relative min-h-0"
+          id="blueprint-content"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: isDarkMode ? '#4b5563 #1f2937' : '#9ca3af #e5e7eb',
             overscrollBehavior: 'contain'
           }}
         >
-          {loading && (
-            <div className="flex items-center justify-center h-32">
-              <div className="text-gray-600 dark:text-gray-400">Loading blueprint...</div>
-            </div>
-          )}
-          {error && (
-            <div className="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">
-              {error}
-            </div>
-          )}
-          {!loading && !error && blueprintContent && (
+          {/* Resolved view - no loading state needed */}
+          {viewMode === 'resolved' && resolvedData && (
             <SyntaxHighlighter
               language="json"
               style={isDarkMode ? vscDarkPlus : vs}
@@ -306,8 +359,38 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
               }}
               showLineNumbers
             >
-              {blueprintContent}
+              {getDisplayContent()}
             </SyntaxHighlighter>
+          )}
+          {/* Raw view - with loading and error states */}
+          {viewMode === 'raw' && (
+            <>
+              {loading && (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-gray-600 dark:text-gray-400">Loading blueprint...</div>
+                </div>
+              )}
+              {error && (
+                <div className="text-red-600 dark:text-red-400 p-4 bg-red-50 dark:bg-red-900/20 rounded">
+                  {error}
+                </div>
+              )}
+              {!loading && !error && blueprintContent && (
+                <SyntaxHighlighter
+                  language="json"
+                  style={isDarkMode ? vscDarkPlus : vs}
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    lineHeight: '1.5'
+                  }}
+                  showLineNumbers
+                >
+                  {getDisplayContent()}
+                </SyntaxHighlighter>
+              )}
+            </>
           )}
         </div>
 

@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { BlueprintModal } from './BlueprintModal';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
+import type { Unit, Weapon, Ammo } from '@/types/faction';
 
 interface BlueprintLinkProps {
   resourceName: string;
   displayName?: string;
   factionId?: string;
+  resolvedData?: Unit | Weapon | Ammo;
 }
 
 export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
   resourceName,
   displayName,
-  factionId: propFactionId
+  factionId: propFactionId,
+  resolvedData
 }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
@@ -37,6 +40,7 @@ export const BlueprintLink: React.FC<BlueprintLinkProps> = ({
         onClose={() => setIsModalOpen(false)}
         blueprintPath={getBlueprintPath()}
         title={`Blueprint: ${resourceName}`}
+        resolvedData={resolvedData}
       />
     </>
   );

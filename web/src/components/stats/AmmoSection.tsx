@@ -84,6 +84,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
         <BlueprintLink
           resourceName={ammo.resourceName}
           displayName="View Blueprint"
+          resolvedData={ammo}
         />
       </div>
       {ammo.damage !== undefined && showRow(damageDiff) && (

@@ -93,6 +93,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
         <BlueprintLink
           resourceName={weapon.resourceName}
           displayName="View Blueprint"
+          resolvedData={weapon}
         />
       </div>
       {weapon.maxRange !== undefined && showRow(rangeDiff) && (
