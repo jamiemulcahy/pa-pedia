@@ -892,13 +892,13 @@ describe('BlueprintModal', () => {
         json: async () => ({ rawField: 'rawValue' })
       } as Response)
 
-      // Pass an empty object (edge case)
+      // Pass an empty object (edge case) - intentionally invalid to test graceful handling
       renderModalWithResolved({
         isOpen: true,
         onClose: mockOnClose,
         blueprintPath: '/path/to/blueprint.json',
         title: 'Test Blueprint',
-        resolvedData: {} as any
+        resolvedData: {} as Unit
       })
 
       await waitFor(() => {
