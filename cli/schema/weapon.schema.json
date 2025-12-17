@@ -96,6 +96,10 @@
           "type": "number",
           "description": "Total damage per second (includes count ROF and projectiles)"
         },
+        "sustainedDps": {
+          "type": "number",
+          "description": "Damage per second when ammo-limited (recovery rate determines fire rate)"
+        },
         "projectilesPerFire": {
           "type": "integer",
           "description": "Number of projectiles per shot (e.g. shotgun)"

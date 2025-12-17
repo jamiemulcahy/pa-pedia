@@ -12,6 +12,7 @@ type Weapon struct {
 	ROF                float64 `json:"rateOfFire" jsonschema:"required,description=Shots per second"`
 	Damage             float64 `json:"damage" jsonschema:"required,description=Direct damage per projectile"`
 	DPS                float64 `json:"dps" jsonschema:"required,description=Total damage per second (includes count ROF and projectiles)"`
+	SustainedDPS       float64 `json:"sustainedDps,omitempty" jsonschema:"description=Damage per second when ammo-limited (recovery rate determines fire rate)"`
 	ProjectilesPerFire int     `json:"projectilesPerFire,omitempty" jsonschema:"description=Number of projectiles per shot (e.g. shotgun)"`
 
 	// Projectile Characteristics
