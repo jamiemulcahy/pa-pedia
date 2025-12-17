@@ -209,7 +209,7 @@ func TestAmmoSystemWithRecovery(t *testing.T) {
 		expectedSustDPS    float64
 	}{
 		{
-			name:              "Icarus (Solar Drone) - Issue #132/#133 example",
+			name:              "Icarus (Solar Drone) - Fixes #132 and #133",
 			ammoCapacity:      1500.0,
 			ammoPerShot:       300.0,
 			ammoDemand:        100.0, // 100/s recovery

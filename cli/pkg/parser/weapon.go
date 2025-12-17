@@ -108,8 +108,13 @@ func ParseWeapon(l *loader.Loader, resourceName string, baseWeapon *models.Weapo
 			}
 		}
 
-		// Calculate shots to drain using discrete simulation
-		// This simulates firing shots at ROF rate while ammo recovers between shots
+		// Calculate shots to drain using discrete simulation.
+		// This properly models PA's behavior where:
+		// - Ammo is consumed instantly when a shot fires
+		// - Ammo recovers continuously at ammoDemand rate between shots
+		// - The weapon fires at regular ROF intervals
+		// A continuous approximation would incorrectly assume ammo drains
+		// and recovers simultaneously, underestimating shots fired.
 		if weapon.AmmoPerShot > 0 && weapon.ROF > 0 {
 			consumptionRate := weapon.AmmoPerShot * weapon.ROF
 			if consumptionRate > weapon.AmmoDemand {
