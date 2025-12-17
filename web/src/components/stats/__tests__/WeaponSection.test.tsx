@@ -16,19 +16,24 @@ const mockBasicWeapon: Weapon = {
   maxRange: 100,
 }
 
-const mockBurstWeapon: Weapon = {
+// Weapon with ammo system and sustained DPS (pre-calculated by CLI)
+const mockAmmoWeapon: Weapon = {
   resourceName: '/pa/units/land/bot_tesla/bot_tesla_tool_weapon.json',
   safeName: 'bot_tesla_tool_weapon',
   name: 'Tesla Weapon',
   count: 1,
   rateOfFire: 0.5,
   damage: 160,
-  dps: 80,
+  dps: 80, // Burst DPS (at full ROF)
+  sustainedDps: 40, // Sustained DPS (limited by ammo recovery)
   maxRange: 67.5,
   ammoSource: 'energy',
   ammoDemand: 200,
   ammoPerShot: 400,
   ammoCapacity: 400,
+  ammoShotsToDrain: 5,
+  ammoDrainTime: 8.0,
+  ammoRechargeTime: 2.0,
 }
 
 function renderWeaponSection(weapon: Weapon) {
@@ -83,103 +88,70 @@ describe('WeaponSection', () => {
       expect(screen.getByText('100')).toBeInTheDocument()
     })
 
-    it('should not render burst DPS for weapons without ammo system', () => {
+    it('should not render burst DPS label for weapons without sustained DPS', () => {
       renderWeaponSection(mockBasicWeapon)
 
+      // Regular DPS label when no sustained DPS exists
+      expect(screen.getByText('DPS:')).toBeInTheDocument()
       expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
+      expect(screen.queryByText('DPS (Sustained):')).not.toBeInTheDocument()
     })
   })
 
-  describe('burst DPS display', () => {
-    it('should render burst DPS for weapons with ammo system', () => {
-      renderWeaponSection(mockBurstWeapon)
+  describe('sustained DPS display', () => {
+    it('should render DPS (Burst) and DPS (Sustained) for ammo-limited weapons', () => {
+      renderWeaponSection(mockAmmoWeapon)
 
+      // When sustainedDps differs from dps, show both labels
       expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
-      // Burst DPS = (ammoPerShot / ammoDemand) * damage = (400 / 200) * 160 = 320
       expect(screen.getByText((_, element) => {
-        return element?.tagName === 'SPAN' && element?.textContent === '320' || false
+        return element?.tagName === 'SPAN' && element?.textContent === '80' || false
+      })).toBeInTheDocument()
+
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '40' || false
       })).toBeInTheDocument()
     })
 
-    it('should calculate burst DPS correctly', () => {
+    it('should not show DPS (Burst) label when sustainedDps equals dps', () => {
       const weapon: Weapon = {
         ...mockBasicWeapon,
-        ammoDemand: 100,
-        ammoPerShot: 200,
-        damage: 50,
-        dps: 25,
+        sustainedDps: 150, // Same as dps
       }
       renderWeaponSection(weapon)
 
-      // Burst DPS = (200 / 100) * 50 = 100
-      expect(screen.getByText((_, element) => {
-        return element?.tagName === 'SPAN' && element?.textContent === '100' || false
-      })).toBeInTheDocument()
-    })
-
-    it('should not render burst DPS when equal to regular DPS', () => {
-      const weapon: Weapon = {
-        ...mockBasicWeapon,
-        ammoDemand: 1,
-        ammoPerShot: 1,
-        damage: 50,
-        dps: 50,
-      }
-      renderWeaponSection(weapon)
-
-      // Burst DPS = (1 / 1) * 50 = 50, same as regular DPS
+      // When sustainedDps equals dps, just show "DPS"
+      expect(screen.getByText('DPS:')).toBeInTheDocument()
       expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
     })
 
-    it('should render ammo source for burst weapons', () => {
-      renderWeaponSection(mockBurstWeapon)
+    it('should render ammo source for ammo-limited weapons', () => {
+      renderWeaponSection(mockAmmoWeapon)
 
       expect(screen.getByText('Ammo source:')).toBeInTheDocument()
       expect(screen.getByText('energy')).toBeInTheDocument()
     })
 
-    it('should not render burst DPS when ammo fields are incomplete', () => {
-      const weapon: Weapon = {
-        ...mockBasicWeapon,
-        ammoPerShot: 200,
-        // ammoDemand missing
-        damage: 50,
-        dps: 50,
-      }
-      renderWeaponSection(weapon)
+    it('should render stored shots for ammo-limited weapons', () => {
+      renderWeaponSection(mockAmmoWeapon)
 
-      expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
+      expect(screen.getByText('Stored shots:')).toBeInTheDocument()
+      expect(screen.getByText('5')).toBeInTheDocument()
     })
 
-    it('should not render burst DPS when ammoDemand is zero', () => {
-      const weapon: Weapon = {
-        ...mockBasicWeapon,
-        ammoPerShot: 200,
-        ammoDemand: 0,
-        damage: 50,
-        dps: 50,
-      }
-      renderWeaponSection(weapon)
+    it('should render ammo drain time for ammo-limited weapons', () => {
+      renderWeaponSection(mockAmmoWeapon)
 
-      expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
+      expect(screen.getByText('Ammo drain time:')).toBeInTheDocument()
+      expect(screen.getByText('8.0s')).toBeInTheDocument()
     })
 
-    it('should include projectilesPerFire in burst DPS calculation', () => {
-      const weapon: Weapon = {
-        ...mockBasicWeapon,
-        ammoDemand: 100,
-        ammoPerShot: 200,
-        damage: 50,
-        dps: 25,
-        projectilesPerFire: 3,
-      }
-      renderWeaponSection(weapon)
+    it('should render ammo recharge time for ammo-limited weapons', () => {
+      renderWeaponSection(mockAmmoWeapon)
 
-      // Burst DPS = (200 / 100) * 50 * 3 = 300
-      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
-      expect(screen.getByText((_, element) => {
-        return element?.tagName === 'SPAN' && element?.textContent === '300' || false
-      })).toBeInTheDocument()
+      expect(screen.getByText('Ammo recharge time:')).toBeInTheDocument()
+      expect(screen.getByText('2.0s')).toBeInTheDocument()
     })
   })
 
@@ -256,22 +228,24 @@ describe('WeaponSection', () => {
       })).toBeInTheDocument()
     })
 
-    it('should multiply burst DPS by count', () => {
+    it('should multiply sustained DPS by count', () => {
       const weapon: Weapon = {
         ...mockBasicWeapon,
         count: 2,
-        ammoDemand: 100,
-        ammoPerShot: 200,
-        damage: 50,
-        dps: 25,
+        dps: 100, // Burst DPS per turret
+        sustainedDps: 50, // Sustained DPS per turret
       }
       renderWeaponSection(weapon)
 
-      // Burst DPS per turret = (200 / 100) * 50 = 100
       // Total burst DPS = 100 * 2 = 200
+      // Total sustained DPS = 50 * 2 = 100
       expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
       expect(screen.getByText((_, element) => {
         return element?.tagName === 'SPAN' && element?.textContent === '200' || false
+      })).toBeInTheDocument()
+      expect(screen.getByText((_, element) => {
+        return element?.tagName === 'SPAN' && element?.textContent === '100' || false
       })).toBeInTheDocument()
     })
   })

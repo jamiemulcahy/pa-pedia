@@ -10,6 +10,18 @@ describe('StatRow', () => {
     expect(screen.getByText('200')).toBeInTheDocument()
   })
 
+  it('should render tooltip when provided', () => {
+    render(<StatRow label="DPS" value={100} tooltip="Damage per second" />)
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Damage per second')
+  })
+
+  it('should not render tooltip when not provided', () => {
+    render(<StatRow label="Health" value={200} />)
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  })
+
   it('should render string value', () => {
     render(<StatRow label="Status" value="Active" />)
 
