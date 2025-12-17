@@ -63,6 +63,8 @@ export interface Weapon {
   rateOfFire: number;
   damage: number;
   dps: number;
+  /** DPS when ammo-limited (recovery rate determines fire rate) */
+  sustainedDps?: number;
   projectilesPerFire?: number;
   muzzleVelocity?: number;
   maxRange?: number;

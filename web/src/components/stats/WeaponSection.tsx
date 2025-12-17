@@ -13,14 +13,6 @@ interface WeaponSectionProps {
   hideDiff?: boolean;
 }
 
-// Helper to calculate burst DPS
-function calculateBurstDps(weapon: Weapon): number | undefined {
-  const projectiles = weapon.projectilesPerFire ?? 1;
-  return weapon.ammoPerShot && weapon.ammoDemand && weapon.ammoDemand > 0 && weapon.damage
-    ? (weapon.ammoPerShot / weapon.ammoDemand) * weapon.damage * projectiles
-    : undefined;
-}
-
 export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWeapon, showDifferencesOnly, hideDiff }) => {
   const count = weapon.count ?? 1;
   const compareCount = compareWeapon?.count ?? 1;
@@ -36,11 +28,8 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   }
   const title = count > 1 ? `${baseTitle} ×${count}` : baseTitle;
 
-  // Calculate burst DPS for weapons with ammo system
-  // Burst DPS = (ammo consumed per shot / ammo demand) * damage * projectiles per fire
-  // This represents instantaneous damage potential before ammo depletion
-  const burstDps = calculateBurstDps(weapon);
-  const compareBurstDps = compareWeapon ? calculateBurstDps(compareWeapon) : undefined;
+  // Check if weapon has sustained DPS (ammo-limited weapons)
+  const hasSustainedDps = weapon.sustainedDps !== undefined && weapon.sustainedDps !== weapon.dps;
 
   // Format target layers
   const formatTargetLayers = (layers?: string[]) => {
@@ -60,12 +49,16 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const damageDiff = isDifferent(weapon.damage, compareWeapon?.damage);
   const rofDiff = isDifferent(weapon.rateOfFire, compareWeapon?.rateOfFire);
   const dpsDiff = isDifferent(weapon.dps ? weapon.dps * count : undefined, compareWeapon?.dps ? compareWeapon.dps * compareCount : undefined);
-  const burstDpsDiff = isDifferent(burstDps ? burstDps * count : undefined, compareBurstDps ? compareBurstDps * compareCount : undefined);
+  const sustainedDpsDiff = isDifferent(
+    weapon.sustainedDps ? weapon.sustainedDps * count : undefined,
+    compareWeapon?.sustainedDps ? compareWeapon.sustainedDps * compareCount : undefined
+  );
   const yawDiff = isDifferent(weapon.yawRange, compareWeapon?.yawRange) || isDifferent(weapon.yawRate, compareWeapon?.yawRate);
   const pitchDiff = isDifferent(weapon.pitchRange, compareWeapon?.pitchRange) || isDifferent(weapon.pitchRate, compareWeapon?.pitchRate);
   const targetsDiff = formatTargetLayers(weapon.targetLayers) !== formatTargetLayers(compareWeapon?.targetLayers);
   const ammoSourceDiff = isDifferent(weapon.ammoSource, compareWeapon?.ammoSource);
   const ammoCapDiff = isDifferent(weapon.ammoCapacity, compareWeapon?.ammoCapacity);
+  const storedShotsDiff = isDifferent(weapon.ammoShotsToDrain, compareWeapon?.ammoShotsToDrain);
   const ammoDrainDiff = isDifferent(weapon.ammoDrainTime, compareWeapon?.ammoDrainTime);
   const ammoRechargeDiff = isDifferent(weapon.ammoRechargeTime, compareWeapon?.ammoRechargeTime);
   const metalShotDiff = isDifferent(weapon.metalPerShot, compareWeapon?.metalPerShot);
@@ -73,9 +66,9 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
 
   // In diff mode with compare weapon, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !compareWeapon ||
-    rangeDiff || projDiff || damageDiff || rofDiff || dpsDiff || burstDpsDiff ||
+    rangeDiff || projDiff || damageDiff || rofDiff || dpsDiff || sustainedDpsDiff ||
     yawDiff || pitchDiff || targetsDiff || ammoSourceDiff || ammoCapDiff ||
-    ammoDrainDiff || ammoRechargeDiff || metalShotDiff || energyShotDiff;
+    storedShotsDiff || ammoDrainDiff || ammoRechargeDiff || metalShotDiff || energyShotDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -131,7 +124,8 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
       )}
       {weapon.dps !== undefined && weapon.dps > 0 && showRow(dpsDiff) && (
         <StatRow
-          label="DPS"
+          label={hasSustainedDps ? "DPS (Burst)" : "DPS"}
+          tooltip={hasSustainedDps ? "Maximum damage per second at full fire rate, before ammo depletes" : undefined}
           value={
             <ComparisonValue
               value={Number((weapon.dps * count).toFixed(1))}
@@ -142,13 +136,14 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {burstDps !== undefined && burstDps !== weapon.dps && showRow(burstDpsDiff) && (
+      {hasSustainedDps && showRow(sustainedDpsDiff) && (
         <StatRow
-          label="DPS (Burst)"
+          label="DPS (Sustained)"
+          tooltip="Continuous damage per second when limited by ammo recovery rate"
           value={
             <ComparisonValue
-              value={Number((burstDps * count).toFixed(1))}
-              compareValue={compareBurstDps ? Number((compareBurstDps * compareCount).toFixed(1)) : undefined}
+              value={Number((weapon.sustainedDps! * count).toFixed(1))}
+              compareValue={compareWeapon?.sustainedDps ? Number((compareWeapon.sustainedDps * compareCount).toFixed(1)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
@@ -170,11 +165,26 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
       {weapon.ammoCapacity !== undefined && weapon.ammoCapacity > 0 && showRow(ammoCapDiff) && (
         <>
           <StatRow label="Ammo capacity" value={weapon.ammoCapacity} />
+          {weapon.ammoShotsToDrain !== undefined && weapon.ammoShotsToDrain > 0 && showRow(storedShotsDiff) && (
+            <StatRow
+              label="Stored shots"
+              tooltip="Number of shots that can be fired before ammo depletes"
+              value={weapon.ammoShotsToDrain}
+            />
+          )}
           {weapon.ammoDrainTime !== undefined && showRow(ammoDrainDiff) && (
-            <StatRow label="Ammo drain time" value={`${weapon.ammoDrainTime.toFixed(1)}s`} />
+            <StatRow
+              label="Ammo drain time"
+              tooltip="Time to empty ammo reserves when firing continuously"
+              value={`${weapon.ammoDrainTime.toFixed(1)}s`}
+            />
           )}
           {weapon.ammoRechargeTime !== undefined && showRow(ammoRechargeDiff) && (
-            <StatRow label="Ammo recharge time" value={`${weapon.ammoRechargeTime.toFixed(1)}s`} />
+            <StatRow
+              label="Ammo recharge time"
+              tooltip="Time to fully recharge ammo from empty"
+              value={`${weapon.ammoRechargeTime.toFixed(1)}s`}
+            />
           )}
         </>
       )}
