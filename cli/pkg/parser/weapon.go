@@ -108,28 +108,55 @@ func ParseWeapon(l *loader.Loader, resourceName string, baseWeapon *models.Weapo
 			}
 		}
 
-		// Calculate drain time
-		rate := math.Round(weapon.AmmoPerShot*weapon.ROF*100) / 100
-		if weapon.AmmoDemand > 0 && rate > weapon.AmmoDemand {
-			t := math.Round(weapon.AmmoCapacity/(rate-weapon.AmmoDemand)*100) / 100
-			weapon.AmmoShotsToDrain = int(weapon.ROF * t)
-			weapon.AmmoDrainTime = math.Round(float64(weapon.AmmoShotsToDrain)/weapon.ROF*100) / 100
+		// Calculate shots to drain using discrete simulation
+		// This simulates firing shots at ROF rate while ammo recovers between shots
+		if weapon.AmmoPerShot > 0 && weapon.ROF > 0 {
+			consumptionRate := weapon.AmmoPerShot * weapon.ROF
+			if consumptionRate > weapon.AmmoDemand {
+				// Weapon drains ammo faster than it recovers - simulate discrete shots
+				ammo := weapon.AmmoCapacity
+				shotInterval := 1.0 / weapon.ROF
+				recoveryPerInterval := weapon.AmmoDemand * shotInterval
+				shots := 0
+
+				for ammo >= weapon.AmmoPerShot {
+					ammo -= weapon.AmmoPerShot // Fire shot (instant consumption)
+					shots++
+					ammo += recoveryPerInterval // Recovery before next shot
+				}
+
+				weapon.AmmoShotsToDrain = shots
+				if shots > 1 {
+					// Drain time is elapsed time from first shot (t=0) to last shot
+					// e.g., 7 shots at 1/s fires at t=0,1,2,3,4,5,6 = 6 seconds elapsed
+					weapon.AmmoDrainTime = math.Round(float64(shots-1)/weapon.ROF*100) / 100
+				}
+			}
 		}
 
 		// Calculate resource consumption
-		consumptionRate := weapon.AmmoDemand
-		if rate < weapon.AmmoDemand {
-			consumptionRate = rate
+		// Use the lesser of: ammo demand rate OR actual consumption rate (ammoPerShot * ROF)
+		actualConsumption := weapon.AmmoPerShot * weapon.ROF
+		resourceConsumptionRate := weapon.AmmoDemand
+		if actualConsumption < weapon.AmmoDemand {
+			resourceConsumptionRate = actualConsumption
 		}
-		consumptionRate = math.Round(consumptionRate*100) / 100
+		resourceConsumptionRate = math.Round(resourceConsumptionRate*100) / 100
 
 		switch weapon.AmmoSource {
 		case "energy":
-			weapon.EnergyRate = -consumptionRate
+			weapon.EnergyRate = -resourceConsumptionRate
 			weapon.EnergyPerShot = weapon.AmmoPerShot
 		case "metal":
-			weapon.MetalRate = -consumptionRate
+			weapon.MetalRate = -resourceConsumptionRate
 			weapon.MetalPerShot = weapon.AmmoPerShot
+		}
+
+		// Calculate sustained DPS for ammo-limited weapons
+		// Sustained DPS is the damage output when limited by ammo recovery rate
+		if weapon.AmmoDemand > 0 && weapon.AmmoPerShot > 0 && weapon.Damage > 0 {
+			sustainedROF := weapon.AmmoDemand / weapon.AmmoPerShot
+			weapon.SustainedDPS = math.Round(sustainedROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
 		}
 	}
 

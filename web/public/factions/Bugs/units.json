@@ -135,6 +135,7 @@
                 "rateOfFire": 20,
                 "damage": 40,
                 "dps": 800,
+                "sustainedDps": 29.63,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 10,
                 "maxRange": 180,
@@ -145,7 +146,7 @@
                 "ammoDemand": 200,
                 "ammoPerShot": 270,
                 "ammoCapacity": 810,
-                "ammoDrainTime": 0.15,
+                "ammoDrainTime": 0.1,
                 "ammoRechargeTime": 4.05,
                 "ammoShotsToDrain": 3,
                 "energyRate": -200,
@@ -891,132 +892,6 @@
       }
     },
     {
-      "identifier": "bug_boomer",
-      "displayName": "Boomer",
-      "unitTypes": [
-        "Bot",
-        "Mobile",
-        "Land",
-        "Basic",
-        "Offense",
-        "SelfDestruct",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/bug_boomer/bug_boomer.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/land/bug_boomer/bug_boomer_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_boomer",
-        "resourceName": "/pa/units/land/bug_boomer/bug_boomer.json",
-        "displayName": "Boomer",
-        "description": "Bomb Bot - Self destructs to deal very heavy damage over a nearby area. Extremely fast.",
-        "image": "assets/pa/units/land/bug_boomer/bug_boomer_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Bot",
-          "Mobile",
-          "Land",
-          "Basic",
-          "Offense",
-          "SelfDestruct",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 40,
-            "salvoDamage": 601,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/bug_boomer/bug_boomer_weapon.json",
-                "safeName": "bug_boomer_weapon",
-                "name": "bug_boomer_weapon",
-                "count": 1,
-                "rateOfFire": 5,
-                "damage": 1,
-                "dps": 5,
-                "projectilesPerFire": 1,
-                "maxRange": 10,
-                "splashRadius": 15,
-                "fullDamageRadius": 10,
-                "selfDestruct": true,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/bug_boomer/bug_boomer_ammo.json",
-                  "safeName": "bug_boomer_ammo",
-                  "name": "bug_boomer_ammo",
-                  "damage": 1,
-                  "fullDamageRadius": 10,
-                  "splashRadius": 15
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/bug_boomer/bug_boomer_death_explosion.json",
-                "safeName": "bug_boomer_death_explosion",
-                "name": "bug_boomer_death_explosion",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 600,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 15,
-                "fullDamageRadius": 15,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/bug_boomer/bug_boomer_death_explosion.json",
-                  "safeName": "bug_boomer_death_explosion",
-                  "name": "bug_boomer_death_explosion",
-                  "damage": 600,
-                  "fullDamageRadius": 15,
-                  "splashRadius": 15
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 50,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 30,
-            "turnSpeed": 720,
-            "acceleration": 400,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 20,
-            "underwaterVisionRadius": 120
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "bug_swarm_hive"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "bug_boomer_r",
       "displayName": "Boomer",
       "unitTypes": [
@@ -1176,6 +1051,132 @@
       }
     },
     {
+      "identifier": "bug_boomer",
+      "displayName": "Boomer",
+      "unitTypes": [
+        "Bot",
+        "Mobile",
+        "Land",
+        "Basic",
+        "Offense",
+        "SelfDestruct",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/bug_boomer/bug_boomer.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/land/bug_boomer/bug_boomer_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_boomer",
+        "resourceName": "/pa/units/land/bug_boomer/bug_boomer.json",
+        "displayName": "Boomer",
+        "description": "Bomb Bot - Self destructs to deal very heavy damage over a nearby area. Extremely fast.",
+        "image": "assets/pa/units/land/bug_boomer/bug_boomer_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Bot",
+          "Mobile",
+          "Land",
+          "Basic",
+          "Offense",
+          "SelfDestruct",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 40,
+            "salvoDamage": 601,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/bug_boomer/bug_boomer_weapon.json",
+                "safeName": "bug_boomer_weapon",
+                "name": "bug_boomer_weapon",
+                "count": 1,
+                "rateOfFire": 5,
+                "damage": 1,
+                "dps": 5,
+                "projectilesPerFire": 1,
+                "maxRange": 10,
+                "splashRadius": 15,
+                "fullDamageRadius": 10,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/bug_boomer/bug_boomer_ammo.json",
+                  "safeName": "bug_boomer_ammo",
+                  "name": "bug_boomer_ammo",
+                  "damage": 1,
+                  "fullDamageRadius": 10,
+                  "splashRadius": 15
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/bug_boomer/bug_boomer_death_explosion.json",
+                "safeName": "bug_boomer_death_explosion",
+                "name": "bug_boomer_death_explosion",
+                "count": 1,
+                "rateOfFire": 0,
+                "damage": 600,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "splashRadius": 15,
+                "fullDamageRadius": 15,
+                "deathExplosion": true,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/bug_boomer/bug_boomer_death_explosion.json",
+                  "safeName": "bug_boomer_death_explosion",
+                  "name": "bug_boomer_death_explosion",
+                  "damage": 600,
+                  "fullDamageRadius": 15,
+                  "splashRadius": 15
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 50,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 30,
+            "turnSpeed": 720,
+            "acceleration": 400,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 20,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "bug_swarm_hive"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "bug_mine",
       "displayName": "Boomer Egg",
       "unitTypes": [
@@ -1226,6 +1227,7 @@
                 "rateOfFire": 0.2,
                 "damage": 600,
                 "dps": 120,
+                "sustainedDps": 120,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 80,
                 "maxRange": 40,
@@ -1423,6 +1425,7 @@
                 "rateOfFire": 0.25,
                 "damage": 700,
                 "dps": 175,
+                "sustainedDps": 175,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 100,
                 "maxRange": 100,
@@ -1551,6 +1554,85 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 100,
+                "dps": 150,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 50,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 100,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_uber_cannon.json",
+                "safeName": "base_commander_uber_cannon",
+                "name": "base_commander_uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.2,
+                "damage": 400,
+                "dps": 80,
+                "sustainedDps": 80,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 110,
+                "maxRange": 110,
+                "splashDamage": 400,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 12500,
+                "ammoCapacity": 12500,
+                "ammoRechargeTime": 5,
+                "energyRate": -2500,
+                "energyPerShot": 12500,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 100,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_uber_cannon_ammo.json",
+                  "safeName": "base_commander_uber_cannon_ammo",
+                  "name": "base_commander_uber_cannon_ammo",
+                  "damage": 400,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 400,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 110,
+                  "maxVelocity": 130,
+                  "lifetime": 5,
+                  "spawnUnitOnDeath": "/pa/units/commanders/base_bug_commander/base_commander_uber_dot.json"
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -1619,84 +1701,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 100,
-                "dps": 150,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 50,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 100,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_uber_cannon.json",
-                "safeName": "base_commander_uber_cannon",
-                "name": "base_commander_uber_cannon",
-                "count": 1,
-                "rateOfFire": 0.2,
-                "damage": 400,
-                "dps": 80,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 110,
-                "maxRange": 110,
-                "splashDamage": 400,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "energy",
-                "ammoDemand": 2500,
-                "ammoPerShot": 12500,
-                "ammoCapacity": 12500,
-                "ammoRechargeTime": 5,
-                "energyRate": -2500,
-                "energyPerShot": 12500,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 100,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_bug_commander/base_commander_uber_cannon_ammo.json",
-                  "safeName": "base_commander_uber_cannon_ammo",
-                  "name": "base_commander_uber_cannon_ammo",
-                  "damage": 400,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 400,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 110,
-                  "maxVelocity": 130,
-                  "lifetime": 5,
-                  "spawnUnitOnDeath": "/pa/units/commanders/base_bug_commander/base_commander_uber_dot.json"
                 }
               }
             ]
@@ -3093,6 +3097,7 @@
                 "rateOfFire": 0.2,
                 "damage": 300,
                 "dps": 60,
+                "sustainedDps": 60,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 150,
                 "maxRange": 240,
@@ -3626,37 +3631,6 @@
             "salvoDamage": 500,
             "weapons": [
               {
-                "resourceName": "/pa/units/orbital/ion_defense/ion_defense_tool_antidrop.json",
-                "safeName": "ion_defense_tool_antidrop",
-                "name": "ion_defense_tool_antidrop",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 400,
-                "dps": 800,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 180,
-                "targetLayers": [
-                  "Orbital",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/ion_defense/ion_defense_antidrop_ammo.json",
-                  "safeName": "ion_defense_antidrop_ammo",
-                  "name": "ion_defense_antidrop_ammo",
-                  "damage": 400,
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 400,
-                  "lifetime": 3
-                }
-              },
-              {
                 "resourceName": "/pa/units/orbital/ion_defense/ion_defense_tool_weapon.json",
                 "safeName": "ion_defense_tool_weapon",
                 "name": "ion_defense_tool_weapon",
@@ -3684,6 +3658,37 @@
                   "damage": 100,
                   "muzzleVelocity": 1000,
                   "maxVelocity": 1000,
+                  "lifetime": 3
+                }
+              },
+              {
+                "resourceName": "/pa/units/orbital/ion_defense/ion_defense_tool_antidrop.json",
+                "safeName": "ion_defense_tool_antidrop",
+                "name": "ion_defense_tool_antidrop",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 400,
+                "dps": 800,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 180,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/ion_defense/ion_defense_antidrop_ammo.json",
+                  "safeName": "ion_defense_antidrop_ammo",
+                  "name": "ion_defense_antidrop_ammo",
+                  "damage": 400,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 400,
                   "lifetime": 3
                 }
               }
@@ -5150,6 +5155,7 @@
                 "rateOfFire": 3,
                 "damage": 30,
                 "dps": 90,
+                "sustainedDps": 30,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 130,
                 "maxRange": 100,
@@ -5160,9 +5166,9 @@
                 "ammoDemand": 75,
                 "ammoPerShot": 75,
                 "ammoCapacity": 300,
-                "ammoDrainTime": 2,
+                "ammoDrainTime": 1.33,
                 "ammoRechargeTime": 4,
-                "ammoShotsToDrain": 6,
+                "ammoShotsToDrain": 5,
                 "energyRate": -75,
                 "energyPerShot": 75,
                 "targetLayers": [
@@ -5461,123 +5467,6 @@
       }
     },
     {
-      "identifier": "bug_needler",
-      "displayName": "Needler",
-      "unitTypes": [
-        "Tank",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Basic",
-        "FactoryBuild",
-        "Amphibious",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/bug_needler/bug_needler.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/land/bug_needler/bug_needler_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_needler",
-        "resourceName": "/pa/units/land/bug_needler/bug_needler.json",
-        "displayName": "Needler",
-        "description": "Short ranged, high damage",
-        "image": "assets/pa/units/land/bug_needler/bug_needler_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Tank",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Basic",
-          "FactoryBuild",
-          "Amphibious",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 80,
-            "dps": 36,
-            "salvoDamage": 120,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/bug_needler/bug_needler_weapon.json",
-                "safeName": "bug_needler_weapon",
-                "name": "bug_needler_weapon",
-                "count": 1,
-                "rateOfFire": 0.3,
-                "damage": 120,
-                "dps": 36,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 165,
-                "maxRange": 90,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 180,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/bug_needler/bug_needler_ammo.json",
-                  "safeName": "bug_needler_ammo",
-                  "name": "bug_needler_ammo",
-                  "damage": 120,
-                  "muzzleVelocity": 165,
-                  "maxVelocity": 165,
-                  "lifetime": 1
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 110,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 14,
-            "turnSpeed": 720,
-            "acceleration": 100,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 120
-          },
-          "storage": {},
-          "special": {
-            "amphibious": true
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "basic_hive",
-            "advanced_hive"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "bug_needler_fast",
       "displayName": "Needler",
       "unitTypes": [
@@ -5675,6 +5564,123 @@
           },
           "mobility": {
             "moveSpeed": 16,
+            "turnSpeed": 720,
+            "acceleration": 100,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "basic_hive",
+            "advanced_hive"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "bug_needler",
+      "displayName": "Needler",
+      "unitTypes": [
+        "Tank",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Basic",
+        "FactoryBuild",
+        "Amphibious",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/bug_needler/bug_needler.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/land/bug_needler/bug_needler_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_needler",
+        "resourceName": "/pa/units/land/bug_needler/bug_needler.json",
+        "displayName": "Needler",
+        "description": "Short ranged, high damage",
+        "image": "assets/pa/units/land/bug_needler/bug_needler_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Tank",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Basic",
+          "FactoryBuild",
+          "Amphibious",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 80,
+            "dps": 36,
+            "salvoDamage": 120,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/bug_needler/bug_needler_weapon.json",
+                "safeName": "bug_needler_weapon",
+                "name": "bug_needler_weapon",
+                "count": 1,
+                "rateOfFire": 0.3,
+                "damage": 120,
+                "dps": 36,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 165,
+                "maxRange": 90,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 180,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/bug_needler/bug_needler_ammo.json",
+                  "safeName": "bug_needler_ammo",
+                  "name": "bug_needler_ammo",
+                  "damage": 120,
+                  "muzzleVelocity": 165,
+                  "maxVelocity": 165,
+                  "lifetime": 1
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 110,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 14,
             "turnSpeed": 720,
             "acceleration": 100,
             "brake": -1
@@ -7236,68 +7242,6 @@
       }
     },
     {
-      "identifier": "bug_grunt_big_unlock",
-      "displayName": "Warrior Grunt Unlock",
-      "unitTypes": [
-        "Bot",
-        "Basic",
-        "Heavy",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_grunt_big_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock.json",
-        "displayName": "Warrior Grunt Unlock",
-        "description": "Replaces the the grunt with the warrior grunt, which has 100 more hp",
-        "image": "assets/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Bot",
-          "Basic",
-          "Heavy",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_grunt"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "research_grunt",
       "displayName": "Warrior Grunt Unlock",
       "unitTypes": [
@@ -7400,6 +7344,68 @@
           ]
         },
         "buildableTypes": "(Custom2 \u0026 FactoryBuild \u0026 Basic \u0026 Bot \u0026 Heavy) - Mobile"
+      }
+    },
+    {
+      "identifier": "bug_grunt_big_unlock",
+      "displayName": "Warrior Grunt Unlock",
+      "unitTypes": [
+        "Bot",
+        "Basic",
+        "Heavy",
+        "FactoryBuild",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_grunt_big_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock.json",
+        "displayName": "Warrior Grunt Unlock",
+        "description": "Replaces the the grunt with the warrior grunt, which has 100 more hp",
+        "image": "assets/pa/units/research/unlocks/bug_grunt_big_unlock/bug_grunt_big_unlock_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Bot",
+          "Basic",
+          "Heavy",
+          "FactoryBuild",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_grunt"
+          ]
+        }
       }
     },
     {
@@ -7628,6 +7634,98 @@
       }
     },
     {
+      "identifier": "bug_wall_acid",
+      "displayName": "bug bomber dot",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "Naval",
+        "Defense",
+        "CombatFabBuild",
+        "CombatFabAdvBuild",
+        "NoBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/structure/bug_wall/bug_wall_acid.json",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_wall_acid",
+        "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid.json",
+        "displayName": "bug bomber dot",
+        "description": "Land Mine - damage over time unit",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "Naval",
+          "Defense",
+          "CombatFabBuild",
+          "CombatFabAdvBuild",
+          "NoBuild"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 140,
+            "dps": 30,
+            "salvoDamage": 5,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid_weapon.json",
+                "safeName": "bug_wall_acid_weapon",
+                "name": "bug_wall_acid_weapon",
+                "count": 1,
+                "rateOfFire": 6,
+                "damage": 5,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "maxRange": 20,
+                "splashRadius": 12,
+                "fullDamageRadius": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid_ammo.json",
+                  "safeName": "bug_wall_acid_ammo",
+                  "name": "bug_wall_acid_ammo",
+                  "damage": 5,
+                  "fullDamageRadius": 6,
+                  "splashRadius": 12
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 0.01,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 2,
+            "underwaterVisionRadius": 2
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
       "identifier": "bug_bomber_dot",
       "displayName": "bug bomber dot",
       "unitTypes": [
@@ -7717,98 +7815,6 @@
                   "name": "bug_air_drone_death_ammo",
                   "fullDamageRadius": 1,
                   "splashRadius": 1
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 0.01,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 2,
-            "underwaterVisionRadius": 2
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {}
-      }
-    },
-    {
-      "identifier": "bug_wall_acid",
-      "displayName": "bug bomber dot",
-      "unitTypes": [
-        "Structure",
-        "Land",
-        "Naval",
-        "Defense",
-        "CombatFabBuild",
-        "CombatFabAdvBuild",
-        "NoBuild"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/structure/bug_wall/bug_wall_acid.json",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_wall_acid",
-        "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid.json",
-        "displayName": "bug bomber dot",
-        "description": "Land Mine - damage over time unit",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Land",
-          "Naval",
-          "Defense",
-          "CombatFabBuild",
-          "CombatFabAdvBuild",
-          "NoBuild"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 140,
-            "dps": 30,
-            "salvoDamage": 5,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid_weapon.json",
-                "safeName": "bug_wall_acid_weapon",
-                "name": "bug_wall_acid_weapon",
-                "count": 1,
-                "rateOfFire": 6,
-                "damage": 5,
-                "dps": 30,
-                "projectilesPerFire": 1,
-                "maxRange": 20,
-                "splashRadius": 12,
-                "fullDamageRadius": 6,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/structure/bug_wall/bug_wall_acid_ammo.json",
-                  "safeName": "bug_wall_acid_ammo",
-                  "name": "bug_wall_acid_ammo",
-                  "damage": 5,
-                  "fullDamageRadius": 6,
-                  "splashRadius": 12
                 }
               }
             ]
@@ -8119,13 +8125,16 @@
                 "rateOfFire": 10,
                 "damage": 0,
                 "dps": 0,
+                "sustainedDps": 450,
                 "projectilesPerFire": 4,
                 "muzzleVelocity": 17,
                 "maxRange": 300,
                 "ammoSource": "metal",
                 "ammoPerShot": 25,
                 "ammoCapacity": 1250,
+                "ammoDrainTime": 4.9,
                 "ammoRechargeTime": 1,
+                "ammoShotsToDrain": 50,
                 "metalPerShot": 25,
                 "targetLayers": [
                   "LandHorizontal"
@@ -8219,6 +8228,7 @@
                 "rateOfFire": 5,
                 "damage": 100,
                 "dps": 500,
+                "sustainedDps": 5000,
                 "projectilesPerFire": 1,
                 "splashRadius": 170,
                 "fullDamageRadius": 160,
@@ -9140,6 +9150,66 @@
       }
     },
     {
+      "identifier": "bug_advanced_orbital_radar_unlock",
+      "displayName": "Advanced Orbital Radar Unlock",
+      "unitTypes": [
+        "Orbital",
+        "Advanced",
+        "FactoryBuild",
+        "Radar",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_advanced_orbital_radar_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock.json",
+        "displayName": "Advanced Orbital Radar Unlock",
+        "description": "Unlocks the advanced orbital radar",
+        "image": "assets/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Orbital",
+          "Advanced",
+          "FactoryBuild",
+          "Radar",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {},
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_bug_advanced_orbital_radar"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "research_bug_advanced_orbital_radar",
       "displayName": "Advanced Orbital Radar Unlock",
       "unitTypes": [
@@ -9232,66 +9302,6 @@
           ]
         },
         "buildableTypes": "(Custom2 \u0026 FactoryBuild \u0026 Advanced \u0026 Orbital \u0026 Radar) - Mobile"
-      }
-    },
-    {
-      "identifier": "bug_advanced_orbital_radar_unlock",
-      "displayName": "Advanced Orbital Radar Unlock",
-      "unitTypes": [
-        "Orbital",
-        "Advanced",
-        "FactoryBuild",
-        "Radar",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_advanced_orbital_radar_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock.json",
-        "displayName": "Advanced Orbital Radar Unlock",
-        "description": "Unlocks the advanced orbital radar",
-        "image": "assets/pa/units/research/unlocks/bug_advanced_orbital_radar_unlock/bug_advanced_orbital_radar_unlock_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Orbital",
-          "Advanced",
-          "FactoryBuild",
-          "Radar",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {},
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_bug_advanced_orbital_radar"
-          ]
-        }
       }
     },
     {
@@ -9555,15 +9565,16 @@
                 "rateOfFire": 4,
                 "damage": 45,
                 "dps": 180,
+                "sustainedDps": 22.5,
                 "projectilesPerFire": 1,
                 "maxRange": 75,
                 "ammoSource": "time",
                 "ammoDemand": 1,
                 "ammoPerShot": 2,
                 "ammoCapacity": 21,
-                "ammoDrainTime": 3,
+                "ammoDrainTime": 2.5,
                 "ammoRechargeTime": 21,
-                "ammoShotsToDrain": 12,
+                "ammoShotsToDrain": 11,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
@@ -9683,7 +9694,7 @@
                 "ammoDemand": 17.5,
                 "ammoPerShot": 10,
                 "ammoCapacity": 500,
-                "ammoDrainTime": 3.73,
+                "ammoDrainTime": 3.67,
                 "ammoRechargeTime": 28.571428571428573,
                 "ammoShotsToDrain": 56,
                 "metalRate": -17.5,
@@ -10215,6 +10226,38 @@
             "salvoDamage": 230,
             "weapons": [
               {
+                "resourceName": "/pa/units/orbital/defense_satellite/defense_satellite_tool_ground.json",
+                "safeName": "defense_satellite_tool_ground",
+                "name": "defense_satellite_tool_ground",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 100,
+                "dps": 150,
+                "projectilesPerFire": 1,
+                "maxRange": 80,
+                "targetLayers": [
+                  "Air",
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 30,
+                "pitchRange": 180,
+                "pitchRate": 30,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/defense_satellite/defense_satellite_ammo_ground.json",
+                  "safeName": "defense_satellite_ammo_ground",
+                  "name": "defense_satellite_ammo_ground",
+                  "damage": 100
+                }
+              },
+              {
                 "resourceName": "/pa/units/orbital/defense_satellite/defense_satellite_tool_orbital.json",
                 "safeName": "defense_satellite_tool_orbital",
                 "name": "defense_satellite_tool_orbital",
@@ -10245,38 +10288,6 @@
                   "damage": 65,
                   "muzzleVelocity": 500,
                   "maxVelocity": 500
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/defense_satellite/defense_satellite_tool_ground.json",
-                "safeName": "defense_satellite_tool_ground",
-                "name": "defense_satellite_tool_ground",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 100,
-                "dps": 150,
-                "projectilesPerFire": 1,
-                "maxRange": 80,
-                "targetLayers": [
-                  "Air",
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 30,
-                "pitchRange": 180,
-                "pitchRate": 30,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/defense_satellite/defense_satellite_ammo_ground.json",
-                  "safeName": "defense_satellite_ammo_ground",
-                  "name": "defense_satellite_ammo_ground",
-                  "damage": 100
                 }
               }
             ]
@@ -10769,6 +10780,7 @@
                 "rateOfFire": 1,
                 "damage": 500,
                 "dps": 500,
+                "sustainedDps": 500,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 150,
                 "maxRange": 500,
@@ -10907,6 +10919,7 @@
                 "rateOfFire": 0.25,
                 "damage": 300,
                 "dps": 75,
+                "sustainedDps": 75,
                 "projectilesPerFire": 1,
                 "maxRange": 120,
                 "splashDamage": 300,
@@ -10978,66 +10991,6 @@
           "builtBy": [
             "bug_gas_hive",
             "bug_orbital_launcher"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "bug_orbital_battleship_unlock",
-      "displayName": "Bug Orbital Carrier Unlock",
-      "unitTypes": [
-        "Orbital",
-        "Heavy",
-        "Advanced",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_orbital_battleship_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
-        "displayName": "Bug Orbital Carrier Unlock",
-        "description": "Unlocks the bug orbital carrier, which launches land based drones",
-        "image": "assets/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Orbital",
-          "Heavy",
-          "Advanced",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {},
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_bug_orbital_battleship"
           ]
         }
       }
@@ -11133,6 +11086,66 @@
           ]
         },
         "buildableTypes": "(Orbital \u0026 Heavy \u0026 Advanced \u0026 FactoryBuild \u0026 Custom2) - Mobile"
+      }
+    },
+    {
+      "identifier": "bug_orbital_battleship_unlock",
+      "displayName": "Bug Orbital Carrier Unlock",
+      "unitTypes": [
+        "Orbital",
+        "Heavy",
+        "Advanced",
+        "FactoryBuild",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_orbital_battleship_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
+        "displayName": "Bug Orbital Carrier Unlock",
+        "description": "Unlocks the bug orbital carrier, which launches land based drones",
+        "image": "assets/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Orbital",
+          "Heavy",
+          "Advanced",
+          "FactoryBuild",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {},
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_bug_orbital_battleship"
+          ]
+        }
       }
     },
     {
@@ -11680,6 +11693,7 @@
                 "rateOfFire": 0.5,
                 "damage": 150,
                 "dps": 75,
+                "sustainedDps": 75,
                 "projectilesPerFire": 1,
                 "maxRange": 20,
                 "ammoSource": "time",
@@ -11858,6 +11872,68 @@
       }
     },
     {
+      "identifier": "bug_crusher_unlock",
+      "displayName": "Crusher Unlock",
+      "unitTypes": [
+        "Bot",
+        "Heavy",
+        "Advanced",
+        "FactoryBuild",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_crusher_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock.json",
+        "displayName": "Crusher Unlock",
+        "description": "Unlocks the crusher, a durable aoe bug",
+        "image": "assets/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Bot",
+          "Heavy",
+          "Advanced",
+          "FactoryBuild",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1500,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_crusher"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "research_crusher",
       "displayName": "Crusher Unlock",
       "unitTypes": [
@@ -11951,68 +12027,6 @@
           ]
         },
         "buildableTypes": "(Bot \u0026 Heavy \u0026 Advanced \u0026 FactoryBuild \u0026 Custom2) - Mobile"
-      }
-    },
-    {
-      "identifier": "bug_crusher_unlock",
-      "displayName": "Crusher Unlock",
-      "unitTypes": [
-        "Bot",
-        "Heavy",
-        "Advanced",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_crusher_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock.json",
-        "displayName": "Crusher Unlock",
-        "description": "Unlocks the crusher, a durable aoe bug",
-        "image": "assets/pa/units/research/unlocks/bug_crusher_unlock/bug_crusher_unlock_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Bot",
-          "Heavy",
-          "Advanced",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1500,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_crusher"
-          ]
-        }
       }
     },
     {
@@ -12245,6 +12259,7 @@
                 "rateOfFire": 4,
                 "damage": 200,
                 "dps": 800,
+                "sustainedDps": 100,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 150,
                 "maxRange": 220,
@@ -12255,7 +12270,7 @@
                 "ammoDemand": 1,
                 "ammoPerShot": 2,
                 "ammoCapacity": 6,
-                "ammoDrainTime": 0.75,
+                "ammoDrainTime": 0.5,
                 "ammoRechargeTime": 6,
                 "ammoShotsToDrain": 3,
                 "targetLayers": [
@@ -12806,7 +12821,7 @@
                 "ammoDemand": 30,
                 "ammoPerShot": 40,
                 "ammoCapacity": 260,
-                "ammoDrainTime": 1.17,
+                "ammoDrainTime": 1,
                 "ammoRechargeTime": 8.666666666666666,
                 "ammoShotsToDrain": 7,
                 "metalRate": -30,
@@ -13564,6 +13579,7 @@
                 "rateOfFire": 0.25,
                 "damage": 100,
                 "dps": 25,
+                "sustainedDps": 25,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 30,
                 "maxRange": 45,
@@ -13808,6 +13824,7 @@
                 "rateOfFire": 0.008333333333333333,
                 "damage": 250000,
                 "dps": 2083.33,
+                "sustainedDps": 2083.33,
                 "projectilesPerFire": 1,
                 "splashDamage": 250000,
                 "splashRadius": 5000,
@@ -13925,6 +13942,7 @@
                 "rateOfFire": 10,
                 "damage": 0,
                 "dps": 0,
+                "sustainedDps": 450,
                 "projectilesPerFire": 5,
                 "muzzleVelocity": 17,
                 "maxRange": 300,
@@ -13932,7 +13950,7 @@
                 "ammoDemand": 67,
                 "ammoPerShot": 100,
                 "ammoCapacity": 1000,
-                "ammoDrainTime": 1,
+                "ammoDrainTime": 0.9,
                 "ammoRechargeTime": 14.925373134328359,
                 "ammoShotsToDrain": 10,
                 "metalRate": -67,
@@ -14336,6 +14354,7 @@
                 "rateOfFire": 0.55,
                 "damage": 1500,
                 "dps": 825,
+                "sustainedDps": 825,
                 "projectilesPerFire": 1,
                 "maxRange": 100,
                 "splashDamage": 500,

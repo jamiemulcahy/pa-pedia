@@ -195,6 +195,98 @@ func TestAmmoSystemCalculations(t *testing.T) {
 	}
 }
 
+// TestAmmoSystemWithRecovery tests the discrete simulation of ammo drain with recovery
+func TestAmmoSystemWithRecovery(t *testing.T) {
+	tests := []struct {
+		name               string
+		ammoCapacity       float64
+		ammoPerShot        float64
+		ammoDemand         float64 // recovery rate
+		rateOfFire         float64
+		damage             float64
+		expectedShots      int
+		expectedDrainTime  float64
+		expectedSustDPS    float64
+	}{
+		{
+			name:              "Icarus (Solar Drone) - Issue #132/#133 example",
+			ammoCapacity:      1500.0,
+			ammoPerShot:       300.0,
+			ammoDemand:        100.0, // 100/s recovery
+			rateOfFire:        1.0,
+			damage:            25.0,
+			expectedShots:     7,    // Discrete simulation gives 7 shots
+			expectedDrainTime: 6.0,  // Fires at t=0,1,2,3,4,5,6 = 6 seconds elapsed
+			expectedSustDPS:   8.33, // (100/300) * 25 = 8.33
+		},
+		{
+			name:              "Fast recovery - no drain (sustain indefinitely)",
+			ammoCapacity:      100.0,
+			ammoPerShot:       10.0,
+			ammoDemand:        20.0, // Recovery faster than consumption
+			rateOfFire:        1.0,  // 10/s consumption < 20/s recovery
+			damage:            50.0,
+			expectedShots:     0,    // No drain (can sustain)
+			expectedDrainTime: 0.0,
+			expectedSustDPS:   100.0, // (20/10) * 50 = 100
+		},
+		{
+			name:              "High ROF with slow recovery",
+			ammoCapacity:      200.0,
+			ammoPerShot:       20.0,
+			ammoDemand:        10.0, // 10/s recovery
+			rateOfFire:        5.0,  // 100/s consumption >> 10/s recovery
+			damage:            30.0,
+			expectedShots:     11,   // Discrete simulation
+			expectedDrainTime: 2.0,  // 11 shots, 10 intervals at 0.2s = 2 seconds elapsed
+			expectedSustDPS:   15.0, // (10/20) * 30 = 15
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Simulate the discrete drain calculation
+			consumptionRate := tt.ammoPerShot * tt.rateOfFire
+			var shots int
+			var drainTime float64
+
+			if consumptionRate > tt.ammoDemand {
+				// Weapon drains faster than it recovers - simulate discrete shots
+				ammo := tt.ammoCapacity
+				shotInterval := 1.0 / tt.rateOfFire
+				recoveryPerInterval := tt.ammoDemand * shotInterval
+
+				for ammo >= tt.ammoPerShot {
+					ammo -= tt.ammoPerShot // Fire shot
+					shots++
+					ammo += recoveryPerInterval // Recovery before next shot
+				}
+
+				if shots > 1 {
+					// Drain time = (shots - 1) / ROF (elapsed time from first to last shot)
+					drainTime = math.Round(float64(shots-1)/tt.rateOfFire*100) / 100
+				}
+			}
+
+			if shots != tt.expectedShots {
+				t.Errorf("Shots to drain = %d, want %d", shots, tt.expectedShots)
+			}
+			if math.Abs(drainTime-tt.expectedDrainTime) > 0.01 {
+				t.Errorf("Drain time = %.2f sec, want %.2f sec", drainTime, tt.expectedDrainTime)
+			}
+
+			// Test sustained DPS calculation
+			if tt.ammoDemand > 0 && tt.ammoPerShot > 0 {
+				sustainedROF := tt.ammoDemand / tt.ammoPerShot
+				sustainedDPS := math.Round(sustainedROF*tt.damage*100) / 100
+				if math.Abs(sustainedDPS-tt.expectedSustDPS) > 0.01 {
+					t.Errorf("Sustained DPS = %.2f, want %.2f", sustainedDPS, tt.expectedSustDPS)
+				}
+			}
+		})
+	}
+}
+
 // TestSplashDamageCalculations tests splash/AoE damage calculations
 func TestSplashDamageCalculations(t *testing.T) {
 	// This is more of a documentation test for splash damage mechanics
