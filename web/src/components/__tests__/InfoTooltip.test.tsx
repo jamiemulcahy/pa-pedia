@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { InfoTooltip } from '../InfoTooltip'
 
 describe('InfoTooltip', () => {
   it('should render with tooltip text', () => {
     render(<InfoTooltip text="This is a helpful tip" />)
 
-    // Tooltip text should be in the DOM (for screen readers and on hover)
+    // Tooltip text should be in the DOM
     expect(screen.getByRole('tooltip')).toHaveTextContent('This is a helpful tip')
   })
 
@@ -16,7 +16,7 @@ describe('InfoTooltip', () => {
     // sr-only text should be present for accessibility
     const srOnlyElement = container.querySelector('.sr-only')
     expect(srOnlyElement).toBeInTheDocument()
-    expect(srOnlyElement).toHaveTextContent('Helpful information')
+    expect(srOnlyElement).toHaveTextContent('Info: Helpful information')
   })
 
   it('should render the info icon', () => {
@@ -40,5 +40,77 @@ describe('InfoTooltip', () => {
 
     const tooltip = screen.getByRole('tooltip')
     expect(tooltip).toHaveClass('opacity-0')
+  })
+
+  describe('keyboard accessibility', () => {
+    it('should render a focusable button', () => {
+      render(<InfoTooltip text="Test" />)
+
+      const button = screen.getByRole('button')
+      expect(button).toBeInTheDocument()
+      expect(button).toHaveAttribute('type', 'button')
+    })
+
+    it('should show tooltip on focus', () => {
+      render(<InfoTooltip text="Focus tooltip" />)
+
+      const button = screen.getByRole('button')
+      const tooltip = screen.getByRole('tooltip')
+
+      expect(tooltip).toHaveClass('opacity-0')
+
+      fireEvent.focus(button)
+      expect(tooltip).toHaveClass('opacity-100')
+    })
+
+    it('should hide tooltip on blur', () => {
+      render(<InfoTooltip text="Blur tooltip" />)
+
+      const button = screen.getByRole('button')
+      const tooltip = screen.getByRole('tooltip')
+
+      fireEvent.focus(button)
+      expect(tooltip).toHaveClass('opacity-100')
+
+      fireEvent.blur(button)
+      expect(tooltip).toHaveClass('opacity-0')
+    })
+
+    it('should have aria-describedby linking to tooltip', () => {
+      render(<InfoTooltip text="Accessible tooltip" />)
+
+      const button = screen.getByRole('button')
+      const tooltip = screen.getByRole('tooltip')
+
+      expect(button).toHaveAttribute('aria-describedby', 'tooltip')
+      expect(tooltip).toHaveAttribute('id', 'tooltip')
+    })
+  })
+
+  describe('mouse interaction', () => {
+    it('should show tooltip on mouse enter', () => {
+      render(<InfoTooltip text="Hover tooltip" />)
+
+      const button = screen.getByRole('button')
+      const tooltip = screen.getByRole('tooltip')
+
+      expect(tooltip).toHaveClass('opacity-0')
+
+      fireEvent.mouseEnter(button)
+      expect(tooltip).toHaveClass('opacity-100')
+    })
+
+    it('should hide tooltip on mouse leave', () => {
+      render(<InfoTooltip text="Leave tooltip" />)
+
+      const button = screen.getByRole('button')
+      const tooltip = screen.getByRole('tooltip')
+
+      fireEvent.mouseEnter(button)
+      expect(tooltip).toHaveClass('opacity-100')
+
+      fireEvent.mouseLeave(button)
+      expect(tooltip).toHaveClass('opacity-0')
+    })
   })
 })
