@@ -12,13 +12,28 @@ export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex items-center justify-between h-16 px-4">
-        {/* Left spacer for centering - hidden on mobile */}
-        <div className="hidden sm:block sm:w-32" />
+        {/* Left - GG Leaderboards link */}
+        <div className="hidden sm:block sm:w-48">
+          <a
+            href="https://ggleaderboards.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-base font-medium text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 rounded-md transition-colors border animate-border-glow whitespace-nowrap relative overflow-hidden group"
+          >
+            <span className="absolute top-0 left-0 h-full w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+            <img
+              src="/gg-leaderboards.png"
+              alt="GG Leaderboards"
+              className="w-6 h-6 relative z-10"
+            />
+            <span className="relative z-10">GG Leaderboards</span>
+          </a>
+        </div>
 
         {/* Center - Title and subtitle */}
         <Link
           to="/"
-          className="flex flex-col items-center hover:opacity-80 transition-opacity min-w-0 flex-shrink"
+          className="flex flex-col items-start sm:items-center hover:opacity-80 transition-opacity min-w-0 flex-shrink"
         >
           <span className="text-xl sm:text-2xl font-display font-bold tracking-wider text-foreground">
             PA-PEDIA
@@ -30,6 +45,20 @@ export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
 
         {/* Right - Actions */}
         <div className="flex items-center gap-1 sm:w-32 justify-end">
+          <a
+            href="https://ggleaderboards.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sm:hidden p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            title="GG Leaderboards"
+            aria-label="Visit GG Leaderboards"
+          >
+            <img
+              src="/gg-leaderboards.png"
+              alt="GG Leaderboards"
+              className="w-6 h-6"
+            />
+          </a>
           <a
             href={githubUrl}
             target="_blank"
