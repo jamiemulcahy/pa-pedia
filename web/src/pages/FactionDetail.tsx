@@ -263,22 +263,24 @@ export function FactionDetail() {
       </div>
       <div className="mb-8">
         <Link to="/" className="text-primary hover:underline mb-4 inline-block font-medium">&larr; Back to factions</Link>
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-5xl font-display font-bold tracking-wide">
-            {isAllMode ? 'All' : metadata?.displayName}
-          </h1>
-          {!isAllMode && metadata?.isLocal && (
-            <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
-              LOCAL
-            </span>
-          )}
-        </div>
-        <p className="text-muted-foreground font-medium">
-          {isAllMode ? 'Browse units from all available factions' : metadata?.description}
-        </p>
-        <div className="text-sm text-muted-foreground mt-2 font-mono">
-          {filteredUnits.length} units{inaccessibleCount > 0 && !showInaccessible && ` (${inaccessibleCount} hidden)`}
-          {isAllMode && factionCount > 0 && ` from ${factionCount} factions`}
+        <div className="text-left md:text-center">
+          <div className="inline-flex items-center gap-3 mb-2">
+            <h1 className="text-5xl font-display font-bold tracking-wide">
+              {isAllMode ? 'All' : metadata?.displayName}
+            </h1>
+            {!isAllMode && metadata?.isLocal && (
+              <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
+                LOCAL
+              </span>
+            )}
+          </div>
+          <p className="text-muted-foreground font-medium">
+            {isAllMode ? 'Browse units from all available factions' : metadata?.description}
+          </p>
+          <div className="text-sm text-muted-foreground mt-2 font-mono">
+            {filteredUnits.length} units{inaccessibleCount > 0 && !showInaccessible && ` (${inaccessibleCount} hidden)`}
+            {isAllMode && factionCount > 0 && ` from ${factionCount} factions`}
+          </div>
         </div>
       </div>
 
