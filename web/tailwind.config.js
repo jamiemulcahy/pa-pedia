@@ -97,8 +97,10 @@ export default {
         },
       },
       animation: {
-        shimmer: 'shimmer 3.5s infinite',
-        'border-glow': 'border-glow 3.5s infinite',
+        shimmer: 'shimmer 6s infinite',
+        'border-glow': 'border-glow 6s infinite',
+        'shimmer-delay': 'shimmer 6s infinite 1s',
+        'border-glow-delay': 'border-glow 6s infinite 1s',
       },
     },
   },
