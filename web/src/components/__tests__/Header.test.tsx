@@ -108,7 +108,9 @@ describe('Header', () => {
   it('should show Santa emoji when festive mode is enabled', () => {
     renderHeader(vi.fn(), vi.fn(), true)
     expect(screen.getByLabelText('Disable festive mode')).toBeInTheDocument()
-    expect(screen.getByText('🎅')).toBeInTheDocument()
+    // Should have Santa in both the toggle button and as decoration on logo
+    const santaEmojis = screen.getAllByText('🎅')
+    expect(santaEmojis).toHaveLength(2)
   })
 
   it('should show snowman emoji when festive mode is disabled', () => {
