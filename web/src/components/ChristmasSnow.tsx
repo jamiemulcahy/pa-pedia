@@ -3,6 +3,7 @@ import { memo } from 'react'
 /**
  * Pure CSS snowfall effect component
  * Creates falling snowflakes across the viewport with varying speeds and positions
+ * Respects prefers-reduced-motion for accessibility
  */
 export const ChristmasSnow = memo(() => {
   // Generate 25 snowflakes with random properties
@@ -18,6 +19,8 @@ export const ChristmasSnow = memo(() => {
     size: 0.5 + Math.random() * 1,
     // Randomize opacity (0.4-0.8)
     opacity: 0.4 + Math.random() * 0.4,
+    // Randomize horizontal drift per snowflake (-50 to 50px)
+    drift: Math.random() * 100 - 50,
   }))
 
   return (
@@ -25,32 +28,21 @@ export const ChristmasSnow = memo(() => {
       {snowflakes.map((flake) => (
         <div
           key={flake.id}
-          className="absolute text-white"
+          className="absolute text-white snowflake"
           style={{
             left: `${flake.left}%`,
             top: '-10%',
             fontSize: `${flake.size}em`,
             opacity: flake.opacity,
-            animation: `snowfall ${flake.duration}s linear ${flake.delay}s infinite`,
-            // Add subtle horizontal drift
-            transform: `translateX(${Math.sin(flake.id) * 20}px)`,
+            animationDuration: `${flake.duration}s`,
+            animationDelay: `${flake.delay}s`,
+            // Use CSS variable for per-flake drift value
+            ['--drift' as string]: `${flake.drift}px`,
           }}
         >
           ❄
         </div>
       ))}
-      <style>
-        {`
-          @keyframes snowfall {
-            0% {
-              transform: translateY(0) translateX(0) rotate(0deg);
-            }
-            100% {
-              transform: translateY(100vh) translateX(${Math.random() * 100 - 50}px) rotate(360deg);
-            }
-          }
-        `}
-      </style>
     </div>
   )
 })
