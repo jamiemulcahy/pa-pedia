@@ -11,7 +11,7 @@ export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="flex items-center justify-between h-16 px-4">
+      <div className="relative flex items-center justify-between sm:justify-center h-16 px-4">
         {/* Center - Title and subtitle */}
         <Link
           to="/"
@@ -26,7 +26,7 @@ export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
         </Link>
 
         {/* Right - Actions */}
-        <div className="flex items-center gap-1 sm:w-32 justify-end">
+        <div className="flex items-center gap-1 sm:absolute sm:right-4 sm:w-32 justify-end">
           <a
             href={githubUrl}
             target="_blank"
