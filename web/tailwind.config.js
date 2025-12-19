@@ -99,6 +99,8 @@ export default {
       animation: {
         shimmer: 'shimmer 3.5s infinite',
         'border-glow': 'border-glow 3.5s infinite',
+        'shimmer-delay': 'shimmer 3.5s infinite 1s',
+        'border-glow-delay': 'border-glow 3.5s infinite 1s',
       },
     },
   },
