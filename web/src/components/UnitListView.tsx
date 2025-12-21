@@ -5,6 +5,7 @@ import { SortableCategoryListColumn } from '@/components/SortableCategoryListCol
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
+import type { CommanderGroupingResult } from '@/utils/commanderDedup'
 
 // Responsive breakpoints for masonry columns (matches Tailwind breakpoints)
 const MASONRY_BREAKPOINTS = {
@@ -24,6 +25,8 @@ interface UnitListViewProps {
   onImageError: (unitId: string) => void
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
+  /** Commander grouping result for deduplication */
+  commanderGrouping?: CommanderGroupingResult | null
 }
 
 export function UnitListView({
@@ -34,6 +37,7 @@ export function UnitListView({
   onImageError,
   showFactionBadge = false,
   getUnitFactionId,
+  commanderGrouping,
 }: UnitListViewProps) {
 
   // Filter to only categories that have units
@@ -71,6 +75,7 @@ export function UnitListView({
                 onImageError={onImageError}
                 showFactionBadge={showFactionBadge}
                 getUnitFactionId={getUnitFactionId}
+                commanderGroups={category === 'Commanders' ? commanderGrouping?.commanders : undefined}
               />
             </div>
           )

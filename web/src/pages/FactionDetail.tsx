@@ -12,6 +12,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { createWebPageSchema } from '@/components/seoSchemas'
 import { useState, useCallback, useMemo } from 'react'
 import { groupUnitsByCategory, type UnitCategory } from '@/utils/unitCategories'
+import { groupCommanderVariants } from '@/utils/commanderDedup'
 import { usePreferences } from '@/hooks/usePreferences'
 import { useCategoryOrder } from '@/hooks/useCategoryOrder'
 import {
@@ -136,6 +137,12 @@ export function FactionDetail() {
   const inaccessibleCount = useMemo(() =>
     units.filter(unit => !unit.unit.accessible).length,
     [units]
+  )
+
+  // Group commanders by stats to detect duplicates (always enabled)
+  const commanderGrouping = useMemo(
+    () => groupCommanderVariants(filteredUnits),
+    [filteredUnits]
   )
 
   // Group filtered units by category
@@ -452,6 +459,7 @@ export function FactionDetail() {
             onImageError={handleImageError}
             showFactionColumn={isAllMode}
             getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+            commanderGrouping={commanderGrouping}
           />
         ) : filteredUnits.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">
@@ -472,6 +480,7 @@ export function FactionDetail() {
                 onImageError={handleImageError}
                 showFactionBadge={isAllMode}
                 getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+                commanderGrouping={commanderGrouping}
               />
             ) : (
               <SortableContext
@@ -491,6 +500,7 @@ export function FactionDetail() {
                     compact={compactView}
                     showFactionBadge={isAllMode}
                     getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
+                    commanderGroups={category === 'Commanders' ? commanderGrouping.commanders : undefined}
                   />
                 ))}
               </SortableContext>

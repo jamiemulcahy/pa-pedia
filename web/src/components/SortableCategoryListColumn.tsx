@@ -5,6 +5,7 @@ import { CategoryListColumn } from '@/components/CategoryListColumn'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
+import type { CommanderGroup } from '@/utils/commanderDedup'
 
 interface SortableCategoryListColumnProps {
   category: UnitCategory
@@ -14,6 +15,8 @@ interface SortableCategoryListColumnProps {
   onImageError: (unitId: string) => void
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
+  /** Commander groups for deduplication (only used for Commanders category) */
+  commanderGroups?: CommanderGroup[]
 }
 
 /**
@@ -29,6 +32,7 @@ export const SortableCategoryListColumn = memo(function SortableCategoryListColu
   onImageError,
   showFactionBadge = false,
   getUnitFactionId,
+  commanderGroups,
 }: SortableCategoryListColumnProps) {
   const {
     attributes,
@@ -61,6 +65,7 @@ export const SortableCategoryListColumn = memo(function SortableCategoryListColu
         getUnitFactionId={getUnitFactionId}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
+        commanderGroups={commanderGroups}
       />
     </div>
   )
