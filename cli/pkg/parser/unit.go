@@ -183,8 +183,16 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 
 	// If this unit defines its own tools array, it completely replaces inherited tools.
 	// This matches PA's behavior where child unit tools override parent tools entirely.
+	// However, we preserve death explosion and self-destruct weapons since those are
+	// defined via unit-level fields (death_weapon, self_destruct) not in the tools array.
 	if len(toolsInterface) > 0 {
-		unit.Specs.Combat.Weapons = nil
+		var preservedWeapons []models.Weapon
+		for _, w := range unit.Specs.Combat.Weapons {
+			if w.DeathExplosion || w.SelfDestruct {
+				preservedWeapons = append(preservedWeapons, w)
+			}
+		}
+		unit.Specs.Combat.Weapons = preservedWeapons
 		unit.Specs.Economy.BuildArms = nil
 	}
 
