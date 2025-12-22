@@ -83,7 +83,9 @@ function calculateMatchScore(weapon1: Weapon, weapon2: Weapon): number {
  * 3. Partial target layer overlap
  * 4. No match - incomparable weapons (e.g., torpedo vs anti-air)
  *
- * Each weapon in the second list can only be matched once (first come, first served).
+ * Weapons from the first list are matched in order (index 0, then 1, etc.),
+ * with each getting the best available match from the second list.
+ * Each weapon in the second list can only be matched once.
  */
 export function matchWeaponsByTargetLayers(
   weapons1: Weapon[],

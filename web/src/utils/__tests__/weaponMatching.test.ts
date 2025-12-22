@@ -380,5 +380,33 @@ describe('weaponMatching', () => {
       expect(result[1][0]).toBeUndefined()
       expect(result[1][1]?.safeName).toBe('weapon_b')
     })
+
+    it('should prioritize safeName match even when target layers mismatch', () => {
+      // Primary has cannon (Land) and missile (Air)
+      // Comparison has other_land (Land) and cannon (Air - different targets but same name)
+      const weapons1 = [
+        createMockWeapon('/pa/units/tools/cannon.json', ['LandHorizontal'], 'cannon'),
+        createMockWeapon('/pa/units/tools/missile.json', ['Air'], 'missile'),
+      ]
+      const weapons2 = [
+        createMockWeapon('/pa/units/tools/other_land.json', ['LandHorizontal'], 'other_land'),
+        createMockWeapon('/pa/units/tools/cannon.json', ['Air'], 'cannon'), // Same name, different targets
+      ]
+
+      const result = matchWeaponsByTargetLayers(weapons1, weapons2)
+
+      // cannon should match cannon (Tier 1 safeName priority) despite target layer mismatch
+      const cannonMatch = result.find(([w1]) => w1?.safeName === 'cannon')
+      expect(cannonMatch![1]?.safeName).toBe('cannon')
+
+      // missile has no safeName match but shares Air target with cannon - however cannon is taken
+      // So missile should match nothing (no other Air weapons available)
+      const missileMatch = result.find(([w1]) => w1?.safeName === 'missile')
+      expect(missileMatch![1]).toBeUndefined()
+
+      // other_land should be unmatched (no safeName match, cannon took the safeName slot)
+      const unmatchedOtherLand = result.find(([, w2]) => w2?.safeName === 'other_land')
+      expect(unmatchedOtherLand![0]).toBeUndefined()
+    })
   })
 })
