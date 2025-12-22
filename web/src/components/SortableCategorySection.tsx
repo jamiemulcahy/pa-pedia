@@ -5,6 +5,7 @@ import { UnitCategorySection } from '@/components/UnitCategorySection'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
+import type { CommanderGroup } from '@/utils/commanderDedup'
 
 interface SortableCategorySectionProps {
   category: UnitCategory
@@ -17,6 +18,8 @@ interface SortableCategorySectionProps {
   compact?: boolean
   showFactionBadge?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
+  /** Commander groups for deduplication (only used for Commanders category) */
+  commanderGroups?: CommanderGroup[]
 }
 
 /**
@@ -35,6 +38,7 @@ export const SortableCategorySection = memo(function SortableCategorySection({
   compact = false,
   showFactionBadge = false,
   getUnitFactionId,
+  commanderGroups,
 }: SortableCategorySectionProps) {
   const {
     attributes,
@@ -70,6 +74,7 @@ export const SortableCategorySection = memo(function SortableCategorySection({
         getUnitFactionId={getUnitFactionId}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
+        commanderGroups={commanderGroups}
       />
     </div>
   )

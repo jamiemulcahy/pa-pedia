@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { UnitIcon } from '@/components/UnitIcon'
 import { DragHandleIcon } from '@/components/DragHandleIcon'
+import { CommanderVariantCard } from '@/components/CommanderVariantCard'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
+import type { CommanderGroup } from '@/utils/commanderDedup'
 
 interface UnitCategorySectionProps {
   category: UnitCategory
@@ -20,6 +22,8 @@ interface UnitCategorySectionProps {
   dragHandleProps?: React.HTMLAttributes<HTMLElement>
   /** Whether this section is currently being dragged */
   isDragging?: boolean
+  /** Commander groups for deduplication (only used for Commanders category) */
+  commanderGroups?: CommanderGroup[]
 }
 
 export function UnitCategorySection({
@@ -35,8 +39,22 @@ export function UnitCategorySection({
   getUnitFactionId,
   dragHandleProps,
   isDragging = false,
+  commanderGroups,
 }: UnitCategorySectionProps) {
-  if (units.length === 0) {
+  // Use commander groups when available for the Commanders category
+  const useCommanderGroups = category === 'Commanders' && commanderGroups
+
+  // Calculate display count
+  const displayCount = useCommanderGroups
+    ? commanderGroups.length
+    : units.length
+
+  // Calculate hidden variant count for the badge
+  const hiddenVariantCount = useCommanderGroups
+    ? commanderGroups.reduce((sum, g) => sum + g.variants.length, 0)
+    : 0
+
+  if (units.length === 0 && (!commanderGroups || commanderGroups.length === 0)) {
     return null
   }
 
@@ -76,8 +94,16 @@ export function UnitCategorySection({
           <span className="sr-only">{isExpanded ? 'Collapse' : 'Expand'} {category} section</span>
           <h2 className="text-xl font-display font-bold">{category}</h2>
           <span className="px-2 py-0.5 text-sm font-mono bg-primary/20 text-primary rounded">
-            {units.length}
+            {displayCount}
           </span>
+          {hiddenVariantCount > 0 && (
+            <span
+              className="px-2 py-0.5 text-xs font-mono bg-muted text-muted-foreground rounded"
+              title={`${hiddenVariantCount} variant${hiddenVariantCount !== 1 ? 's' : ''} hidden (identical stats)`}
+            >
+              +{hiddenVariantCount} variants
+            </span>
+          )}
         </button>
       </div>
 
@@ -91,66 +117,79 @@ export function UnitCategorySection({
           }
           role="list"
         >
-          {units.map((unit) => {
-            const unitFactionId = getUnitFactionId ? getUnitFactionId(unit) : factionId
-            const factionDisplayName = showFactionBadge ? (unit as UnitIndexEntryWithFaction).factionDisplayName : ''
+          {useCommanderGroups
+            ? commanderGroups.map((group) => (
+                <CommanderVariantCard
+                  key={group.representative.identifier}
+                  group={group}
+                  factionId={factionId}
+                  brokenImages={brokenImages}
+                  onImageError={onImageError}
+                  compact={compact}
+                  showFactionBadge={showFactionBadge}
+                  getUnitFactionId={getUnitFactionId}
+                />
+              ))
+            : units.map((unit) => {
+                const unitFactionId = getUnitFactionId ? getUnitFactionId(unit) : factionId
+                const factionDisplayName = showFactionBadge ? (unit as UnitIndexEntryWithFaction).factionDisplayName : ''
 
-            return (
-              <Link
-                key={showFactionBadge ? `${unitFactionId}:${unit.identifier}` : unit.identifier}
-                to={showFactionBadge
-                  ? `/faction/${unitFactionId}/unit/${unit.identifier}?from=all`
-                  : `/faction/${unitFactionId}/unit/${unit.identifier}`
-                }
-                className={
-                  compact
-                    ? 'block border rounded p-1 hover:border-primary transition-all hover:shadow-md hover:shadow-primary/20 text-center'
-                    : 'block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center'
-                }
-                role="listitem"
-                aria-label={`View ${unit.displayName} details`}
-                title={showFactionBadge ? `${unit.displayName} (${factionDisplayName})` : unit.displayName}
-              >
-                <div className={compact ? 'aspect-square flex items-center justify-center' : 'aspect-square mb-2 flex items-center justify-center'}>
-                  {brokenImages.has(unit.identifier) ? (
-                    <div
-                      className={
-                        compact
-                          ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[10px] font-mono'
-                          : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
-                      }
-                      aria-label={`${unit.displayName} icon not available`}
-                    >
-                      No Icon
+                return (
+                  <Link
+                    key={showFactionBadge ? `${unitFactionId}:${unit.identifier}` : unit.identifier}
+                    to={showFactionBadge
+                      ? `/faction/${unitFactionId}/unit/${unit.identifier}?from=all`
+                      : `/faction/${unitFactionId}/unit/${unit.identifier}`
+                    }
+                    className={
+                      compact
+                        ? 'block border rounded p-1 hover:border-primary transition-all hover:shadow-md hover:shadow-primary/20 text-center'
+                        : 'block border rounded-lg p-3 hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 text-center'
+                    }
+                    role="listitem"
+                    aria-label={`View ${unit.displayName} details`}
+                    title={showFactionBadge ? `${unit.displayName} (${factionDisplayName})` : unit.displayName}
+                  >
+                    <div className={compact ? 'aspect-square flex items-center justify-center' : 'aspect-square mb-2 flex items-center justify-center'}>
+                      {brokenImages.has(unit.identifier) ? (
+                        <div
+                          className={
+                            compact
+                              ? 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[10px] font-mono'
+                              : 'w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-mono'
+                          }
+                          aria-label={`${unit.displayName} icon not available`}
+                        >
+                          No Icon
+                        </div>
+                      ) : (
+                        <UnitIcon
+                          imagePath={unit.unit.image}
+                          alt={`${unit.displayName} icon`}
+                          className="max-w-full max-h-full object-contain"
+                          onError={() => onImageError(unit.identifier)}
+                          factionId={unitFactionId}
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <UnitIcon
-                      imagePath={unit.unit.image}
-                      alt={`${unit.displayName} icon`}
-                      className="max-w-full max-h-full object-contain"
-                      onError={() => onImageError(unit.identifier)}
-                      factionId={unitFactionId}
-                    />
-                  )}
-                </div>
-                {!compact && (
-                  <>
-                    <div className="text-sm font-semibold truncate">{unit.displayName}</div>
-                    {showFactionBadge && (
-                      <div className="text-xs text-muted-foreground truncate mt-0.5">{factionDisplayName}</div>
+                    {!compact && (
+                      <>
+                        <div className="text-sm font-semibold truncate">{unit.displayName}</div>
+                        {showFactionBadge && (
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">{factionDisplayName}</div>
+                        )}
+                        <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
+                          {unit.unitTypes.slice(0, 2).map((type) => (
+                            <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </>
                     )}
-                    <div className="text-xs text-muted-foreground flex gap-1 flex-wrap justify-center mt-1">
-                      {unit.unitTypes.slice(0, 2).map((type) => (
-                        <span key={type} className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
-                          {type}
-                        </span>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </Link>
-            )
-          })}
+                  </Link>
+                )
+              })}
         </div>
       )}
     </section>

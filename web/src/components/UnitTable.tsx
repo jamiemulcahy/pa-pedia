@@ -1,9 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { UnitIcon } from '@/components/UnitIcon'
 import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { getUnitCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
+import type { CommanderGroup, CommanderGroupingResult } from '@/utils/commanderDedup'
+import { useCommanderGroupMaps } from '@/hooks/useCommanderGroupMaps'
 
 interface UnitTableProps {
   units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
@@ -12,6 +14,7 @@ interface UnitTableProps {
   onImageError: (unitId: string) => void
   showFactionColumn?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
+  commanderGrouping?: CommanderGroupingResult
 }
 
 type SortColumn = 'name' | 'faction' | 'category' | 'tier' | 'health' | 'dps' | 'range' | 'cost' | 'speed'
@@ -118,9 +121,11 @@ export function UnitTable({
   onImageError,
   showFactionColumn = false,
   getUnitFactionId,
+  commanderGrouping,
 }: UnitTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -130,6 +135,25 @@ export function UnitTable({
       setSortDirection('asc')
     }
   }
+
+  const toggleGroup = useCallback((statsHash: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(statsHash)) {
+        next.delete(statsHash)
+      } else {
+        next.add(statsHash)
+      }
+      return next
+    })
+  }, [])
+
+  // Build lookup maps for commander group membership
+  const { groupMap: commanderGroupMap, variantIdentifiers } = useCommanderGroupMaps(
+    commanderGrouping?.commanders
+  )
 
   const sortedUnits = useMemo(() => {
     const sorted = [...units].sort((a, b) => {
@@ -176,6 +200,41 @@ export function UnitTable({
 
     return sorted
   }, [units, sortColumn, sortDirection, showFactionColumn])
+
+  // Build display rows: filter out variants that are collapsed, insert expanded variants after their representative
+  const displayRows = useMemo(() => {
+    const rows: Array<{
+      entry: UnitIndexEntry | UnitIndexEntryWithFaction
+      isVariant: boolean
+      group?: CommanderGroup
+    }> = []
+
+    for (const entry of sortedUnits) {
+      const group = commanderGroupMap.get(entry.identifier)
+      const isVariant = variantIdentifiers.has(entry.identifier)
+
+      if (isVariant) {
+        // Skip variants in main iteration - they'll be added after their representative
+        continue
+      }
+
+      // Add the unit (representative or non-grouped)
+      rows.push({ entry, isVariant: false, group: group?.variants.length ? group : undefined })
+
+      // If this is a representative of an expanded group, add its variants
+      if (group && group.variants.length > 0 && expandedGroups.has(group.statsHash)) {
+        // Sort variants alphabetically
+        const sortedVariants = [...group.variants].sort((a, b) =>
+          a.displayName.localeCompare(b.displayName)
+        )
+        for (const variant of sortedVariants) {
+          rows.push({ entry: variant, isVariant: true, group })
+        }
+      }
+    }
+
+    return rows
+  }, [sortedUnits, commanderGroupMap, variantIdentifiers, expandedGroups])
 
   if (units.length === 0) {
     return (
@@ -277,20 +336,22 @@ export function UnitTable({
           </tr>
         </thead>
         <tbody>
-          {sortedUnits.map((entry) => {
+          {displayRows.map(({ entry, isVariant, group }) => {
             const unit = entry.unit
             const category = getUnitCategory(entry.unitTypes)
             const maxRange = getMaxRange(entry)
             const unitFactionId = getUnitFactionId ? getUnitFactionId(entry) : factionId
             const factionDisplayName = showFactionColumn ? (entry as UnitIndexEntryWithFaction).factionDisplayName : ''
+            const hasVariants = group && group.variants.length > 0
+            const isExpanded = group && expandedGroups.has(group.statsHash)
 
             return (
               <tr
                 key={showFactionColumn ? `${unitFactionId}:${entry.identifier}` : entry.identifier}
-                className="border-b hover:bg-muted/30 transition-colors"
+                className={`border-b hover:bg-muted/30 transition-colors ${isVariant ? 'bg-muted/20 border-dashed' : ''}`}
               >
                 <td className="py-2 px-2">
-                  <div className="w-8 h-8 flex items-center justify-center">
+                  <div className={`w-8 h-8 flex items-center justify-center ${isVariant ? 'ml-2' : ''}`}>
                     {brokenImages.has(entry.identifier) ? (
                       <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[8px] font-mono rounded">
                         ?
@@ -307,15 +368,34 @@ export function UnitTable({
                   </div>
                 </td>
                 <td className="py-2 px-2">
-                  <Link
-                    to={showFactionColumn
-                      ? `/faction/${unitFactionId}/unit/${entry.identifier}?from=all`
-                      : `/faction/${unitFactionId}/unit/${entry.identifier}`
-                    }
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {entry.displayName}
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {isVariant && (
+                      <span className="text-muted-foreground">↳</span>
+                    )}
+                    <Link
+                      to={showFactionColumn
+                        ? `/faction/${unitFactionId}/unit/${entry.identifier}?from=all`
+                        : `/faction/${unitFactionId}/unit/${entry.identifier}`
+                      }
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {entry.displayName}
+                    </Link>
+                    {hasVariants && !isVariant && (
+                      <button
+                        type="button"
+                        onClick={(e) => toggleGroup(group.statsHash, e)}
+                        className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+                        aria-expanded={isExpanded}
+                        aria-label={isExpanded ? `Hide ${group.variants.length} variants` : `Show ${group.variants.length} variants`}
+                      >
+                        {isExpanded ? `Hide ${group.variants.length}` : `+${group.variants.length}`}
+                      </button>
+                    )}
+                    {isVariant && (
+                      <span className="text-[10px] text-muted-foreground italic">(identical stats)</span>
+                    )}
+                  </div>
                 </td>
                 {showFactionColumn && (
                   <td className="py-2 px-2 hidden sm:table-cell">
