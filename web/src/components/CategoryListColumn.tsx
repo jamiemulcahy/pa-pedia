@@ -6,6 +6,7 @@ import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import type { UnitCategory } from '@/utils/unitCategories'
 import type { CommanderGroup } from '@/utils/commanderDedup'
+import { useCommanderGroupMaps } from '@/hooks/useCommanderGroupMaps'
 
 interface CategoryListColumnProps {
   category: UnitCategory
@@ -52,32 +53,8 @@ export function CategoryListColumn({
   // Use commander groups when available for the Commanders category
   const useCommanderGroups = category === 'Commanders' && commanderGroups
 
-  // Build a map from unit identifier to its group
-  const commanderGroupMap = useMemo(() => {
-    const map = new Map<string, CommanderGroup>()
-    if (commanderGroups) {
-      for (const group of commanderGroups) {
-        map.set(group.representative.identifier, group)
-        for (const variant of group.variants) {
-          map.set(variant.identifier, group)
-        }
-      }
-    }
-    return map
-  }, [commanderGroups])
-
-  // Get set of variant identifiers (units that should be hidden when collapsed)
-  const variantIdentifiers = useMemo(() => {
-    const set = new Set<string>()
-    if (commanderGroups) {
-      for (const group of commanderGroups) {
-        for (const variant of group.variants) {
-          set.add(variant.identifier)
-        }
-      }
-    }
-    return set
-  }, [commanderGroups])
+  // Build lookup maps for commander group membership
+  const { groupMap: commanderGroupMap, variantIdentifiers } = useCommanderGroupMaps(commanderGroups)
 
   // Calculate display count and hidden variant count
   const displayCount = useCommanderGroups

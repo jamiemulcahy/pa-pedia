@@ -5,6 +5,7 @@ import type { UnitIndexEntry } from '@/types/faction'
 import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { getUnitCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 import type { CommanderGroup, CommanderGroupingResult } from '@/utils/commanderDedup'
+import { useCommanderGroupMaps } from '@/hooks/useCommanderGroupMaps'
 
 interface UnitTableProps {
   units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
@@ -149,34 +150,10 @@ export function UnitTable({
     })
   }, [])
 
-  // Build a map from unit identifier to its group (if it's a commander with variants)
-  const commanderGroupMap = useMemo(() => {
-    const map = new Map<string, CommanderGroup>()
-    if (commanderGrouping) {
-      for (const group of commanderGrouping.commanders) {
-        // Map representative
-        map.set(group.representative.identifier, group)
-        // Map variants
-        for (const variant of group.variants) {
-          map.set(variant.identifier, group)
-        }
-      }
-    }
-    return map
-  }, [commanderGrouping])
-
-  // Get set of variant identifiers (units that should be hidden when collapsed)
-  const variantIdentifiers = useMemo(() => {
-    const set = new Set<string>()
-    if (commanderGrouping) {
-      for (const group of commanderGrouping.commanders) {
-        for (const variant of group.variants) {
-          set.add(variant.identifier)
-        }
-      }
-    }
-    return set
-  }, [commanderGrouping])
+  // Build lookup maps for commander group membership
+  const { groupMap: commanderGroupMap, variantIdentifiers } = useCommanderGroupMaps(
+    commanderGrouping?.commanders
+  )
 
   const sortedUnits = useMemo(() => {
     const sorted = [...units].sort((a, b) => {

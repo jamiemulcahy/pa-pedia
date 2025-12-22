@@ -5,6 +5,7 @@ import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
 import { MemoryRouter } from 'react-router-dom'
 import type { UnitIndexEntry } from '@/types/faction'
+import type { CommanderGroupingResult } from '@/utils/commanderDedup'
 
 const mockTankUnit: UnitIndexEntry = {
   identifier: 'tank',
@@ -490,6 +491,194 @@ describe('UnitTable', () => {
 
       // Factory has no weapons, so no range
       expect(cellContent).toContain('-')
+    })
+  })
+
+  describe('commander grouping', () => {
+    const createCommanderUnit = (id: string, name: string): UnitIndexEntry => ({
+      identifier: id,
+      displayName: name,
+      unitTypes: ['Commander', 'Land', 'Mobile'],
+      source: 'pa',
+      files: [],
+      unit: {
+        id,
+        resourceName: `/pa/units/commanders/${id}/${id}.json`,
+        displayName: name,
+        unitTypes: ['Commander', 'Land', 'Mobile'],
+        tier: 1,
+        accessible: true,
+        image: `assets/pa/units/commanders/${id}/${id}_icon_buildbar.png`,
+        specs: {
+          combat: { health: 12500, dps: 985 },
+          economy: { buildCost: 0 },
+          mobility: { moveSpeed: 10 },
+        },
+      },
+    })
+
+    const mockCommanderGrouping: CommanderGroupingResult = {
+      commanders: [
+        {
+          representative: createCommanderUnit('able', 'Able Commander'),
+          variants: [
+            createCommanderUnit('ajax', 'Ajax Commander'),
+            createCommanderUnit('alpha', 'Alpha Commander'),
+          ],
+          statsHash: 'test-hash-123',
+        },
+      ],
+      nonCommanders: [mockTankUnit],
+    }
+
+    it('should show expand button for commander with variants', () => {
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        createCommanderUnit('alpha', 'Alpha Commander'),
+        mockTankUnit,
+      ]
+
+      renderUnitTable({ units, commanderGrouping: mockCommanderGrouping })
+
+      const button = screen.getByRole('button', { name: /show 2 variants/i })
+      expect(button).toBeInTheDocument()
+      expect(button).toHaveTextContent('+2')
+    })
+
+    it('should not show variants initially', () => {
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        createCommanderUnit('alpha', 'Alpha Commander'),
+        mockTankUnit,
+      ]
+
+      renderUnitTable({ units, commanderGrouping: mockCommanderGrouping })
+
+      // Representative should be visible
+      expect(screen.getByRole('link', { name: 'Able Commander' })).toBeInTheDocument()
+      // Variants should be hidden
+      expect(screen.queryByRole('link', { name: 'Ajax Commander' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('link', { name: 'Alpha Commander' })).not.toBeInTheDocument()
+      // Non-commander should be visible
+      expect(screen.getByRole('link', { name: 'Tank' })).toBeInTheDocument()
+    })
+
+    it('should expand to show variants when button is clicked', async () => {
+      const user = userEvent.setup()
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        createCommanderUnit('alpha', 'Alpha Commander'),
+        mockTankUnit,
+      ]
+
+      renderUnitTable({ units, commanderGrouping: mockCommanderGrouping })
+
+      // Click expand button
+      await user.click(screen.getByRole('button', { name: /show 2 variants/i }))
+
+      // Variants should now be visible
+      expect(screen.getByRole('link', { name: 'Ajax Commander' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Alpha Commander' })).toBeInTheDocument()
+    })
+
+    it('should collapse variants when button is clicked again', async () => {
+      const user = userEvent.setup()
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        createCommanderUnit('alpha', 'Alpha Commander'),
+        mockTankUnit,
+      ]
+
+      renderUnitTable({ units, commanderGrouping: mockCommanderGrouping })
+
+      // Expand
+      await user.click(screen.getByRole('button', { name: /show 2 variants/i }))
+      expect(screen.getByRole('link', { name: 'Ajax Commander' })).toBeInTheDocument()
+
+      // Collapse
+      await user.click(screen.getByRole('button', { name: /hide 2 variants/i }))
+      expect(screen.queryByRole('link', { name: 'Ajax Commander' })).not.toBeInTheDocument()
+    })
+
+    it('should show "(identical stats)" label for variant rows', async () => {
+      const user = userEvent.setup()
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        mockTankUnit,
+      ]
+
+      const grouping: CommanderGroupingResult = {
+        commanders: [
+          {
+            representative: createCommanderUnit('able', 'Able Commander'),
+            variants: [createCommanderUnit('ajax', 'Ajax Commander')],
+            statsHash: 'test-hash',
+          },
+        ],
+        nonCommanders: [mockTankUnit],
+      }
+
+      renderUnitTable({ units, commanderGrouping: grouping })
+
+      await user.click(screen.getByRole('button', { name: /show 1 variant/i }))
+
+      expect(screen.getByText('(identical stats)')).toBeInTheDocument()
+    })
+
+    it('should have correct aria-expanded attribute', async () => {
+      const user = userEvent.setup()
+      const units = [
+        createCommanderUnit('able', 'Able Commander'),
+        createCommanderUnit('ajax', 'Ajax Commander'),
+        mockTankUnit,
+      ]
+
+      const grouping: CommanderGroupingResult = {
+        commanders: [
+          {
+            representative: createCommanderUnit('able', 'Able Commander'),
+            variants: [createCommanderUnit('ajax', 'Ajax Commander')],
+            statsHash: 'test-hash',
+          },
+        ],
+        nonCommanders: [mockTankUnit],
+      }
+
+      renderUnitTable({ units, commanderGrouping: grouping })
+
+      const button = screen.getByRole('button', { name: /show 1 variant/i })
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+
+      await user.click(button)
+      expect(button).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('should not show expand button for commander without variants', () => {
+      const units = [
+        createCommanderUnit('unique', 'Unique Commander'),
+        mockTankUnit,
+      ]
+
+      const grouping: CommanderGroupingResult = {
+        commanders: [
+          {
+            representative: createCommanderUnit('unique', 'Unique Commander'),
+            variants: [],
+            statsHash: 'unique-hash',
+          },
+        ],
+        nonCommanders: [mockTankUnit],
+      }
+
+      renderUnitTable({ units, commanderGrouping: grouping })
+
+      expect(screen.getByRole('link', { name: 'Unique Commander' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /variants/i })).not.toBeInTheDocument()
     })
   })
 })
