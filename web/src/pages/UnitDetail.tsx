@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useMemo } from 'react'
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
 import { useComparisonUnits } from '@/hooks/useComparisonUnits'
@@ -20,8 +20,8 @@ import { BuildsSection } from '@/components/stats/BuildsSection'
 import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
 import { EconomySection } from '@/components/stats/EconomySection'
 import { StorageSection } from '@/components/stats/StorageSection'
-import type { Weapon } from '@/types/faction'
-// Note: matchWeaponsByTargetLayers removed - using simpler index-based matching in column layout
+import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
+import type { Weapon, Unit } from '@/types/faction'
 
 /** Filter to get regular weapons (excludes self-destruct and death explosions) */
 const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
@@ -29,6 +29,36 @@ const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
 /** Get regular weapons from a weapons array */
 const getRegularWeapons = (weapons: Weapon[] | undefined) =>
   weapons?.filter(isRegularWeapon) || []
+
+/**
+ * Builds a Map from primary weapon to matched comparison weapon.
+ * Uses smart matching based on safeName and target layer overlap.
+ */
+function buildWeaponMatchMap(
+  primaryWeapons: Weapon[],
+  comparisonUnit: Unit | undefined
+): Map<Weapon, Weapon | undefined> {
+  const matchMap = new Map<Weapon, Weapon | undefined>()
+  if (!comparisonUnit) {
+    // No comparison unit - all primary weapons are unmatched
+    for (const weapon of primaryWeapons) {
+      matchMap.set(weapon, undefined)
+    }
+    return matchMap
+  }
+
+  const compWeapons = getRegularWeapons(comparisonUnit.specs.combat.weapons)
+  const pairs = matchWeaponsByTargetLayers(primaryWeapons, compWeapons)
+
+  // Build map from primary weapons to their matched comparison weapons
+  for (const [primary, matched] of pairs) {
+    if (primary) {
+      matchMap.set(primary, matched)
+    }
+  }
+
+  return matchMap
+}
 
 export function UnitDetail() {
   const { factionId, unitId } = useParams<{ factionId: string; unitId: string }>()
@@ -126,6 +156,15 @@ export function UnitDetail() {
     }
     prevComparisonCount.current = comparisonRefs.length
   }, [comparisonRefs.length])
+
+  // Pre-compute weapon match maps for each comparison unit
+  // Uses smart matching based on safeName and target layer overlap
+  // Must be called before early returns to satisfy React hooks rules
+  const weaponMatchMaps = useMemo(() => {
+    if (!unit) return []
+    const regularWeapons = getRegularWeapons(unit.specs.combat.weapons)
+    return comparisonUnits.map(compUnit => buildWeaponMatchMap(regularWeapons, compUnit))
+  }, [unit, comparisonUnits])
 
   if (loading) {
     return (
@@ -426,18 +465,16 @@ export function UnitDetail() {
               )}
 
               {/* Weapon rows - one row per weapon
-                  Note: Weapons are matched by array index position. If units have different
-                  weapon counts, comparison cells will be empty for mismatched positions.
-                  Future enhancement: consider semantic matching by target layers or damage type. */}
+                  Weapons are matched using smart matching based on safeName and target layer overlap.
+                  Priority: exact safeName > all same targets > partial target overlap > no match. */}
               {regularWeapons.map((weapon, wIndex) => (
                 <React.Fragment key={`weapon-row-${wIndex}`}>
                   <div className="flex gap-6 items-stretch">
                     <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                      <WeaponSection weapon={weapon} compareWeapon={compareUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                      <WeaponSection weapon={weapon} compareWeapon={weaponMatchMaps[0]?.get(weapon)} showDifferencesOnly={showDifferencesOnly} hideDiff />
                     </div>
                     {comparisonRefs.map((_ref, index) => {
-                      const compUnit = comparisonUnits[index]
-                      const compWeapon = compUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]
+                      const compWeapon = weaponMatchMaps[index]?.get(weapon)
                       return (
                         <div key={`weapon-${wIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                           {compWeapon && (
@@ -450,11 +487,11 @@ export function UnitDetail() {
                   {weapon.ammoDetails && (
                     <div className="flex gap-6 items-stretch">
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                        <AmmoSection ammo={weapon.ammoDetails} compareAmmo={compareUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        <AmmoSection ammo={weapon.ammoDetails} compareAmmo={weaponMatchMaps[0]?.get(weapon)?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
                       </div>
                       {comparisonRefs.map((_ref, index) => {
-                        const compUnit = comparisonUnits[index]
-                        const compAmmo = compUnit?.specs.combat.weapons?.filter(isRegularWeapon)[wIndex]?.ammoDetails
+                        const matchedWeapon = weaponMatchMaps[index]?.get(weapon)
+                        const compAmmo = matchedWeapon?.ammoDetails
                         return (
                           <div key={`ammo-${wIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                             {compAmmo && (
