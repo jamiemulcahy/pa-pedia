@@ -181,6 +181,13 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit) error {
 	toolsInterface := loader.GetArray(data, "tools")
 
+	// If this unit defines its own tools array, it completely replaces inherited tools.
+	// This matches PA's behavior where child unit tools override parent tools entirely.
+	if len(toolsInterface) > 0 {
+		unit.Specs.Combat.Weapons = nil
+		unit.Specs.Economy.BuildArms = nil
+	}
+
 	// Count tool occurrences
 	toolCounts := make(map[string]int)
 	toolData := make(map[string]map[string]interface{})
