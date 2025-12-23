@@ -80,12 +80,23 @@ func parseEconomy(data map[string]interface{}, unit *models.Unit) {
 }
 
 // parseNavigation parses movement properties
+// Only overrides inherited values when explicitly set in this file's navigation section
 func parseNavigation(data map[string]interface{}, unit *models.Unit) {
 	if nav, ok := data["navigation"].(map[string]interface{}); ok {
-		unit.Specs.Mobility.MoveSpeed = loader.GetFloat(nav, "move_speed", 0)
-		unit.Specs.Mobility.TurnSpeed = loader.GetFloat(nav, "turn_speed", 0)
-		unit.Specs.Mobility.Acceleration = loader.GetFloat(nav, "acceleration", 0)
-		unit.Specs.Mobility.Brake = loader.GetFloat(nav, "brake", 0)
+		// Only override mobility values if explicitly present in this navigation section
+		// This preserves inherited values from base_spec when child only partially overrides
+		if _, hasSpeed := nav["move_speed"]; hasSpeed {
+			unit.Specs.Mobility.MoveSpeed = loader.GetFloat(nav, "move_speed", 0)
+		}
+		if _, hasTurn := nav["turn_speed"]; hasTurn {
+			unit.Specs.Mobility.TurnSpeed = loader.GetFloat(nav, "turn_speed", 0)
+		}
+		if _, hasAccel := nav["acceleration"]; hasAccel {
+			unit.Specs.Mobility.Acceleration = loader.GetFloat(nav, "acceleration", 0)
+		}
+		if _, hasBrake := nav["brake"]; hasBrake {
+			unit.Specs.Mobility.Brake = loader.GetFloat(nav, "brake", 0)
+		}
 
 		navType := loader.GetString(nav, "type", "")
 		switch navType {
