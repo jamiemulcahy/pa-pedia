@@ -41,10 +41,17 @@ export function isCommander(unit: UnitIndexEntry): boolean {
 /**
  * Computes a signature string for a weapon that captures gameplay-affecting properties.
  * Weapons are considered identical if their signatures match.
+ *
+ * Note: Weapon names (safeName) and ammo names (ammoSource) are intentionally excluded.
+ * This allows commanders with differently-named but statistically identical weapons
+ * to be grouped together as variants.
  */
 function computeWeaponSignature(weapon: Weapon): string {
+  // Sort target layers for consistent ordering
+  const targetLayers = weapon.targetLayers ? [...weapon.targetLayers].sort().join(',') : '';
+
   const parts = [
-    weapon.safeName,
+    targetLayers,
     weapon.count,
     weapon.damage,
     weapon.dps,
@@ -54,22 +61,23 @@ function computeWeaponSignature(weapon: Weapon): string {
     weapon.splashRadius ?? 0,
     weapon.selfDestruct ?? false,
     weapon.deathExplosion ?? false,
-    weapon.ammoSource ?? '',
     weapon.ammoPerShot ?? 0,
+    weapon.ammoCapacity ?? 0,
   ];
   return parts.join('|');
 }
 
 /**
  * Computes a combined signature for all weapons on a unit.
- * Weapons are sorted by safeName to ensure consistent ordering.
+ * Weapon signatures are sorted alphabetically to ensure consistent ordering
+ * regardless of the order weapons appear in the data.
  */
 function computeWeaponsSignature(weapons: Weapon[] | undefined): string {
   if (!weapons || weapons.length === 0) return '';
 
   const signatures = weapons
     .map(computeWeaponSignature)
-    .sort(); // Sort for consistent ordering
+    .sort(); // Sort signatures for consistent ordering
 
   return signatures.join(';');
 }
