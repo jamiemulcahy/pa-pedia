@@ -41,35 +41,59 @@ export function isCommander(unit: UnitIndexEntry): boolean {
 /**
  * Computes a signature string for a weapon that captures gameplay-affecting properties.
  * Weapons are considered identical if their signatures match.
+ *
+ * Note: Weapon names (safeName) and ammo names (ammoSource) are intentionally excluded.
+ * This allows commanders with differently-named but statistically identical weapons
+ * to be grouped together as variants.
+ *
+ * Weapon arc stats (yawRange, pitchRange, etc.) are excluded since all commanders
+ * share the same weapon specs and have identical arc capabilities.
  */
 function computeWeaponSignature(weapon: Weapon): string {
+  // Sort target layers for consistent ordering
+  const targetLayers = weapon.targetLayers ? [...weapon.targetLayers].sort().join(',') : '';
+
   const parts = [
-    weapon.safeName,
+    // What it can target
+    targetLayers,
+    // How many weapons
     weapon.count,
+    // Damage stats
     weapon.damage,
     weapon.dps,
+    weapon.sustainedDps ?? weapon.dps, // Fall back to dps if no ammo limitation
     weapon.rateOfFire,
+    weapon.projectilesPerFire ?? 1,
+    // Range and splash
     weapon.maxRange ?? 0,
     weapon.splashDamage ?? 0,
     weapon.splashRadius ?? 0,
+    weapon.fullDamageRadius ?? 0,
+    // Special behaviors
     weapon.selfDestruct ?? false,
     weapon.deathExplosion ?? false,
-    weapon.ammoSource ?? '',
+    // Ammo mechanics
     weapon.ammoPerShot ?? 0,
+    weapon.ammoCapacity ?? 0,
   ];
   return parts.join('|');
 }
 
 /**
  * Computes a combined signature for all weapons on a unit.
- * Weapons are sorted by safeName to ensure consistent ordering.
+ * Weapon signatures are sorted to ensure consistent ordering regardless of
+ * the order weapons appear in the data.
+ *
+ * Note: Weapon slot order is intentionally ignored. All PA commanders use
+ * the same weapon specs (uber cannon, AA, torpedo, etc.) in the same slots,
+ * so ordering differences would only occur from data inconsistencies.
  */
 function computeWeaponsSignature(weapons: Weapon[] | undefined): string {
   if (!weapons || weapons.length === 0) return '';
 
   const signatures = weapons
     .map(computeWeaponSignature)
-    .sort(); // Sort for consistent ordering
+    .sort(); // Sort signatures for consistent ordering
 
   return signatures.join(';');
 }
