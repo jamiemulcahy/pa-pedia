@@ -10,6 +10,17 @@ import (
 
 // parseEconomy parses production, consumption, and storage
 func parseEconomy(data map[string]interface{}, unit *models.Unit) {
+	// Reset calculated values before recalculating.
+	// This is necessary because we may have inherited already-calculated values
+	// from base_spec, and we need to recalculate from the (potentially inherited)
+	// BuildArms and Weapons arrays.
+	unit.Specs.Economy.ToolConsumption = models.Resources{}
+	unit.Specs.Economy.WeaponConsumption = models.Resources{}
+	unit.Specs.Economy.BuildRate = 0
+	unit.Specs.Economy.MetalRate = 0
+	unit.Specs.Economy.EnergyRate = 0
+	unit.Specs.Economy.BuildInefficiency = 0
+
 	// Production
 	if production, ok := data["production"].(map[string]interface{}); ok {
 		unit.Specs.Economy.Production.Metal = loader.GetFloat(production, "metal", 0)
