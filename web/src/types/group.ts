@@ -112,6 +112,12 @@ export interface AggregatedGroupStats {
   /** Distinct weapons aggregated across all units */
   weapons: AggregatedWeapon[]
 
+  // ===== SET aggregations (unique values from all units) =====
+  /** All unique target layers the group can hit */
+  allTargetLayers: string[]
+  /** All unique unit IDs the group can build */
+  allBuilds: string[]
+
   // ===== GROUP metadata =====
   /** Total number of units (sum of quantities) */
   unitCount: number

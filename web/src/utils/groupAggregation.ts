@@ -165,6 +165,10 @@ export function aggregateGroupStats(
   // Weapon collector
   const weaponCollector: Map<string, AggregatedWeapon> = new Map()
 
+  // SET aggregations (unique values across all units)
+  const targetLayerSet = new Set<string>()
+  const buildsSet = new Set<string>()
+
   // Track total unit count
   let unitCount = 0
 
@@ -211,6 +215,20 @@ export function aggregateGroupStats(
     if (!specs.special?.amphibious) allAmphibious = false
     if (specs.special?.hover) anyHover = true
     if (!specs.special?.hover) allHover = false
+
+    // SET aggregations - collect unique values
+    // Collect target layers from all weapons
+    for (const weapon of specs.combat.weapons ?? []) {
+      if (weapon.selfDestruct || weapon.deathExplosion) continue
+      for (const layer of weapon.targetLayers ?? []) {
+        targetLayerSet.add(layer)
+      }
+    }
+
+    // Collect buildable units
+    for (const buildId of unit.buildRelationships?.builds ?? []) {
+      buildsSet.add(buildId)
+    }
 
     // Aggregate weapons
     aggregateWeapons(weaponCollector, unit, member, qty)
@@ -268,6 +286,8 @@ export function aggregateGroupStats(
     anyHover,
     allHover,
     weapons,
+    allTargetLayers: Array.from(targetLayerSet).sort(),
+    allBuilds: Array.from(buildsSet).sort(),
     unitCount,
     distinctUnitTypes: units.length,
   }

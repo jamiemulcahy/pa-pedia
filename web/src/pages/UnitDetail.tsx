@@ -735,6 +735,54 @@ export function UnitDetail() {
                       </div>
                     </div>
                   )}
+
+                  {/* Group Target Priorities */}
+                  {(primaryGroupStats?.allTargetLayers.length || comparisonGroupStats?.allTargetLayers.length) ? (
+                    <div className="flex gap-6 items-stretch">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                        {primaryGroupStats && (
+                          <TargetPrioritiesSection
+                            groupTargetLayers={primaryGroupStats.allTargetLayers}
+                            compareGroupTargetLayers={comparisonGroupStats?.allTargetLayers}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                        {comparisonGroupStats && (
+                          <TargetPrioritiesSection
+                            groupTargetLayers={comparisonGroupStats.allTargetLayers}
+                            compareGroupTargetLayers={primaryGroupStats?.allTargetLayers}
+                            isComparisonSide
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Group Builds */}
+                  {(primaryGroupStats?.allBuilds.length || comparisonGroupStats?.allBuilds.length) ? (
+                    <div className="flex gap-6 items-stretch">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                        {primaryGroupStats && primaryGroupStats.allBuilds.length > 0 && (
+                          <BuildsSection
+                            builds={primaryGroupStats.allBuilds}
+                            buildRate={primaryGroupStats.totalBuildRate}
+                            compareBuilds={comparisonGroupStats?.allBuilds}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                        {comparisonGroupStats && comparisonGroupStats.allBuilds.length > 0 && (
+                          <BuildsSection
+                            builds={comparisonGroupStats.allBuilds}
+                            buildRate={comparisonGroupStats.totalBuildRate}
+                            compareBuilds={primaryGroupStats?.allBuilds}
+                            isComparisonSide
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
                 </>
               ) : (
                 <>
