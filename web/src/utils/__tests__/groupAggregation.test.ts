@@ -12,11 +12,13 @@ import type { AggregatedWeapon, GroupMember } from '@/types/group'
 // Helper to create a minimal Unit for testing
 function createMockUnit(overrides: Partial<Unit> = {}): Unit {
   return {
-    identifier: 'test_unit',
+    id: 'test_unit',
+    resourceName: '/pa/units/test/test_unit.json',
     displayName: 'Test Unit',
     unitTypes: ['Mobile', 'Land'],
     description: '',
     image: '',
+    tier: 1,
     accessible: true,
     specs: {
       combat: {
@@ -110,11 +112,11 @@ describe('groupAggregation', () => {
 
     it('should sum HP and build cost across units', () => {
       const unit1 = createMockUnit({
-        identifier: 'tank1',
+        id: 'tank1',
         specs: { combat: { health: 100 }, economy: { buildCost: 50 } },
       })
       const unit2 = createMockUnit({
-        identifier: 'tank2',
+        id: 'tank2',
         specs: { combat: { health: 200 }, economy: { buildCost: 100 } },
       })
 
@@ -123,7 +125,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'tank2', quantity: 3 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'tank1') return unit1
         if (unitId === 'tank2') return unit2
         return undefined
@@ -142,7 +144,7 @@ describe('groupAggregation', () => {
 
     it('should calculate MIN for mobility stats', () => {
       const fastUnit = createMockUnit({
-        identifier: 'fast',
+        id: 'fast',
         specs: {
           combat: { health: 100 },
           economy: { buildCost: 50 },
@@ -150,7 +152,7 @@ describe('groupAggregation', () => {
         },
       })
       const slowUnit = createMockUnit({
-        identifier: 'slow',
+        id: 'slow',
         specs: {
           combat: { health: 100 },
           economy: { buildCost: 50 },
@@ -163,7 +165,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'slow', quantity: 1 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'fast') return fastUnit
         if (unitId === 'slow') return slowUnit
         return undefined
@@ -181,7 +183,7 @@ describe('groupAggregation', () => {
 
     it('should calculate MAX for recon stats', () => {
       const scoutUnit = createMockUnit({
-        identifier: 'scout',
+        id: 'scout',
         specs: {
           combat: { health: 50 },
           economy: { buildCost: 30 },
@@ -189,7 +191,7 @@ describe('groupAggregation', () => {
         },
       })
       const tankUnit = createMockUnit({
-        identifier: 'tank',
+        id: 'tank',
         specs: {
           combat: { health: 200 },
           economy: { buildCost: 100 },
@@ -202,7 +204,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'tank', quantity: 10 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'scout') return scoutUnit
         if (unitId === 'tank') return tankUnit
         return undefined
@@ -218,7 +220,7 @@ describe('groupAggregation', () => {
 
     it('should aggregate economy production and consumption', () => {
       const mex = createMockUnit({
-        identifier: 'mex',
+        id: 'mex',
         specs: {
           combat: { health: 500 },
           economy: {
@@ -229,7 +231,7 @@ describe('groupAggregation', () => {
         },
       })
       const pgen = createMockUnit({
-        identifier: 'pgen',
+        id: 'pgen',
         specs: {
           combat: { health: 1000 },
           economy: {
@@ -245,7 +247,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'pgen', quantity: 2 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'mex') return mex
         if (unitId === 'pgen') return pgen
         return undefined
@@ -266,7 +268,7 @@ describe('groupAggregation', () => {
 
     it('should aggregate weapons and exclude self-destruct/death explosions', () => {
       const unit = createMockUnit({
-        identifier: 'bomber',
+        id: 'bomber',
         specs: {
           combat: {
             health: 100,
@@ -306,7 +308,7 @@ describe('groupAggregation', () => {
 
     it('should combine same weapons from multiple units', () => {
       const ant = createMockUnit({
-        identifier: 'ant',
+        id: 'ant',
         specs: {
           combat: {
             health: 50,
@@ -317,7 +319,7 @@ describe('groupAggregation', () => {
         },
       })
       const dox = createMockUnit({
-        identifier: 'dox',
+        id: 'dox',
         specs: {
           combat: {
             health: 40,
@@ -333,7 +335,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'dox', quantity: 5 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'ant') return ant
         if (unitId === 'dox') return dox
         return undefined
@@ -352,7 +354,7 @@ describe('groupAggregation', () => {
 
     it('should calculate derived metrics (DPS/metal, HP/metal)', () => {
       const unit = createMockUnit({
-        identifier: 'tank',
+        id: 'tank',
         specs: {
           combat: { health: 1000, dps: 50 },
           economy: { buildCost: 500 },
@@ -378,7 +380,7 @@ describe('groupAggregation', () => {
 
     it('should handle boolean aggregations (amphibious, hover)', () => {
       const hoverUnit = createMockUnit({
-        identifier: 'hover',
+        id: 'hover',
         specs: {
           combat: { health: 100 },
           economy: { buildCost: 100 },
@@ -386,7 +388,7 @@ describe('groupAggregation', () => {
         },
       })
       const amphUnit = createMockUnit({
-        identifier: 'amph',
+        id: 'amph',
         specs: {
           combat: { health: 100 },
           economy: { buildCost: 100 },
@@ -394,7 +396,7 @@ describe('groupAggregation', () => {
         },
       })
       const normalUnit = createMockUnit({
-        identifier: 'normal',
+        id: 'normal',
         specs: {
           combat: { health: 100 },
           economy: { buildCost: 100 },
@@ -408,7 +410,7 @@ describe('groupAggregation', () => {
         { factionId: 'MLA', unitId: 'normal', quantity: 1 },
       ]
 
-      const getUnit = (factionId: string, unitId: string) => {
+      const getUnit = (_factionId: string, unitId: string) => {
         if (unitId === 'hover') return hoverUnit
         if (unitId === 'amph') return amphUnit
         if (unitId === 'normal') return normalUnit

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { StatRow, StatLink } from '../StatRow'
 
 describe('StatRow', () => {
@@ -12,6 +12,10 @@ describe('StatRow', () => {
 
   it('should render tooltip when provided', () => {
     render(<StatRow label="DPS" value={100} tooltip="Damage per second" />)
+
+    // Tooltip is portal-rendered and only visible on hover/focus
+    const button = screen.getByRole('button')
+    fireEvent.mouseEnter(button)
 
     expect(screen.getByRole('tooltip')).toHaveTextContent('Damage per second')
   })
