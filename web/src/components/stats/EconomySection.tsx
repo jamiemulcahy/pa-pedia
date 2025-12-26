@@ -4,91 +4,133 @@ import { StatRow } from '../StatRow';
 import { ComparisonValue } from '../ComparisonValue';
 import { isDifferent } from '@/utils/comparison';
 import type { EconomySpecs } from '@/types/faction';
+import type { AggregatedGroupStats } from '@/types/group';
+
+/** Pre-aggregated economy values for group mode */
+interface GroupEconomyStats {
+  metalProduction: number;
+  energyProduction: number;
+  metalConsumption: number;
+  energyConsumption: number;
+  metalStorage: number;
+  energyStorage: number;
+  buildRate: number;
+  toolEnergyConsumption: number;
+  maxBuildRange?: number;
+}
 
 interface EconomySectionProps {
-  economy: EconomySpecs;
+  /** Unit economy specs (for unit mode) */
+  economy?: EconomySpecs;
   compareEconomy?: EconomySpecs;
+  /** Group economy stats (for group mode) - takes precedence over economy */
+  groupStats?: AggregatedGroupStats;
+  compareGroupStats?: AggregatedGroupStats;
   showDifferencesOnly?: boolean;
   hideDiff?: boolean;
+}
+
+/** Extract economy values from either group stats or unit economy specs */
+function extractEconomyValues(
+  economy?: EconomySpecs,
+  groupStats?: AggregatedGroupStats
+): GroupEconomyStats {
+  if (groupStats) {
+    return {
+      metalProduction: groupStats.totalMetalProduction,
+      energyProduction: groupStats.totalEnergyProduction,
+      metalConsumption: groupStats.totalMetalConsumption,
+      energyConsumption: groupStats.totalEnergyConsumption,
+      metalStorage: groupStats.totalMetalStorage,
+      energyStorage: groupStats.totalEnergyStorage,
+      buildRate: groupStats.totalBuildRate,
+      toolEnergyConsumption: groupStats.totalToolEnergyConsumption,
+      maxBuildRange: groupStats.maxBuildRange,
+    };
+  }
+
+  return {
+    metalProduction: economy?.production?.metal || 0,
+    energyProduction: economy?.production?.energy || 0,
+    metalConsumption: economy?.consumption?.metal || 0,
+    energyConsumption: economy?.consumption?.energy || 0,
+    metalStorage: economy?.storage?.metal || 0,
+    energyStorage: economy?.storage?.energy || 0,
+    buildRate: economy?.buildRate || 0,
+    toolEnergyConsumption: economy?.toolConsumption?.energy || 0,
+    maxBuildRange: economy?.buildRange,
+  };
 }
 
 export const EconomySection: React.FC<EconomySectionProps> = ({
   economy,
   compareEconomy,
+  groupStats,
+  compareGroupStats,
   showDifferencesOnly,
   hideDiff,
 }) => {
-  // Production stats
-  const metalProduction = economy.production?.metal || 0;
-  const energyProduction = economy.production?.energy || 0;
-  const compareMetalProduction = compareEconomy?.production?.metal;
-  const compareEnergyProduction = compareEconomy?.production?.energy;
+  const isGroupMode = !!groupStats;
 
-  // Storage stats
-  const metalStorage = economy.storage?.metal || 0;
-  const energyStorage = economy.storage?.energy || 0;
-  const compareMetalStorage = compareEconomy?.storage?.metal;
-  const compareEnergyStorage = compareEconomy?.storage?.energy;
+  // Extract values from either group stats or unit economy
+  const stats = extractEconomyValues(economy, groupStats);
+  const compareStats = extractEconomyValues(compareEconomy, compareGroupStats);
 
-  // Build arm stats
-  const buildRate = economy.buildRate || 0;
-  const compareBuildRate = compareEconomy?.buildRate;
-  const energyConsumption = economy.toolConsumption?.energy || 0;
-  const compareEnergyConsumption = compareEconomy?.toolConsumption?.energy;
-  const buildRange = economy.buildRange || 0;
-  const compareBuildRange = compareEconomy?.buildRange;
-
-  // Derived build arm stats
-  // Build power cost: total effective metal cost per unit of build rate
-  // Includes metal cost + energy consumption converted to metal equivalent (energy × 2/3)
-  const costEffectiveness = buildRate > 0 && economy.buildCost > 0
-    ? (economy.buildCost + energyConsumption * (2/3)) / buildRate
+  // Derived build arm stats (only for unit mode - doesn't make sense for groups)
+  const costEffectiveness = !isGroupMode && stats.buildRate > 0 && economy?.buildCost && economy.buildCost > 0
+    ? (economy.buildCost + stats.toolEnergyConsumption * (2/3)) / stats.buildRate
     : undefined;
-  const compareCostEffectiveness = compareBuildRate && compareBuildRate > 0 && compareEconomy?.buildCost
-    ? (compareEconomy.buildCost + (compareEnergyConsumption || 0) * (2/3)) / compareBuildRate
+  const compareCostEffectiveness = !isGroupMode && compareStats.buildRate > 0 && compareEconomy?.buildCost
+    ? (compareEconomy.buildCost + compareStats.toolEnergyConsumption * (2/3)) / compareStats.buildRate
     : undefined;
-  const energyEfficiency = economy.buildInefficiency;
-  const compareEnergyEfficiency = compareEconomy?.buildInefficiency;
+  const energyEfficiency = !isGroupMode ? economy?.buildInefficiency : undefined;
+  const compareEnergyEfficiency = !isGroupMode ? compareEconomy?.buildInefficiency : undefined;
 
   // Check if we have any economy stats to display
-  const hasProductionStats = metalProduction > 0 || energyProduction > 0;
-  const hasStorageStats = metalStorage > 0 || energyStorage > 0;
-  const hasBuildArmStats = buildRate > 0;
+  const hasProductionStats = stats.metalProduction > 0 || stats.energyProduction > 0;
+  const hasConsumptionStats = stats.metalConsumption > 0 || stats.energyConsumption > 0;
+  const hasStorageStats = stats.metalStorage > 0 || stats.energyStorage > 0;
+  const hasBuildArmStats = stats.buildRate > 0;
 
-  if (!hasProductionStats && !hasStorageStats && !hasBuildArmStats) return null;
+  if (!hasProductionStats && !hasConsumptionStats && !hasStorageStats && !hasBuildArmStats) return null;
+
+  const hasCompare = !!compareEconomy || !!compareGroupStats;
 
   // Check which rows have differences
-  const metalProdDiff = isDifferent(metalProduction, compareMetalProduction || 0);
-  const energyProdDiff = isDifferent(energyProduction, compareEnergyProduction || 0);
-  const metalStorDiff = isDifferent(metalStorage, compareMetalStorage || 0);
-  const energyStorDiff = isDifferent(energyStorage, compareEnergyStorage || 0);
-  const buildRateDiff = isDifferent(buildRate, compareBuildRate || 0);
-  const energyConsDiff = isDifferent(energyConsumption, compareEnergyConsumption || 0);
-  const buildRangeDiff = isDifferent(buildRange, compareBuildRange || 0);
+  const metalProdDiff = isDifferent(stats.metalProduction, compareStats.metalProduction);
+  const energyProdDiff = isDifferent(stats.energyProduction, compareStats.energyProduction);
+  const metalConsDiff = isDifferent(stats.metalConsumption, compareStats.metalConsumption);
+  const energyConsDiff = isDifferent(stats.energyConsumption, compareStats.energyConsumption);
+  const metalStorDiff = isDifferent(stats.metalStorage, compareStats.metalStorage);
+  const energyStorDiff = isDifferent(stats.energyStorage, compareStats.energyStorage);
+  const buildRateDiff = isDifferent(stats.buildRate, compareStats.buildRate);
+  const toolEnergyDiff = isDifferent(stats.toolEnergyConsumption, compareStats.toolEnergyConsumption);
+  const buildRangeDiff = isDifferent(stats.maxBuildRange, compareStats.maxBuildRange);
   const costEffDiff = isDifferent(costEffectiveness, compareCostEffectiveness);
   const energyEffDiff = isDifferent(energyEfficiency, compareEnergyEfficiency);
 
-  // In diff mode with compare economy, check if we have any visible rows
-  const hasAnyDifference = !showDifferencesOnly || !compareEconomy ||
-    metalProdDiff || energyProdDiff || metalStorDiff || energyStorDiff ||
-    buildRateDiff || energyConsDiff || buildRangeDiff || costEffDiff || energyEffDiff;
+  // In diff mode with compare, check if we have any visible rows
+  const hasAnyDifference = !showDifferencesOnly || !hasCompare ||
+    metalProdDiff || energyProdDiff || metalConsDiff || energyConsDiff ||
+    metalStorDiff || energyStorDiff || buildRateDiff || toolEnergyDiff ||
+    buildRangeDiff || costEffDiff || energyEffDiff;
 
   if (!hasAnyDifference) {
     return null;
   }
 
-  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !compareEconomy || hasDiff;
+  const showRow = (hasDiff: boolean) => !showDifferencesOnly || !hasCompare || hasDiff;
 
   return (
     <StatSection title="Economy">
       {/* Production stats */}
-      {metalProduction > 0 && showRow(metalProdDiff) && (
+      {stats.metalProduction > 0 && showRow(metalProdDiff) && (
         <StatRow
           label="Metal production"
           value={
             <ComparisonValue
-              value={Number(metalProduction.toFixed(1))}
-              compareValue={compareMetalProduction ? Number(compareMetalProduction.toFixed(1)) : undefined}
+              value={Number(stats.metalProduction.toFixed(1))}
+              compareValue={hasCompare ? Number(compareStats.metalProduction.toFixed(1)) : undefined}
               comparisonType="higher-better"
               suffix="/s"
               hideDiff={hideDiff}
@@ -96,14 +138,44 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyProduction > 0 && showRow(energyProdDiff) && (
+      {stats.energyProduction > 0 && showRow(energyProdDiff) && (
         <StatRow
           label="Energy production"
           value={
             <ComparisonValue
-              value={Number(energyProduction.toFixed(0))}
-              compareValue={compareEnergyProduction ? Number(compareEnergyProduction.toFixed(0)) : undefined}
+              value={Number(stats.energyProduction.toFixed(0))}
+              compareValue={hasCompare ? Number(compareStats.energyProduction.toFixed(0)) : undefined}
               comparisonType="higher-better"
+              suffix="/s"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+
+      {/* Consumption stats (shown in both unit and group mode) */}
+      {stats.metalConsumption > 0 && showRow(metalConsDiff) && (
+        <StatRow
+          label="Metal consumption"
+          value={
+            <ComparisonValue
+              value={Number(stats.metalConsumption.toFixed(1))}
+              compareValue={hasCompare ? Number(compareStats.metalConsumption.toFixed(1)) : undefined}
+              comparisonType="lower-better"
+              suffix="/s"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {stats.energyConsumption > 0 && showRow(energyConsDiff) && (
+        <StatRow
+          label="Energy consumption"
+          value={
+            <ComparisonValue
+              value={Number(stats.energyConsumption.toFixed(0))}
+              compareValue={hasCompare ? Number(compareStats.energyConsumption.toFixed(0)) : undefined}
+              comparisonType="lower-better"
               suffix="/s"
               hideDiff={hideDiff}
             />
@@ -112,26 +184,26 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
       )}
 
       {/* Storage stats */}
-      {metalStorage > 0 && showRow(metalStorDiff) && (
+      {stats.metalStorage > 0 && showRow(metalStorDiff) && (
         <StatRow
           label="Metal storage"
           value={
             <ComparisonValue
-              value={Number(metalStorage.toFixed(0))}
-              compareValue={compareMetalStorage ? Number(compareMetalStorage.toFixed(0)) : undefined}
+              value={Number(stats.metalStorage.toFixed(0))}
+              compareValue={hasCompare ? Number(compareStats.metalStorage.toFixed(0)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
           }
         />
       )}
-      {energyStorage > 0 && showRow(energyStorDiff) && (
+      {stats.energyStorage > 0 && showRow(energyStorDiff) && (
         <StatRow
           label="Energy storage"
           value={
             <ComparisonValue
-              value={Number(energyStorage.toFixed(0))}
-              compareValue={compareEnergyStorage ? Number(compareEnergyStorage.toFixed(0)) : undefined}
+              value={Number(stats.energyStorage.toFixed(0))}
+              compareValue={hasCompare ? Number(compareStats.energyStorage.toFixed(0)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
@@ -140,13 +212,13 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
       )}
 
       {/* Build arm stats */}
-      {buildRate > 0 && showRow(buildRateDiff) && (
+      {stats.buildRate > 0 && showRow(buildRateDiff) && (
         <StatRow
-          label="Build rate"
+          label={isGroupMode ? "Combined build rate" : "Build rate"}
           value={
             <ComparisonValue
-              value={Number(buildRate.toFixed(1))}
-              compareValue={compareBuildRate ? Number(compareBuildRate.toFixed(1)) : undefined}
+              value={Number(stats.buildRate.toFixed(1))}
+              compareValue={hasCompare ? Number(compareStats.buildRate.toFixed(1)) : undefined}
               comparisonType="higher-better"
               suffix=" metal/s"
               hideDiff={hideDiff}
@@ -154,13 +226,13 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {energyConsumption > 0 && showRow(energyConsDiff) && (
+      {stats.toolEnergyConsumption > 0 && showRow(toolEnergyDiff) && (
         <StatRow
           label="Build energy"
           value={
             <ComparisonValue
-              value={Number(energyConsumption.toFixed(0))}
-              compareValue={compareEnergyConsumption ? Number(compareEnergyConsumption.toFixed(0)) : undefined}
+              value={Number(stats.toolEnergyConsumption.toFixed(0))}
+              compareValue={hasCompare ? Number(compareStats.toolEnergyConsumption.toFixed(0)) : undefined}
               comparisonType="lower-better"
               suffix=" energy/s"
               hideDiff={hideDiff}
@@ -168,19 +240,20 @@ export const EconomySection: React.FC<EconomySectionProps> = ({
           }
         />
       )}
-      {buildRange > 0 && showRow(buildRangeDiff) && (
+      {stats.maxBuildRange !== undefined && stats.maxBuildRange > 0 && showRow(buildRangeDiff) && (
         <StatRow
-          label="Build range"
+          label={isGroupMode ? "Max build range" : "Build range"}
           value={
             <ComparisonValue
-              value={Number(buildRange.toFixed(0))}
-              compareValue={compareBuildRange ? Number(compareBuildRange.toFixed(0)) : undefined}
+              value={Number(stats.maxBuildRange.toFixed(0))}
+              compareValue={hasCompare && compareStats.maxBuildRange ? Number(compareStats.maxBuildRange.toFixed(0)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
           }
         />
       )}
+      {/* Unit-only derived stats */}
       {costEffectiveness !== undefined && showRow(costEffDiff) && (
         <StatRow
           label="Build power cost"

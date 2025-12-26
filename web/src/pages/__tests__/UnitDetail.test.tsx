@@ -339,8 +339,8 @@ describe('UnitDetail', () => {
       })
     })
 
-    it('should limit comparison units to maximum of 6', async () => {
-      // URL with 7 comparison units - should only parse 6
+    it('should support many comparison units without limit', async () => {
+      // URL with many comparison units - all should be parsed (no limit in group mode)
       const manyUnits = 'compare=MLA/bot,MLA/air_fighter,MLA/vehicle_factory,MLA/bot,MLA/air_fighter,MLA/vehicle_factory,MLA/bot'
       renderUnitDetail('MLA', 'tank', manyUnits)
 
@@ -348,14 +348,13 @@ describe('UnitDetail', () => {
         expect(screen.getByRole('heading', { name: 'Tank' })).toBeInTheDocument()
       })
 
-      // Should not show Add button when at max
+      // Wait for comparison units to load
       await waitFor(() => {
-        // Wait for comparison units to load
         expect(screen.getAllByRole('heading', { name: 'Bot' }).length).toBeGreaterThanOrEqual(1)
       })
 
-      // Add button should not be visible when at max (6 comparison units)
-      expect(screen.queryByRole('button', { name: /add/i })).not.toBeInTheDocument()
+      // Add button should still be visible (no limit on comparison units)
+      expect(screen.getByRole('button', { name: /add/i })).toBeInTheDocument()
     })
 
     it('should support cross-faction comparison', async () => {

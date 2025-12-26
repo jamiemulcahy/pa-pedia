@@ -80,7 +80,7 @@ describe('ReconSection', () => {
     }
     render(<ReconSection recon={reconWithUnderwater} />)
 
-    expect(screen.getByText('Underwater vision radius:')).toBeInTheDocument()
+    expect(screen.getByText('Underwater vision:')).toBeInTheDocument()
     expect(screen.getByText('50')).toBeInTheDocument()
   })
 
