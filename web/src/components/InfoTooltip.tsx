@@ -1,6 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
+/** Margin between tooltip and viewport edges / trigger element */
+const TOOLTIP_MARGIN = 8;
+
 interface InfoTooltipProps {
   /** The tooltip text to display on hover */
   text: string;
@@ -34,28 +37,28 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, className = '' }
 
     // Check if tooltip would clip at top
     const spaceAbove = triggerRect.top;
-    const flipBelow = spaceAbove < tooltipHeight + 8;
+    const flipBelow = spaceAbove < tooltipHeight + TOOLTIP_MARGIN;
 
     // Calculate vertical position
     let top: number;
     if (flipBelow) {
-      top = triggerRect.bottom + 8; // Below the trigger
+      top = triggerRect.bottom + TOOLTIP_MARGIN; // Below the trigger
     } else {
-      top = triggerRect.top - tooltipHeight - 8; // Above the trigger
+      top = triggerRect.top - tooltipHeight - TOOLTIP_MARGIN; // Above the trigger
     }
 
     // Calculate horizontal position - align left edge with trigger, but keep in viewport
     let left = triggerRect.left;
 
     // Prevent tooltip from going off right edge
-    const rightOverflow = left + tooltipWidth - window.innerWidth + 8;
+    const rightOverflow = left + tooltipWidth - window.innerWidth + TOOLTIP_MARGIN;
     if (rightOverflow > 0) {
       left -= rightOverflow;
     }
 
     // Prevent tooltip from going off left edge
-    if (left < 8) {
-      left = 8;
+    if (left < TOOLTIP_MARGIN) {
+      left = TOOLTIP_MARGIN;
     }
 
     setPosition({ top, left, flipBelow });
