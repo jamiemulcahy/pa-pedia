@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface QuantitySelectorProps {
   value: number
@@ -15,22 +15,21 @@ export function QuantitySelector({
   debounceMs = 150,
 }: QuantitySelectorProps) {
   const [localValue, setLocalValue] = useState(value.toString())
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Sync local value when prop changes
   useEffect(() => {
     setLocalValue(value.toString())
   }, [value])
 
-  // Debounced onChange
-  const debouncedOnChange = useCallback(
-    (newValue: number) => {
-      const timeoutId = setTimeout(() => {
-        onChange(newValue)
-      }, debounceMs)
-      return () => clearTimeout(timeoutId)
-    },
-    [onChange, debounceMs]
-  )
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value
@@ -51,7 +50,14 @@ export function QuantitySelector({
 
     // Apply minimum bound
     const boundedValue = Math.max(min, num)
-    debouncedOnChange(boundedValue)
+
+    // Debounce the onChange call
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      onChange(boundedValue)
+    }, debounceMs)
   }
 
   const handleBlur = () => {
