@@ -6,6 +6,10 @@ interface TargetPrioritiesSectionProps {
   weapons?: Weapon[];
   /** Weapons from the comparison unit (for showing diff on comparison side) */
   compareWeapons?: Weapon[];
+  /** Pre-computed target layers for group mode (takes precedence over weapons) */
+  groupTargetLayers?: string[];
+  /** Pre-computed comparison target layers for group mode */
+  compareGroupTargetLayers?: string[];
   /** When true, only show section if there are differences */
   showDifferencesOnly?: boolean;
   /** When true, this is the comparison side and should show the merged diff view */
@@ -24,26 +28,35 @@ function getTargetLayers(weapons?: Weapon[]): Set<string> {
 export const TargetPrioritiesSection: React.FC<TargetPrioritiesSectionProps> = ({
   weapons,
   compareWeapons,
+  groupTargetLayers,
+  compareGroupTargetLayers,
   showDifferencesOnly,
   isComparisonSide,
 }) => {
-  if (!weapons || weapons.length === 0) return null;
+  // Use group mode data if available, otherwise compute from weapons
+  const thisTargets = groupTargetLayers
+    ? new Set(groupTargetLayers)
+    : getTargetLayers(weapons);
+  const compareTargets = compareGroupTargetLayers
+    ? new Set(compareGroupTargetLayers)
+    : getTargetLayers(compareWeapons);
 
-  const thisTargets = getTargetLayers(weapons);
-  const compareTargets = getTargetLayers(compareWeapons);
+  // For non-group mode, check if weapons exist
+  if (!groupTargetLayers && (!weapons || weapons.length === 0)) return null;
 
   if (thisTargets.size === 0) return null;
 
   // Check if there are any differences
+  const hasCompare = !!compareWeapons || !!compareGroupTargetLayers;
   const allTargets = new Set([...thisTargets, ...compareTargets]);
-  const hasDifferences = compareWeapons && (
+  const hasDifferences = hasCompare && (
     thisTargets.size !== compareTargets.size ||
     [...thisTargets].some(t => !compareTargets.has(t)) ||
     [...compareTargets].some(t => !thisTargets.has(t))
   );
 
   // In diff mode with comparison, hide if no differences
-  if (showDifferencesOnly && compareWeapons && !hasDifferences) {
+  if (showDifferencesOnly && hasCompare && !hasDifferences) {
     return null;
   }
 
@@ -51,7 +64,7 @@ export const TargetPrioritiesSection: React.FC<TargetPrioritiesSectionProps> = (
   const sortedTargets = Array.from(allTargets).sort();
 
   // For comparison side with compare data, show merged diff view
-  if (isComparisonSide && compareWeapons) {
+  if (isComparisonSide && hasCompare) {
     return (
       <StatSection title="Target Priorities">
         <div className="space-y-1">

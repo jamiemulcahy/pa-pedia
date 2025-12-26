@@ -1,4 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
+/** Margin between tooltip and viewport edges / trigger element */
+const TOOLTIP_MARGIN = 8;
 
 interface InfoTooltipProps {
   /** The tooltip text to display on hover */
@@ -7,41 +11,123 @@ interface InfoTooltipProps {
   className?: string;
 }
 
+interface TooltipPosition {
+  top: number;
+  left: number;
+  flipBelow: boolean;
+}
+
 /**
- * An info icon (ⓘ) that displays a tooltip on hover or focus.
+ * An info icon (i) that displays a tooltip on hover or focus.
+ * Uses a portal to render the tooltip at the body level, avoiding overflow clipping.
  * Supports keyboard navigation and smart positioning to avoid viewport clipping.
  */
 export const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, className = '' }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [flipBelow, setFlipBelow] = useState(false);
+  const [position, setPosition] = useState<TooltipPosition>({ top: 0, left: 0, flipBelow: false });
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
 
   const updatePosition = useCallback(() => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      // Flip below if less than 80px from top of viewport
-      setFlipBelow(rect.top < 80);
+    if (!triggerRef.current) return;
+
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const tooltipHeight = tooltipRef.current?.offsetHeight || 40;
+    const tooltipWidth = tooltipRef.current?.offsetWidth || 200;
+
+    // Check if tooltip would clip at top
+    const spaceAbove = triggerRect.top;
+    const flipBelow = spaceAbove < tooltipHeight + TOOLTIP_MARGIN;
+
+    // Calculate vertical position
+    let top: number;
+    if (flipBelow) {
+      top = triggerRect.bottom + TOOLTIP_MARGIN; // Below the trigger
+    } else {
+      top = triggerRect.top - tooltipHeight - TOOLTIP_MARGIN; // Above the trigger
     }
+
+    // Calculate horizontal position - align left edge with trigger, but keep in viewport
+    let left = triggerRect.left;
+
+    // Prevent tooltip from going off right edge
+    const rightOverflow = left + tooltipWidth - window.innerWidth + TOOLTIP_MARGIN;
+    if (rightOverflow > 0) {
+      left -= rightOverflow;
+    }
+
+    // Prevent tooltip from going off left edge
+    if (left < TOOLTIP_MARGIN) {
+      left = TOOLTIP_MARGIN;
+    }
+
+    setPosition({ top, left, flipBelow });
   }, []);
 
-  const showTooltip = useCallback(() => {
+  // Update position when visibility changes or on scroll/resize
+  useEffect(() => {
+    if (!isVisible) return;
+
     updatePosition();
+
+    const handleUpdate = () => updatePosition();
+    window.addEventListener('scroll', handleUpdate, true);
+    window.addEventListener('resize', handleUpdate);
+
+    return () => {
+      window.removeEventListener('scroll', handleUpdate, true);
+      window.removeEventListener('resize', handleUpdate);
+    };
+  }, [isVisible, updatePosition]);
+
+  const showTooltip = useCallback(() => {
     setIsVisible(true);
-  }, [updatePosition]);
+  }, []);
 
   const hideTooltip = useCallback(() => {
     setIsVisible(false);
   }, []);
 
-  // Position classes based on flip state
-  const positionClasses = flipBelow
-    ? 'top-full mt-2'  // Below the icon
-    : 'bottom-full mb-2';  // Above the icon (default)
+  // Arrow position classes based on flip state
+  const arrowStyle: React.CSSProperties = position.flipBelow
+    ? {
+        top: -8,
+        left: 12,
+        borderWidth: 4,
+        borderStyle: 'solid',
+        borderColor: 'transparent transparent rgb(17 24 39) transparent', // gray-900
+      }
+    : {
+        bottom: -8,
+        left: 12,
+        borderWidth: 4,
+        borderStyle: 'solid',
+        borderColor: 'rgb(17 24 39) transparent transparent transparent', // gray-900
+      };
 
-  // Arrow position classes
-  const arrowClasses = flipBelow
-    ? 'bottom-full left-2 border-b-gray-900 dark:border-b-gray-700 border-t-transparent'
-    : 'top-full left-2 border-t-gray-900 dark:border-t-gray-700 border-b-transparent';
+  // Render tooltip via portal to avoid overflow clipping
+  const tooltip = isVisible
+    ? createPortal(
+        <span
+          ref={tooltipRef}
+          role="tooltip"
+          className="fixed px-2.5 py-1.5 text-sm font-normal text-white bg-gray-900 dark:bg-gray-700 rounded shadow-lg w-max max-w-xs z-[9999] pointer-events-none"
+          style={{
+            top: position.top,
+            left: position.left,
+          }}
+        >
+          {text}
+          {/* Arrow */}
+          <span
+            className="absolute dark:[border-color:transparent_transparent_rgb(55,65,81)_transparent]"
+            style={arrowStyle}
+            aria-hidden="true"
+          />
+        </span>,
+        document.body
+      )
+    : null;
 
   return (
     <span className={`relative inline-flex items-center ${className}`}>
@@ -67,25 +153,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, className = '' }
         </svg>
         <span className="sr-only">Info: {text}</span>
       </button>
-      <span
-        id="tooltip"
-        role="tooltip"
-        className={`
-          absolute left-0 ${positionClasses}
-          px-2.5 py-1.5 text-sm font-normal text-white bg-gray-900 dark:bg-gray-700
-          rounded shadow-lg w-max max-w-xs
-          transition-opacity duration-150 z-50
-          pointer-events-none
-          ${isVisible ? 'opacity-100 visible' : 'opacity-0 invisible'}
-        `}
-      >
-        {text}
-        {/* Arrow */}
-        <span
-          className={`absolute border-4 border-transparent ${arrowClasses}`}
-          aria-hidden="true"
-        />
-      </span>
+      {tooltip}
     </span>
   );
 };

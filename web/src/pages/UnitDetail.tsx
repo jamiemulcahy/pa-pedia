@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useMemo } from 'react'
+import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react'
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useUnit } from '@/hooks/useUnit'
 import { useComparisonUnits } from '@/hooks/useComparisonUnits'
 import { useFaction } from '@/hooks/useFaction'
+import { useFactionContext } from '@/contexts/FactionContext'
 import { UnitIcon } from '@/components/UnitIcon'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { SEO } from '@/components/SEO'
@@ -21,7 +22,15 @@ import { UnitTypesSection } from '@/components/stats/UnitTypesSection'
 import { EconomySection } from '@/components/stats/EconomySection'
 import { StorageSection } from '@/components/stats/StorageSection'
 import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
+import { aggregateGroupStats, matchAggregatedWeapons } from '@/utils/groupAggregation'
+import {
+  GroupModeToggle,
+  GroupWeaponCard,
+  GroupUnitList,
+} from '@/components/comparison'
+import { StatSection } from '@/components/StatSection'
 import type { Weapon, Unit } from '@/types/faction'
+import type { ComparisonMode, GroupMember } from '@/types/group'
 
 /** Filter to get regular weapons (excludes self-destruct and death explosions) */
 const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
@@ -70,50 +79,158 @@ export function UnitDetail() {
   const isComparing = compareParam !== null
   const showDifferencesOnly = searchParams.get('diffOnly') === '1'
 
-  // Parse multiple comparison units from URL (format: "factionId/unitId,factionId/unitId,...")
-  // Empty unitId is allowed for "pending selection" slots
-  const MAX_COMPARISON_UNITS = 6
-  const comparisonRefs: { factionId: string; unitId: string }[] = []
-  if (compareParam) {
-    const entries = compareParam.split(',').filter(Boolean)
-    for (const entry of entries.slice(0, MAX_COMPARISON_UNITS)) {
-      if (entry.includes('/')) {
-        const [cFactionId, cUnitId] = entry.split('/')
+  // Parse group mode and primary quantity
+  const comparisonMode: ComparisonMode = searchParams.get('mode') === 'group' ? 'group' : 'unit'
+  const isGroupMode = comparisonMode === 'group'
+  const primaryQuantity = parseInt(searchParams.get('qty') || '1', 10) || 1
+
+  // Helper to parse unit refs from URL param
+  const parseUnitRefs = (param: string | null): { factionId: string; unitId: string; quantity: number }[] => {
+    if (!param) return []
+    const refs: { factionId: string; unitId: string; quantity: number }[] = []
+    const entries = param.split(',').filter(Boolean)
+    for (const entry of entries) {
+      const [refPart, qtyPart] = entry.split(':')
+      if (refPart.includes('/')) {
+        const [cFactionId, cUnitId] = refPart.split('/')
         if (cFactionId) {
-          // Allow empty unitId - this represents a "pending selection" slot
-          comparisonRefs.push({ factionId: cFactionId, unitId: cUnitId || '' })
+          const quantity = qtyPart ? parseInt(qtyPart, 10) || 1 : 1
+          refs.push({ factionId: cFactionId, unitId: cUnitId || '', quantity })
         }
       }
     }
+    return refs
   }
 
-  // URL manipulation helpers
-  const addComparisonUnit = (newFactionId: string, newUnitId: string) => {
-    if (comparisonRefs.length >= MAX_COMPARISON_UNITS) return
-    const newRefs = [...comparisonRefs, { factionId: newFactionId, unitId: newUnitId }]
+  // Parse additional units in primary group (for group mode)
+  const primaryUnitsParam = searchParams.get('primaryUnits')
+  const additionalPrimaryUnits = parseUnitRefs(primaryUnitsParam)
+
+  // Parse comparison group units
+  const comparisonRefs = parseUnitRefs(compareParam)
+
+  // State for pending unit selections in group mode
+  const [primaryPendingSelection, setPrimaryPendingSelection] = useState(false)
+  const [comparisonPendingSelection, setComparisonPendingSelection] = useState(false)
+
+  // Helper to serialize a unit ref to URL format
+  const serializeRef = (r: { factionId: string; unitId: string; quantity: number }) => {
+    const base = `${r.factionId}/${r.unitId}`
+    return r.quantity > 1 ? `${base}:${r.quantity}` : base
+  }
+
+  // Helper to update URL params
+  const updateUrlParams = useCallback((updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams)
-    params.set('compare', newRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
-    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-  }
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null) {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    }
+    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`, { replace: true })
+  }, [searchParams, navigate, factionId, unitId])
 
-  const removeComparisonUnit = (index: number) => {
+  // ===== Primary Group Management (for group mode) =====
+
+  const updatePrimaryQuantity = useCallback((quantity: number) => {
+    updateUrlParams({ qty: quantity > 1 ? quantity.toString() : null })
+  }, [updateUrlParams])
+
+  // Start pending selection for primary group
+  const startPrimarySelection = useCallback(() => {
+    setPrimaryPendingSelection(true)
+  }, [])
+
+  // Complete pending selection for primary group
+  const completePrimarySelection = useCallback((newFactionId: string, newUnitId: string) => {
+    const newRefs = [...additionalPrimaryUnits, { factionId: newFactionId, unitId: newUnitId, quantity: 1 }]
+    updateUrlParams({ primaryUnits: newRefs.length > 0 ? newRefs.map(serializeRef).join(',') : null })
+    setPrimaryPendingSelection(false)
+  }, [additionalPrimaryUnits, updateUrlParams])
+
+  // Cancel pending selection for primary group
+  const cancelPrimarySelection = useCallback(() => {
+    setPrimaryPendingSelection(false)
+  }, [])
+
+  const removePrimaryUnit = useCallback((index: number) => {
+    const newRefs = additionalPrimaryUnits.filter((_, i) => i !== index)
+    updateUrlParams({ primaryUnits: newRefs.length > 0 ? newRefs.map(serializeRef).join(',') : null })
+  }, [additionalPrimaryUnits, updateUrlParams])
+
+  const updatePrimaryUnitQuantity = useCallback((index: number, quantity: number) => {
+    const newRefs = [...additionalPrimaryUnits]
+    newRefs[index] = { ...newRefs[index], quantity }
+    updateUrlParams({ primaryUnits: newRefs.map(serializeRef).join(',') })
+  }, [additionalPrimaryUnits, updateUrlParams])
+
+  // ===== Comparison Group Management =====
+
+  // Start pending selection for comparison group
+  const startComparisonSelection = useCallback(() => {
+    setComparisonPendingSelection(true)
+  }, [])
+
+  // Complete pending selection for comparison group
+  const completeComparisonSelection = useCallback((newFactionId: string, newUnitId: string) => {
+    const newRefs = [...comparisonRefs, { factionId: newFactionId, unitId: newUnitId, quantity: 1 }]
+    const params = new URLSearchParams(searchParams)
+    params.set('compare', newRefs.map(serializeRef).join(','))
+    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
+    setComparisonPendingSelection(false)
+  }, [comparisonRefs, searchParams, navigate, factionId, unitId])
+
+  // Cancel pending selection for comparison group
+  const cancelComparisonSelection = useCallback(() => {
+    setComparisonPendingSelection(false)
+  }, [])
+
+  // Add a new comparison slot (for unit mode - creates empty slot to be filled via dropdown)
+  const addComparisonSlot = useCallback(() => {
+    const newRefs = [...comparisonRefs, { factionId: factionId || '', unitId: '', quantity: 1 }]
+    const params = new URLSearchParams(searchParams)
+    params.set('compare', newRefs.map(serializeRef).join(','))
+    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
+  }, [comparisonRefs, searchParams, navigate, factionId, unitId])
+
+  const removeComparisonUnit = useCallback((index: number) => {
     const newRefs = comparisonRefs.filter((_, i) => i !== index)
     const params = new URLSearchParams(searchParams)
     if (newRefs.length === 0) {
       params.delete('compare')
     } else {
-      params.set('compare', newRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
+      params.set('compare', newRefs.map(serializeRef).join(','))
     }
     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-  }
+  }, [comparisonRefs, searchParams, navigate, factionId, unitId])
 
-  const updateComparisonUnit = (index: number, newFactionId: string, newUnitId: string) => {
+  const updateComparisonUnit = useCallback((index: number, newFactionId: string, newUnitId: string) => {
     const newRefs = [...comparisonRefs]
-    newRefs[index] = { factionId: newFactionId, unitId: newUnitId }
+    newRefs[index] = { factionId: newFactionId, unitId: newUnitId, quantity: newRefs[index]?.quantity || 1 }
+    updateUrlParams({ compare: newRefs.map(serializeRef).join(',') })
+  }, [comparisonRefs, updateUrlParams])
+
+  const updateComparisonQuantity = useCallback((index: number, quantity: number) => {
+    const newRefs = [...comparisonRefs]
+    newRefs[index] = { ...newRefs[index], quantity }
+    updateUrlParams({ compare: newRefs.map(serializeRef).join(',') })
+  }, [comparisonRefs, updateUrlParams])
+
+  // ===== Mode Toggle =====
+
+  const toggleComparisonMode = useCallback((mode: ComparisonMode) => {
     const params = new URLSearchParams(searchParams)
-    params.set('compare', newRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
+    if (mode === 'group') {
+      params.set('mode', 'group')
+    } else {
+      params.delete('mode')
+      params.delete('qty')
+      params.delete('primaryUnits')
+    }
     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-  }
+  }, [searchParams, navigate, factionId, unitId])
 
   const toggleDifferencesOnly = () => {
     const params = new URLSearchParams(searchParams)
@@ -135,6 +252,9 @@ export function UnitDetail() {
 
   // Load all comparison units in parallel
   const { units: comparisonUnits } = useComparisonUnits(comparisonRefs)
+
+  // Load additional primary units (for group mode)
+  const { units: additionalPrimaryUnitData } = useComparisonUnits(additionalPrimaryUnits)
 
   // First comparison unit for diff calculations on primary column
   const compareUnit = comparisonUnits[0]
@@ -165,6 +285,49 @@ export function UnitDetail() {
     const regularWeapons = getRegularWeapons(unit.specs.combat.weapons)
     return comparisonUnits.map(compUnit => buildWeaponMatchMap(regularWeapons, compUnit))
   }, [unit, comparisonUnits])
+
+  // Get unit lookup function for group stats aggregation
+  const { getUnit: getUnitByKey } = useFactionContext()
+
+  // Wrapper to convert (factionId, unitId) to cache key format
+  const getUnit = useCallback((factionId: string, unitId: string) => {
+    return getUnitByKey(`${factionId}:${unitId}`)
+  }, [getUnitByKey])
+
+  // Build complete member lists for each group
+  const primaryGroupMembers = useMemo((): GroupMember[] => {
+    if (!factionId || !unitId) return []
+    // Primary group: current unit + additional primary units
+    return [
+      { factionId, unitId, quantity: primaryQuantity },
+      ...additionalPrimaryUnits.filter(u => u.unitId) // filter out empty slots
+    ]
+  }, [factionId, unitId, primaryQuantity, additionalPrimaryUnits])
+
+  const comparisonGroupMembers = useMemo((): GroupMember[] => {
+    // Comparison group: all comparison units combined into one group
+    return comparisonRefs.filter(u => u.unitId) // filter out empty slots
+  }, [comparisonRefs])
+
+  // Compute aggregated stats for primary group
+  const primaryGroupStats = useMemo(() => {
+    if (!isGroupMode || primaryGroupMembers.length === 0) return null
+    return aggregateGroupStats(primaryGroupMembers, getUnit)
+  }, [isGroupMode, primaryGroupMembers, getUnit])
+
+  // Compute aggregated stats for comparison group (single group, not array)
+  const comparisonGroupStats = useMemo(() => {
+    if (!isGroupMode || comparisonGroupMembers.length === 0) return null
+    return aggregateGroupStats(comparisonGroupMembers, getUnit)
+  }, [isGroupMode, comparisonGroupMembers, getUnit])
+
+  // Compute matched weapon pairs for group mode (aligned display)
+  const matchedGroupWeapons = useMemo(() => {
+    if (!isGroupMode) return []
+    const primaryWeapons = primaryGroupStats?.weapons ?? []
+    const comparisonWeapons = comparisonGroupStats?.weapons ?? []
+    return matchAggregatedWeapons(primaryWeapons, comparisonWeapons)
+  }, [isGroupMode, primaryGroupStats?.weapons, comparisonGroupStats?.weapons])
 
   if (loading) {
     return (
@@ -223,36 +386,39 @@ export function UnitDetail() {
 
           {isComparing && (
             <div className="flex items-center gap-2">
+              {/* Group mode toggle */}
+              <GroupModeToggle mode={comparisonMode} onModeChange={toggleComparisonMode} />
+
               {/* Add comparison button */}
-              {comparisonRefs.length < MAX_COMPARISON_UNITS && (
+              <button
+                onClick={isGroupMode ? startComparisonSelection : addComparisonSlot}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 bg-gray-100 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+                title="Add another unit to compare"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add</span>
+              </button>
+
+              {/* Filter toggle - only in unit mode */}
+              {!isGroupMode && (
                 <button
-                  onClick={() => addComparisonUnit(factionId || '', '')}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 bg-gray-100 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
-                  title="Add another unit to compare"
+                  onClick={toggleDifferencesOnly}
+                  className={`p-2 text-sm font-medium rounded-lg transition-colors ${
+                    showDifferencesOnly
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-600 hover:bg-gray-700 text-white'
+                  }`}
+                  title={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
+                  aria-label={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
+                  aria-pressed={showDifferencesOnly}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                  <span>Add</span>
                 </button>
               )}
-
-              {/* Filter toggle */}
-              <button
-                onClick={toggleDifferencesOnly}
-                className={`p-2 text-sm font-medium rounded-lg transition-colors ${
-                  showDifferencesOnly
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-gray-600 hover:bg-gray-700 text-white'
-                }`}
-                title={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
-                aria-label={showDifferencesOnly ? 'Show all stats' : 'Show differences only'}
-                aria-pressed={showDifferencesOnly}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-              </button>
 
               {/* Exit comparison */}
               <button
@@ -277,122 +443,376 @@ export function UnitDetail() {
 
             {/* Row-based layout - each section row spans all columns */}
             <div className="space-y-4 pb-4">
-              {/* Nav row */}
-              <div className="flex gap-6 items-stretch">
-                <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                  <BreadcrumbNav factionId={factionId || ''} unitId={unitId} enableAllFactions />
-                </div>
-                {comparisonRefs.map((_ref, index) => (
-                  <div key={`nav-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
-                    <BreadcrumbNav
-                      factionId={_ref.factionId}
-                      unitId={_ref.unitId || undefined}
-                      onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(index, newFactionId, newUnitId)}
-                      sourceUnitTypes={unit.unitTypes}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Unit card row */}
-              <div className="flex gap-6 items-stretch">
-                <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                  <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-gray-800 h-full">
-                    <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
-                      <UnitIcon imagePath={unit.image} alt={unit.displayName} className="max-w-full max-h-full object-contain" factionId={factionId} />
+              {/* Group mode uses 2-column layout with GroupUnitList */}
+              {isGroupMode ? (
+                <>
+                  {/* Group unit lists row */}
+                  <div className="flex gap-6 items-stretch">
+                    {/* Primary Group unit list */}
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <GroupUnitList
+                        members={primaryGroupMembers}
+                        units={[unit, ...additionalPrimaryUnitData]}
+                        onQuantityChange={(index, qty) => {
+                          if (index === 0) {
+                            updatePrimaryQuantity(qty)
+                          } else {
+                            updatePrimaryUnitQuantity(index - 1, qty)
+                          }
+                        }}
+                        onRemove={(index) => {
+                          if (index === 0) {
+                            // Removing the first primary unit - navigate to faction page or first comparison unit
+                            if (comparisonRefs.length > 0 && comparisonRefs[0].unitId) {
+                              // Make first comparison unit the new primary
+                              const newPrimary = comparisonRefs[0]
+                              const remainingComparison = comparisonRefs.slice(1)
+                              const params = new URLSearchParams(searchParams)
+                              if (remainingComparison.length > 0) {
+                                params.set('compare', remainingComparison.map(serializeRef).join(','))
+                              } else {
+                                params.delete('compare')
+                              }
+                              navigate(`/faction/${newPrimary.factionId}/unit/${newPrimary.unitId}?${params.toString()}`)
+                            } else {
+                              // No comparison units, go back to faction
+                              navigate(`/faction/${factionId}`)
+                            }
+                          } else {
+                            removePrimaryUnit(index - 1)
+                          }
+                        }}
+                        onAdd={startPrimarySelection}
+                        pendingSelectionIndex={primaryPendingSelection ? 0 : undefined}
+                        onSelectPendingUnit={completePrimarySelection}
+                        onCancelPendingSelection={cancelPrimarySelection}
+                        defaultFactionId={factionId || ''}
+                        otherGroupUnitCount={comparisonRefs.filter(m => m.unitId).length}
+                      />
                     </div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{unit.displayName}</h2>
-                    {unit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{unit.description}</p>}
+                    {/* Comparison Group unit list */}
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                      <GroupUnitList
+                        members={comparisonRefs}
+                        units={comparisonUnits}
+                        onQuantityChange={updateComparisonQuantity}
+                        onRemove={removeComparisonUnit}
+                        onAdd={startComparisonSelection}
+                        pendingSelectionIndex={comparisonPendingSelection ? 0 : undefined}
+                        onSelectPendingUnit={completeComparisonSelection}
+                        onCancelPendingSelection={cancelComparisonSelection}
+                        defaultFactionId={factionId || ''}
+                        otherGroupUnitCount={primaryGroupMembers.filter(m => m.unitId).length}
+                      />
+                    </div>
                   </div>
-                </div>
-                {comparisonRefs.map((_ref, index) => {
-                  const compUnit = comparisonUnits[index]
-                  const isPendingSelection = !_ref.unitId
-                  return (
-                    <div key={`card-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
-                      <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-gray-800 relative h-full">
-                        {/* Control buttons in top-right corner */}
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          {_ref.unitId && (
-                            <button
-                              onClick={() => {
-                                const newCompareRefs = comparisonRefs.map((r, i) =>
-                                  i === index ? { factionId: factionId || '', unitId: unitId || '' } : r
-                                )
-                                const params = new URLSearchParams()
-                                params.set('compare', newCompareRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
-                                navigate(`/faction/${_ref.factionId}/unit/${_ref.unitId}?${params.toString()}`)
-                              }}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                              title="Swap with primary unit"
-                              aria-label="Swap with primary unit"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                              </svg>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => removeComparisonUnit(index)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                            title="Remove from comparison"
-                            aria-label="Remove from comparison"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                </>
+              ) : (
+                <>
+                  {/* Unit mode: Nav row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <BreadcrumbNav factionId={factionId || ''} unitId={unitId} enableAllFactions />
+                    </div>
+                    {comparisonRefs.map((_ref, index) => (
+                      <div key={`nav-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <BreadcrumbNav
+                          factionId={_ref.factionId}
+                          unitId={_ref.unitId || undefined}
+                          onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(index, newFactionId, newUnitId)}
+                          sourceUnitTypes={unit.unitTypes}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Unit mode: Unit card row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-gray-800 h-full">
+                        <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
+                          <UnitIcon imagePath={unit.image} alt={unit.displayName} className="max-w-full max-h-full object-contain" factionId={factionId} />
                         </div>
-                        {isPendingSelection ? (
-                          <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto border-2 border-dashed border-gray-300 dark:border-gray-600">
-                            <span className="text-gray-400 text-sm text-center px-4">Select a unit above</span>
-                          </div>
-                        ) : compUnit ? (
-                          <>
-                            <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
-                              <UnitIcon imagePath={compUnit.image} alt={compUnit.displayName} className="max-w-full max-h-full object-contain" factionId={_ref.factionId} />
-                            </div>
-                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{compUnit.displayName}</h2>
-                            {compUnit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{compUnit.description}</p>}
-                          </>
-                        ) : (
-                          <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
-                            <span className="text-gray-400">Loading...</span>
-                          </div>
-                        )}
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{unit.displayName}</h2>
+                        {unit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{unit.description}</p>}
                       </div>
                     </div>
-                  )
-                })}
-              </div>
+                    {comparisonRefs.map((_ref, index) => {
+                      const compUnit = comparisonUnits[index]
+                      const isPendingSelection = !_ref.unitId
+                      return (
+                        <div key={`card-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 sm:p-6 bg-white dark:bg-gray-800 relative h-full">
+                            {/* Control buttons in top-right corner */}
+                            <div className="absolute top-2 right-2 flex gap-1">
+                              {_ref.unitId && (
+                                <button
+                                  onClick={() => {
+                                    const newCompareRefs = comparisonRefs.map((r, i) =>
+                                      i === index ? { factionId: factionId || '', unitId: unitId || '' } : r
+                                    )
+                                    const params = new URLSearchParams()
+                                    params.set('compare', newCompareRefs.map(r => `${r.factionId}/${r.unitId}`).join(','))
+                                    navigate(`/faction/${_ref.factionId}/unit/${_ref.unitId}?${params.toString()}`)
+                                  }}
+                                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                                  title="Swap with primary unit"
+                                  aria-label="Swap with primary unit"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                  </svg>
+                                </button>
+                              )}
+                              <button
+                                onClick={() => removeComparisonUnit(index)}
+                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                                title="Remove from comparison"
+                                aria-label="Remove from comparison"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                            {isPendingSelection ? (
+                              <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto border-2 border-dashed border-gray-300 dark:border-gray-600">
+                                <span className="text-gray-400 text-sm text-center px-4">Select a unit above</span>
+                              </div>
+                            ) : compUnit ? (
+                              <>
+                                <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
+                                  <UnitIcon imagePath={compUnit.image} alt={compUnit.displayName} className="max-w-full max-h-full object-contain" factionId={_ref.factionId} />
+                                </div>
+                                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100 text-center">{compUnit.displayName}</h2>
+                                {compUnit.description && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 italic text-center">{compUnit.description}</p>}
+                              </>
+                            ) : (
+                              <div className="aspect-square mb-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded max-w-[160px] sm:max-w-[200px] mx-auto">
+                                <span className="text-gray-400">Loading...</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
 
-              {/* UnitTypes row */}
-              <div className="flex gap-6 items-stretch">
-                <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                  <UnitTypesSection
-                    unitTypes={unit.unitTypes}
-                    compareUnitTypes={comparisonUnits.filter(Boolean).flatMap(u => u!.unitTypes)}
-                    showDifferencesOnly={showDifferencesOnly}
-                  />
-                </div>
-                {comparisonRefs.map((_ref, index) => {
-                  const compUnit = comparisonUnits[index]
-                  return (
-                    <div key={`types-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
-                      {compUnit && (
-                        <UnitTypesSection
-                          unitTypes={compUnit.unitTypes}
-                          compareUnitTypes={unit.unitTypes}
-                          showDifferencesOnly={showDifferencesOnly}
-                          isComparisonSide
+              {/* Group mode: stats display - 2 column layout / Unit mode: detailed stats */}
+              {isGroupMode ? (
+                <>
+                  {/* Group Overview row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      {primaryGroupStats && (
+                        <OverviewSection
+                          groupStats={primaryGroupStats}
+                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          hideDiff
                         />
                       )}
                     </div>
-                  )
-                })}
-              </div>
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                      {comparisonGroupStats && (
+                        <OverviewSection
+                          groupStats={comparisonGroupStats}
+                          compareGroupStats={primaryGroupStats ?? undefined}
+                        />
+                      )}
+                    </div>
+                  </div>
 
-              {/* Overview row */}
+                  {/* Group Economy row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      {primaryGroupStats && (
+                        <EconomySection
+                          groupStats={primaryGroupStats}
+                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          hideDiff
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                      {comparisonGroupStats && (
+                        <EconomySection
+                          groupStats={comparisonGroupStats}
+                          compareGroupStats={primaryGroupStats ?? undefined}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Group Mobility row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      {primaryGroupStats && (
+                        <PhysicsSection
+                          groupStats={primaryGroupStats}
+                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          hideDiff
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                      {comparisonGroupStats && (
+                        <PhysicsSection
+                          groupStats={comparisonGroupStats}
+                          compareGroupStats={primaryGroupStats ?? undefined}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Group Recon row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      {primaryGroupStats && (
+                        <ReconSection
+                          groupStats={primaryGroupStats}
+                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          hideDiff
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                      {comparisonGroupStats && (
+                        <ReconSection
+                          groupStats={comparisonGroupStats}
+                          compareGroupStats={primaryGroupStats ?? undefined}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Group weapons - aligned rows */}
+                  {matchedGroupWeapons.length > 0 && (
+                    <div className="flex gap-6 items-stretch">
+                      {/* Primary Group Weapons */}
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                        <StatSection title="Weapons">
+                          <div className="space-y-3">
+                            {matchedGroupWeapons.map(([primary, comparison], index) => (
+                              <div key={`primary-weapon-${index}`}>
+                                {primary ? (
+                                  <GroupWeaponCard
+                                    weapon={primary}
+                                    compareWeapon={comparison}
+                                    hideDiff
+                                  />
+                                ) : comparison ? (
+                                  <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 min-h-[140px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                                    No equivalent weapon
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </StatSection>
+                      </div>
+                      {/* Comparison Group Weapons */}
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                        <StatSection title="Weapons">
+                          <div className="space-y-3">
+                            {matchedGroupWeapons.map(([primary, comparison], index) => (
+                              <div key={`comparison-weapon-${index}`}>
+                                {comparison ? (
+                                  <GroupWeaponCard
+                                    weapon={comparison}
+                                    compareWeapon={primary}
+                                  />
+                                ) : primary ? (
+                                  <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 min-h-[140px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                                    No equivalent weapon
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </StatSection>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Group Target Priorities */}
+                  {(primaryGroupStats?.allTargetLayers.length || comparisonGroupStats?.allTargetLayers.length) ? (
+                    <div className="flex gap-6 items-stretch">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                        {primaryGroupStats && (
+                          <TargetPrioritiesSection
+                            groupTargetLayers={primaryGroupStats.allTargetLayers}
+                            compareGroupTargetLayers={comparisonGroupStats?.allTargetLayers}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                        {comparisonGroupStats && (
+                          <TargetPrioritiesSection
+                            groupTargetLayers={comparisonGroupStats.allTargetLayers}
+                            compareGroupTargetLayers={primaryGroupStats?.allTargetLayers}
+                            isComparisonSide
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Group Builds */}
+                  {(primaryGroupStats?.allBuilds.length || comparisonGroupStats?.allBuilds.length) ? (
+                    <div className="flex gap-6 items-stretch">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                        {primaryGroupStats && primaryGroupStats.allBuilds.length > 0 && (
+                          <BuildsSection
+                            builds={primaryGroupStats.allBuilds}
+                            buildRate={primaryGroupStats.totalBuildRate}
+                            compareBuilds={comparisonGroupStats?.allBuilds}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
+                        {comparisonGroupStats && comparisonGroupStats.allBuilds.length > 0 && (
+                          <BuildsSection
+                            builds={comparisonGroupStats.allBuilds}
+                            buildRate={comparisonGroupStats.totalBuildRate}
+                            compareBuilds={primaryGroupStats?.allBuilds}
+                            isComparisonSide
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {/* UnitTypes row */}
+                  <div className="flex gap-6 items-stretch">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <UnitTypesSection
+                        unitTypes={unit.unitTypes}
+                        compareUnitTypes={comparisonUnits.filter(Boolean).flatMap(u => u!.unitTypes)}
+                        showDifferencesOnly={showDifferencesOnly}
+                      />
+                    </div>
+                    {comparisonRefs.map((_ref, index) => {
+                      const compUnit = comparisonUnits[index]
+                      return (
+                        <div key={`types-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          {compUnit && (
+                            <UnitTypesSection
+                              unitTypes={compUnit.unitTypes}
+                              compareUnitTypes={unit.unitTypes}
+                              showDifferencesOnly={showDifferencesOnly}
+                              isComparisonSide
+                            />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Overview row */}
               <div className="flex gap-6 items-stretch">
                 <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                   <OverviewSection unit={unit} compareUnit={compareUnit} showDifferencesOnly={showDifferencesOnly} hideDiff />
@@ -700,6 +1120,8 @@ export function UnitDetail() {
                   )
                 })}
               </div>
+                </>
+              )}
             </div>
           </div>
         ) : (

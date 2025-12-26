@@ -2,9 +2,13 @@ import { useReducer, useEffect, useRef, useMemo } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
 import type { Unit } from '@/types/faction'
 
-interface ComparisonRef {
+export interface ComparisonRef {
   factionId: string
   unitId: string
+}
+
+export interface ComparisonRefWithQuantity extends ComparisonRef {
+  quantity: number
 }
 
 interface ComparisonUnitState {
