@@ -313,13 +313,13 @@ export function UnitDetail() {
   const primaryGroupStats = useMemo(() => {
     if (!isGroupMode || primaryGroupMembers.length === 0) return null
     return aggregateGroupStats(primaryGroupMembers, getUnit)
-  }, [isGroupMode, primaryGroupMembers, getUnitByKey])
+  }, [isGroupMode, primaryGroupMembers, getUnit])
 
   // Compute aggregated stats for comparison group (single group, not array)
   const comparisonGroupStats = useMemo(() => {
     if (!isGroupMode || comparisonGroupMembers.length === 0) return null
     return aggregateGroupStats(comparisonGroupMembers, getUnit)
-  }, [isGroupMode, comparisonGroupMembers, getUnitByKey])
+  }, [isGroupMode, comparisonGroupMembers, getUnit])
 
   // Compute matched weapon pairs for group mode (aligned display)
   const matchedGroupWeapons = useMemo(() => {
