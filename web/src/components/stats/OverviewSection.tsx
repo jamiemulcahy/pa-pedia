@@ -8,6 +8,29 @@ import { isDifferent } from '@/utils/comparison';
 import type { Unit } from '@/types/faction';
 import type { AggregatedGroupStats } from '@/types/group';
 
+/**
+ * Calculate sustained DPS for a unit from its weapons.
+ * Returns undefined if no weapons have sustained DPS that differs from burst DPS.
+ * This ensures consistent behavior with group mode calculation.
+ */
+function calculateUnitSustainedDps(unit: Unit | undefined): number | undefined {
+  if (!unit?.specs.combat.weapons) return undefined;
+
+  // Check if any weapon has sustained DPS that differs from burst
+  const hasSustainedWeapons = unit.specs.combat.weapons.some(
+    w => !w.selfDestruct && !w.deathExplosion &&
+         w.sustainedDps !== undefined && w.sustainedDps !== w.dps
+  );
+
+  if (!hasSustainedWeapons) return undefined;
+
+  // Sum sustained DPS: use sustainedDps if available, otherwise use dps
+  return unit.specs.combat.weapons.reduce((sum, w) => {
+    if (w.selfDestruct || w.deathExplosion) return sum;
+    return sum + (w.sustainedDps ?? w.dps ?? 0) * (w.count ?? 1);
+  }, 0);
+}
+
 interface OverviewSectionProps {
   /** Unit for unit mode */
   unit?: Unit;
@@ -38,6 +61,14 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const dps = groupStats?.totalDps ?? unit?.specs.combat.dps;
   const salvoDamage = groupStats?.totalSalvoDamage ?? unit?.specs.combat.salvoDamage;
 
+  // Get sustained DPS - from groupStats or calculated from unit weapons
+  const sustainedDps = isGroupMode
+    ? groupStats?.totalSustainedDps
+    : calculateUnitSustainedDps(unit);
+
+  // Check if we have sustained DPS that differs from burst DPS
+  const hasSustainedDps = sustainedDps !== undefined && dps !== undefined && sustainedDps !== dps;
+
   // Max weapon range
   const maxRange = groupStats?.maxWeaponRange ?? (unit?.specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -48,6 +79,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const compareBuildCost = compareGroupStats?.totalBuildCost ?? compareUnit?.specs.economy.buildCost;
   const compareDps = compareGroupStats?.totalDps ?? compareUnit?.specs.combat.dps;
   const compareSalvoDamage = compareGroupStats?.totalSalvoDamage ?? compareUnit?.specs.combat.salvoDamage;
+  const compareSustainedDps = isGroupMode
+    ? compareGroupStats?.totalSustainedDps
+    : calculateUnitSustainedDps(compareUnit);
   const compareMaxRange = compareGroupStats?.maxWeaponRange ?? (compareUnit?.specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
     .reduce((max, w) => Math.max(max, w.maxRange || 0), 0));
@@ -78,13 +112,14 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const costDiff = isDifferent(buildCost, compareBuildCost);
   const rangeDiff = isDifferent(maxRange, compareMaxRange);
   const dpsDiff = isDifferent(dps, compareDps);
+  const sustainedDpsDiff = isDifferent(sustainedDps, compareSustainedDps);
   const salvoDiff = isDifferent(salvoDamage, compareSalvoDamage);
   const buildLocDiff = buildLocations.join(',') !== compareBuildLocations.join(',');
   const spawnDiff = !isGroupMode && unit?.specs.special?.spawnUnitOnDeath !== compareUnit?.specs.special?.spawnUnitOnDeath;
 
   // In diff mode with compare, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !hasCompare ||
-    hpDiff || costDiff || rangeDiff || dpsDiff || salvoDiff || buildLocDiff || spawnDiff;
+    hpDiff || costDiff || rangeDiff || dpsDiff || sustainedDpsDiff || salvoDiff || buildLocDiff || spawnDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -112,7 +147,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           value={
             <ComparisonValue
               value={Math.round(hp)}
-              compareValue={compareHp ? Math.round(compareHp) : undefined}
+              compareValue={compareHp !== undefined ? Math.round(compareHp) : undefined}
               comparisonType="higher-better"
               formatDiff={(d) => Math.abs(d).toLocaleString()}
               hideDiff={hideDiff}
@@ -128,7 +163,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
             <span>
               <ComparisonValue
                 value={Math.round(buildCost)}
-                compareValue={compareBuildCost ? Math.round(compareBuildCost) : undefined}
+                compareValue={compareBuildCost !== undefined ? Math.round(compareBuildCost) : undefined}
                 comparisonType="lower-better"
                 formatDiff={(d) => Math.abs(d).toLocaleString()}
                 hideDiff={hideDiff}
@@ -141,11 +176,27 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
 
       {dps !== undefined && dps > 0 && showRow(dpsDiff) && (
         <StatRow
-          label={isGroupMode ? "Total DPS" : "Total DPS"}
+          label={hasSustainedDps
+            ? (isGroupMode ? "Total DPS (Burst)" : "DPS (Burst)")
+            : (isGroupMode ? "Total DPS" : "Total DPS")}
           value={
             <ComparisonValue
               value={Number(dps.toFixed(1))}
-              compareValue={compareDps ? Number(compareDps.toFixed(1)) : undefined}
+              compareValue={compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+
+      {hasSustainedDps && showRow(sustainedDpsDiff) && (
+        <StatRow
+          label={isGroupMode ? "Total DPS (Sustained)" : "DPS (Sustained)"}
+          value={
+            <ComparisonValue
+              value={Number(sustainedDps!.toFixed(1))}
+              compareValue={compareSustainedDps !== undefined ? Number(compareSustainedDps.toFixed(1)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
@@ -159,7 +210,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           value={
             <ComparisonValue
               value={Math.round(salvoDamage)}
-              compareValue={compareSalvoDamage ? Math.round(compareSalvoDamage) : undefined}
+              compareValue={compareSalvoDamage !== undefined ? Math.round(compareSalvoDamage) : undefined}
               comparisonType="higher-better"
               formatDiff={(d) => Math.abs(d).toLocaleString()}
               hideDiff={hideDiff}
@@ -174,7 +225,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           value={
             <ComparisonValue
               value={Math.round(maxRange)}
-              compareValue={compareMaxRange ? Math.round(compareMaxRange) : undefined}
+              compareValue={compareMaxRange !== undefined ? Math.round(compareMaxRange) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />

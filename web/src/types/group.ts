@@ -28,8 +28,10 @@ export interface AggregatedWeapon {
   targetLayers: string[]
   /** Total weapon instances (weapon.count * unit quantity summed) */
   totalCount: number
-  /** Total DPS from all instances */
+  /** Total DPS from all instances (burst DPS) */
   totalDps: number
+  /** Total sustained DPS from all instances (ammo-limited) */
+  totalSustainedDps?: number
   /** Total damage per volley from all instances */
   totalDamage: number
   /** Maximum range (MAX across all instances) */
@@ -47,8 +49,10 @@ export interface AggregatedGroupStats {
   totalHp: number
   /** Total metal build cost */
   totalBuildCost: number
-  /** Total damage per second */
+  /** Total damage per second (burst) */
   totalDps: number
+  /** Total sustained DPS (ammo-limited weapons) */
+  totalSustainedDps?: number
   /** Total damage in single volley */
   totalSalvoDamage: number
   /** Total metal production per second */
@@ -117,6 +121,8 @@ export interface AggregatedGroupStats {
   allTargetLayers: string[]
   /** All unique unit IDs the group can build */
   allBuilds: string[]
+  /** Effective build rate for each buildable unit (only units that can build it contribute) */
+  buildRateByUnit: Record<string, number>
 
   // ===== GROUP metadata =====
   /** Total number of units (sum of quantities) */

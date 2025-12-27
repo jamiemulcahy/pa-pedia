@@ -40,6 +40,9 @@ function aggregateWeapons(
 
     const weaponCount = (weapon.count ?? 1) * quantity
     const weaponDps = (weapon.dps ?? 0) * (weapon.count ?? 1) * quantity
+    const weaponSustainedDps = weapon.sustainedDps !== undefined
+      ? weapon.sustainedDps * (weapon.count ?? 1) * quantity
+      : undefined
     const weaponDamage = (weapon.damage ?? 0) * (weapon.count ?? 1) * quantity
 
     const source: WeaponSource = {
@@ -52,6 +55,9 @@ function aggregateWeapons(
     if (existing) {
       existing.totalCount += weaponCount
       existing.totalDps += weaponDps
+      if (weaponSustainedDps !== undefined) {
+        existing.totalSustainedDps = (existing.totalSustainedDps ?? 0) + weaponSustainedDps
+      }
       existing.totalDamage += weaponDamage
 
       // Check if this source unit is already in the list
@@ -78,6 +84,7 @@ function aggregateWeapons(
         targetLayers: weapon.targetLayers ?? [],
         totalCount: weaponCount,
         totalDps: weaponDps,
+        totalSustainedDps: weaponSustainedDps,
         totalDamage: weaponDamage,
         maxRange: weapon.maxRange,
         rateOfFire: weapon.rateOfFire,
@@ -168,6 +175,8 @@ export function aggregateGroupStats(
   // SET aggregations (unique values across all units)
   const targetLayerSet = new Set<string>()
   const buildsSet = new Set<string>()
+  // Track build rate per buildable unit (only units that can build it contribute)
+  const buildRateByUnit: Record<string, number> = {}
 
   // Track total unit count
   let unitCount = 0
@@ -225,9 +234,12 @@ export function aggregateGroupStats(
       }
     }
 
-    // Collect buildable units
+    // Collect buildable units and track build rate per target
+    const unitBuildRate = (specs.economy.buildRate ?? 0) * qty
     for (const buildId of unit.buildRelationships?.builds ?? []) {
       buildsSet.add(buildId)
+      // Add this unit's build rate contribution for this target
+      buildRateByUnit[buildId] = (buildRateByUnit[buildId] ?? 0) + unitBuildRate
     }
 
     // Aggregate weapons
@@ -256,10 +268,25 @@ export function aggregateGroupStats(
     (a, b) => b.totalDps - a.totalDps
   )
 
+  // Calculate total sustained DPS from aggregated weapons
+  // Only include if at least one weapon has sustained DPS different from burst
+  let totalSustainedDps: number | undefined
+  const hasSustainedWeapons = weapons.some(
+    w => w.totalSustainedDps !== undefined && w.totalSustainedDps !== w.totalDps
+  )
+  if (hasSustainedWeapons) {
+    // Sum sustained DPS: use totalSustainedDps if available, otherwise use totalDps
+    totalSustainedDps = weapons.reduce(
+      (sum, w) => sum + (w.totalSustainedDps ?? w.totalDps),
+      0
+    )
+  }
+
   return {
     totalHp,
     totalBuildCost,
     totalDps,
+    totalSustainedDps,
     totalSalvoDamage,
     totalMetalProduction,
     totalEnergyProduction,
@@ -288,6 +315,7 @@ export function aggregateGroupStats(
     weapons,
     allTargetLayers: Array.from(targetLayerSet).sort(),
     allBuilds: Array.from(buildsSet).sort(),
+    buildRateByUnit,
     unitCount,
     distinctUnitTypes: units.length,
   }

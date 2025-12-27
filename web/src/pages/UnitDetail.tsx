@@ -123,6 +123,9 @@ export function UnitDetail() {
   // For backwards compatibility, comparisonRefs refers to the first comparison group
   const comparisonRefs = comparisonGroups[0] || []
 
+  // Flattened array of all comparison refs across all groups (for loading units)
+  const allComparisonRefs = useMemo(() => comparisonGroups.flat(), [comparisonGroups])
+
   // State for pending unit selections in group mode
   const [primaryPendingSelection, setPrimaryPendingSelection] = useState(false)
   // For multiple comparison groups, track which group has pending selection (-1 means no pending)
@@ -319,8 +322,8 @@ export function UnitDetail() {
   // Load primary unit
   const { unit, loading, error } = useUnit(factionId || '', unitId || '')
 
-  // Load all comparison units in parallel
-  const { units: comparisonUnits } = useComparisonUnits(comparisonRefs)
+  // Load all comparison units in parallel (across all comparison groups)
+  const { units: comparisonUnits } = useComparisonUnits(allComparisonRefs)
 
   // Load additional primary units (for group mode)
   const { units: additionalPrimaryUnitData } = useComparisonUnits(additionalPrimaryUnits)
@@ -333,18 +336,18 @@ export function UnitDetail() {
 
   // Scroll container ref for auto-scroll when adding units
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const prevComparisonCount = useRef(comparisonRefs.length)
+  const prevComparisonCount = useRef(allComparisonRefs.length)
 
   // Auto-scroll to right edge when a new comparison unit is added
   useEffect(() => {
-    if (comparisonRefs.length > prevComparisonCount.current && scrollContainerRef.current) {
+    if (allComparisonRefs.length > prevComparisonCount.current && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({
         left: scrollContainerRef.current.scrollWidth,
         behavior: 'smooth'
       })
     }
-    prevComparisonCount.current = comparisonRefs.length
-  }, [comparisonRefs.length])
+    prevComparisonCount.current = allComparisonRefs.length
+  }, [allComparisonRefs.length])
 
   // Pre-compute weapon match maps for each comparison unit
   // Uses smart matching based on safeName and target layer overlap
@@ -942,6 +945,7 @@ export function UnitDetail() {
                           <BuildsSection
                             builds={primaryGroupStats.allBuilds}
                             buildRate={primaryGroupStats.totalBuildRate}
+                            buildRateByUnit={primaryGroupStats.buildRateByUnit}
                             compareBuilds={comparisonGroupStatsArray[0]?.allBuilds}
                           />
                         )}
@@ -952,6 +956,7 @@ export function UnitDetail() {
                             <BuildsSection
                               builds={stats.allBuilds}
                               buildRate={stats.totalBuildRate}
+                              buildRateByUnit={stats.buildRateByUnit}
                               compareBuilds={primaryGroupStats?.allBuilds}
                               isComparisonSide
                             />
