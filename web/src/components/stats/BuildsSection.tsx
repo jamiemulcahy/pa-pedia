@@ -9,6 +9,8 @@ import type { UnitIndexEntry } from '@/types/faction';
 interface BuildsSectionProps {
   builds?: string[];
   buildRate: number;
+  /** Per-unit build rates (for group mode - only units that can build contribute) */
+  buildRateByUnit?: Record<string, number>;
   /** Optional faction ID override (used for comparison mode) */
   factionId?: string;
   /** Builds from the other unit (for showing diff on comparison side) */
@@ -34,6 +36,7 @@ interface BuildEntry {
 export const BuildsSection: React.FC<BuildsSectionProps> = ({
   builds,
   buildRate,
+  buildRateByUnit,
   factionId: propFactionId,
   compareBuilds,
   showDifferencesOnly,
@@ -83,7 +86,9 @@ export const BuildsSection: React.FC<BuildsSectionProps> = ({
       if (!targetUnit) return null;
 
       const buildCost = targetUnit.unit.specs.economy.buildCost || 0;
-      const buildTime = buildRate > 0 ? buildCost / buildRate : 0;
+      // Use per-unit build rate if available (group mode), otherwise use total build rate
+      const effectiveBuildRate = buildRateByUnit?.[unitId] ?? buildRate;
+      const buildTime = effectiveBuildRate > 0 ? buildCost / effectiveBuildRate : 0;
 
       return {
         id: unitId,

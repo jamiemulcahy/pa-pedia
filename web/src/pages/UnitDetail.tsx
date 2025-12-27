@@ -767,6 +767,7 @@ export function UnitDetail() {
                           <BuildsSection
                             builds={primaryGroupStats.allBuilds}
                             buildRate={primaryGroupStats.totalBuildRate}
+                            buildRateByUnit={primaryGroupStats.buildRateByUnit}
                             compareBuilds={comparisonGroupStats?.allBuilds}
                           />
                         )}
@@ -776,6 +777,7 @@ export function UnitDetail() {
                           <BuildsSection
                             builds={comparisonGroupStats.allBuilds}
                             buildRate={comparisonGroupStats.totalBuildRate}
+                            buildRateByUnit={comparisonGroupStats.buildRateByUnit}
                             compareBuilds={primaryGroupStats?.allBuilds}
                             isComparisonSide
                           />
