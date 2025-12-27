@@ -106,18 +106,37 @@ export function UnitDetail() {
   const primaryUnitsParam = searchParams.get('primaryUnits')
   const additionalPrimaryUnits = parseUnitRefs(primaryUnitsParam)
 
-  // Parse comparison group units
-  const comparisonRefs = parseUnitRefs(compareParam)
+  // Parse comparison group units - support multiple groups via compare, compare2, compare3, etc.
+  const comparisonGroups = useMemo(() => {
+    const groups: { factionId: string; unitId: string; quantity: number }[][] = []
+    // First group from 'compare'
+    const firstGroup = parseUnitRefs(searchParams.get('compare'))
+    if (firstGroup.length > 0) groups.push(firstGroup)
+    // Additional groups from 'compare2', 'compare3', etc.
+    for (let i = 2; i <= 10; i++) {
+      const group = parseUnitRefs(searchParams.get(`compare${i}`))
+      if (group.length > 0) groups.push(group)
+    }
+    return groups
+  }, [searchParams])
+
+  // For backwards compatibility, comparisonRefs refers to the first comparison group
+  const comparisonRefs = comparisonGroups[0] || []
 
   // State for pending unit selections in group mode
   const [primaryPendingSelection, setPrimaryPendingSelection] = useState(false)
-  const [comparisonPendingSelection, setComparisonPendingSelection] = useState(false)
+  // For multiple comparison groups, track which group has pending selection (-1 means no pending)
+  const [pendingComparisonGroupIndex, setPendingComparisonGroupIndex] = useState<number>(-1)
 
   // Helper to serialize a unit ref to URL format
   const serializeRef = (r: { factionId: string; unitId: string; quantity: number }) => {
     const base = `${r.factionId}/${r.unitId}`
     return r.quantity > 1 ? `${base}:${r.quantity}` : base
   }
+
+  // Helper to get URL parameter name for a comparison group index
+  const getCompareParamName = (groupIndex: number) =>
+    groupIndex === 0 ? 'compare' : `compare${groupIndex + 1}`
 
   // Helper to update URL params
   const updateUrlParams = useCallback((updates: Record<string, string | null>) => {
@@ -168,23 +187,28 @@ export function UnitDetail() {
 
   // ===== Comparison Group Management =====
 
-  // Start pending selection for comparison group
-  const startComparisonSelection = useCallback(() => {
-    setComparisonPendingSelection(true)
+  // Start pending selection for adding unit to a specific comparison group
+  const startComparisonSelection = useCallback((groupIndex: number = 0) => {
+    setPendingComparisonGroupIndex(groupIndex)
   }, [])
 
   // Complete pending selection for comparison group
   const completeComparisonSelection = useCallback((newFactionId: string, newUnitId: string) => {
-    const newRefs = [...comparisonRefs, { factionId: newFactionId, unitId: newUnitId, quantity: 1 }]
+    if (pendingComparisonGroupIndex < 0) return
+
     const params = new URLSearchParams(searchParams)
-    params.set('compare', newRefs.map(serializeRef).join(','))
+    const groupIndex = pendingComparisonGroupIndex
+    const currentGroup = comparisonGroups[groupIndex] || []
+    const newRefs = [...currentGroup, { factionId: newFactionId, unitId: newUnitId, quantity: 1 }]
+
+    params.set(getCompareParamName(groupIndex), newRefs.map(serializeRef).join(','))
     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-    setComparisonPendingSelection(false)
-  }, [comparisonRefs, searchParams, navigate, factionId, unitId])
+    setPendingComparisonGroupIndex(-1)
+  }, [pendingComparisonGroupIndex, comparisonGroups, searchParams, navigate, factionId, unitId])
 
   // Cancel pending selection for comparison group
   const cancelComparisonSelection = useCallback(() => {
-    setComparisonPendingSelection(false)
+    setPendingComparisonGroupIndex(-1)
   }, [])
 
   // Add a new comparison slot (for unit mode - creates empty slot to be filled via dropdown)
@@ -195,28 +219,73 @@ export function UnitDetail() {
     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
   }, [comparisonRefs, searchParams, navigate, factionId, unitId])
 
-  const removeComparisonUnit = useCallback((index: number) => {
-    const newRefs = comparisonRefs.filter((_, i) => i !== index)
+  // Add a new comparison group (for group mode Add button)
+  const addComparisonGroup = useCallback(() => {
+    // Start pending selection for a new group at the next index
+    setPendingComparisonGroupIndex(comparisonGroups.length)
+  }, [comparisonGroups.length])
+
+  // Remove a unit from a comparison group
+  const removeComparisonUnit = useCallback((groupIndex: number, unitIndex: number) => {
     const params = new URLSearchParams(searchParams)
+    const group = comparisonGroups[groupIndex]
+    if (!group) return
+
+    const newRefs = group.filter((_, i) => i !== unitIndex)
+    const paramName = getCompareParamName(groupIndex)
+
     if (newRefs.length === 0) {
-      params.delete('compare')
+      // Remove this group and re-index remaining groups
+      params.delete(paramName)
+      // Re-index groups after this one
+      for (let i = groupIndex + 1; i < comparisonGroups.length; i++) {
+        const oldParamName = getCompareParamName(i)
+        const newParamName = getCompareParamName(i - 1)
+        const groupData = params.get(oldParamName)
+        if (groupData) {
+          params.set(newParamName, groupData)
+          params.delete(oldParamName)
+        }
+      }
     } else {
-      params.set('compare', newRefs.map(serializeRef).join(','))
+      params.set(paramName, newRefs.map(serializeRef).join(','))
     }
     navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
-  }, [comparisonRefs, searchParams, navigate, factionId, unitId])
+  }, [comparisonGroups, searchParams, navigate, factionId, unitId])
 
-  const updateComparisonUnit = useCallback((index: number, newFactionId: string, newUnitId: string) => {
-    const newRefs = [...comparisonRefs]
-    newRefs[index] = { factionId: newFactionId, unitId: newUnitId, quantity: newRefs[index]?.quantity || 1 }
-    updateUrlParams({ compare: newRefs.map(serializeRef).join(',') })
-  }, [comparisonRefs, updateUrlParams])
+  // Remove entire comparison group
+  const removeComparisonGroup = useCallback((groupIndex: number) => {
+    const params = new URLSearchParams(searchParams)
+    const paramName = getCompareParamName(groupIndex)
+    params.delete(paramName)
+    // Re-index groups after this one
+    for (let i = groupIndex + 1; i < comparisonGroups.length; i++) {
+      const oldParamName = getCompareParamName(i)
+      const newParamName = getCompareParamName(i - 1)
+      const groupData = params.get(oldParamName)
+      if (groupData) {
+        params.set(newParamName, groupData)
+        params.delete(oldParamName)
+      }
+    }
+    navigate(`/faction/${factionId}/unit/${unitId}?${params.toString()}`)
+  }, [comparisonGroups, searchParams, navigate, factionId, unitId])
 
-  const updateComparisonQuantity = useCallback((index: number, quantity: number) => {
-    const newRefs = [...comparisonRefs]
-    newRefs[index] = { ...newRefs[index], quantity }
-    updateUrlParams({ compare: newRefs.map(serializeRef).join(',') })
-  }, [comparisonRefs, updateUrlParams])
+  const updateComparisonUnit = useCallback((groupIndex: number, unitIndex: number, newFactionId: string, newUnitId: string) => {
+    const group = comparisonGroups[groupIndex]
+    if (!group) return
+    const newRefs = [...group]
+    newRefs[unitIndex] = { factionId: newFactionId, unitId: newUnitId, quantity: newRefs[unitIndex]?.quantity || 1 }
+    updateUrlParams({ [getCompareParamName(groupIndex)]: newRefs.map(serializeRef).join(',') })
+  }, [comparisonGroups, updateUrlParams])
+
+  const updateComparisonQuantity = useCallback((groupIndex: number, unitIndex: number, quantity: number) => {
+    const group = comparisonGroups[groupIndex]
+    if (!group) return
+    const newRefs = [...group]
+    newRefs[unitIndex] = { ...newRefs[unitIndex], quantity }
+    updateUrlParams({ [getCompareParamName(groupIndex)]: newRefs.map(serializeRef).join(',') })
+  }, [comparisonGroups, updateUrlParams])
 
   // ===== Mode Toggle =====
 
@@ -304,10 +373,10 @@ export function UnitDetail() {
     ]
   }, [factionId, unitId, primaryQuantity, additionalPrimaryUnits])
 
-  const comparisonGroupMembers = useMemo((): GroupMember[] => {
-    // Comparison group: all comparison units combined into one group
-    return comparisonRefs.filter(u => u.unitId) // filter out empty slots
-  }, [comparisonRefs])
+  // Multiple comparison groups - each is an array of members
+  const comparisonGroupMembersArray = useMemo((): GroupMember[][] => {
+    return comparisonGroups.map(group => group.filter(u => u.unitId))
+  }, [comparisonGroups])
 
   // Compute aggregated stats for primary group
   const primaryGroupStats = useMemo(() => {
@@ -315,13 +384,19 @@ export function UnitDetail() {
     return aggregateGroupStats(primaryGroupMembers, getUnit)
   }, [isGroupMode, primaryGroupMembers, getUnit])
 
-  // Compute aggregated stats for comparison group (single group, not array)
-  const comparisonGroupStats = useMemo(() => {
-    if (!isGroupMode || comparisonGroupMembers.length === 0) return null
-    return aggregateGroupStats(comparisonGroupMembers, getUnit)
-  }, [isGroupMode, comparisonGroupMembers, getUnit])
+  // Compute aggregated stats for all comparison groups
+  const comparisonGroupStatsArray = useMemo(() => {
+    if (!isGroupMode) return []
+    return comparisonGroupMembersArray.map(members =>
+      members.length > 0 ? aggregateGroupStats(members, getUnit) : null
+    )
+  }, [isGroupMode, comparisonGroupMembersArray, getUnit])
+
+  // For backwards compatibility - first comparison group stats
+  const comparisonGroupStats = comparisonGroupStatsArray[0] || null
 
   // Compute matched weapon pairs for group mode (aligned display)
+  // For multiple groups, we match against the first comparison group for alignment
   const matchedGroupWeapons = useMemo(() => {
     if (!isGroupMode) return []
     const primaryWeapons = primaryGroupStats?.weapons ?? []
@@ -389,16 +464,16 @@ export function UnitDetail() {
               {/* Group mode toggle */}
               <GroupModeToggle mode={comparisonMode} onModeChange={toggleComparisonMode} />
 
-              {/* Add comparison button */}
+              {/* Add comparison button - in group mode creates new group, in unit mode adds unit */}
               <button
-                onClick={isGroupMode ? startComparisonSelection : addComparisonSlot}
+                onClick={isGroupMode ? addComparisonGroup : addComparisonSlot}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 bg-gray-100 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
-                title="Add another unit to compare"
+                title={isGroupMode ? "Add another comparison group" : "Add another unit to compare"}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Add</span>
+                <span>{isGroupMode ? "Add Group" : "Add"}</span>
               </button>
 
               {/* Filter toggle - only in unit mode */}
@@ -449,7 +524,7 @@ export function UnitDetail() {
                   {/* Group unit lists row */}
                   <div className="flex gap-6 items-stretch">
                     {/* Primary Group unit list */}
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       <GroupUnitList
                         members={primaryGroupMembers}
                         units={[unit, ...additionalPrimaryUnitData]}
@@ -487,24 +562,47 @@ export function UnitDetail() {
                         onSelectPendingUnit={completePrimarySelection}
                         onCancelPendingSelection={cancelPrimarySelection}
                         defaultFactionId={factionId || ''}
-                        otherGroupUnitCount={comparisonRefs.filter(m => m.unitId).length}
+                        otherGroupUnitCount={comparisonGroups.reduce((sum, g) => sum + g.filter(m => m.unitId).length, 0)}
                       />
                     </div>
-                    {/* Comparison Group unit list */}
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                      <GroupUnitList
-                        members={comparisonRefs}
-                        units={comparisonUnits}
-                        onQuantityChange={updateComparisonQuantity}
-                        onRemove={removeComparisonUnit}
-                        onAdd={startComparisonSelection}
-                        pendingSelectionIndex={comparisonPendingSelection ? 0 : undefined}
-                        onSelectPendingUnit={completeComparisonSelection}
-                        onCancelPendingSelection={cancelComparisonSelection}
-                        defaultFactionId={factionId || ''}
-                        otherGroupUnitCount={primaryGroupMembers.filter(m => m.unitId).length}
-                      />
-                    </div>
+                    {/* Comparison Group unit lists - one per group */}
+                    {comparisonGroups.map((group, groupIndex) => (
+                      <div key={`group-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <GroupUnitList
+                          members={group}
+                          units={comparisonUnits.slice(
+                            comparisonGroups.slice(0, groupIndex).reduce((sum, g) => sum + g.length, 0),
+                            comparisonGroups.slice(0, groupIndex + 1).reduce((sum, g) => sum + g.length, 0)
+                          )}
+                          onQuantityChange={(unitIndex, qty) => updateComparisonQuantity(groupIndex, unitIndex, qty)}
+                          onRemove={(unitIndex) => removeComparisonUnit(groupIndex, unitIndex)}
+                          onAdd={() => startComparisonSelection(groupIndex)}
+                          pendingSelectionIndex={pendingComparisonGroupIndex === groupIndex ? 0 : undefined}
+                          onSelectPendingUnit={completeComparisonSelection}
+                          onCancelPendingSelection={cancelComparisonSelection}
+                          defaultFactionId={factionId || ''}
+                          otherGroupUnitCount={primaryGroupMembers.filter(m => m.unitId).length}
+                          onRemoveGroup={() => removeComparisonGroup(groupIndex)}
+                        />
+                      </div>
+                    ))}
+                    {/* Pending new group */}
+                    {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <GroupUnitList
+                          members={[]}
+                          units={[]}
+                          onQuantityChange={() => {}}
+                          onRemove={() => {}}
+                          onAdd={() => {}}
+                          pendingSelectionIndex={0}
+                          onSelectPendingUnit={completeComparisonSelection}
+                          onCancelPendingSelection={cancelComparisonSelection}
+                          defaultFactionId={factionId || ''}
+                          otherGroupUnitCount={primaryGroupMembers.filter(m => m.unitId).length}
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -519,7 +617,7 @@ export function UnitDetail() {
                         <BreadcrumbNav
                           factionId={_ref.factionId}
                           unitId={_ref.unitId || undefined}
-                          onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(index, newFactionId, newUnitId)}
+                          onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(0, index, newFactionId, newUnitId)}
                           sourceUnitTypes={unit.unitTypes}
                         />
                       </div>
@@ -565,7 +663,7 @@ export function UnitDetail() {
                                 </button>
                               )}
                               <button
-                                onClick={() => removeComparisonUnit(index)}
+                                onClick={() => removeComparisonUnit(0, index)}
                                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                                 title="Remove from comparison"
                                 aria-label="Remove from comparison"
@@ -600,98 +698,139 @@ export function UnitDetail() {
                 </>
               )}
 
-              {/* Group mode: stats display - 2 column layout / Unit mode: detailed stats */}
+              {/* Group mode: stats display - N column layout / Unit mode: detailed stats */}
               {isGroupMode ? (
                 <>
                   {/* Group Overview row */}
                   <div className="flex gap-6 items-stretch">
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       {primaryGroupStats && (
                         <OverviewSection
                           groupStats={primaryGroupStats}
-                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          compareGroupStats={comparisonGroupStatsArray[0] ?? undefined}
                           hideDiff
                         />
                       )}
                     </div>
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                      {comparisonGroupStats && (
-                        <OverviewSection
-                          groupStats={comparisonGroupStats}
-                          compareGroupStats={primaryGroupStats ?? undefined}
-                        />
-                      )}
-                    </div>
+                    {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                      <div key={`overview-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        {stats ? (
+                          <OverviewSection
+                            groupStats={stats}
+                            compareGroupStats={primaryGroupStats ?? undefined}
+                          />
+                        ) : (
+                          <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 min-h-[100px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                            Select units above
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {/* Placeholder for pending new group */}
+                    {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 min-h-[100px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                          Select units above
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Group Economy row */}
                   <div className="flex gap-6 items-stretch">
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       {primaryGroupStats && (
                         <EconomySection
                           groupStats={primaryGroupStats}
-                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          compareGroupStats={comparisonGroupStatsArray[0] ?? undefined}
                           hideDiff
                         />
                       )}
                     </div>
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                      {comparisonGroupStats && (
-                        <EconomySection
-                          groupStats={comparisonGroupStats}
-                          compareGroupStats={primaryGroupStats ?? undefined}
-                        />
-                      )}
-                    </div>
+                    {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                      <div key={`economy-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        {stats ? (
+                          <EconomySection
+                            groupStats={stats}
+                            compareGroupStats={primaryGroupStats ?? undefined}
+                          />
+                        ) : (
+                          <div className="min-h-[50px]" />
+                        )}
+                      </div>
+                    ))}
+                    {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <div className="min-h-[50px]" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Group Mobility row */}
                   <div className="flex gap-6 items-stretch">
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       {primaryGroupStats && (
                         <PhysicsSection
                           groupStats={primaryGroupStats}
-                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          compareGroupStats={comparisonGroupStatsArray[0] ?? undefined}
                           hideDiff
                         />
                       )}
                     </div>
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                      {comparisonGroupStats && (
-                        <PhysicsSection
-                          groupStats={comparisonGroupStats}
-                          compareGroupStats={primaryGroupStats ?? undefined}
-                        />
-                      )}
-                    </div>
+                    {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                      <div key={`mobility-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        {stats ? (
+                          <PhysicsSection
+                            groupStats={stats}
+                            compareGroupStats={primaryGroupStats ?? undefined}
+                          />
+                        ) : (
+                          <div className="min-h-[50px]" />
+                        )}
+                      </div>
+                    ))}
+                    {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <div className="min-h-[50px]" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Group Recon row */}
                   <div className="flex gap-6 items-stretch">
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                       {primaryGroupStats && (
                         <ReconSection
                           groupStats={primaryGroupStats}
-                          compareGroupStats={comparisonGroupStats ?? undefined}
+                          compareGroupStats={comparisonGroupStatsArray[0] ?? undefined}
                           hideDiff
                         />
                       )}
                     </div>
-                    <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                      {comparisonGroupStats && (
-                        <ReconSection
-                          groupStats={comparisonGroupStats}
-                          compareGroupStats={primaryGroupStats ?? undefined}
-                        />
-                      )}
-                    </div>
+                    {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                      <div key={`recon-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        {stats ? (
+                          <ReconSection
+                            groupStats={stats}
+                            compareGroupStats={primaryGroupStats ?? undefined}
+                          />
+                        ) : (
+                          <div className="min-h-[50px]" />
+                        )}
+                      </div>
+                    ))}
+                    {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                        <div className="min-h-[50px]" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Group weapons - aligned rows */}
-                  {matchedGroupWeapons.length > 0 && (
+                  {(primaryGroupStats?.weapons.length || comparisonGroupStatsArray.some(s => s?.weapons.length) || pendingComparisonGroupIndex >= comparisonGroups.length) && (
                     <div className="flex gap-6 items-stretch">
                       {/* Primary Group Weapons */}
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         <StatSection title="Weapons">
                           <div className="space-y-3">
                             {matchedGroupWeapons.map(([primary, comparison], index) => (
@@ -712,75 +851,120 @@ export function UnitDetail() {
                           </div>
                         </StatSection>
                       </div>
-                      {/* Comparison Group Weapons */}
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                        <StatSection title="Weapons">
-                          <div className="space-y-3">
-                            {matchedGroupWeapons.map(([primary, comparison], index) => (
-                              <div key={`comparison-weapon-${index}`}>
-                                {comparison ? (
-                                  <GroupWeaponCard
-                                    weapon={comparison}
-                                    compareWeapon={primary}
-                                  />
-                                ) : primary ? (
-                                  <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 min-h-[140px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
-                                    No equivalent weapon
-                                  </div>
-                                ) : null}
+                      {/* Comparison Group Weapons - one column per group */}
+                      {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                        <div key={`weapons-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          {stats ? (
+                            <StatSection title="Weapons">
+                              <div className="space-y-3">
+                                {matchedGroupWeapons.map(([primary, comparison], index) => {
+                                  // For now, weapon matching only works against first comparison group
+                                  // Additional groups show their own weapons independently
+                                  const weapon = groupIndex === 0 ? comparison : stats?.weapons[index]
+                                  return (
+                                    <div key={`comparison-${groupIndex}-weapon-${index}`}>
+                                      {weapon ? (
+                                        <GroupWeaponCard
+                                          weapon={weapon}
+                                          compareWeapon={primary}
+                                        />
+                                      ) : primary && groupIndex === 0 ? (
+                                        <div className="border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 min-h-[140px] flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+                                          No equivalent weapon
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  )
+                                })}
+                                {/* For groups beyond the first, show all their weapons if they don't align */}
+                                {groupIndex > 0 && stats?.weapons.map((weapon, wIndex) => (
+                                  wIndex >= matchedGroupWeapons.length && (
+                                    <div key={`extra-weapon-${groupIndex}-${wIndex}`}>
+                                      <GroupWeaponCard
+                                        weapon={weapon}
+                                        compareWeapon={undefined}
+                                      />
+                                    </div>
+                                  )
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        </StatSection>
-                      </div>
+                            </StatSection>
+                          ) : (
+                            <div className="min-h-[50px]" />
+                          )}
+                        </div>
+                      ))}
+                      {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                        <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          <div className="min-h-[50px]" />
+                        </div>
+                      )}
                     </div>
                   )}
 
                   {/* Group Target Priorities */}
-                  {(primaryGroupStats?.allTargetLayers.length || comparisonGroupStats?.allTargetLayers.length) ? (
+                  {(primaryGroupStats?.allTargetLayers.length || comparisonGroupStatsArray.some(s => s?.allTargetLayers.length) || pendingComparisonGroupIndex >= comparisonGroups.length) ? (
                     <div className="flex gap-6 items-stretch">
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         {primaryGroupStats && (
                           <TargetPrioritiesSection
                             groupTargetLayers={primaryGroupStats.allTargetLayers}
-                            compareGroupTargetLayers={comparisonGroupStats?.allTargetLayers}
+                            compareGroupTargetLayers={comparisonGroupStatsArray[0]?.allTargetLayers}
                           />
                         )}
                       </div>
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                        {comparisonGroupStats && (
-                          <TargetPrioritiesSection
-                            groupTargetLayers={comparisonGroupStats.allTargetLayers}
-                            compareGroupTargetLayers={primaryGroupStats?.allTargetLayers}
-                            isComparisonSide
-                          />
-                        )}
-                      </div>
+                      {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                        <div key={`priorities-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          {stats ? (
+                            <TargetPrioritiesSection
+                              groupTargetLayers={stats.allTargetLayers}
+                              compareGroupTargetLayers={primaryGroupStats?.allTargetLayers}
+                              isComparisonSide
+                            />
+                          ) : (
+                            <div className="min-h-[50px]" />
+                          )}
+                        </div>
+                      ))}
+                      {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                        <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          <div className="min-h-[50px]" />
+                        </div>
+                      )}
                     </div>
                   ) : null}
 
                   {/* Group Builds */}
-                  {(primaryGroupStats?.allBuilds.length || comparisonGroupStats?.allBuilds.length) ? (
+                  {(primaryGroupStats?.allBuilds.length || comparisonGroupStatsArray.some(s => s?.allBuilds.length) || pendingComparisonGroupIndex >= comparisonGroups.length) ? (
                     <div className="flex gap-6 items-stretch">
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         {primaryGroupStats && primaryGroupStats.allBuilds.length > 0 && (
                           <BuildsSection
                             builds={primaryGroupStats.allBuilds}
                             buildRate={primaryGroupStats.totalBuildRate}
-                            compareBuilds={comparisonGroupStats?.allBuilds}
+                            compareBuilds={comparisonGroupStatsArray[0]?.allBuilds}
                           />
                         )}
                       </div>
-                      <div className="flex-1 min-w-[85vw] sm:min-w-[calc(50%-0.75rem)]">
-                        {comparisonGroupStats && comparisonGroupStats.allBuilds.length > 0 && (
-                          <BuildsSection
-                            builds={comparisonGroupStats.allBuilds}
-                            buildRate={comparisonGroupStats.totalBuildRate}
-                            compareBuilds={primaryGroupStats?.allBuilds}
-                            isComparisonSide
-                          />
-                        )}
-                      </div>
+                      {comparisonGroupStatsArray.map((stats, groupIndex) => (
+                        <div key={`builds-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          {stats && stats.allBuilds.length > 0 ? (
+                            <BuildsSection
+                              builds={stats.allBuilds}
+                              buildRate={stats.totalBuildRate}
+                              compareBuilds={primaryGroupStats?.allBuilds}
+                              isComparisonSide
+                            />
+                          ) : (
+                            <div className="min-h-[50px]" />
+                          )}
+                        </div>
+                      ))}
+                      {pendingComparisonGroupIndex >= comparisonGroups.length && (
+                        <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                          <div className="min-h-[50px]" />
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </>
