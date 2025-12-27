@@ -63,7 +63,7 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
             value={
               <ComparisonValue
                 value={Number(weapon.totalSustainedDps!.toFixed(1))}
-                compareValue={compareWeapon?.totalSustainedDps ? Number(compareWeapon.totalSustainedDps.toFixed(1)) : undefined}
+                compareValue={compareWeapon?.totalSustainedDps !== undefined ? Number(compareWeapon.totalSustainedDps.toFixed(1)) : undefined}
                 comparisonType="higher-better"
                 hideDiff={hideDiff}
               />
@@ -76,7 +76,7 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
             value={
               <ComparisonValue
                 value={Math.round(weapon.maxRange)}
-                compareValue={compareWeapon?.maxRange ? Math.round(compareWeapon.maxRange) : undefined}
+                compareValue={compareWeapon?.maxRange !== undefined ? Math.round(compareWeapon.maxRange) : undefined}
                 comparisonType="higher-better"
                 hideDiff={hideDiff}
               />

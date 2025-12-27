@@ -121,6 +121,8 @@ export interface AggregatedGroupStats {
   allTargetLayers: string[]
   /** All unique unit IDs the group can build */
   allBuilds: string[]
+  /** Effective build rate for each buildable unit (only units that can build it contribute) */
+  buildRateByUnit: Record<string, number>
 
   // ===== GROUP metadata =====
   /** Total number of units (sum of quantities) */
