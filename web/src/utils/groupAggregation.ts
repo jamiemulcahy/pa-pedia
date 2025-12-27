@@ -168,6 +168,8 @@ export function aggregateGroupStats(
   // SET aggregations (unique values across all units)
   const targetLayerSet = new Set<string>()
   const buildsSet = new Set<string>()
+  // Track build rate per buildable unit (only units that can build it contribute)
+  const buildRateByUnit: Record<string, number> = {}
 
   // Track total unit count
   let unitCount = 0
@@ -225,9 +227,12 @@ export function aggregateGroupStats(
       }
     }
 
-    // Collect buildable units
+    // Collect buildable units and track build rate per target
+    const unitBuildRate = (specs.economy.buildRate ?? 0) * qty
     for (const buildId of unit.buildRelationships?.builds ?? []) {
       buildsSet.add(buildId)
+      // Add this unit's build rate contribution for this target
+      buildRateByUnit[buildId] = (buildRateByUnit[buildId] ?? 0) + unitBuildRate
     }
 
     // Aggregate weapons
@@ -288,6 +293,7 @@ export function aggregateGroupStats(
     weapons,
     allTargetLayers: Array.from(targetLayerSet).sort(),
     allBuilds: Array.from(buildsSet).sort(),
+    buildRateByUnit,
     unitCount,
     distinctUnitTypes: units.length,
   }
