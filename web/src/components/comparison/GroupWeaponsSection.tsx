@@ -47,11 +47,15 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
       {/* Single column layout like unit mode */}
       <div className="space-y-1 text-sm">
         <StatRow
-          label={hasSustainedDps ? "DPS (Burst)" : "Total DPS"}
+          label="Total DPS"
           value={
             <ComparisonValue
-              value={Number(weapon.totalDps.toFixed(1))}
-              compareValue={compareWeapon ? Number(compareWeapon.totalDps.toFixed(1)) : undefined}
+              value={Number((hasSustainedDps ? weapon.totalSustainedDps! : weapon.totalDps).toFixed(1))}
+              compareValue={
+                hasSustainedDps
+                  ? (compareWeapon?.totalSustainedDps !== undefined ? Number(compareWeapon.totalSustainedDps.toFixed(1)) : undefined)
+                  : (compareWeapon ? Number(compareWeapon.totalDps.toFixed(1)) : undefined)
+              }
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
@@ -59,11 +63,11 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
         />
         {hasSustainedDps && (
           <StatRow
-            label="DPS (Sustained)"
+            label="DPS (Burst)"
             value={
               <ComparisonValue
-                value={Number(weapon.totalSustainedDps!.toFixed(1))}
-                compareValue={compareWeapon?.totalSustainedDps !== undefined ? Number(compareWeapon.totalSustainedDps.toFixed(1)) : undefined}
+                value={Number(weapon.totalDps.toFixed(1))}
+                compareValue={compareWeapon ? Number(compareWeapon.totalDps.toFixed(1)) : undefined}
                 comparisonType="higher-better"
                 hideDiff={hideDiff}
               />

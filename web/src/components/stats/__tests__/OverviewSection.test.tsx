@@ -63,6 +63,37 @@ const mockCompareUnit: Unit = {
   },
 }
 
+// Unit with ammo-limited weapon (sustained DPS differs from burst)
+const mockUnitWithAmmoWeapon: Unit = {
+  id: 'missile_tank',
+  resourceName: '/pa/units/land/missile_tank/missile_tank.json',
+  displayName: 'Missile Tank',
+  description: 'Tank with ammo-limited missiles',
+  unitTypes: ['Mobile', 'Land', 'Basic'],
+  tier: 1,
+  accessible: true,
+  specs: {
+    combat: {
+      health: 800,
+      dps: 100, // burst DPS
+      weapons: [{
+        resourceName: '/pa/units/land/missile_tank/missile_tool_weapon.json',
+        safeName: 'missile_tool_weapon',
+        name: 'Missile Launcher',
+        count: 1,
+        rateOfFire: 2,
+        damage: 50,
+        maxRange: 120,
+        dps: 100,           // burst DPS
+        sustainedDps: 60,   // sustained DPS (ammo-limited)
+      }],
+    },
+    economy: {
+      buildCost: 600,
+    },
+  },
+}
+
 function renderOverviewSection(unit: Unit, compareUnit?: Unit) {
   return renderWithProviders(
     <CurrentFactionProvider factionId="MLA">
@@ -95,10 +126,10 @@ describe('OverviewSection', () => {
     expect(screen.getByText('100')).toBeInTheDocument()
   })
 
-  it('should render total DPS', () => {
+  it('should render DPS', () => {
     renderOverviewSection(mockUnit)
 
-    expect(screen.getByText('Total DPS:')).toBeInTheDocument()
+    expect(screen.getByText('DPS:')).toBeInTheDocument()
     expect(screen.getByText('50')).toBeInTheDocument()
   })
 
@@ -129,5 +160,55 @@ describe('OverviewSection', () => {
     renderOverviewSection(mockUnit)
 
     expect(screen.getByText('Overview')).toBeInTheDocument()
+  })
+
+  describe('sustained DPS display', () => {
+    it('should display sustained DPS as primary when weapon has ammo limits', () => {
+      renderOverviewSection(mockUnitWithAmmoWeapon)
+
+      // Primary DPS row should show sustained value
+      expect(screen.getByText('DPS:')).toBeInTheDocument()
+      expect(screen.getByText('60')).toBeInTheDocument() // sustained DPS
+    })
+
+    it('should show burst DPS separately when it differs from sustained', () => {
+      renderOverviewSection(mockUnitWithAmmoWeapon)
+
+      // Burst DPS should appear as secondary row
+      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+      expect(screen.getByText('100')).toBeInTheDocument() // burst DPS
+    })
+
+    it('should not show burst DPS row when sustained equals burst', () => {
+      renderOverviewSection(mockUnit)
+
+      // Only "DPS:" should appear, no "(Burst)" variant
+      expect(screen.getByText('DPS:')).toBeInTheDocument()
+      expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
+    })
+
+    it('should compare sustained DPS values when both units have ammo limits', () => {
+      const compareUnitWithAmmo: Unit = {
+        ...mockUnitWithAmmoWeapon,
+        id: 'heavy_missile',
+        specs: {
+          ...mockUnitWithAmmoWeapon.specs,
+          combat: {
+            ...mockUnitWithAmmoWeapon.specs.combat,
+            dps: 150,
+            weapons: [{
+              ...mockUnitWithAmmoWeapon.specs.combat.weapons![0],
+              dps: 150,
+              sustainedDps: 90,
+            }],
+          },
+        },
+      }
+
+      renderOverviewSection(mockUnitWithAmmoWeapon, compareUnitWithAmmo)
+
+      // Should show sustained DPS comparison (60 vs 90 = -30)
+      expect(screen.getByText('(-30)')).toBeInTheDocument()
+    })
   })
 })

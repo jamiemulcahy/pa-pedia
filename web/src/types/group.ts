@@ -28,9 +28,9 @@ export interface AggregatedWeapon {
   targetLayers: string[]
   /** Total weapon instances (weapon.count * unit quantity summed) */
   totalCount: number
-  /** Total DPS from all instances (burst DPS) */
+  /** Total burst DPS from all instances (peak damage output) */
   totalDps: number
-  /** Total sustained DPS from all instances (ammo-limited) */
+  /** Total sustained DPS from all instances (effective DPS with ammo limitations) */
   totalSustainedDps?: number
   /** Total damage per volley from all instances */
   totalDamage: number
@@ -49,9 +49,9 @@ export interface AggregatedGroupStats {
   totalHp: number
   /** Total metal build cost */
   totalBuildCost: number
-  /** Total damage per second (burst) */
+  /** Total burst DPS (peak damage output) */
   totalDps: number
-  /** Total sustained DPS (ammo-limited weapons) */
+  /** Total sustained DPS (effective DPS with ammo limitations) */
   totalSustainedDps?: number
   /** Total damage in single volley */
   totalSalvoDamage: number
