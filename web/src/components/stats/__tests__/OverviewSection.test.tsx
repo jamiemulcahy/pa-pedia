@@ -95,10 +95,10 @@ describe('OverviewSection', () => {
     expect(screen.getByText('100')).toBeInTheDocument()
   })
 
-  it('should render total DPS', () => {
+  it('should render DPS', () => {
     renderOverviewSection(mockUnit)
 
-    expect(screen.getByText('Total DPS:')).toBeInTheDocument()
+    expect(screen.getByText('DPS:')).toBeInTheDocument()
     expect(screen.getByText('50')).toBeInTheDocument()
   })
 

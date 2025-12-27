@@ -174,15 +174,17 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
         />
       )}
 
-      {dps !== undefined && dps > 0 && showRow(dpsDiff) && (
+      {dps !== undefined && dps > 0 && showRow(hasSustainedDps ? sustainedDpsDiff : dpsDiff) && (
         <StatRow
-          label={hasSustainedDps
-            ? (isGroupMode ? "Total DPS (Burst)" : "DPS (Burst)")
-            : (isGroupMode ? "Total DPS" : "Total DPS")}
+          label={isGroupMode ? "Total DPS" : "DPS"}
           value={
             <ComparisonValue
-              value={Number(dps.toFixed(1))}
-              compareValue={compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined}
+              value={Number((hasSustainedDps ? sustainedDps! : dps).toFixed(1))}
+              compareValue={
+                hasSustainedDps
+                  ? (compareSustainedDps !== undefined ? Number(compareSustainedDps.toFixed(1)) : undefined)
+                  : (compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined)
+              }
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
@@ -190,13 +192,13 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
         />
       )}
 
-      {hasSustainedDps && showRow(sustainedDpsDiff) && (
+      {hasSustainedDps && showRow(dpsDiff) && (
         <StatRow
-          label={isGroupMode ? "Total DPS (Sustained)" : "DPS (Sustained)"}
+          label={isGroupMode ? "Total DPS (Burst)" : "DPS (Burst)"}
           value={
             <ComparisonValue
-              value={Number(sustainedDps!.toFixed(1))}
-              compareValue={compareSustainedDps !== undefined ? Number(compareSustainedDps.toFixed(1)) : undefined}
+              value={Number(dps!.toFixed(1))}
+              compareValue={compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />
