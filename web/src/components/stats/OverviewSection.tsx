@@ -38,6 +38,24 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const dps = groupStats?.totalDps ?? unit?.specs.combat.dps;
   const salvoDamage = groupStats?.totalSalvoDamage ?? unit?.specs.combat.salvoDamage;
 
+  // Calculate sustained DPS for unit mode from weapons
+  const unitSustainedDps = !isGroupMode && unit?.specs.combat.weapons
+    ? unit.specs.combat.weapons.reduce((sum, w) => {
+        if (w.selfDestruct || w.deathExplosion) return sum;
+        // Use sustainedDps if available and different from dps, otherwise use dps
+        const weaponDps = w.sustainedDps !== undefined && w.sustainedDps !== w.dps
+          ? w.sustainedDps
+          : w.dps;
+        return sum + (weaponDps ?? 0) * (w.count ?? 1);
+      }, 0)
+    : undefined;
+
+  // Get sustained DPS - from groupStats or calculated from unit weapons
+  const sustainedDps = groupStats?.totalSustainedDps ?? unitSustainedDps;
+
+  // Check if we have sustained DPS that differs from burst DPS
+  const hasSustainedDps = sustainedDps !== undefined && dps !== undefined && sustainedDps !== dps;
+
   // Max weapon range
   const maxRange = groupStats?.maxWeaponRange ?? (unit?.specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
@@ -48,6 +66,18 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const compareBuildCost = compareGroupStats?.totalBuildCost ?? compareUnit?.specs.economy.buildCost;
   const compareDps = compareGroupStats?.totalDps ?? compareUnit?.specs.combat.dps;
   const compareSalvoDamage = compareGroupStats?.totalSalvoDamage ?? compareUnit?.specs.combat.salvoDamage;
+
+  // Calculate compare sustained DPS for unit mode
+  const compareUnitSustainedDps = !isGroupMode && compareUnit?.specs.combat.weapons
+    ? compareUnit.specs.combat.weapons.reduce((sum, w) => {
+        if (w.selfDestruct || w.deathExplosion) return sum;
+        const weaponDps = w.sustainedDps !== undefined && w.sustainedDps !== w.dps
+          ? w.sustainedDps
+          : w.dps;
+        return sum + (weaponDps ?? 0) * (w.count ?? 1);
+      }, 0)
+    : undefined;
+  const compareSustainedDps = compareGroupStats?.totalSustainedDps ?? compareUnitSustainedDps;
   const compareMaxRange = compareGroupStats?.maxWeaponRange ?? (compareUnit?.specs.combat.weapons
     ?.filter(w => w.maxRange !== undefined)
     .reduce((max, w) => Math.max(max, w.maxRange || 0), 0));
@@ -78,13 +108,14 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
   const costDiff = isDifferent(buildCost, compareBuildCost);
   const rangeDiff = isDifferent(maxRange, compareMaxRange);
   const dpsDiff = isDifferent(dps, compareDps);
+  const sustainedDpsDiff = isDifferent(sustainedDps, compareSustainedDps);
   const salvoDiff = isDifferent(salvoDamage, compareSalvoDamage);
   const buildLocDiff = buildLocations.join(',') !== compareBuildLocations.join(',');
   const spawnDiff = !isGroupMode && unit?.specs.special?.spawnUnitOnDeath !== compareUnit?.specs.special?.spawnUnitOnDeath;
 
   // In diff mode with compare, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !hasCompare ||
-    hpDiff || costDiff || rangeDiff || dpsDiff || salvoDiff || buildLocDiff || spawnDiff;
+    hpDiff || costDiff || rangeDiff || dpsDiff || sustainedDpsDiff || salvoDiff || buildLocDiff || spawnDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -141,11 +172,27 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
 
       {dps !== undefined && dps > 0 && showRow(dpsDiff) && (
         <StatRow
-          label={isGroupMode ? "Total DPS" : "Total DPS"}
+          label={hasSustainedDps
+            ? (isGroupMode ? "Total DPS (Burst)" : "DPS (Burst)")
+            : (isGroupMode ? "Total DPS" : "Total DPS")}
           value={
             <ComparisonValue
               value={Number(dps.toFixed(1))}
               compareValue={compareDps ? Number(compareDps.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+
+      {hasSustainedDps && sustainedDps !== undefined && showRow(sustainedDpsDiff) && (
+        <StatRow
+          label={isGroupMode ? "Total DPS (Sustained)" : "DPS (Sustained)"}
+          value={
+            <ComparisonValue
+              value={Number(sustainedDps.toFixed(1))}
+              compareValue={compareSustainedDps ? Number(compareSustainedDps.toFixed(1)) : undefined}
               comparisonType="higher-better"
               hideDiff={hideDiff}
             />

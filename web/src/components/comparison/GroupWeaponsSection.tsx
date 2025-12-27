@@ -29,6 +29,10 @@ export interface GroupWeaponCardProps {
 
 /** Single weapon card - exported for use in aligned weapon rows */
 export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeaponCardProps) {
+  // Determine if sustained DPS is different from burst DPS
+  const hasSustainedDps = weapon.totalSustainedDps !== undefined &&
+    weapon.totalSustainedDps !== weapon.totalDps
+
   return (
     <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 space-y-2">
       <div className="flex items-center justify-between">
@@ -43,7 +47,7 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
       {/* Single column layout like unit mode */}
       <div className="space-y-1 text-sm">
         <StatRow
-          label="Total DPS"
+          label={hasSustainedDps ? "DPS (Burst)" : "Total DPS"}
           value={
             <ComparisonValue
               value={Number(weapon.totalDps.toFixed(1))}
@@ -53,6 +57,19 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
             />
           }
         />
+        {hasSustainedDps && (
+          <StatRow
+            label="DPS (Sustained)"
+            value={
+              <ComparisonValue
+                value={Number(weapon.totalSustainedDps!.toFixed(1))}
+                compareValue={compareWeapon?.totalSustainedDps ? Number(compareWeapon.totalSustainedDps.toFixed(1)) : undefined}
+                comparisonType="higher-better"
+                hideDiff={hideDiff}
+              />
+            }
+          />
+        )}
         {weapon.maxRange !== undefined && (
           <StatRow
             label="Max Range"
