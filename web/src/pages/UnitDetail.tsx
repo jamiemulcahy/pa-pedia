@@ -540,20 +540,47 @@ export function UnitDetail() {
                         }}
                         onRemove={(index) => {
                           if (index === 0) {
-                            // Removing the first primary unit - navigate to faction page or first comparison unit
-                            if (comparisonRefs.length > 0 && comparisonRefs[0].unitId) {
-                              // Make first comparison unit the new primary
-                              const newPrimary = comparisonRefs[0]
-                              const remainingComparison = comparisonRefs.slice(1)
+                            // Removing the first primary unit
+                            if (additionalPrimaryUnits.length > 0) {
+                              // Promote the first additional primary unit to be the new main unit
+                              const newPrimary = additionalPrimaryUnits[0]
+                              const remainingPrimary = additionalPrimaryUnits.slice(1)
                               const params = new URLSearchParams(searchParams)
-                              if (remainingComparison.length > 0) {
-                                params.set('compare', remainingComparison.map(serializeRef).join(','))
+                              if (remainingPrimary.length > 0) {
+                                params.set('primaryUnits', remainingPrimary.map(serializeRef).join(','))
                               } else {
-                                params.delete('compare')
+                                params.delete('primaryUnits')
                               }
                               navigate(`/faction/${newPrimary.factionId}/unit/${newPrimary.unitId}?${params.toString()}`)
+                            } else if (comparisonGroups.length > 0 && comparisonGroups[0].length > 0 && comparisonGroups[0][0].unitId) {
+                              // No additional primary units, but there are comparison groups
+                              // Make first unit of first comparison group the new primary
+                              const newPrimary = comparisonGroups[0][0]
+                              const params = new URLSearchParams(searchParams)
+
+                              // Remove the first unit from the first comparison group
+                              const remainingFirstGroup = comparisonGroups[0].slice(1)
+                              if (remainingFirstGroup.length > 0) {
+                                params.set('compare', remainingFirstGroup.map(serializeRef).join(','))
+                              } else {
+                                // First comparison group is now empty, remove it and re-index
+                                params.delete('compare')
+                                for (let i = 1; i < comparisonGroups.length; i++) {
+                                  const oldParamName = getCompareParamName(i)
+                                  const newParamName = getCompareParamName(i - 1)
+                                  const groupData = params.get(oldParamName)
+                                  if (groupData) {
+                                    params.set(newParamName, groupData)
+                                    params.delete(oldParamName)
+                                  }
+                                }
+                              }
+
+                              // Clear primaryUnits since we're changing primary
+                              params.delete('primaryUnits')
+                              navigate(`/faction/${newPrimary.factionId}/unit/${newPrimary.unitId}?${params.toString()}`)
                             } else {
-                              // No comparison units, go back to faction
+                              // No additional primary units and no comparison groups, go back to faction
                               navigate(`/faction/${factionId}`)
                             }
                           } else {
