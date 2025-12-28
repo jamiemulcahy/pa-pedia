@@ -947,24 +947,30 @@ export function UnitDetail() {
                             buildRate={primaryGroupStats.totalBuildRate}
                             buildRateByUnit={primaryGroupStats.buildRateByUnit}
                             compareBuilds={comparisonGroupStatsArray[0]?.allBuilds}
+                            factionId={primaryGroupMembers[0]?.factionId}
                           />
                         )}
                       </div>
-                      {comparisonGroupStatsArray.map((stats, groupIndex) => (
-                        <div key={`builds-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
-                          {stats && stats.allBuilds.length > 0 ? (
-                            <BuildsSection
-                              builds={stats.allBuilds}
-                              buildRate={stats.totalBuildRate}
-                              buildRateByUnit={stats.buildRateByUnit}
-                              compareBuilds={primaryGroupStats?.allBuilds}
-                              isComparisonSide
-                            />
-                          ) : (
-                            <div className="min-h-[50px]" />
-                          )}
-                        </div>
-                      ))}
+                      {comparisonGroupStatsArray.map((stats, groupIndex) => {
+                        const groupMembers = comparisonGroupMembersArray[groupIndex] || []
+                        const groupFactionId = groupMembers[0]?.factionId
+                        return (
+                          <div key={`builds-${groupIndex}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                            {stats && stats.allBuilds.length > 0 ? (
+                              <BuildsSection
+                                builds={stats.allBuilds}
+                                buildRate={stats.totalBuildRate}
+                                buildRateByUnit={stats.buildRateByUnit}
+                                compareBuilds={primaryGroupStats?.allBuilds}
+                                isComparisonSide
+                                factionId={groupFactionId}
+                              />
+                            ) : (
+                              <div className="min-h-[50px]" />
+                            )}
+                          </div>
+                        )
+                      })}
                       {pendingComparisonGroupIndex >= comparisonGroups.length && (
                         <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                           <div className="min-h-[50px]" />
