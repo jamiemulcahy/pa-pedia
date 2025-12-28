@@ -143,13 +143,22 @@ func parseProfile(data []byte, filename string) (*models.FactionProfile, error) 
 	if profile.DisplayName == "" {
 		return nil, fmt.Errorf("displayName is required")
 	}
-	if profile.FactionUnitType == "" {
-		return nil, fmt.Errorf("factionUnitType is required")
+
+	// Require either factionUnitType (deprecated) or factionUnitTypes (new)
+	if profile.FactionUnitType == "" && len(profile.FactionUnitTypes) == 0 {
+		return nil, fmt.Errorf("factionUnitType or factionUnitTypes is required")
 	}
 
-	// Validate factionUnitType format (should be alphanumeric identifier like Custom1, Custom58)
-	if !factionUnitTypePattern.MatchString(profile.FactionUnitType) {
+	// Validate factionUnitType format if provided (should be alphanumeric identifier like Custom1, Custom58)
+	if profile.FactionUnitType != "" && !factionUnitTypePattern.MatchString(profile.FactionUnitType) {
 		return nil, fmt.Errorf("factionUnitType must be alphanumeric identifier (e.g., Custom1, Custom58), got: %s", profile.FactionUnitType)
+	}
+
+	// Validate each factionUnitTypes entry
+	for _, ut := range profile.FactionUnitTypes {
+		if !factionUnitTypePattern.MatchString(ut) {
+			return nil, fmt.Errorf("factionUnitTypes entries must be alphanumeric identifiers (e.g., Custom1, Custom58), got: %s", ut)
+		}
 	}
 
 	return &profile, nil

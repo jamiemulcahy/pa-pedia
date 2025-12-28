@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { BlueprintModal } from '../BlueprintModal'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { renderWithFactionProvider } from '@/tests/helpers'
-import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockBugsMetadata, mockExilesMetadata, mockMLAIndex, mockLegionIndex, mockBugsIndex, mockExilesIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
+import { setupMockFetch, mockMLAMetadata, mockLegionMetadata, mockBugsMetadata, mockExilesMetadata, mockSecondWaveMetadata, mockMLAIndex, mockLegionIndex, mockBugsIndex, mockExilesIndex, mockSecondWaveIndex, createMockFetchResponse } from '@/tests/mocks/factionData'
 import type { Unit } from '@/types/faction'
 
 function renderModal(props: {
@@ -39,6 +39,9 @@ function createBlueprintFetchMock(blueprintResponses: Array<() => Promise<Respon
     if (urlString.includes('/factions/Exiles/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesMetadata))
     }
+    if (urlString.includes('/factions/Second-Wave/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockSecondWaveMetadata))
+    }
     if (urlString.includes('/factions/MLA/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockMLAIndex))
     }
@@ -50,6 +53,9 @@ function createBlueprintFetchMock(blueprintResponses: Array<() => Promise<Respon
     }
     if (urlString.includes('/factions/Exiles/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesIndex))
+    }
+    if (urlString.includes('/factions/Second-Wave/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockSecondWaveIndex))
     }
 
     // Handle blueprint requests in sequence

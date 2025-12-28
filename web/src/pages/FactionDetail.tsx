@@ -275,12 +275,24 @@ export function FactionDetail() {
             <h1 className="text-5xl font-display font-bold tracking-wide">
               {isAllMode ? 'All' : metadata?.displayName}
             </h1>
-            {!isAllMode && metadata?.isLocal && (
-              <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
-                LOCAL
-              </span>
-            )}
+            <div className="flex gap-1.5">
+              {!isAllMode && metadata?.isBalanceMod && (
+                <span className="px-2 py-1 text-sm font-semibold bg-amber-600 text-white rounded">
+                  ADDON
+                </span>
+              )}
+              {!isAllMode && metadata?.isLocal && (
+                <span className="px-2 py-1 text-sm font-semibold bg-blue-600 text-white rounded">
+                  LOCAL
+                </span>
+              )}
+            </div>
           </div>
+          {!isAllMode && metadata?.isBalanceMod && metadata.baseFactions && metadata.baseFactions.length > 0 && (
+            <p className="text-sm text-amber-400 font-medium mb-1">
+              Extends: {metadata.baseFactions.join(', ')}
+            </p>
+          )}
           <p className="text-muted-foreground font-medium">
             {isAllMode ? 'Browse units from all available factions' : metadata?.description}
           </p>

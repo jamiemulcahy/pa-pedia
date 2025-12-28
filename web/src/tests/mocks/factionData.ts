@@ -67,6 +67,21 @@ export const mockExilesMetadata: FactionMetadataWithLocal = {
   isLocal: false
 }
 
+export const mockSecondWaveMetadata: FactionMetadataWithLocal = {
+  identifier: 'second-wave',
+  displayName: 'Second Wave',
+  version: '0.14.5',
+  author: 'Second Wave Team',
+  description: 'Addon units for MLA, Legion, and Bugs',
+  dateCreated: '2025-01-30',
+  build: '124616',
+  type: 'mod',
+  mods: ['pa.mla.unit.addon', 'pa.mla.unit.addon.companion'],
+  isLocal: false,
+  isBalanceMod: true,
+  baseFactions: ['Bugs', 'Legion', 'MLA']
+}
+
 /**
  * Mock resolved units (defined before index since index references them)
  */
@@ -510,6 +525,24 @@ export const mockExilesIndex: FactionIndex = {
   ]
 }
 
+export const mockSecondWaveIndex: FactionIndex = {
+  units: [
+    {
+      identifier: 'addon_tank',
+      displayName: 'Addon Tank',
+      unitTypes: ['Mobile', 'Land', 'Basic', 'Tank'],
+      source: '/pa/units/addon/tank/tank.json',
+      files: [
+        {
+          path: '/pa/units/addon/tank/tank.json',
+          source: 'pa.mla.unit.addon'
+        }
+      ],
+      unit: mockTankUnit
+    }
+  ]
+}
+
 /**
  * Factory function to create mock fetch responses
  */
@@ -554,6 +587,9 @@ export function setupMockFetch() {
     if (urlString.includes('/factions/Exiles/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesMetadata))
     }
+    if (urlString.includes('/factions/Second-Wave/metadata.json')) {
+      return Promise.resolve(createMockFetchResponse(mockSecondWaveMetadata))
+    }
 
     // Faction indexes (now include embedded units, no need for separate resolved files)
     if (urlString.includes('/factions/MLA/units.json')) {
@@ -567,6 +603,9 @@ export function setupMockFetch() {
     }
     if (urlString.includes('/factions/Exiles/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesIndex))
+    }
+    if (urlString.includes('/factions/Second-Wave/units.json')) {
+      return Promise.resolve(createMockFetchResponse(mockSecondWaveIndex))
     }
 
     // Default: return generic JSON for asset requests

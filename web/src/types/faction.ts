@@ -12,6 +12,10 @@ export interface FactionMetadata {
   type: 'base-game' | 'mod';
   mods?: string[];
   backgroundImage?: string;
+  /** True if this is a balance mod that extends existing factions */
+  isBalanceMod?: boolean;
+  /** Faction display names that this balance mod extends (e.g. MLA, Legion) */
+  baseFactions?: string[];
 }
 
 // Faction Index

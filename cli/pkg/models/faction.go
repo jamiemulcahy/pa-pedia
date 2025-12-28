@@ -12,6 +12,15 @@ type FactionMetadata struct {
 	Type            string   `json:"type" jsonschema:"required,enum=base-game,enum=mod,description=Type of faction (base-game or mod)"`
 	Mods            []string `json:"mods,omitempty" jsonschema:"description=List of mod identifiers that compose this faction"`
 	BackgroundImage string   `json:"backgroundImage,omitempty" jsonschema:"description=Path to faction background image relative to faction folder root"`
+
+	// IsBalanceMod indicates this is a balance mod that extends existing factions.
+	// Auto-detected from mod categories containing 'balance' or 'addon'.
+	IsBalanceMod bool `json:"isBalanceMod,omitempty" jsonschema:"description=True if this is a balance mod that extends existing factions rather than defining a new one"`
+
+	// BaseFactions lists the display names of factions this balance mod extends.
+	// Auto-populated from detected faction unit types during extraction.
+	// Example: ["MLA", "Legion", "Bugs"] for Second Wave.
+	BaseFactions []string `json:"baseFactions,omitempty" jsonschema:"description=Faction display names that this balance mod extends (e.g. MLA or Legion)"`
 }
 
 // FactionDatabase represents the units.json file for a faction folder

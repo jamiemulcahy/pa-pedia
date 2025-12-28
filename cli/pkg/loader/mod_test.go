@@ -174,6 +174,75 @@ func containsPath(fullPath string, components ...string) bool {
 	return true
 }
 
+// TestIsBalanceMod tests the balance mod detection from categories
+func TestIsBalanceMod(t *testing.T) {
+	tests := []struct {
+		name       string
+		categories []string
+		expected   bool
+	}{
+		{
+			name:       "balance category",
+			categories: []string{"unit", "balance", "expansion"},
+			expected:   true,
+		},
+		{
+			name:       "addon category",
+			categories: []string{"addon", "unit", "legion"},
+			expected:   true,
+		},
+		{
+			name:       "Balance uppercase",
+			categories: []string{"BALANCE", "unit"},
+			expected:   true,
+		},
+		{
+			name:       "ADDON uppercase",
+			categories: []string{"ADDON"},
+			expected:   true,
+		},
+		{
+			name:       "mixed case balance",
+			categories: []string{"Balance", "Addon"},
+			expected:   true,
+		},
+		{
+			name:       "no balance indicators",
+			categories: []string{"unit", "client", "ui"},
+			expected:   false,
+		},
+		{
+			name:       "empty categories",
+			categories: []string{},
+			expected:   false,
+		},
+		{
+			name:       "nil categories",
+			categories: nil,
+			expected:   false,
+		},
+		{
+			name:       "similar but not matching",
+			categories: []string{"rebalance", "addons", "balanced"},
+			expected:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mod := &ModInfo{
+				Identifier: "test.mod",
+				Categories: tt.categories,
+			}
+			result := mod.IsBalanceMod()
+			if result != tt.expected {
+				t.Errorf("IsBalanceMod() with categories %v = %v, want %v",
+					tt.categories, result, tt.expected)
+			}
+		})
+	}
+}
+
 // Helper function for path component matching
 // Uses multiple strategies because paths can be structured differently across platforms:
 // 1. Check if component is the immediate parent directory name

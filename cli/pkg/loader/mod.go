@@ -32,11 +32,24 @@ type ModInfo struct {
 	Author        string        `json:"author"`
 	Date          string        `json:"date"`
 	Build         string        `json:"build"`
-	Directory     string        `json:"-"` // Not in JSON, added by loader (for extracted mods)
-	ZipPath       string        `json:"-"` // Path to zip file (for zipped mods)
-	ZipPathPrefix string        `json:"-"` // Prefix to strip from zip paths (for GitHub archives)
-	SourceType    ModSourceType `json:"-"` // Where this mod was found
-	IsZipped      bool          `json:"-"` // Whether this mod is in a zip file
+	Categories    []string      `json:"category"` // Mod categories (e.g., "balance", "addon", "unit")
+	Directory     string        `json:"-"`        // Not in JSON, added by loader (for extracted mods)
+	ZipPath       string        `json:"-"`        // Path to zip file (for zipped mods)
+	ZipPathPrefix string        `json:"-"`        // Prefix to strip from zip paths (for GitHub archives)
+	SourceType    ModSourceType `json:"-"`        // Where this mod was found
+	IsZipped      bool          `json:"-"`        // Whether this mod is in a zip file
+}
+
+// IsBalanceMod returns true if this mod's categories indicate it's a balance/addon mod.
+// Checks for "balance" or "addon" in the categories array (case-insensitive).
+func (m *ModInfo) IsBalanceMod() bool {
+	for _, cat := range m.Categories {
+		lower := strings.ToLower(cat)
+		if lower == "balance" || lower == "addon" {
+			return true
+		}
+	}
+	return false
 }
 
 // GetDefaultPADataRoot returns the platform-specific default PA data directory

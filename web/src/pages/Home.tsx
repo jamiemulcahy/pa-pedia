@@ -81,12 +81,24 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
         <div className="relative z-10 p-8 h-full flex flex-col">
           <div className="flex items-start justify-between mb-4">
             <div className="text-4xl font-display font-bold tracking-wide">{faction.displayName}</div>
-            {faction.isLocal && (
-              <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
-                LOCAL
-              </span>
-            )}
+            <div className="flex gap-1.5">
+              {faction.isBalanceMod && (
+                <span className="px-2 py-0.5 text-xs font-semibold bg-amber-600 text-white rounded">
+                  ADDON
+                </span>
+              )}
+              {faction.isLocal && (
+                <span className="px-2 py-0.5 text-xs font-semibold bg-blue-600 text-white rounded">
+                  LOCAL
+                </span>
+              )}
+            </div>
           </div>
+          {faction.isBalanceMod && faction.baseFactions && faction.baseFactions.length > 0 && (
+            <div className="text-sm text-amber-400 mb-2 font-medium">
+              Extends: {faction.baseFactions.join(', ')}
+            </div>
+          )}
           <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">{faction.description}</div>
           <div className="text-sm text-muted-foreground font-mono mt-auto">
             {faction.author && `By ${faction.author} • `}
