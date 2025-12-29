@@ -172,6 +172,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 		}
 
 		// Copy icon file to assets
+		var iconAssetPath string // Track the actual icon path for the Image field
 		for filename, fileInfo := range unitFiles {
 			// Only copy icon files (primary JSON is handled via spec files)
 			if !strings.HasSuffix(filename, "_icon_buildbar.png") {
@@ -184,6 +185,9 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 
 			// Skip if already copied
 			if copiedAssets[assetPath] {
+				// Still track this as our icon path even if already copied
+				iconAssetPath = assetPath
+				iconFound = true
 				continue
 			}
 
@@ -207,6 +211,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 
 			copiedAssets[assetPath] = true
 			iconFound = true
+			iconAssetPath = assetPath // Track the actual filename used
 			indexFiles = append(indexFiles, models.UnitFile{
 				Path:   assetPath,
 				Source: fileInfo.Source,
@@ -219,9 +224,9 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 		}
 
 		// Only set unit image path if an icon was actually found and copied
-		if iconFound {
-			unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
-			unit.Image = filepath.ToSlash(filepath.Join("assets", unitDir, unit.ID+"_icon_buildbar.png"))
+		// Use the actual icon filename, not a constructed one based on unit ID
+		if iconFound && iconAssetPath != "" {
+			unit.Image = filepath.ToSlash(filepath.Join("assets", iconAssetPath))
 		} else {
 			// Clear any default image path since no icon exists
 			unit.Image = ""

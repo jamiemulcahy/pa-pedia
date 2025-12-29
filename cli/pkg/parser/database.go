@@ -24,10 +24,10 @@ func NewDatabase(l *loader.Loader) *Database {
 }
 
 // LoadUnits loads all units from the PA installation
-// factionUnitType filters units to only those matching the specified faction unit type (case-insensitive)
-// factionUnitType must be provided by the caller - validation happens at CLI layer
+// factionUnitTypes filters units to those matching ANY of the specified faction unit types (OR logic, case-insensitive)
+// factionUnitTypes must be provided by the caller - validation happens at CLI layer
 // allowEmpty controls whether 0 matching units is an error or just a warning
-func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty bool) error {
+func (db *Database) LoadUnits(verbose bool, factionUnitTypes []string, allowEmpty bool) error {
 	// Load merged unit list from all sources
 	unitPaths, _, err := db.Loader.LoadMergedUnitList()
 	if err != nil {
@@ -53,8 +53,8 @@ func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty b
 			continue
 		}
 
-		// Filter by faction unit type (required)
-		if !unitMatchesFactionType(unit, factionUnitType) {
+		// Filter by faction unit types (matches ANY)
+		if !unitMatchesAnyFactionType(unit, factionUnitTypes) {
 			filteredCount++
 			continue
 		}
@@ -62,19 +62,21 @@ func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty b
 		allUnits = append(allUnits, unit)
 	}
 
+	// Format unit types for display
+	typesDisplay := strings.Join(factionUnitTypes, ", ")
 	if verbose {
 		fmt.Printf("\n  Parsed %d units successfully\n", len(allUnits))
-		fmt.Printf("  Filtered out %d units not matching UNITTYPE_%s\n", filteredCount, factionUnitType)
+		fmt.Printf("  Filtered out %d units not matching UNITTYPE_{%s}\n", filteredCount, typesDisplay)
 	}
 
-	// Error if no units were found matching the faction type (unless allowed)
+	// Error if no units were found matching the faction types (unless allowed)
 	if len(allUnits) == 0 {
 		if allowEmpty {
-			fmt.Printf("\n⚠ WARNING: No units found matching faction unit type 'UNITTYPE_%s'\n", factionUnitType)
+			fmt.Printf("\n⚠ WARNING: No units found matching faction unit types 'UNITTYPE_{%s}'\n", typesDisplay)
 			fmt.Printf("   The faction export will contain 0 units (--allow-empty is set).\n")
 			fmt.Printf("   Common values: 'Custom58' (MLA), 'Custom1' (Legion)\n\n")
 		} else {
-			return fmt.Errorf("no units found matching faction unit type 'UNITTYPE_%s'\n\nThis means the faction export would contain 0 units.\nPlease verify the --faction-unit-type value is correct.\nCommon values: 'Custom58' (MLA), 'Custom1' (Legion)\n\nTo allow empty exports, use the --allow-empty flag", factionUnitType)
+			return fmt.Errorf("no units found matching faction unit types 'UNITTYPE_{%s}'\n\nThis means the faction export would contain 0 units.\nPlease verify the --faction-unit-types value is correct.\nCommon values: 'Custom58' (MLA), 'Custom1' (Legion)\n\nTo allow empty exports, use the --allow-empty flag", typesDisplay)
 		}
 	}
 
@@ -92,17 +94,20 @@ func (db *Database) LoadUnits(verbose bool, factionUnitType string, allowEmpty b
 	return nil
 }
 
-// unitMatchesFactionType checks if a unit's unit_types array contains the factionUnitType
+// unitMatchesAnyFactionType checks if a unit's unit_types array contains ANY of the factionUnitTypes
 // Note: Unit.UnitTypes has UNITTYPE_ prefix already stripped during parsing
 // Comparison is case-insensitive
 //
-// Example: For Legion units with UnitTypes=["Custom1", "Land", "Tank"],
-// unitMatchesFactionType(unit, "Custom1") returns true
-// unitMatchesFactionType(unit, "custom1") returns true (case-insensitive)
-func unitMatchesFactionType(unit *models.Unit, factionUnitType string) bool {
+// Example: For a unit with UnitTypes=["Custom1", "Land", "Tank"],
+// unitMatchesAnyFactionType(unit, ["Custom1"]) returns true
+// unitMatchesAnyFactionType(unit, ["Custom58", "Custom1"]) returns true (matches Custom1)
+// unitMatchesAnyFactionType(unit, ["Custom58"]) returns false (no match)
+func unitMatchesAnyFactionType(unit *models.Unit, factionUnitTypes []string) bool {
 	for _, unitType := range unit.UnitTypes {
-		if strings.EqualFold(unitType, factionUnitType) {
-			return true
+		for _, factionType := range factionUnitTypes {
+			if strings.EqualFold(unitType, factionType) {
+				return true
+			}
 		}
 	}
 	return false
@@ -378,6 +383,39 @@ func (db *Database) applyCorrections() {
 	if unit, ok := db.Units["land_mine"]; ok {
 		unit.Tier = 1
 	}
+}
+
+// DetectBaseFactions analyzes loaded units and returns the display names of base factions found.
+// This is used for balance mods to identify which factions the mod adds units for.
+// Returns a sorted array of faction display names (e.g., ["Bugs", "Legion", "MLA"]).
+func (db *Database) DetectBaseFactions() []string {
+	// Map of known faction unit type identifiers to display names
+	factionMap := map[string]string{
+		"Custom58": "MLA",
+		"Custom1":  "Legion",
+		"Custom2":  "Bugs",
+		"Custom6":  "Exiles",
+	}
+
+	foundFactions := make(map[string]bool)
+	for _, unit := range db.Units {
+		for _, unitType := range unit.UnitTypes {
+			// Check case-insensitively
+			for customType, displayName := range factionMap {
+				if strings.EqualFold(unitType, customType) {
+					foundFactions[displayName] = true
+					break
+				}
+			}
+		}
+	}
+
+	result := make([]string, 0, len(foundFactions))
+	for faction := range foundFactions {
+		result = append(result, faction)
+	}
+	sort.Strings(result)
+	return result
 }
 
 // GetUnitsArray returns all units as an array (sorted by name)

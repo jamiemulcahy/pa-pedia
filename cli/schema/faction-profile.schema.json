@@ -11,7 +11,14 @@
         },
         "factionUnitType": {
           "type": "string",
-          "description": "Faction unit type identifier without UNITTYPE_ prefix (e.g. 'Custom58' for MLA)"
+          "description": "Single faction unit type (deprecated - use factionUnitTypes array instead)"
+        },
+        "factionUnitTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Faction unit type identifiers to include (matches ANY). Examples: Custom58 (MLA) or Custom1 (Legion)"
         },
         "mods": {
           "items": {
@@ -48,8 +55,7 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "displayName",
-        "factionUnitType"
+        "displayName"
       ]
     }
   },

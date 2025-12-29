@@ -7,6 +7,6 @@
  * 2. Add the faction ID to this array
  * 3. The sitemap will automatically include the new faction on next build
  */
-export const STATIC_FACTIONS = ['MLA', 'Legion', 'Bugs', 'Exiles'] as const
+export const STATIC_FACTIONS = ['MLA', 'Legion', 'Bugs', 'Exiles', 'Second-Wave'] as const
 
 export type StaticFactionId = (typeof STATIC_FACTIONS)[number]

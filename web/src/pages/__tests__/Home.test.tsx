@@ -153,6 +153,41 @@ describe('Home', () => {
     expect(screen.getByText(/by legion team/i)).toBeInTheDocument()
   })
 
+  it('should display ADDON badge for balance mods', async () => {
+    renderWithProviders(<Home />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second Wave')).toBeInTheDocument()
+    })
+
+    // Balance mod should have ADDON badge
+    expect(screen.getByText('ADDON')).toBeInTheDocument()
+  })
+
+  it('should display "Extends:" for balance mods with baseFactions', async () => {
+    renderWithProviders(<Home />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Second Wave')).toBeInTheDocument()
+    })
+
+    // Balance mod should show which factions it extends
+    expect(screen.getByText(/extends:/i)).toBeInTheDocument()
+    expect(screen.getByText(/bugs, legion, mla/i)).toBeInTheDocument()
+  })
+
+  it('should not display ADDON badge for regular factions', async () => {
+    renderWithProviders(<Home />)
+
+    await waitFor(() => {
+      expect(screen.getByText('MLA')).toBeInTheDocument()
+    })
+
+    // MLA should not have ADDON badge - there should only be one ADDON badge (for Second Wave)
+    const addonBadges = screen.getAllByText('ADDON')
+    expect(addonBadges.length).toBe(1) // Only Second Wave has ADDON badge
+  })
+
   it('should have proper grid layout classes', async () => {
     renderWithProviders(<Home />)
 

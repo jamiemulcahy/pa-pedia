@@ -99,6 +99,31 @@ PA data has inconsistencies (wrong tiers, missing types, inaccessible units) tha
 
 See `cli/pkg/parser/database.go:applyCorrections()` for the complete list with reasoning.
 
+### 9. Balance Mod Support
+Balance mods extend existing factions rather than creating new ones (e.g., Second Wave adds units to MLA, Legion, and Bugs). They use OR logic for multi-faction unit filtering.
+
+**Profile Configuration**:
+```json
+{
+  "displayName": "Second Wave",
+  "factionUnitTypes": ["Custom58", "Custom1", "Custom2"],
+  "mods": ["pa.mla.unit.addon", "pa.mla.unit.addon.companion"],
+  "description": "Addon units for MLA, Legion, and Bugs"
+}
+```
+
+Units matching ANY of the specified faction types are included. Each faction has its own unit type identifier (e.g., Custom58 for MLA addons, Custom1 for Legion addons).
+
+**Auto-Detection**:
+- `isBalanceMod`: Auto-detected from mod categories containing "balance" or "addon"
+- `baseFactions`: Auto-populated from detected unit faction types (MLA, Legion, Bugs)
+
+**Web UI Display**:
+- Balance mods show an "ADDON" badge on faction cards
+- "Extends: MLA, Legion, Bugs" displays below the faction name
+
+**Backward Compatibility**: The deprecated `factionUnitType` (singular) field still works and is converted to a single-element array internally.
+
 ## Schema Synchronization
 
 **Process**: Go Structs → JSON Schema → TypeScript Types
