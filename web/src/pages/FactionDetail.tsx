@@ -24,7 +24,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Select from 'react-select'
-import { selectStyles, type SelectOption } from '@/components/selectStyles'
+import { selectStyles, multiSelectStyles, type SelectOption } from '@/components/selectStyles'
 import type { UnitIndexEntry } from '@/types/faction'
 
 const VIEW_MODES = ['grid', 'table', 'list'] as const
@@ -55,7 +55,7 @@ export function FactionDetail() {
 
   // Local state (not persisted)
   const [searchQuery, setSearchQuery] = useState('')
-  const [typeFilter, setTypeFilter] = useState<string>('')
+  const [typeFilters, setTypeFilters] = useState<string[]>([])
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
   const [dragAnnouncement, setDragAnnouncement] = useState('')
@@ -126,11 +126,12 @@ export function FactionDetail() {
   const filteredUnits = useMemo(() =>
     units.filter(unit => {
       const matchesSearch = unit.displayName.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesType = !typeFilter || unit.unitTypes.includes(typeFilter)
+      // Multi-select: show units matching ANY selected type (OR logic)
+      const matchesType = typeFilters.length === 0 || typeFilters.some(type => unit.unitTypes.includes(type))
       const matchesAccessible = showInaccessible || unit.unit.accessible
       return matchesSearch && matchesType && matchesAccessible
     }),
-    [units, searchQuery, typeFilter, showInaccessible]
+    [units, searchQuery, typeFilters, showInaccessible]
   )
 
   // Count inaccessible units for the toggle button badge
@@ -329,14 +330,16 @@ export function FactionDetail() {
         </div>
         {/* Row 3 on mobile: Type filter (full width) */}
         <div className="w-full sm:w-auto sm:flex-1 sm:min-w-[180px]">
-          <Select<SelectOption>
+          <Select<SelectOption, true>
             options={typeFilterOptions}
-            value={typeFilter ? { value: typeFilter, label: typeFilter } : null}
-            onChange={(option) => setTypeFilter(option?.value || '')}
-            styles={selectStyles}
+            value={typeFilters.map(type => ({ value: type, label: type }))}
+            onChange={(options) => setTypeFilters(options ? options.map(opt => opt.value) : [])}
+            styles={multiSelectStyles}
             placeholder="All Types"
+            isMulti
             isClearable
             aria-label="Filter units by type"
+            closeMenuOnSelect={false}
           />
         </div>
         {/* Row 4 on mobile: All toggle buttons in one row, right-aligned on mobile */}
