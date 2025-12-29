@@ -8,10 +8,9 @@ export interface SelectOption {
   label: string
 }
 
-// Type the styles as "any" option to allow usage with extended option types
-// The styles only use base CSS properties and don't depend on option type
+// Base styles without isMulti constraint - used for both single and multi-select
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const selectStyles: StylesConfig<any, false> = {
+const baseStyles: StylesConfig<any, boolean> = {
   control: (base, state) => ({
     ...base,
     backgroundColor: 'rgb(31, 41, 55)', // gray-800
@@ -87,4 +86,31 @@ export const selectStyles: StylesConfig<any, false> = {
     ...base,
     zIndex: 9999, // Ensure portal renders above everything
   }),
+  // Multi-select specific styles
+  multiValue: (base) => ({
+    ...base,
+    backgroundColor: 'rgb(55, 65, 81)', // gray-700
+    borderRadius: '0.25rem',
+  }),
+  multiValueLabel: (base) => ({
+    ...base,
+    color: 'rgb(243, 244, 246)', // gray-100
+    padding: '2px 6px',
+  }),
+  multiValueRemove: (base) => ({
+    ...base,
+    color: 'rgb(156, 163, 175)', // gray-400
+    ':hover': {
+      backgroundColor: 'rgb(239, 68, 68)', // red-500
+      color: 'white',
+    },
+  }),
 }
+
+// Single-select styles (default)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const selectStyles: StylesConfig<any, false> = baseStyles as StylesConfig<any, false>
+
+// Multi-select styles
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const multiSelectStyles: StylesConfig<any, true> = baseStyles as StylesConfig<any, true>
