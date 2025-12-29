@@ -222,7 +222,8 @@ func TestIsBalanceMod(t *testing.T) {
 			expected:   false,
 		},
 		{
-			name:       "similar but not matching",
+			// Test that substrings like "rebalance" don't match - only exact "balance" or "addon"
+			name:       "substring matches should not trigger",
 			categories: []string{"rebalance", "addons", "balanced"},
 			expected:   false,
 		},

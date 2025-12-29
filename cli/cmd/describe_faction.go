@@ -269,7 +269,9 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 	// Normalize profile (convert singular to array for backward compatibility)
 	normalizeProfile(profile)
 
-	// Validate we have at least one faction unit type
+	// Validate we have at least one faction unit type.
+	// This is defensive: profiles loaded from files are validated in loader.go,
+	// but profiles built from CLI flags (manual mode) bypass that validation.
 	if len(profile.FactionUnitTypes) == 0 {
 		return fmt.Errorf("profile must have factionUnitTypes (or factionUnitType) defined")
 	}

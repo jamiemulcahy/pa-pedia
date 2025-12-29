@@ -144,7 +144,9 @@ func parseProfile(data []byte, filename string) (*models.FactionProfile, error) 
 		return nil, fmt.Errorf("displayName is required")
 	}
 
-	// Require either factionUnitType (deprecated) or factionUnitTypes (new)
+	// Require either factionUnitType (deprecated) or factionUnitTypes (new).
+	// Note: This constraint cannot be expressed in JSON Schema without complex oneOf/anyOf
+	// constructs, so we enforce it at runtime during profile loading.
 	if profile.FactionUnitType == "" && len(profile.FactionUnitTypes) == 0 {
 		return nil, fmt.Errorf("factionUnitType or factionUnitTypes is required")
 	}
