@@ -12,16 +12,14 @@ type FactionProfile struct {
 	DisplayName string `json:"displayName" jsonschema:"required,description=Human-readable faction name (e.g. 'MLA' or 'Legion')"`
 
 	// FactionUnitType is the UNITTYPE_ identifier for filtering units.
-	// DEPRECATED: Use FactionUnitTypes for new profiles. Kept for backward compatibility.
-	// If both are set, FactionUnitTypes takes precedence.
 	// Examples: "Custom58" (MLA), "Custom1" (Legion).
-	FactionUnitType string `json:"factionUnitType,omitempty" jsonschema:"description=Single faction unit type (deprecated - use factionUnitTypes array instead)"`
+	// For addon profiles (IsAddon=true), this is used only for display/categorization, not filtering.
+	FactionUnitType string `json:"factionUnitType,omitempty" jsonschema:"description=Faction unit type identifier (e.g. Custom58 for MLA or Custom1 for Legion)"`
 
-	// FactionUnitTypes lists faction unit type identifiers for filtering.
-	// Units matching ANY of these types are included (OR logic).
-	// Use this for balance mods that add units to multiple factions.
-	// Examples: ["Custom58"] (MLA only), ["Custom58", "Custom1", "Custom2"] (MLA, Legion, and Bugs).
-	FactionUnitTypes []string `json:"factionUnitTypes,omitempty" jsonschema:"description=Faction unit type identifiers to include (matches ANY). Examples: Custom58 (MLA) or Custom1 (Legion)"`
+	// IsAddon indicates this profile adds units to an existing base faction.
+	// When true, units are filtered by exclusion (remove base game units) rather than inclusion.
+	// The extraction compares against MLA base game units and keeps only NEW units.
+	IsAddon bool `json:"isAddon,omitempty" jsonschema:"description=True if this profile adds units to an existing base faction rather than defining a new one"`
 
 	// Mods lists mod identifiers that layer on top of base game.
 	// Order determines priority (first = highest). Empty for base game only factions.

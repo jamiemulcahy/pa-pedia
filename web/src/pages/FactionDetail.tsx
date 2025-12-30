@@ -277,7 +277,7 @@ export function FactionDetail() {
               {isAllMode ? 'All' : metadata?.displayName}
             </h1>
             <div className="flex gap-1.5">
-              {!isAllMode && metadata?.isBalanceMod && (
+              {!isAllMode && metadata?.isAddon && (
                 <span className="px-2 py-1 text-sm font-semibold bg-amber-600 text-white rounded">
                   ADDON
                 </span>
@@ -289,7 +289,7 @@ export function FactionDetail() {
               )}
             </div>
           </div>
-          {!isAllMode && metadata?.isBalanceMod && metadata.baseFactions && metadata.baseFactions.length > 0 && (
+          {!isAllMode && metadata?.isAddon && metadata.baseFactions && metadata.baseFactions.length > 0 && (
             <p className="text-sm text-amber-400 font-medium mb-1">
               Extends: {metadata.baseFactions.join(', ')}
             </p>

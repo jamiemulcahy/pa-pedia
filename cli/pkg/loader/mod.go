@@ -40,18 +40,6 @@ type ModInfo struct {
 	IsZipped      bool          `json:"-"`        // Whether this mod is in a zip file
 }
 
-// IsBalanceMod returns true if this mod's categories indicate it's a balance/addon mod.
-// Checks for "balance" or "addon" in the categories array (case-insensitive).
-func (m *ModInfo) IsBalanceMod() bool {
-	for _, cat := range m.Categories {
-		lower := strings.ToLower(cat)
-		if lower == "balance" || lower == "addon" {
-			return true
-		}
-	}
-	return false
-}
-
 // GetDefaultPADataRoot returns the platform-specific default PA data directory
 func GetDefaultPADataRoot() (string, error) {
 	var dataDir string

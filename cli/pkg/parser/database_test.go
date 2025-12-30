@@ -6,85 +6,49 @@ import (
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
 )
 
-// TestUnitMatchesAnyFactionType tests the OR logic for faction type matching
-func TestUnitMatchesAnyFactionType(t *testing.T) {
+// TestUnitMatchesFactionType tests faction type matching with a single type
+func TestUnitMatchesFactionType(t *testing.T) {
 	tests := []struct {
-		name             string
-		unitTypes        []string
-		factionUnitTypes []string
-		expected         bool
+		name            string
+		unitTypes       []string
+		factionUnitType string
+		expected        bool
 	}{
 		{
-			name:             "single match",
-			unitTypes:        []string{"Custom58", "Land", "Tank"},
-			factionUnitTypes: []string{"Custom58"},
-			expected:         true,
+			name:            "match found",
+			unitTypes:       []string{"Custom58", "Land", "Tank"},
+			factionUnitType: "Custom58",
+			expected:        true,
 		},
 		{
-			name:             "first of multiple matches",
-			unitTypes:        []string{"Custom58", "Land", "Tank"},
-			factionUnitTypes: []string{"Custom58", "Custom1"},
-			expected:         true,
+			name:            "case insensitive match",
+			unitTypes:       []string{"custom58", "Land"},
+			factionUnitType: "Custom58",
+			expected:        true,
 		},
 		{
-			name:             "second of multiple matches",
-			unitTypes:        []string{"Custom1", "Land", "Tank"},
-			factionUnitTypes: []string{"Custom58", "Custom1"},
-			expected:         true,
+			name:            "case insensitive filter",
+			unitTypes:       []string{"Custom58", "Land"},
+			factionUnitType: "CUSTOM58",
+			expected:        true,
 		},
 		{
-			name:             "case insensitive match",
-			unitTypes:        []string{"custom58", "Land"},
-			factionUnitTypes: []string{"Custom58"},
-			expected:         true,
+			name:            "no match",
+			unitTypes:       []string{"Custom58", "Land", "Tank"},
+			factionUnitType: "Custom1",
+			expected:        false,
 		},
 		{
-			name:             "case insensitive filter",
-			unitTypes:        []string{"Custom58", "Land"},
-			factionUnitTypes: []string{"CUSTOM58"},
-			expected:         true,
+			name:            "empty unit types",
+			unitTypes:       []string{},
+			factionUnitType: "Custom58",
+			expected:        false,
 		},
 		{
-			name:             "no match",
-			unitTypes:        []string{"Custom58", "Land", "Tank"},
-			factionUnitTypes: []string{"Custom1", "Custom2"},
-			expected:         false,
-		},
-		{
-			name:             "empty unit types",
-			unitTypes:        []string{},
-			factionUnitTypes: []string{"Custom58"},
-			expected:         false,
-		},
-		{
-			name:             "empty faction types",
-			unitTypes:        []string{"Custom58", "Land"},
-			factionUnitTypes: []string{},
-			expected:         false,
-		},
-		{
-			name:             "all three faction types - MLA match",
-			unitTypes:        []string{"Custom58", "Tank", "Basic"},
-			factionUnitTypes: []string{"Custom58", "Custom1", "Custom2"},
-			expected:         true,
-		},
-		{
-			name:             "all three faction types - Legion match",
-			unitTypes:        []string{"Custom1", "Tank", "Basic"},
-			factionUnitTypes: []string{"Custom58", "Custom1", "Custom2"},
-			expected:         true,
-		},
-		{
-			name:             "all three faction types - Bugs match",
-			unitTypes:        []string{"Custom2", "Tank", "Basic"},
-			factionUnitTypes: []string{"Custom58", "Custom1", "Custom2"},
-			expected:         true,
-		},
-		{
-			name:             "all three faction types - no match",
-			unitTypes:        []string{"Custom6", "Tank", "Basic"},
-			factionUnitTypes: []string{"Custom58", "Custom1", "Custom2"},
-			expected:         false,
+			name:            "empty faction type",
+			unitTypes:       []string{"Custom58", "Land"},
+			factionUnitType: "",
+			expected:        false,
 		},
 	}
 
@@ -93,10 +57,10 @@ func TestUnitMatchesAnyFactionType(t *testing.T) {
 			unit := &models.Unit{
 				UnitTypes: tt.unitTypes,
 			}
-			result := unitMatchesAnyFactionType(unit, tt.factionUnitTypes)
+			result := unitMatchesFactionType(unit, tt.factionUnitType)
 			if result != tt.expected {
-				t.Errorf("unitMatchesAnyFactionType(%v, %v) = %v, want %v",
-					tt.unitTypes, tt.factionUnitTypes, result, tt.expected)
+				t.Errorf("unitMatchesFactionType(%v, %q) = %v, want %v",
+					tt.unitTypes, tt.factionUnitType, result, tt.expected)
 			}
 		})
 	}

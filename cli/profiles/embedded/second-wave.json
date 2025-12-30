@@ -1,6 +1,6 @@
 {
   "displayName": "Second Wave",
-  "factionUnitTypes": ["Custom58", "Custom1", "Custom2"],
+  "isAddon": true,
   "mods": ["pa.mla.unit.addon", "pa.mla.unit.addon.companion"],
   "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions"
 }

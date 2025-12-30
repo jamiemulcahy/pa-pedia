@@ -99,30 +99,39 @@ PA data has inconsistencies (wrong tiers, missing types, inaccessible units) tha
 
 See `cli/pkg/parser/database.go:applyCorrections()` for the complete list with reasoning.
 
-### 9. Balance Mod Support
-Balance mods extend existing factions rather than creating new ones (e.g., Second Wave adds units to MLA, Legion, and Bugs). They use OR logic for multi-faction unit filtering.
+### 9. Addon Mod Support
+Addon mods extend existing factions by adding new units (e.g., Second Wave adds units to MLA, Legion, and Bugs). They use exclusion-based filtering to identify only NEW units.
 
 **Profile Configuration**:
 ```json
 {
   "displayName": "Second Wave",
-  "factionUnitTypes": ["Custom58", "Custom1", "Custom2"],
+  "isAddon": true,
   "mods": ["pa.mla.unit.addon", "pa.mla.unit.addon.companion"],
   "description": "Addon units for MLA, Legion, and Bugs"
 }
 ```
 
-Units matching ANY of the specified faction types are included. Each faction has its own unit type identifier (e.g., Custom58 for MLA addons, Custom1 for Legion addons).
+**Note**: The `factionUnitType` field is optional for addon profiles. If specified, it's used only for display/categorization, not for filtering (since addon extraction uses exclusion-based filtering instead).
+
+**How Addon Extraction Works**:
+1. Load ALL units from the addon mod sources (no faction type filtering)
+2. Load MLA base game units for comparison (hardcoded to Custom58)
+3. Filter OUT any addon units whose identifiers exist in the base game
+4. Only NEW units remain in the export
+
+This solves a PA modding quirk where addon mods must "shadow" all base game units, which would otherwise cause the export to include hundreds of duplicate units.
+
+**Why MLA is the comparison base**: All PA addon mods shadow MLA units (the base game faction) regardless of which factions they extend. Even addons for Legion or Bugs must shadow MLA units. This is a PA modding constraint, not a limitation of PA-Pedia. If a future addon mod uses a different base, this comparison logic would need updating.
 
 **Auto-Detection**:
-- `isBalanceMod`: Auto-detected from mod categories containing "balance" or "addon"
-- `baseFactions`: Auto-populated from detected unit faction types (MLA, Legion, Bugs)
+- `baseFactions`: Auto-populated from detected unit faction types in the remaining units
 
 **Web UI Display**:
-- Balance mods show an "ADDON" badge on faction cards
+- Addon mods show an "ADDON" badge on faction cards
 - "Extends: MLA, Legion, Bugs" displays below the faction name
 
-**Backward Compatibility**: The deprecated `factionUnitType` (singular) field still works and is converted to a single-element array internally.
+**Breaking Change (v1.x)**: The `isBalanceMod` field was renamed to `isAddon` in both profiles and metadata. Update any custom profiles or tooling that references the old field name.
 
 ## Schema Synchronization
 

@@ -21,10 +21,9 @@ var (
 	listProfiles   bool
 
 	// Args-based approach (fallback)
-	factionNameFlag      string
-	factionUnitTypeFlag  string   // Deprecated: single type
-	factionUnitTypesFlag []string // New: multiple types
-	modIDs               []string
+	factionNameFlag     string
+	factionUnitTypeFlag string
+	modIDs              []string
 
 	// Common flags
 	paRoot     string
@@ -88,8 +87,7 @@ func init() {
 
 	// Args-based flags (fallback)
 	describeFactionCmd.Flags().StringVar(&factionNameFlag, "name", "", "Faction display name (fallback mode)")
-	describeFactionCmd.Flags().StringVar(&factionUnitTypeFlag, "faction-unit-type", "", "[DEPRECATED] Use --faction-unit-types instead. Single faction unit type identifier")
-	describeFactionCmd.Flags().StringSliceVar(&factionUnitTypesFlag, "faction-unit-types", nil, "Faction unit type identifiers to include (can specify multiple, e.g., 'Custom58,Custom1')")
+	describeFactionCmd.Flags().StringVar(&factionUnitTypeFlag, "faction-unit-type", "", "Faction unit type identifier (e.g., Custom58 for MLA, Custom1 for Legion)")
 	describeFactionCmd.Flags().StringArrayVar(&modIDs, "mod", []string{}, "Mod source(s) to include - local mod ID or GitHub URL (repeatable, first has priority)")
 
 	// Common flags
@@ -139,23 +137,17 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		}
 	} else if factionNameFlag != "" {
 		// Args-based mode - create a temporary profile from args
-		// Support both singular and plural forms for backward compatibility
-		var unitTypes []string
-		if len(factionUnitTypesFlag) > 0 {
-			unitTypes = factionUnitTypesFlag
-		} else if factionUnitTypeFlag != "" {
-			unitTypes = []string{factionUnitTypeFlag}
-		} else {
-			return fmt.Errorf("--faction-unit-types (or --faction-unit-type) is required when using --name\n\nExample: --faction-unit-types Custom58 (for MLA) or Custom1 (for Legion)\nFor balance mods: --faction-unit-types Custom58,Custom1,Custom2")
+		if factionUnitTypeFlag == "" {
+			return fmt.Errorf("--faction-unit-type is required when using --name\n\nExample: --faction-unit-type Custom58 (for MLA) or Custom1 (for Legion)")
 		}
 
 		profile = &models.FactionProfile{
-			ID:               factionNameFlag,
-			DisplayName:      factionNameFlag,
-			FactionUnitTypes: unitTypes,
-			Mods:             modIDs,
+			ID:              factionNameFlag,
+			DisplayName:     factionNameFlag,
+			FactionUnitType: factionUnitTypeFlag,
+			Mods:            modIDs,
 		}
-		logVerbose("Using manual mode: %s with unit types %v", factionNameFlag, unitTypes)
+		logVerbose("Using manual mode: %s with unit type %s", factionNameFlag, factionUnitTypeFlag)
 	} else {
 		return fmt.Errorf("either --profile or --name is required\n\nUse --profile for profile-based extraction (recommended)\nUse --name with --faction-unit-type for manual mode\nUse --list-profiles to see available profiles")
 	}
@@ -253,34 +245,25 @@ func validateDataRoot(dataRoot string) error {
 	return nil
 }
 
-// normalizeProfile ensures the profile has FactionUnitTypes array populated.
-// Converts deprecated FactionUnitType (singular) to FactionUnitTypes (array).
-func normalizeProfile(profile *models.FactionProfile) {
-	// If FactionUnitTypes is empty but FactionUnitType is set, convert
-	if len(profile.FactionUnitTypes) == 0 && profile.FactionUnitType != "" {
-		profile.FactionUnitTypes = []string{profile.FactionUnitType}
-	}
-}
-
 // describeFaction extracts a faction using the unified code path.
 // All factions (base game and modded) use the same logic - the only difference
 // is whether the profile has mods or not.
 func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
-	// Normalize profile (convert singular to array for backward compatibility)
-	normalizeProfile(profile)
-
-	// Validate we have at least one faction unit type.
+	// Validate we have a faction unit type (not required for addons, but useful for categorization)
 	// This is defensive: profiles loaded from files are validated in loader.go,
 	// but profiles built from CLI flags (manual mode) bypass that validation.
-	if len(profile.FactionUnitTypes) == 0 {
-		return fmt.Errorf("profile must have factionUnitTypes (or factionUnitType) defined")
+	if profile.FactionUnitType == "" && !profile.IsAddon {
+		return fmt.Errorf("profile must have factionUnitType defined (or isAddon: true for addon mods)")
 	}
 
 	fmt.Println("=== PA-Pedia Faction Description ===")
 	fmt.Println()
 	fmt.Printf("Faction: %s\n", profile.DisplayName)
-	typesDisplay := strings.Join(profile.FactionUnitTypes, ", ")
-	fmt.Printf("Filtering for faction unit types: UNITTYPE_{%s}\n", typesDisplay)
+	if profile.IsAddon {
+		fmt.Println("Mode: Addon (will filter out base game units)")
+	} else {
+		fmt.Printf("Filtering for faction unit type: UNITTYPE_%s\n", profile.FactionUnitType)
+	}
 	if len(profile.Mods) > 0 {
 		fmt.Printf("Mods: %v\n", profile.Mods)
 	}
@@ -387,24 +370,74 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 	// Create database parser and load units
 	fmt.Println("Loading units...")
 	db := parser.NewDatabase(l)
-	if err := db.LoadUnits(verbose, profile.FactionUnitTypes, allowEmpty); err != nil {
-		return fmt.Errorf("failed to load units: %w", err)
-	}
 
-	// Get units array
-	units := db.GetUnitsArray()
-	fmt.Printf("\nLoaded %d units (filtered by UNITTYPE_{%s})\n", len(units), typesDisplay)
+	var units []models.Unit
+
+	if profile.IsAddon {
+		// ADDON PATH: Load all units, then filter out base game units
+		if err := db.LoadUnitsNoFilter(verbose); err != nil {
+			return fmt.Errorf("failed to load units: %w", err)
+		}
+
+		// Load base game units for comparison (MLA = Custom58)
+		// All PA addon mods shadow MLA units regardless of which factions they extend.
+		// This is a PA modding constraint - even Legion/Bugs addons must shadow MLA.
+		// If a future addon uses a different base, this would need to be configurable.
+		fmt.Println("\nLoading base game units for comparison...")
+		baseLoader, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
+		if err != nil {
+			return fmt.Errorf("failed to create base game loader: %w", err)
+		}
+		defer baseLoader.Close()
+
+		baseDB := parser.NewDatabase(baseLoader)
+		if err := baseDB.LoadUnits(verbose, "Custom58", true); err != nil {
+			return fmt.Errorf("failed to load base game units: %w", err)
+		}
+
+		// Build set of base unit identifiers
+		baseUnitIDs := make(map[string]bool)
+		for id := range baseDB.Units {
+			baseUnitIDs[id] = true
+		}
+		fmt.Printf("Loaded %d base game units for comparison\n", len(baseUnitIDs))
+
+		// Filter out units that exist in base game
+		filteredCount := 0
+		for id := range db.Units {
+			if baseUnitIDs[id] {
+				delete(db.Units, id)
+				filteredCount++
+			}
+		}
+		fmt.Printf("Filtered out %d base game units, keeping %d addon units\n", filteredCount, len(db.Units))
+
+		if len(db.Units) == 0 {
+			if allowEmpty {
+				fmt.Printf("\n⚠ WARNING: No new units found in addon (all units exist in base game)\n")
+				fmt.Printf("   The faction export will contain 0 units (--allow-empty is set).\n\n")
+			} else {
+				return fmt.Errorf("no new units found in addon (all units exist in base game)\n\nThe addon appears to only shadow base game units without adding new ones.\nTo allow empty exports, use the --allow-empty flag")
+			}
+		}
+
+		units = db.GetUnitsArray()
+		fmt.Printf("\nLoaded %d addon units\n", len(units))
+	} else {
+		// NORMAL PATH: Filter by faction unit type
+		if err := db.LoadUnits(verbose, profile.FactionUnitType, allowEmpty); err != nil {
+			return fmt.Errorf("failed to load units: %w", err)
+		}
+		units = db.GetUnitsArray()
+		fmt.Printf("\nLoaded %d units (filtered by UNITTYPE_%s)\n", len(units), profile.FactionUnitType)
+	}
 
 	// Create metadata from profile
 	metadata := exporter.CreateMetadataFromProfile(profile, resolvedMods)
 
-	// Auto-detect balance mod from primary mod's categories
-	if len(resolvedMods) > 0 && resolvedMods[0].IsBalanceMod() {
-		metadata.IsBalanceMod = true
-	}
-
-	// Auto-populate base factions from detected unit types (for balance mods)
-	if len(profile.FactionUnitTypes) > 1 || metadata.IsBalanceMod {
+	// Set addon flag and detect base factions if this is an addon
+	if profile.IsAddon {
+		metadata.IsAddon = true
 		metadata.BaseFactions = db.DetectBaseFactions()
 		if verbose && len(metadata.BaseFactions) > 0 {
 			fmt.Printf("Detected base factions: %v\n", metadata.BaseFactions)

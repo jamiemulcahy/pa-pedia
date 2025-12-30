@@ -144,23 +144,15 @@ func parseProfile(data []byte, filename string) (*models.FactionProfile, error) 
 		return nil, fmt.Errorf("displayName is required")
 	}
 
-	// Require either factionUnitType (deprecated) or factionUnitTypes (new).
-	// Note: This constraint cannot be expressed in JSON Schema without complex oneOf/anyOf
-	// constructs, so we enforce it at runtime during profile loading.
-	if profile.FactionUnitType == "" && len(profile.FactionUnitTypes) == 0 {
-		return nil, fmt.Errorf("factionUnitType or factionUnitTypes is required")
+	// Require factionUnitType unless this is an addon profile.
+	// Addon profiles filter by exclusion (remove base game units) rather than by unit type.
+	if profile.FactionUnitType == "" && !profile.IsAddon {
+		return nil, fmt.Errorf("factionUnitType is required (or set isAddon: true for addon mods)")
 	}
 
 	// Validate factionUnitType format if provided (should be alphanumeric identifier like Custom1, Custom58)
 	if profile.FactionUnitType != "" && !factionUnitTypePattern.MatchString(profile.FactionUnitType) {
 		return nil, fmt.Errorf("factionUnitType must be alphanumeric identifier (e.g., Custom1, Custom58), got: %s", profile.FactionUnitType)
-	}
-
-	// Validate each factionUnitTypes entry
-	for _, ut := range profile.FactionUnitTypes {
-		if !factionUnitTypePattern.MatchString(ut) {
-			return nil, fmt.Errorf("factionUnitTypes entries must be alphanumeric identifiers (e.g., Custom1, Custom58), got: %s", ut)
-		}
 	}
 
 	return &profile, nil
