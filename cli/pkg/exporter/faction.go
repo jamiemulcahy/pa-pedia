@@ -53,7 +53,8 @@ func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units [
 	}
 
 	// Build lightweight index and export unit files to assets
-	index, err := e.exportUnitsToAssets(assetsDir, units)
+	// For addon mods, skip base game spec files (they're not part of the addon)
+	index, err := e.exportUnitsToAssets(assetsDir, units, metadata.IsAddon)
 	if err != nil {
 		return fmt.Errorf("failed to export units: %w", err)
 	}
@@ -75,7 +76,8 @@ func (e *FactionExporter) ExportFaction(metadata models.FactionMetadata, units [
 
 // exportUnitsToAssets exports all unit files and referenced specs to assets folder
 // Uses PA path structure (e.g., assets/pa/units/land/tank/tank.json)
-func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.Unit) (*models.FactionIndex, error) {
+// When isAddon is true, only spec files from mod sources are exported (base game specs are skipped)
+func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.Unit, isAddon bool) (*models.FactionIndex, error) {
 	index := &models.FactionIndex{
 		Units: make([]models.UnitIndexEntry, 0, len(units)),
 	}
@@ -84,6 +86,9 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 	copiedAssets := make(map[string]bool)
 
 	var criticalFailures []string // Track units that failed to export their primary JSON
+
+	// Track skipped base game specs for addon export summary
+	skippedBaseGameSpecs := 0
 
 	for i, unit := range units {
 		// Report progress at 10% intervals or on completion for smoother feedback
@@ -122,6 +127,12 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 		for resourcePath, specInfo := range specFiles {
 			// Convert resource path to assets path (e.g., /pa/units/land/tank/tank.json -> pa/units/land/tank/tank.json)
 			assetPath := strings.TrimPrefix(resourcePath, "/")
+
+			// For addon mods, skip spec files from base game sources
+			if shouldSkipSpecFileForAddon(isAddon, resourcePath, unit.ResourceName, specInfo) {
+				skippedBaseGameSpecs++
+				continue
+			}
 
 			// Skip if already copied (first-wins deduplication)
 			if copiedAssets[assetPath] {
@@ -248,6 +259,9 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 	if e.Verbose {
 		fmt.Println() // New line after progress indicator
 		fmt.Printf("  Total unique assets copied: %d\n", len(copiedAssets))
+		if isAddon && skippedBaseGameSpecs > 0 {
+			fmt.Printf("  Skipped %d base game spec files (addon export only includes mod content)\n", skippedBaseGameSpecs)
+		}
 	}
 
 	// Report critical failures summary if any
@@ -745,4 +759,23 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 	}
 
 	return metadata
+}
+
+// shouldSkipSpecFileForAddon determines if a spec file should be skipped during addon export.
+// For addon mods, we skip spec files from base game sources ("pa" or "pa_ex1") because they are
+// shadowed copies of base game files, not actual addon content. However, the unit's primary
+// JSON file is always exported regardless of source.
+func shouldSkipSpecFileForAddon(isAddon bool, resourcePath, unitResourceName string, specInfo *loader.SpecFileInfo) bool {
+	// Only filter for addon mods
+	if !isAddon {
+		return false
+	}
+
+	// Never skip the unit's primary JSON file
+	if resourcePath == unitResourceName {
+		return false
+	}
+
+	// Skip spec files from base game sources
+	return specInfo.Source == "pa" || specInfo.Source == "pa_ex1"
 }
