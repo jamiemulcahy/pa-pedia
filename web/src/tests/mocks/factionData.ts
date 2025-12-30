@@ -78,7 +78,7 @@ export const mockSecondWaveMetadata: FactionMetadataWithLocal = {
   type: 'mod',
   mods: ['pa.mla.unit.addon', 'pa.mla.unit.addon.companion'],
   isLocal: false,
-  isBalanceMod: true,
+  isAddon: true,
   baseFactions: ['Bugs', 'Legion', 'MLA']
 }
 

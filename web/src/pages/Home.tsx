@@ -82,7 +82,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
           <div className="flex items-start justify-between mb-4">
             <div className="text-4xl font-display font-bold tracking-wide">{faction.displayName}</div>
             <div className="flex gap-1.5">
-              {faction.isBalanceMod && (
+              {faction.isAddon && (
                 <span className="px-2 py-0.5 text-xs font-semibold bg-amber-600 text-white rounded">
                   ADDON
                 </span>
@@ -94,7 +94,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
               )}
             </div>
           </div>
-          {faction.isBalanceMod && faction.baseFactions && faction.baseFactions.length > 0 && (
+          {faction.isAddon && faction.baseFactions && faction.baseFactions.length > 0 && (
             <div className="text-sm text-amber-400 mb-2 font-medium">
               Extends: {faction.baseFactions.join(', ')}
             </div>

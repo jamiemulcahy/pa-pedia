@@ -11,14 +11,11 @@
         },
         "factionUnitType": {
           "type": "string",
-          "description": "Single faction unit type (deprecated - use factionUnitTypes array instead)"
+          "description": "Faction unit type identifier (e.g. Custom58 for MLA or Custom1 for Legion)"
         },
-        "factionUnitTypes": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Faction unit type identifiers to include (matches ANY). Examples: Custom58 (MLA) or Custom1 (Legion)"
+        "isAddon": {
+          "type": "boolean",
+          "description": "True if this profile adds units to an existing base faction rather than defining a new one"
         },
         "mods": {
           "items": {

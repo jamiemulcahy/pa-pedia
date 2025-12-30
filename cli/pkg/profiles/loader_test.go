@@ -13,7 +13,7 @@ func TestParseProfileValidation(t *testing.T) {
 		errorMsg    string
 	}{
 		{
-			name: "valid with factionUnitType (deprecated)",
+			name: "valid with factionUnitType",
 			json: `{
 				"displayName": "Test Faction",
 				"factionUnitType": "Custom58"
@@ -21,27 +21,21 @@ func TestParseProfileValidation(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name: "valid with factionUnitTypes array",
+			name: "valid addon profile without factionUnitType",
 			json: `{
-				"displayName": "Test Faction",
-				"factionUnitTypes": ["Custom58", "Custom1"]
+				"displayName": "Test Addon",
+				"isAddon": true,
+				"mods": ["com.example.addon"]
 			}`,
 			expectError: false,
 		},
 		{
-			name: "valid with single factionUnitTypes",
+			name: "valid addon profile with factionUnitType",
 			json: `{
-				"displayName": "Test Faction",
-				"factionUnitTypes": ["Custom58"]
-			}`,
-			expectError: false,
-		},
-		{
-			name: "valid with both fields",
-			json: `{
-				"displayName": "Test Faction",
+				"displayName": "Test Addon",
+				"isAddon": true,
 				"factionUnitType": "Custom58",
-				"factionUnitTypes": ["Custom1", "Custom2"]
+				"mods": ["com.example.addon"]
 			}`,
 			expectError: false,
 		},
@@ -54,21 +48,12 @@ func TestParseProfileValidation(t *testing.T) {
 			errorMsg:    "displayName is required",
 		},
 		{
-			name: "missing both faction unit type fields",
+			name: "missing factionUnitType for non-addon",
 			json: `{
 				"displayName": "Test Faction"
 			}`,
 			expectError: true,
-			errorMsg:    "factionUnitType or factionUnitTypes is required",
-		},
-		{
-			name: "empty factionUnitTypes array",
-			json: `{
-				"displayName": "Test Faction",
-				"factionUnitTypes": []
-			}`,
-			expectError: true,
-			errorMsg:    "factionUnitType or factionUnitTypes is required",
+			errorMsg:    "factionUnitType is required",
 		},
 		{
 			name: "invalid factionUnitType format",
@@ -80,19 +65,10 @@ func TestParseProfileValidation(t *testing.T) {
 			errorMsg:    "factionUnitType must be alphanumeric",
 		},
 		{
-			name: "invalid factionUnitTypes entry",
+			name: "valid alphanumeric factionUnitType",
 			json: `{
 				"displayName": "Test Faction",
-				"factionUnitTypes": ["Custom58", "invalid-type"]
-			}`,
-			expectError: true,
-			errorMsg:    "factionUnitTypes entries must be alphanumeric",
-		},
-		{
-			name: "valid alphanumeric types",
-			json: `{
-				"displayName": "Test Faction",
-				"factionUnitTypes": ["Custom58", "Custom1", "Tank", "Basic_Unit"]
+				"factionUnitType": "Basic_Unit"
 			}`,
 			expectError: false,
 		},
