@@ -380,6 +380,9 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 		}
 
 		// Load base game units for comparison (MLA = Custom58)
+		// All PA addon mods shadow MLA units regardless of which factions they extend.
+		// This is a PA modding constraint - even Legion/Bugs addons must shadow MLA.
+		// If a future addon uses a different base, this would need to be configurable.
 		fmt.Println("\nLoading base game units for comparison...")
 		baseLoader, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
 		if err != nil {
