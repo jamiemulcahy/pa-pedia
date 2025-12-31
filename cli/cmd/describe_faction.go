@@ -391,25 +391,18 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 		defer baseLoader.Close()
 
 		baseDB := parser.NewDatabase(baseLoader)
-		if err := baseDB.LoadUnits(verbose, "Custom58", true); err != nil {
+		// Load ALL base game units (no faction filter) for comparison.
+		// Commanders and other faction-agnostic units don't have Custom58 type,
+		// so filtering by faction type would miss them and let them slip through.
+		if err := baseDB.LoadUnitsNoFilter(verbose); err != nil {
 			return fmt.Errorf("failed to load base game units: %w", err)
 		}
 
-		// Build set of base unit identifiers
-		baseUnitIDs := make(map[string]bool)
-		for id := range baseDB.Units {
-			baseUnitIDs[id] = true
-		}
+		// Build set of base unit identifiers and filter addon units
+		baseUnitIDs := baseDB.GetUnitIDs()
 		fmt.Printf("Loaded %d base game units for comparison\n", len(baseUnitIDs))
 
-		// Filter out units that exist in base game
-		filteredCount := 0
-		for id := range db.Units {
-			if baseUnitIDs[id] {
-				delete(db.Units, id)
-				filteredCount++
-			}
-		}
+		filteredCount := db.FilterOutUnits(baseUnitIDs)
 		fmt.Printf("Filtered out %d base game units, keeping %d addon units\n", filteredCount, len(db.Units))
 
 		if len(db.Units) == 0 {
