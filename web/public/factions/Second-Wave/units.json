@@ -393,102 +393,6 @@
       }
     },
     {
-      "identifier": "fab_tower_2",
-      "displayName": "Fabrication Tower",
-      "unitTypes": [
-        "Construction",
-        "Basic",
-        "FabBuild",
-        "CmdBuild",
-        "Structure",
-        "Fabber",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/b_addon/fab_tower/fab_tower.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "fab_tower_2",
-        "resourceName": "/pa/units/b_addon/fab_tower/fab_tower.json",
-        "displayName": "Fabrication Tower",
-        "description": "Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
-        "image": "assets/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Construction",
-          "Basic",
-          "FabBuild",
-          "CmdBuild",
-          "Structure",
-          "Fabber",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1500
-          },
-          "economy": {
-            "buildCost": 400,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 18,
-              "energy": 1000
-            },
-            "weaponConsumption": {},
-            "buildRate": 18,
-            "buildInefficiency": 55.55555555555556,
-            "metalRate": -18,
-            "energyRate": -1000,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/addon/fab_tower/fab_tower_build_arm.json",
-                "safeName": "fab_tower_build_arm",
-                "name": "fab_tower_build_arm",
-                "count": 1,
-                "metalConsumption": 18,
-                "energyConsumption": 1000,
-                "range": 120
-              }
-            ],
-            "buildRange": 120
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100,
-            "radarRadius": 75
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ],
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar",
-            "tutorial_ai_commander",
-            "tutorial_ai_commander_2",
-            "tutorial_ai_commander_3"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "fab_tower",
       "displayName": "Fabrication Tower",
       "unitTypes": [
@@ -664,6 +568,102 @@
             "raptor_zaazzaa",
             "quad_zancrowe",
             "imperial_chronoblip",
+            "tutorial_ai_commander",
+            "tutorial_ai_commander_2",
+            "tutorial_ai_commander_3"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "fab_tower_2",
+      "displayName": "Fabrication Tower",
+      "unitTypes": [
+        "Construction",
+        "Basic",
+        "FabBuild",
+        "CmdBuild",
+        "Structure",
+        "Fabber",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/b_addon/fab_tower/fab_tower.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "fab_tower_2",
+        "resourceName": "/pa/units/b_addon/fab_tower/fab_tower.json",
+        "displayName": "Fabrication Tower",
+        "description": "Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
+        "image": "assets/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Construction",
+          "Basic",
+          "FabBuild",
+          "CmdBuild",
+          "Structure",
+          "Fabber",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1500
+          },
+          "economy": {
+            "buildCost": 400,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 18,
+              "energy": 1000
+            },
+            "weaponConsumption": {},
+            "buildRate": 18,
+            "buildInefficiency": 55.55555555555556,
+            "metalRate": -18,
+            "energyRate": -1000,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/fab_tower/fab_tower_build_arm.json",
+                "safeName": "fab_tower_build_arm",
+                "name": "fab_tower_build_arm",
+                "count": 1,
+                "metalConsumption": 18,
+                "energyConsumption": 1000,
+                "range": 120
+              }
+            ],
+            "buildRange": 120
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "radarRadius": 75
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ],
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
             "tutorial_ai_commander",
             "tutorial_ai_commander_2",
             "tutorial_ai_commander_3"
@@ -1365,6 +1365,143 @@
       }
     },
     {
+      "identifier": "metal_generator_2",
+      "displayName": "Metal Generator",
+      "unitTypes": [
+        "Structure",
+        "Basic",
+        "MetalProduction",
+        "CmdBuild",
+        "FabBuild",
+        "Economy",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/b_addon/metal_generator/metal_generator.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/b_addon/metal_generator/metal_generator_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "metal_generator_2",
+        "resourceName": "/pa/units/b_addon/metal_generator/metal_generator.json",
+        "displayName": "Metal Generator",
+        "description": "!Metal Generator - Basic Metal Generator - Produces metal, but takes much longer than metal extractors to pay for itself. If destroyed, it will damage nearby structures.",
+        "image": "assets/pa/units/b_addon/metal_generator/metal_generator_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Basic",
+          "MetalProduction",
+          "CmdBuild",
+          "FabBuild",
+          "Economy",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 500,
+            "dps": 1,
+            "salvoDamage": 760,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/addon/metal_generator/death_range.json",
+                "safeName": "death_range",
+                "name": "death_range",
+                "count": 1,
+                "rateOfFire": 0.1,
+                "damage": 10,
+                "dps": 1,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 130,
+                "maxRange": 35,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 360,
+                "yawRate": 720,
+                "pitchRange": 45,
+                "pitchRate": 720,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/assault_bot/assault_bot_ammo.json",
+                  "safeName": "assault_bot_ammo",
+                  "name": "assault_bot_ammo",
+                  "damage": 10,
+                  "muzzleVelocity": 130,
+                  "maxVelocity": 130,
+                  "lifetime": 1
+                }
+              },
+              {
+                "resourceName": "/pa/units/addon/metal_generator/metal_generator_boom_ammo.json",
+                "safeName": "metal_generator_boom_ammo",
+                "name": "metal_generator_boom_ammo",
+                "count": 1,
+                "rateOfFire": 0,
+                "damage": 750,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "splashRadius": 35,
+                "deathExplosion": true,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/metal_generator/metal_generator_boom_ammo.json",
+                  "safeName": "metal_generator_boom_ammo",
+                  "name": "metal_generator_boom_ammo",
+                  "damage": 750,
+                  "splashRadius": 35
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 500,
+            "production": {
+              "metal": 2
+            },
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {},
+            "metalRate": 2
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
+            "tutorial_ai_commander",
+            "tutorial_ai_commander_2",
+            "tutorial_ai_commander_3"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "metal_generator",
       "displayName": "Metal Generator",
       "unitTypes": [
@@ -1589,143 +1726,6 @@
       }
     },
     {
-      "identifier": "metal_generator_2",
-      "displayName": "Metal Generator",
-      "unitTypes": [
-        "Structure",
-        "Basic",
-        "MetalProduction",
-        "CmdBuild",
-        "FabBuild",
-        "Economy",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/b_addon/metal_generator/metal_generator.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/b_addon/metal_generator/metal_generator_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "metal_generator_2",
-        "resourceName": "/pa/units/b_addon/metal_generator/metal_generator.json",
-        "displayName": "Metal Generator",
-        "description": "!Metal Generator - Basic Metal Generator - Produces metal, but takes much longer than metal extractors to pay for itself. If destroyed, it will damage nearby structures.",
-        "image": "assets/pa/units/b_addon/metal_generator/metal_generator_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Basic",
-          "MetalProduction",
-          "CmdBuild",
-          "FabBuild",
-          "Economy",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 500,
-            "dps": 1,
-            "salvoDamage": 760,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/addon/metal_generator/death_range.json",
-                "safeName": "death_range",
-                "name": "death_range",
-                "count": 1,
-                "rateOfFire": 0.1,
-                "damage": 10,
-                "dps": 1,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 130,
-                "maxRange": 35,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall",
-                  "Air"
-                ],
-                "yawRange": 360,
-                "yawRate": 720,
-                "pitchRange": 45,
-                "pitchRate": 720,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/assault_bot/assault_bot_ammo.json",
-                  "safeName": "assault_bot_ammo",
-                  "name": "assault_bot_ammo",
-                  "damage": 10,
-                  "muzzleVelocity": 130,
-                  "maxVelocity": 130,
-                  "lifetime": 1
-                }
-              },
-              {
-                "resourceName": "/pa/units/addon/metal_generator/metal_generator_boom_ammo.json",
-                "safeName": "metal_generator_boom_ammo",
-                "name": "metal_generator_boom_ammo",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 750,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 35,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/metal_generator/metal_generator_boom_ammo.json",
-                  "safeName": "metal_generator_boom_ammo",
-                  "name": "metal_generator_boom_ammo",
-                  "damage": 750,
-                  "splashRadius": 35
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 500,
-            "production": {
-              "metal": 2
-            },
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {},
-            "metalRate": 2
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar",
-            "tutorial_ai_commander",
-            "tutorial_ai_commander_2",
-            "tutorial_ai_commander_3"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "basic_missile_defence_2",
       "displayName": "Phalanx",
       "unitTypes": [
@@ -1922,6 +1922,36 @@
             "salvoDamage": 580,
             "weapons": [
               {
+                "resourceName": "/pa/units/addon/rex/rex_tool_weapon.json",
+                "safeName": "rex_tool_weapon",
+                "name": "rex_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 180,
+                "dps": 90,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 180,
+                "targetLayers": [
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/rex/rex_ammo.json",
+                  "safeName": "rex_ammo",
+                  "name": "rex_ammo",
+                  "damage": 180,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 15
+                }
+              },
+              {
                 "resourceName": "/pa/units/addon/rex/rex_tool_antidrop.json",
                 "safeName": "rex_tool_antidrop",
                 "name": "rex_tool_antidrop",
@@ -1950,36 +1980,6 @@
                   "muzzleVelocity": 10,
                   "maxVelocity": 200,
                   "lifetime": 3
-                }
-              },
-              {
-                "resourceName": "/pa/units/addon/rex/rex_tool_weapon.json",
-                "safeName": "rex_tool_weapon",
-                "name": "rex_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.5,
-                "damage": 180,
-                "dps": 90,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 180,
-                "targetLayers": [
-                  "Orbital"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 Bomber",
-                  "Air \u0026 Gunship",
-                  "Air \u0026 Transport",
-                  "Air \u0026 Mobile"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/rex/rex_ammo.json",
-                  "safeName": "rex_ammo",
-                  "name": "rex_ammo",
-                  "damage": 180,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 15
                 }
               }
             ]
@@ -2011,239 +2011,6 @@
             "bot_factory",
             "bot_factory_adv",
             "unit_cannon"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "basic_missile_defence",
-      "displayName": "Spear",
-      "unitTypes": [
-        "Land",
-        "Structure",
-        "Tactical",
-        "Defense",
-        "SurfaceDefense",
-        "Basic",
-        "CmdBuild",
-        "FabBuild",
-        "Custom58"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/addon/basic_missile_defence/basic_missile_defence.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/addon/basic_missile_defence/basic_missile_defence_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "basic_missile_defence",
-        "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence.json",
-        "displayName": "Spear",
-        "description": "Basic Missile Launcher - Attacks land, sea, and orbital targets. More effective against bots",
-        "image": "assets/pa/units/addon/basic_missile_defence/basic_missile_defence_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Land",
-          "Structure",
-          "Tactical",
-          "Defense",
-          "SurfaceDefense",
-          "Basic",
-          "CmdBuild",
-          "FabBuild",
-          "Custom58"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 500,
-            "dps": 46.67,
-            "salvoDamage": 120,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_weapon.json",
-                "safeName": "basic_missile_defence_weapon",
-                "name": "basic_missile_defence_weapon",
-                "count": 1,
-                "rateOfFire": 0.6667,
-                "damage": 40,
-                "dps": 26.67,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 170,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Orbital"
-                ],
-                "targetPriorities": [
-                  "Artillery \u0026 Bot",
-                  "Bot"
-                ],
-                "yawRate": 180,
-                "pitchRate": 180,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_ammo.json",
-                  "safeName": "basic_missile_defence_ammo",
-                  "name": "basic_missile_defence_ammo",
-                  "damage": 40,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 15
-                }
-              },
-              {
-                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop.json",
-                "safeName": "basic_missile_defence_antidrop",
-                "name": "basic_missile_defence_antidrop",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 80,
-                "dps": 20,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 160,
-                "targetLayers": [
-                  "Orbital",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop_ammo.json",
-                  "safeName": "basic_missile_defence_antidrop_ammo",
-                  "name": "basic_missile_defence_antidrop_ammo",
-                  "damage": 80,
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 300,
-                  "lifetime": 3
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 300,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 80,
-            "underwaterVisionRadius": 80
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar",
-            "fabrication_bot",
-            "fabrication_ship",
-            "fabrication_vehicle",
-            "fabrication_aircraft",
-            "fabrication_sub",
-            "fabrication_bot_adv",
-            "fabrication_vehicle_adv",
-            "fabrication_aircraft_adv",
-            "fabrication_ship_adv",
-            "bot_support_commander",
-            "imperial_able",
-            "imperial_aceal",
-            "tank_aeson",
-            "quad_ajax",
-            "imperial_alpha",
-            "quad_armalisk",
-            "imperial_aryst0krat",
-            "tank_banditks",
-            "raptor_beast",
-            "raptor_beast_king",
-            "raptor_beniesk",
-            "quad_mobiousblack",
-            "raptor_betadyne",
-            "quad_calyx",
-            "raptor_centurion",
-            "quad_commandonut",
-            "raptor_damubbster",
-            "imperial_delta",
-            "raptor_diremachine",
-            "raptor_enderstryke71",
-            "imperial_enzomatrix",
-            "imperial_fiveleafclover",
-            "imperial_fusion",
-            "quad_gambitdfa",
-            "imperial_gamma",
-            "imperial_gnugfur",
-            "imperial_base",
-            "imperial_invictus",
-            "raptor_iwmiked",
-            "imperial_jt100010117",
-            "imperial_kapowaz",
-            "imperial_kevin4001",
-            "quad_locust",
-            "raptor_majuju",
-            "imperial_mjon",
-            "imperial_mostlikely",
-            "imperial_nagasher",
-            "raptor_nefelpitou",
-            "raptor_nemicus",
-            "quad_osiris",
-            "quad_potbelly79",
-            "imperial_progenitor",
-            "quad_pumpkin",
-            "quad_base",
-            "raptor_raizell",
-            "raptor_rallus",
-            "raptor_base",
-            "quad_raventhornn",
-            "tank_reaver",
-            "raptor_spz58624",
-            "quad_sacrificiallamb",
-            "tank_sadiga",
-            "imperial_sangudo",
-            "imperial_seniorhelix",
-            "quad_shadowdaemon",
-            "quad_spartandano",
-            "imperial_stelarch",
-            "raptor_stickman9000",
-            "tank_base",
-            "imperial_thechessknight",
-            "quad_theflax",
-            "imperial_theta",
-            "imperial_toddfather",
-            "quad_tokamaktech",
-            "tutorial_player_commander",
-            "quad_twoboots",
-            "imperial_tykus24",
-            "raptor_unicorn",
-            "imperial_vidicarus",
-            "imperial_visionik",
-            "raptor_xov",
-            "quad_spiderofmean",
-            "quad_xenosentryprime",
-            "quad_xinthar",
-            "raptor_zaazzaa",
-            "quad_zancrowe",
-            "imperial_chronoblip",
-            "tutorial_ai_commander",
-            "tutorial_ai_commander_2",
-            "tutorial_ai_commander_3"
           ]
         }
       }
@@ -2387,6 +2154,239 @@
         "buildRelationships": {
           "builtBy": [
             "avatar",
+            "tutorial_ai_commander",
+            "tutorial_ai_commander_2",
+            "tutorial_ai_commander_3"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "basic_missile_defence",
+      "displayName": "Spear",
+      "unitTypes": [
+        "Land",
+        "Structure",
+        "Tactical",
+        "Defense",
+        "SurfaceDefense",
+        "Basic",
+        "CmdBuild",
+        "FabBuild",
+        "Custom58"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/basic_missile_defence/basic_missile_defence.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/addon/basic_missile_defence/basic_missile_defence_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "basic_missile_defence",
+        "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence.json",
+        "displayName": "Spear",
+        "description": "Basic Missile Launcher - Attacks land, sea, and orbital targets. More effective against bots",
+        "image": "assets/pa/units/addon/basic_missile_defence/basic_missile_defence_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Land",
+          "Structure",
+          "Tactical",
+          "Defense",
+          "SurfaceDefense",
+          "Basic",
+          "CmdBuild",
+          "FabBuild",
+          "Custom58"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 500,
+            "dps": 46.67,
+            "salvoDamage": 120,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop.json",
+                "safeName": "basic_missile_defence_antidrop",
+                "name": "basic_missile_defence_antidrop",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 80,
+                "dps": 20,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 160,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop_ammo.json",
+                  "safeName": "basic_missile_defence_antidrop_ammo",
+                  "name": "basic_missile_defence_antidrop_ammo",
+                  "damage": 80,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 300,
+                  "lifetime": 3
+                }
+              },
+              {
+                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_weapon.json",
+                "safeName": "basic_missile_defence_weapon",
+                "name": "basic_missile_defence_weapon",
+                "count": 1,
+                "rateOfFire": 0.6667,
+                "damage": 40,
+                "dps": 26.67,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 170,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Artillery \u0026 Bot",
+                  "Bot"
+                ],
+                "yawRate": 180,
+                "pitchRate": 180,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_ammo.json",
+                  "safeName": "basic_missile_defence_ammo",
+                  "name": "basic_missile_defence_ammo",
+                  "damage": 40,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 15
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 300,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 80,
+            "underwaterVisionRadius": 80
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
+            "fabrication_bot",
+            "fabrication_ship",
+            "fabrication_vehicle",
+            "fabrication_aircraft",
+            "fabrication_sub",
+            "fabrication_bot_adv",
+            "fabrication_vehicle_adv",
+            "fabrication_aircraft_adv",
+            "fabrication_ship_adv",
+            "bot_support_commander",
+            "imperial_able",
+            "imperial_aceal",
+            "tank_aeson",
+            "quad_ajax",
+            "imperial_alpha",
+            "quad_armalisk",
+            "imperial_aryst0krat",
+            "tank_banditks",
+            "raptor_beast",
+            "raptor_beast_king",
+            "raptor_beniesk",
+            "quad_mobiousblack",
+            "raptor_betadyne",
+            "quad_calyx",
+            "raptor_centurion",
+            "quad_commandonut",
+            "raptor_damubbster",
+            "imperial_delta",
+            "raptor_diremachine",
+            "raptor_enderstryke71",
+            "imperial_enzomatrix",
+            "imperial_fiveleafclover",
+            "imperial_fusion",
+            "quad_gambitdfa",
+            "imperial_gamma",
+            "imperial_gnugfur",
+            "imperial_base",
+            "imperial_invictus",
+            "raptor_iwmiked",
+            "imperial_jt100010117",
+            "imperial_kapowaz",
+            "imperial_kevin4001",
+            "quad_locust",
+            "raptor_majuju",
+            "imperial_mjon",
+            "imperial_mostlikely",
+            "imperial_nagasher",
+            "raptor_nefelpitou",
+            "raptor_nemicus",
+            "quad_osiris",
+            "quad_potbelly79",
+            "imperial_progenitor",
+            "quad_pumpkin",
+            "quad_base",
+            "raptor_raizell",
+            "raptor_rallus",
+            "raptor_base",
+            "quad_raventhornn",
+            "tank_reaver",
+            "raptor_spz58624",
+            "quad_sacrificiallamb",
+            "tank_sadiga",
+            "imperial_sangudo",
+            "imperial_seniorhelix",
+            "quad_shadowdaemon",
+            "quad_spartandano",
+            "imperial_stelarch",
+            "raptor_stickman9000",
+            "tank_base",
+            "imperial_thechessknight",
+            "quad_theflax",
+            "imperial_theta",
+            "imperial_toddfather",
+            "quad_tokamaktech",
+            "tutorial_player_commander",
+            "quad_twoboots",
+            "imperial_tykus24",
+            "raptor_unicorn",
+            "imperial_vidicarus",
+            "imperial_visionik",
+            "raptor_xov",
+            "quad_spiderofmean",
+            "quad_xenosentryprime",
+            "quad_xinthar",
+            "raptor_zaazzaa",
+            "quad_zancrowe",
+            "imperial_chronoblip",
             "tutorial_ai_commander",
             "tutorial_ai_commander_2",
             "tutorial_ai_commander_3"
@@ -2677,6 +2677,97 @@
       }
     },
     {
+      "identifier": "adv_fab_tower_2",
+      "displayName": "Advanced Fabrication Tower",
+      "unitTypes": [
+        "Construction",
+        "Advanced",
+        "FabAdvBuild",
+        "Structure",
+        "Fabber",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/b_addon/adv_fab_tower/adv_fab_tower.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/b_addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "adv_fab_tower_2",
+        "resourceName": "/pa/units/b_addon/adv_fab_tower/adv_fab_tower.json",
+        "displayName": "Advanced Fabrication Tower",
+        "description": "Advanced Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
+        "image": "assets/pa/units/b_addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Construction",
+          "Advanced",
+          "FabAdvBuild",
+          "Structure",
+          "Fabber",
+          "Custom2"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 5000
+          },
+          "economy": {
+            "buildCost": 2000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 75,
+              "energy": 2250
+            },
+            "weaponConsumption": {},
+            "buildRate": 75,
+            "buildInefficiency": 30,
+            "metalRate": -75,
+            "energyRate": -2250,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower_build_arm.json",
+                "safeName": "adv_fab_tower_build_arm",
+                "name": "adv_fab_tower_build_arm",
+                "count": 1,
+                "metalConsumption": 75,
+                "energyConsumption": 2250,
+                "range": 130
+              }
+            ],
+            "buildRange": 130
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "radarRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ],
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "adv_fab_tower",
       "displayName": "Advanced Fabrication Tower",
       "unitTypes": [
@@ -2768,97 +2859,6 @@
             "fabrication_aircraft_adv",
             "fabrication_ship_adv",
             "bot_support_commander"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "adv_fab_tower_2",
-      "displayName": "Advanced Fabrication Tower",
-      "unitTypes": [
-        "Construction",
-        "Advanced",
-        "FabAdvBuild",
-        "Structure",
-        "Fabber",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/b_addon/adv_fab_tower/adv_fab_tower.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/b_addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "adv_fab_tower_2",
-        "resourceName": "/pa/units/b_addon/adv_fab_tower/adv_fab_tower.json",
-        "displayName": "Advanced Fabrication Tower",
-        "description": "Advanced Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
-        "image": "assets/pa/units/b_addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Construction",
-          "Advanced",
-          "FabAdvBuild",
-          "Structure",
-          "Fabber",
-          "Custom2"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 5000
-          },
-          "economy": {
-            "buildCost": 2000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 75,
-              "energy": 2250
-            },
-            "weaponConsumption": {},
-            "buildRate": 75,
-            "buildInefficiency": 30,
-            "metalRate": -75,
-            "energyRate": -2250,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower_build_arm.json",
-                "safeName": "adv_fab_tower_build_arm",
-                "name": "adv_fab_tower_build_arm",
-                "count": 1,
-                "metalConsumption": 75,
-                "energyConsumption": 2250,
-                "range": 130
-              }
-            ],
-            "buildRange": 130
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100,
-            "radarRadius": 100
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ],
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar"
           ]
         }
       }
@@ -3837,40 +3837,6 @@
             "salvoDamage": 260,
             "weapons": [
               {
-                "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon_land.json",
-                "safeName": "orbital_anti_nuke_weapon_land",
-                "name": "orbital_anti_nuke_weapon_land",
-                "count": 1,
-                "rateOfFire": 0.5,
-                "damage": 200,
-                "dps": 100,
-                "projectilesPerFire": 1,
-                "maxRange": 100,
-                "splashDamage": 200,
-                "splashRadius": 10,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Structure - Wall",
-                  "Land - Wall",
-                  "Naval",
-                  "Wall",
-                  "Air"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_ammo_land.json",
-                  "safeName": "orbital_anti_nuke_ammo_land",
-                  "name": "orbital_anti_nuke_ammo_land",
-                  "damage": 200,
-                  "splashDamage": 200,
-                  "splashRadius": 10
-                }
-              },
-              {
                 "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon.json",
                 "safeName": "orbital_anti_nuke_3",
                 "name": "orbital_anti_nuke_3",
@@ -3905,6 +3871,40 @@
                   "safeName": "orbital_anti_nuke_ammo",
                   "name": "orbital_anti_nuke_ammo",
                   "damage": 60
+                }
+              },
+              {
+                "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon_land.json",
+                "safeName": "orbital_anti_nuke_weapon_land",
+                "name": "orbital_anti_nuke_weapon_land",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 200,
+                "dps": 100,
+                "projectilesPerFire": 1,
+                "maxRange": 100,
+                "splashDamage": 200,
+                "splashRadius": 10,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Land - Wall",
+                  "Naval",
+                  "Wall",
+                  "Air"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_ammo_land.json",
+                  "safeName": "orbital_anti_nuke_ammo_land",
+                  "name": "orbital_anti_nuke_ammo_land",
+                  "damage": 200,
+                  "splashDamage": 200,
+                  "splashRadius": 10
                 }
               }
             ]
@@ -3997,6 +3997,32 @@
             "salvoDamage": 160,
             "weapons": [
               {
+                "resourceName": "/pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_weapon_orbital.json",
+                "safeName": "orbital_anti_nuke_weapon_orbital",
+                "name": "orbital_anti_nuke_weapon_orbital",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 100,
+                "dps": 50,
+                "projectilesPerFire": 1,
+                "maxRange": 100,
+                "targetLayers": [
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_ammo_orbital.json",
+                  "safeName": "orbital_anti_nuke_ammo_orbital",
+                  "name": "orbital_anti_nuke_ammo_orbital",
+                  "damage": 100
+                }
+              },
+              {
                 "resourceName": "/pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_weapon.json",
                 "safeName": "orbital_anti_nuke_weapon",
                 "name": "orbital_anti_nuke_weapon",
@@ -4031,32 +4057,6 @@
                   "safeName": "orbital_anti_nuke_ammo",
                   "name": "orbital_anti_nuke_ammo",
                   "damage": 60
-                }
-              },
-              {
-                "resourceName": "/pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_weapon_orbital.json",
-                "safeName": "orbital_anti_nuke_weapon_orbital",
-                "name": "orbital_anti_nuke_weapon_orbital",
-                "count": 1,
-                "rateOfFire": 0.5,
-                "damage": 100,
-                "dps": 50,
-                "projectilesPerFire": 1,
-                "maxRange": 100,
-                "targetLayers": [
-                  "Orbital"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_ammo_orbital.json",
-                  "safeName": "orbital_anti_nuke_ammo_orbital",
-                  "name": "orbital_anti_nuke_ammo_orbital",
-                  "damage": 100
                 }
               }
             ]

@@ -686,6 +686,27 @@ func CreateCustomFactionMetadata(displayName string, modIdentifiers []string, mo
 	}
 }
 
+// shouldSkipSpecFileForAddon determines if a spec file should be skipped during addon export.
+// For addon mods, we skip spec files from base game sources ("pa" or "pa_ex1") because they are
+// shadowed copies of base game files, not actual addon content. However, the unit's primary
+// JSON file is always exported regardless of source.
+//
+// This function is exported for testing purposes.
+func shouldSkipSpecFileForAddon(isAddon bool, resourcePath, unitResourceName string, specInfo *loader.SpecFileInfo) bool {
+	// Only filter for addon mods
+	if !isAddon {
+		return false
+	}
+
+	// Never skip the unit's primary JSON file
+	if resourcePath == unitResourceName {
+		return false
+	}
+
+	// Skip spec files from base game sources
+	return specInfo.Source == "pa" || specInfo.Source == "pa_ex1"
+}
+
 // CreateMetadataFromProfile creates faction metadata from a profile and optional resolved mods.
 // This is the unified way to create metadata for both base-game and modded factions.
 //
@@ -759,23 +780,4 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 	}
 
 	return metadata
-}
-
-// shouldSkipSpecFileForAddon determines if a spec file should be skipped during addon export.
-// For addon mods, we skip spec files from base game sources ("pa" or "pa_ex1") because they are
-// shadowed copies of base game files, not actual addon content. However, the unit's primary
-// JSON file is always exported regardless of source.
-func shouldSkipSpecFileForAddon(isAddon bool, resourcePath, unitResourceName string, specInfo *loader.SpecFileInfo) bool {
-	// Only filter for addon mods
-	if !isAddon {
-		return false
-	}
-
-	// Never skip the unit's primary JSON file
-	if resourcePath == unitResourceName {
-		return false
-	}
-
-	// Skip spec files from base game sources
-	return specInfo.Source == "pa" || specInfo.Source == "pa_ex1"
 }
