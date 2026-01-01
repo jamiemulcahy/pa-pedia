@@ -462,6 +462,30 @@ func (db *Database) DetectBaseFactions() []string {
 	return result
 }
 
+// FilterOutUnits removes units from this database whose IDs exist in the provided set.
+// Returns the count of units that were filtered out.
+// Used for addon mod extraction to remove base game units.
+func (db *Database) FilterOutUnits(unitIDs map[string]bool) int {
+	filteredCount := 0
+	for id := range db.Units {
+		if unitIDs[id] {
+			delete(db.Units, id)
+			filteredCount++
+		}
+	}
+	return filteredCount
+}
+
+// GetUnitIDs returns a set of all unit IDs in the database.
+// Used for building comparison sets in addon mod filtering.
+func (db *Database) GetUnitIDs() map[string]bool {
+	ids := make(map[string]bool, len(db.Units))
+	for id := range db.Units {
+		ids[id] = true
+	}
+	return ids
+}
+
 // GetUnitsArray returns all units as an array (sorted by name)
 func (db *Database) GetUnitsArray() []models.Unit {
 	units := make([]models.Unit, 0, len(db.Units))

@@ -267,364 +267,6 @@
       }
     },
     {
-      "identifier": "avatar",
-      "displayName": "Avatar Commander",
-      "unitTypes": [
-        "Air",
-        "Fabber",
-        "Debug",
-        "Construction",
-        "Mobile",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/commanders/avatar/avatar.json",
-          "source": "pa"
-        },
-        {
-          "path": "/pa/units/commanders/avatar/avatar_icon_buildbar.png",
-          "source": "pa"
-        }
-      ],
-      "unit": {
-        "id": "avatar",
-        "resourceName": "/pa/units/commanders/avatar/avatar.json",
-        "displayName": "Avatar Commander",
-        "description": "For debugging purposes",
-        "image": "assets/pa/units/commanders/avatar/avatar_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Air",
-          "Fabber",
-          "Debug",
-          "Construction",
-          "Mobile",
-          "Economy"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 200000
-          },
-          "economy": {
-            "buildCost": 1,
-            "production": {
-              "metal": 100000,
-              "energy": 100000
-            },
-            "consumption": {},
-            "storage": {
-              "metal": 10000,
-              "energy": 100000
-            },
-            "toolConsumption": {
-              "metal": 10000
-            },
-            "weaponConsumption": {},
-            "buildRate": 10000,
-            "metalRate": 90000,
-            "energyRate": 100000,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/commanders/avatar/avatar_build_arm.json",
-                "safeName": "avatar_build_arm",
-                "name": "avatar_build_arm",
-                "count": 1,
-                "metalConsumption": 10000,
-                "energyConsumption": 0,
-                "range": 10000
-              }
-            ],
-            "buildRange": 10000
-          },
-          "mobility": {
-            "moveSpeed": 500,
-            "turnSpeed": 1080,
-            "acceleration": 700
-          },
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "land_barrier",
-            "metal_extractor",
-            "radar",
-            "air_defense",
-            "laser_defense_single",
-            "sea_mine",
-            "orbital_mine",
-            "basic_missile_defence",
-            "basic_missile_defence_7",
-            "laser_defense",
-            "torpedo_launcher",
-            "energy_plant",
-            "fab_tower",
-            "fab_tower_2",
-            "basic_missile_defence_2",
-            "energy_storage",
-            "metal_storage",
-            "mass_generator",
-            "metal_generator",
-            "metal_generator_2",
-            "air_factory",
-            "bot_factory",
-            "naval_factory",
-            "orbital_launcher",
-            "vehicle_factory",
-            "laser_defense_adv",
-            "fab_turret",
-            "air_defense_adv",
-            "artillery_short",
-            "ion_defense",
-            "torpedo_launcher_adv",
-            "teleporter",
-            "anti_missile_tower",
-            "artillery_unit_launcher",
-            "adv_energy_storage",
-            "adv_metal_storage",
-            "defense_satellite",
-            "l_adv_storage",
-            "metal_extractor_adv",
-            "energy_plant_adv",
-            "adv_fab_tower_2",
-            "adv_fab_tower",
-            "tactical_missile_launcher",
-            "pounder",
-            "radar_jammer",
-            "radar_adv",
-            "l_orbital_jammer",
-            "mining_platform",
-            "l_orbital_power",
-            "orbital_factory",
-            "adv_fab_turret",
-            "air_factory_adv",
-            "bot_factory_adv",
-            "naval_factory_adv",
-            "vehicle_factory_adv",
-            "adv_mass_generator",
-            "adv_metal_generator",
-            "adv_metal_generator_3",
-            "unit_cannon",
-            "system_radar",
-            "system_radar_2",
-            "system_radar_3",
-            "artillery_long",
-            "anti_nuke_launcher",
-            "nuke_launcher",
-            "l_demi_titan_bot",
-            "demi_titan_bot",
-            "jammer_titan",
-            "l_jammer_station",
-            "orbital_anti_nuke_2",
-            "orbital_anti_nuke",
-            "titan_vehicle",
-            "titan_bot",
-            "titan_orbital",
-            "tutorial_titan_commander",
-            "titan_air",
-            "control_module",
-            "delta_v_engine",
-            "titan_structure"
-          ],
-          "builtBy": [
-            "avatar_factory"
-          ]
-        },
-        "buildableTypes": "Structure \u0026 Basic | Structure \u0026 Advanced | FabBuild | FabAdvBuild | FabOrbBuild | Titan"
-      }
-    },
-    {
-      "identifier": "avatar_factory",
-      "displayName": "Avatar Factory",
-      "unitTypes": [
-        "Debug",
-        "Factory",
-        "Construction",
-        "Land",
-        "Tank",
-        "Structure",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/avatar_factory/avatar_factory.json",
-          "source": "pa"
-        },
-        {
-          "path": "/pa/units/land/avatar_factory/avatar_factory_icon_buildbar.png",
-          "source": "pa"
-        }
-      ],
-      "unit": {
-        "id": "avatar_factory",
-        "resourceName": "/pa/units/land/avatar_factory/avatar_factory.json",
-        "displayName": "Avatar Factory",
-        "description": "For debugging purposes",
-        "image": "assets/pa/units/land/avatar_factory/avatar_factory_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Debug",
-          "Factory",
-          "Construction",
-          "Land",
-          "Tank",
-          "Structure",
-          "Economy"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 2000
-          },
-          "economy": {
-            "buildCost": 600,
-            "production": {
-              "metal": 10000,
-              "energy": 100000
-            },
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 10000,
-              "energy": 100000
-            },
-            "weaponConsumption": {},
-            "buildRate": 10000,
-            "buildInefficiency": 10,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/land/avatar_factory/avatar_factory_build_arm.json",
-                "safeName": "avatar_factory_build_arm",
-                "name": "avatar_factory_build_arm",
-                "count": 1,
-                "metalConsumption": 10000,
-                "energyConsumption": 100000
-              }
-            ]
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 120
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "avatar",
-            "drone",
-            "bot_bomb",
-            "assault_bot",
-            "attack_vehicle",
-            "land_scout",
-            "air_scout",
-            "bot_grenadier",
-            "bot_tesla",
-            "bot_aa",
-            "solar_drone",
-            "transport",
-            "tank_light_laser",
-            "fabrication_bot",
-            "sea_scout",
-            "aa_missile_vehicle",
-            "orbital_lander",
-            "fabrication_ship",
-            "fabrication_vehicle",
-            "orbital_probe",
-            "fighter",
-            "tank_hover",
-            "fabrication_aircraft",
-            "tank_armor",
-            "fabrication_bot_combat",
-            "orbital_fighter",
-            "lynx",
-            "rex",
-            "bomber",
-            "fabrication_sub",
-            "adv_stealth_transport",
-            "frigate",
-            "attack_sub",
-            "bot_nanoswarm",
-            "assault_bot_adv",
-            "swordfish",
-            "fabrication_barge",
-            "naval_anti_orbital",
-            "anti_orbital_ship",
-            "destroyer",
-            "stalker",
-            "bot_tactical_missile",
-            "tank_jammer",
-            "tank_flak",
-            "radar_satellite",
-            "adv_heavy_bot",
-            "bot_sniper",
-            "gunship",
-            "tank_laser_adv",
-            "fighter_adv",
-            "andreas",
-            "fabrication_bot_combat_adv",
-            "bot_spider_adv",
-            "almaz",
-            "adv_tank_hover",
-            "tank_heavy_mortar",
-            "orbital_fabrication_bot",
-            "hover_ship",
-            "tank_heavy_armor",
-            "solar_array",
-            "fabrication_bot_adv",
-            "strafer",
-            "nuclear_sub",
-            "orbital_railgun",
-            "orbital_carrier",
-            "fabrication_vehicle_adv",
-            "fabrication_aircraft_adv",
-            "fabrication_ship_adv",
-            "l_orbital_jammer",
-            "bomber_adv",
-            "missile_ship",
-            "bomber_heavy",
-            "support_platform",
-            "orbital_laser",
-            "radar_satellite_adv",
-            "battleship",
-            "carrier",
-            "bot_support_commander",
-            "tank_nuke",
-            "tank_anti_nuke",
-            "orbital_battleship",
-            "l_demi_titan_bot",
-            "demi_titan_bot",
-            "orbital_anti_nuke_2",
-            "orbital_anti_nuke",
-            "tutorial_ai_commander",
-            "tutorial_ai_commander_2",
-            "titan_vehicle",
-            "titan_bot",
-            "titan_orbital",
-            "titan_air"
-          ]
-        },
-        "buildableTypes": "Mobile - NoBuild"
-      }
-    },
-    {
       "identifier": "fabrication_sub",
       "displayName": "Fabrication Sub",
       "unitTypes": [
@@ -748,102 +390,6 @@
           ]
         },
         "buildableTypes": "(Naval \u0026 Structure \u0026 Basic | Naval \u0026 Factory \u0026 Advanced | Air \u0026 Factory \u0026 Basic | FabBuild) \u0026 Custom58"
-      }
-    },
-    {
-      "identifier": "fab_tower_2",
-      "displayName": "Fabrication Tower",
-      "unitTypes": [
-        "Construction",
-        "Basic",
-        "FabBuild",
-        "CmdBuild",
-        "Structure",
-        "Fabber",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/b_addon/fab_tower/fab_tower.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "fab_tower_2",
-        "resourceName": "/pa/units/b_addon/fab_tower/fab_tower.json",
-        "displayName": "Fabrication Tower",
-        "description": "Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
-        "image": "assets/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Construction",
-          "Basic",
-          "FabBuild",
-          "CmdBuild",
-          "Structure",
-          "Fabber",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1500
-          },
-          "economy": {
-            "buildCost": 400,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 18,
-              "energy": 1000
-            },
-            "weaponConsumption": {},
-            "buildRate": 18,
-            "buildInefficiency": 55.55555555555556,
-            "metalRate": -18,
-            "energyRate": -1000,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/addon/fab_tower/fab_tower_build_arm.json",
-                "safeName": "fab_tower_build_arm",
-                "name": "fab_tower_build_arm",
-                "count": 1,
-                "metalConsumption": 18,
-                "energyConsumption": 1000,
-                "range": 120
-              }
-            ],
-            "buildRange": 120
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100,
-            "radarRadius": 75
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ],
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar",
-            "tutorial_ai_commander",
-            "tutorial_ai_commander_2",
-            "tutorial_ai_commander_3"
-          ]
-        }
       }
     },
     {
@@ -1022,6 +568,102 @@
             "raptor_zaazzaa",
             "quad_zancrowe",
             "imperial_chronoblip",
+            "tutorial_ai_commander",
+            "tutorial_ai_commander_2",
+            "tutorial_ai_commander_3"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "fab_tower_2",
+      "displayName": "Fabrication Tower",
+      "unitTypes": [
+        "Construction",
+        "Basic",
+        "FabBuild",
+        "CmdBuild",
+        "Structure",
+        "Fabber",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/b_addon/fab_tower/fab_tower.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "fab_tower_2",
+        "resourceName": "/pa/units/b_addon/fab_tower/fab_tower.json",
+        "displayName": "Fabrication Tower",
+        "description": "Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
+        "image": "assets/pa/units/b_addon/fab_tower/fab_tower_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Construction",
+          "Basic",
+          "FabBuild",
+          "CmdBuild",
+          "Structure",
+          "Fabber",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1500
+          },
+          "economy": {
+            "buildCost": 400,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 18,
+              "energy": 1000
+            },
+            "weaponConsumption": {},
+            "buildRate": 18,
+            "buildInefficiency": 55.55555555555556,
+            "metalRate": -18,
+            "energyRate": -1000,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/fab_tower/fab_tower_build_arm.json",
+                "safeName": "fab_tower_build_arm",
+                "name": "fab_tower_build_arm",
+                "count": 1,
+                "metalConsumption": 18,
+                "energyConsumption": 1000,
+                "range": 120
+              }
+            ],
+            "buildRange": 120
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "radarRadius": 75
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ],
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
             "tutorial_ai_commander",
             "tutorial_ai_commander_2",
             "tutorial_ai_commander_3"
@@ -2570,6 +2212,37 @@
             "salvoDamage": 120,
             "weapons": [
               {
+                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop.json",
+                "safeName": "basic_missile_defence_antidrop",
+                "name": "basic_missile_defence_antidrop",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 80,
+                "dps": 20,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 160,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop_ammo.json",
+                  "safeName": "basic_missile_defence_antidrop_ammo",
+                  "name": "basic_missile_defence_antidrop_ammo",
+                  "damage": 80,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 300,
+                  "lifetime": 3
+                }
+              },
+              {
                 "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_weapon.json",
                 "safeName": "basic_missile_defence_weapon",
                 "name": "basic_missile_defence_weapon",
@@ -2599,37 +2272,6 @@
                   "muzzleVelocity": 150,
                   "maxVelocity": 150,
                   "lifetime": 15
-                }
-              },
-              {
-                "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop.json",
-                "safeName": "basic_missile_defence_antidrop",
-                "name": "basic_missile_defence_antidrop",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 80,
-                "dps": 20,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 160,
-                "targetLayers": [
-                  "Orbital",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/addon/basic_missile_defence/basic_missile_defence_antidrop_ammo.json",
-                  "safeName": "basic_missile_defence_antidrop_ammo",
-                  "name": "basic_missile_defence_antidrop_ammo",
-                  "damage": 80,
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 300,
-                  "lifetime": 3
                 }
               }
             ]
@@ -2960,691 +2602,6 @@
       }
     },
     {
-      "identifier": "tutorial_player_commander",
-      "displayName": "Tutorial Commander",
-      "unitTypes": [
-        "Commander",
-        "Construction",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Amphibious",
-        "NoBuild",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/commanders/tutorial_player_commander/tutorial_player_commander.json",
-          "source": "pa_ex1"
-        },
-        {
-          "path": "/pa/units/commanders/tutorial_player_commander/tutorial_player_commander_icon_buildbar.png",
-          "source": "pa_ex1"
-        }
-      ],
-      "unit": {
-        "id": "tutorial_player_commander",
-        "resourceName": "/pa/units/commanders/tutorial_player_commander/tutorial_player_commander.json",
-        "displayName": "Tutorial Commander",
-        "description": "Imperial Invictus Commander",
-        "image": "assets/pa/units/commanders/tutorial_player_commander/tutorial_player_commander_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Commander",
-          "Construction",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Amphibious",
-          "NoBuild",
-          "Economy"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1000000,
-            "dps": 985,
-            "salvoDamage": 4230,
-            "weapons": [
-              {
-                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                "safeName": "nuke_pbaoe",
-                "name": "nuke_pbaoe",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 3000,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 130,
-                "fullDamageRadius": 30,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                  "safeName": "nuke_pbaoe",
-                  "name": "nuke_pbaoe",
-                  "damage": 3000,
-                  "fullDamageRadius": 30,
-                  "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
-                "safeName": "uber_cannon",
-                "name": "uber_cannon",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 700,
-                "dps": 175,
-                "sustainedDps": 175,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 100,
-                "maxRange": 100,
-                "splashDamage": 700,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "energy",
-                "ammoDemand": 2500,
-                "ammoPerShot": 10000,
-                "ammoCapacity": 10000,
-                "ammoRechargeTime": 4,
-                "energyRate": -2500,
-                "energyPerShot": 10000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 90,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
-                  "safeName": "cannon_uber",
-                  "name": "cannon_uber",
-                  "damage": 700,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 700,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 100,
-                  "maxVelocity": 100,
-                  "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 25000,
-            "production": {
-              "metal": 20,
-              "energy": 2000
-            },
-            "consumption": {},
-            "storage": {
-              "metal": 100000,
-              "energy": 100000
-            },
-            "toolConsumption": {},
-            "weaponConsumption": {
-              "energy": 2500
-            },
-            "metalRate": 20,
-            "energyRate": -500
-          },
-          "mobility": {
-            "moveSpeed": 8,
-            "turnSpeed": 180,
-            "acceleration": 60,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 150,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "amphibious": true
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "land_barrier",
-            "metal_extractor",
-            "air_defense",
-            "laser_defense_single",
-            "basic_missile_defence",
-            "torpedo_launcher",
-            "energy_plant",
-            "fab_tower",
-            "energy_storage",
-            "metal_storage",
-            "metal_generator",
-            "air_factory",
-            "bot_factory",
-            "naval_factory",
-            "orbital_launcher",
-            "vehicle_factory",
-            "ion_defense",
-            "teleporter"
-          ]
-        },
-        "buildableTypes": "CmdBuild \u0026 Custom58"
-      }
-    },
-    {
-      "identifier": "tutorial_ai_commander",
-      "displayName": "tutorial_ai_commander",
-      "unitTypes": [
-        "Commander",
-        "Construction",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Amphibious",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/commanders/tutorial_ai_commander/tutorial_ai_commander.json",
-          "source": "pa_ex1"
-        },
-        {
-          "path": "/pa/units/commanders/tutorial_ai_commander/tutorial_ai_commander_icon_buildbar.png",
-          "source": "pa_ex1"
-        }
-      ],
-      "unit": {
-        "id": "tutorial_ai_commander",
-        "resourceName": "/pa/units/commanders/tutorial_ai_commander/tutorial_ai_commander.json",
-        "displayName": "tutorial_ai_commander",
-        "description": "Imperial Delta Commander",
-        "image": "assets/pa/units/commanders/tutorial_ai_commander/tutorial_ai_commander_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Commander",
-          "Construction",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Amphibious",
-          "Economy"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 10000,
-            "dps": 810,
-            "salvoDamage": 3530,
-            "weapons": [
-              {
-                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                "safeName": "nuke_pbaoe",
-                "name": "nuke_pbaoe",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 3000,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 130,
-                "fullDamageRadius": 30,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                  "safeName": "nuke_pbaoe",
-                  "name": "nuke_pbaoe",
-                  "damage": 3000,
-                  "fullDamageRadius": 30,
-                  "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 25000,
-            "production": {
-              "metal": 200,
-              "energy": 1000
-            },
-            "consumption": {},
-            "storage": {
-              "metal": 1000,
-              "energy": 1000
-            },
-            "toolConsumption": {},
-            "weaponConsumption": {},
-            "metalRate": 200,
-            "energyRate": 1000
-          },
-          "mobility": {
-            "moveSpeed": 8,
-            "turnSpeed": 180,
-            "acceleration": 60,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "amphibious": true
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "land_barrier",
-            "metal_extractor",
-            "air_defense",
-            "laser_defense_single",
-            "basic_missile_defence",
-            "basic_missile_defence_7",
-            "torpedo_launcher",
-            "energy_plant",
-            "fab_tower",
-            "fab_tower_2",
-            "basic_missile_defence_2",
-            "energy_storage",
-            "metal_storage",
-            "mass_generator",
-            "metal_generator",
-            "metal_generator_2",
-            "bot_factory",
-            "naval_factory",
-            "orbital_launcher",
-            "vehicle_factory",
-            "fab_turret",
-            "ion_defense",
-            "teleporter"
-          ],
-          "builtBy": [
-            "avatar_factory"
-          ]
-        },
-        "buildableTypes": "CmdBuild -Air"
-      }
-    },
-    {
-      "identifier": "tutorial_ai_commander_2",
-      "displayName": "tutorial_ai_commander_2",
-      "unitTypes": [
-        "Commander",
-        "Construction",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Amphibious",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/commanders/tutorial_ai_commander_2/tutorial_ai_commander_2.json",
-          "source": "pa_ex1"
-        },
-        {
-          "path": "/pa/units/commanders/tutorial_ai_commander_2/tutorial_ai_commander_2_icon_buildbar.png",
-          "source": "pa_ex1"
-        }
-      ],
-      "unit": {
-        "id": "tutorial_ai_commander_2",
-        "resourceName": "/pa/units/commanders/tutorial_ai_commander_2/tutorial_ai_commander_2.json",
-        "displayName": "tutorial_ai_commander_2",
-        "description": "Imperial Delta Commander",
-        "image": "assets/pa/units/commanders/tutorial_ai_commander_2/tutorial_ai_commander_2_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Commander",
-          "Construction",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Amphibious",
-          "Economy"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1000,
-            "dps": 160,
-            "salvoDamage": 3080,
-            "weapons": [
-              {
-                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                "safeName": "nuke_pbaoe",
-                "name": "nuke_pbaoe",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 3000,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashRadius": 130,
-                "fullDamageRadius": 30,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
-                  "safeName": "nuke_pbaoe",
-                  "name": "nuke_pbaoe",
-                  "damage": 3000,
-                  "fullDamageRadius": 30,
-                  "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 25000,
-            "production": {
-              "metal": 20,
-              "energy": 2000
-            },
-            "consumption": {},
-            "storage": {
-              "metal": 1500,
-              "energy": 45000
-            },
-            "toolConsumption": {},
-            "weaponConsumption": {},
-            "metalRate": 20,
-            "energyRate": 2000
-          },
-          "mobility": {
-            "moveSpeed": 8,
-            "turnSpeed": 180,
-            "acceleration": 60,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "amphibious": true
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "land_barrier",
-            "metal_extractor",
-            "air_defense",
-            "laser_defense_single",
-            "basic_missile_defence",
-            "basic_missile_defence_7",
-            "torpedo_launcher",
-            "energy_plant",
-            "fab_tower",
-            "fab_tower_2",
-            "basic_missile_defence_2",
-            "energy_storage",
-            "metal_storage",
-            "mass_generator",
-            "metal_generator",
-            "metal_generator_2",
-            "naval_factory",
-            "orbital_launcher",
-            "vehicle_factory",
-            "fab_turret",
-            "ion_defense",
-            "teleporter"
-          ],
-          "builtBy": [
-            "avatar_factory"
-          ]
-        },
-        "buildableTypes": "CmdBuild -Air -Bot"
-      }
-    },
-    {
       "identifier": "adv_energy_storage",
       "displayName": "Advanced Energy Storage",
       "unitTypes": [
@@ -3705,102 +2662,6 @@
               "land",
               "water surface"
             ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar",
-            "fabrication_bot_adv",
-            "fabrication_vehicle_adv",
-            "fabrication_aircraft_adv",
-            "fabrication_ship_adv",
-            "bot_support_commander"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "adv_fab_tower",
-      "displayName": "Advanced Fabrication Tower",
-      "unitTypes": [
-        "Construction",
-        "Advanced",
-        "FabAdvBuild",
-        "Structure",
-        "Fabber",
-        "Custom58"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/addon/adv_fab_tower/adv_fab_tower.json",
-          "source": "pa.mla.unit.addon"
-        },
-        {
-          "path": "/pa/units/addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
-          "source": "pa.mla.unit.addon"
-        }
-      ],
-      "unit": {
-        "id": "adv_fab_tower",
-        "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower.json",
-        "displayName": "Advanced Fabrication Tower",
-        "description": "Advanced Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
-        "image": "assets/pa/units/addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Construction",
-          "Advanced",
-          "FabAdvBuild",
-          "Structure",
-          "Fabber",
-          "Custom58"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 5000
-          },
-          "economy": {
-            "buildCost": 2000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 75,
-              "energy": 2250
-            },
-            "weaponConsumption": {},
-            "buildRate": 75,
-            "buildInefficiency": 30,
-            "metalRate": -75,
-            "energyRate": -2250,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower_build_arm.json",
-                "safeName": "adv_fab_tower_build_arm",
-                "name": "adv_fab_tower_build_arm",
-                "count": 1,
-                "metalConsumption": 75,
-                "energyConsumption": 2250,
-                "range": 130
-              }
-            ],
-            "buildRange": 130
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 130,
-            "underwaterVisionRadius": 130,
-            "radarRadius": 130
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ],
-            "hover": true
           }
         },
         "buildRelationships": {
@@ -3902,6 +2763,102 @@
         "buildRelationships": {
           "builtBy": [
             "avatar"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "adv_fab_tower",
+      "displayName": "Advanced Fabrication Tower",
+      "unitTypes": [
+        "Construction",
+        "Advanced",
+        "FabAdvBuild",
+        "Structure",
+        "Fabber",
+        "Custom58"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/adv_fab_tower/adv_fab_tower.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "/pa/units/addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "adv_fab_tower",
+        "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower.json",
+        "displayName": "Advanced Fabrication Tower",
+        "description": "Advanced Fabrication Tower - Can build structures, and assist in construction. Durable. More efficient than other fabricators.",
+        "image": "assets/pa/units/addon/adv_fab_tower/adv_fab_tower_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Construction",
+          "Advanced",
+          "FabAdvBuild",
+          "Structure",
+          "Fabber",
+          "Custom58"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5000
+          },
+          "economy": {
+            "buildCost": 2000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 75,
+              "energy": 2250
+            },
+            "weaponConsumption": {},
+            "buildRate": 75,
+            "buildInefficiency": 30,
+            "metalRate": -75,
+            "energyRate": -2250,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/adv_fab_tower/adv_fab_tower_build_arm.json",
+                "safeName": "adv_fab_tower_build_arm",
+                "name": "adv_fab_tower_build_arm",
+                "count": 1,
+                "metalConsumption": 75,
+                "energyConsumption": 2250,
+                "range": 130
+              }
+            ],
+            "buildRange": 130
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 130,
+            "underwaterVisionRadius": 130,
+            "radarRadius": 130
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ],
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
+            "fabrication_bot_adv",
+            "fabrication_vehicle_adv",
+            "fabrication_aircraft_adv",
+            "fabrication_ship_adv",
+            "bot_support_commander"
           ]
         }
       }
@@ -4880,40 +3837,6 @@
             "salvoDamage": 260,
             "weapons": [
               {
-                "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon_land.json",
-                "safeName": "orbital_anti_nuke_weapon_land",
-                "name": "orbital_anti_nuke_weapon_land",
-                "count": 1,
-                "rateOfFire": 0.5,
-                "damage": 200,
-                "dps": 100,
-                "projectilesPerFire": 1,
-                "maxRange": 100,
-                "splashDamage": 200,
-                "splashRadius": 10,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Structure - Wall",
-                  "Land - Wall",
-                  "Naval",
-                  "Wall",
-                  "Air"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_ammo_land.json",
-                  "safeName": "orbital_anti_nuke_ammo_land",
-                  "name": "orbital_anti_nuke_ammo_land",
-                  "damage": 200,
-                  "splashDamage": 200,
-                  "splashRadius": 10
-                }
-              },
-              {
                 "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon.json",
                 "safeName": "orbital_anti_nuke_3",
                 "name": "orbital_anti_nuke_3",
@@ -4948,6 +3871,40 @@
                   "safeName": "orbital_anti_nuke_ammo",
                   "name": "orbital_anti_nuke_ammo",
                   "damage": 60
+                }
+              },
+              {
+                "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_weapon_land.json",
+                "safeName": "orbital_anti_nuke_weapon_land",
+                "name": "orbital_anti_nuke_weapon_land",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 200,
+                "dps": 100,
+                "projectilesPerFire": 1,
+                "maxRange": 100,
+                "splashDamage": 200,
+                "splashRadius": 10,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Land - Wall",
+                  "Naval",
+                  "Wall",
+                  "Air"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_ammo_land.json",
+                  "safeName": "orbital_anti_nuke_ammo_land",
+                  "name": "orbital_anti_nuke_ammo_land",
+                  "damage": 200,
+                  "splashDamage": 200,
+                  "splashRadius": 10
                 }
               }
             ]
@@ -5295,7 +4252,7 @@
       }
     },
     {
-      "identifier": "system_radar_2",
+      "identifier": "system_radar",
       "displayName": "Planet-wide Radar",
       "unitTypes": [
         "Structure",
@@ -5306,25 +4263,25 @@
         "Radar",
         "FabAdvBuild",
         "Important",
-        "Custom1"
+        "Custom58"
       ],
       "source": "pa",
       "files": [
         {
-          "path": "pa/units/l_addon/system_radar/system_radar.json",
+          "path": "pa/units/addon/system_radar/system_radar.json",
           "source": "pa.mla.unit.addon"
         },
         {
-          "path": "/pa/units/l_addon/system_radar/system_radar_icon_buildbar.png",
+          "path": "/pa/units/addon/system_radar/system_radar_icon_buildbar.png",
           "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
-        "id": "system_radar_2",
-        "resourceName": "/pa/units/l_addon/system_radar/system_radar.json",
+        "id": "system_radar",
+        "resourceName": "/pa/units/addon/system_radar/system_radar.json",
         "displayName": "Planet-wide Radar",
         "description": "Planet-wide Radar - Planet-wide radar telemetry with large vision radius.",
-        "image": "assets/pa/units/l_addon/system_radar/system_radar_icon_buildbar.png",
+        "image": "assets/pa/units/addon/system_radar/system_radar_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
           "Structure",
@@ -5335,9 +4292,9 @@
           "Radar",
           "FabAdvBuild",
           "Important",
-          "Custom1"
+          "Custom58"
         ],
-        "accessible": false,
+        "accessible": true,
         "specs": {
           "combat": {
             "health": 2000
@@ -5369,7 +4326,12 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "avatar"
+            "avatar",
+            "fabrication_bot_adv",
+            "fabrication_vehicle_adv",
+            "fabrication_aircraft_adv",
+            "fabrication_ship_adv",
+            "bot_support_commander"
           ]
         }
       }
@@ -5455,7 +4417,7 @@
       }
     },
     {
-      "identifier": "system_radar",
+      "identifier": "system_radar_2",
       "displayName": "Planet-wide Radar",
       "unitTypes": [
         "Structure",
@@ -5466,25 +4428,25 @@
         "Radar",
         "FabAdvBuild",
         "Important",
-        "Custom58"
+        "Custom1"
       ],
       "source": "pa",
       "files": [
         {
-          "path": "pa/units/addon/system_radar/system_radar.json",
+          "path": "pa/units/l_addon/system_radar/system_radar.json",
           "source": "pa.mla.unit.addon"
         },
         {
-          "path": "/pa/units/addon/system_radar/system_radar_icon_buildbar.png",
+          "path": "/pa/units/l_addon/system_radar/system_radar_icon_buildbar.png",
           "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
-        "id": "system_radar",
-        "resourceName": "/pa/units/addon/system_radar/system_radar.json",
+        "id": "system_radar_2",
+        "resourceName": "/pa/units/l_addon/system_radar/system_radar.json",
         "displayName": "Planet-wide Radar",
         "description": "Planet-wide Radar - Planet-wide radar telemetry with large vision radius.",
-        "image": "assets/pa/units/addon/system_radar/system_radar_icon_buildbar.png",
+        "image": "assets/pa/units/l_addon/system_radar/system_radar_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
           "Structure",
@@ -5495,9 +4457,9 @@
           "Radar",
           "FabAdvBuild",
           "Important",
-          "Custom58"
+          "Custom1"
         ],
-        "accessible": true,
+        "accessible": false,
         "specs": {
           "combat": {
             "health": 2000
@@ -5529,12 +4491,7 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "avatar",
-            "fabrication_bot_adv",
-            "fabrication_vehicle_adv",
-            "fabrication_aircraft_adv",
-            "fabrication_ship_adv",
-            "bot_support_commander"
+            "avatar"
           ]
         }
       }
@@ -6446,146 +5403,6 @@
             "orbital_fabrication_bot",
             "fabrication_bot_adv",
             "bot_support_commander"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "tutorial_titan_commander",
-      "displayName": "Tutorial Titan Commander",
-      "unitTypes": [
-        "Bot",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Advanced",
-        "Titan",
-        "Important",
-        "Commander",
-        "Amphibious",
-        "NoBuild"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/commanders/tutorial_titan_commander/tutorial_titan_commander.json",
-          "source": "pa_ex1"
-        },
-        {
-          "path": "/pa/units/commanders/tutorial_titan_commander/tutorial_titan_commander_icon_buildbar.png",
-          "source": "pa_ex1"
-        }
-      ],
-      "unit": {
-        "id": "tutorial_titan_commander",
-        "resourceName": "/pa/units/commanders/tutorial_titan_commander/tutorial_titan_commander.json",
-        "displayName": "Tutorial Titan Commander",
-        "description": "Seismic Titan - Devastating damage to everything nearby. Amphibious. Attacks land, sea, and undersea targets.",
-        "image": "assets/pa/units/commanders/tutorial_titan_commander/tutorial_titan_commander_icon_buildbar.png",
-        "tier": 3,
-        "unitTypes": [
-          "Bot",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Advanced",
-          "Titan",
-          "Important",
-          "Commander",
-          "Amphibious",
-          "NoBuild"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 1000000,
-            "dps": 1600,
-            "salvoDamage": 13000,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/titan_bot/titan_bot_tool_weapon_stomp.json",
-                "safeName": "titan_bot_tool_weapon_stomp",
-                "name": "titan_bot_tool_weapon_stomp",
-                "count": 1,
-                "rateOfFire": 0.2,
-                "damage": 8000,
-                "dps": 1600,
-                "projectilesPerFire": 1,
-                "maxRange": 135,
-                "splashRadius": 140,
-                "fullDamageRadius": 80,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "Titan \u0026 ( Land | Naval )",
-                  "Nuke | NukeDefense"
-                ],
-                "yawRange": 360,
-                "yawRate": 720,
-                "pitchRange": 40,
-                "pitchRate": 720,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/titan_bot/titan_bot_ammo_stomp.json",
-                  "safeName": "titan_bot_ammo_stomp",
-                  "name": "titan_bot_ammo_stomp",
-                  "damage": 8000,
-                  "fullDamageRadius": 80,
-                  "splashRadius": 140
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/titan_bot/titan_bot_ammo_death.json",
-                "safeName": "titan_bot_ammo_death",
-                "name": "titan_bot_ammo_death",
-                "count": 1,
-                "rateOfFire": 0,
-                "damage": 5000,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "splashDamage": 5000,
-                "splashRadius": 60,
-                "fullDamageRadius": 30,
-                "deathExplosion": true,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/titan_bot/titan_bot_ammo_death.json",
-                  "safeName": "titan_bot_ammo_death",
-                  "name": "titan_bot_ammo_death",
-                  "damage": 5000,
-                  "fullDamageRadius": 30,
-                  "splashDamage": 5000,
-                  "splashRadius": 60
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 30000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 13,
-            "turnSpeed": 60,
-            "acceleration": 260,
-            "brake": -1
-          },
-          "recon": {
-            "visionRadius": 20000,
-            "underwaterVisionRadius": 200
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "avatar"
           ]
         }
       }
