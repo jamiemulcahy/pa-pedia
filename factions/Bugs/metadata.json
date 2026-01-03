@@ -1,0 +1,15 @@
+{
+  "identifier": "bugs",
+  "displayName": "Bugs",
+  "version": "1.36",
+  "author": "Ferretmaster, BillTheBlueBot, Anonemous2, Taiga, Quitch, Quildtide",
+  "description": "Adds a biological bugs faction",
+  "dateCreated": "2025-05-19",
+  "build": "120799",
+  "type": "mod",
+  "mods": [
+    "com.pa.ferretmaster.bugs",
+    "com.pa.ferretmaster.bugs-client"
+  ],
+  "backgroundImage": "assets/ui/mods/bugs_faction/img/Bug_Menu.png"
+}

@@ -1,0 +1,1 @@
+{"base_spec":"/pa/ammo/base_beam/base_beam.json","damage":55,"splash_damage":0,"splash_radius":0,"full_damage_splash_radius":0,"collision_check":"enemies","fx_beam_spec":"/pa/units/orbital/titan_orbital/titan_orbital_ammo_beam.pfx","fx_collision_spec":"/pa/units/orbital/titan_orbital/titan_orbital_beam_hit.pfx"}

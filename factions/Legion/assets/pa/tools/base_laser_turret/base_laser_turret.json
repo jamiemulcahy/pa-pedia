@@ -1,0 +1,1 @@
+{"base_spec":"/pa/tools/base_turret/base_turret.json","tool_type":"TOOL_Weapon","ammo_id":"/pa/ammo/laser_blast/laser_blast.json","target_layers":["WL_LandHorizontal","WL_WaterSurface"],"rate_of_fire":1.0,"max_range":60,"yaw_rate":45,"pitch_rate":45,"yaw_range":180,"pitch_range":45,"auto_attack":true,"target_priorities":["Mobile - Air","Naval","Structure - Wall","Wall"]}
