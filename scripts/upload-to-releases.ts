@@ -17,6 +17,19 @@ const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
 const RELEASE_TAG = 'faction-data'
 
+/**
+ * Check if GitHub CLI is installed and available
+ */
+function checkGhCli(): void {
+  try {
+    execSync('gh --version', { stdio: 'pipe' })
+  } catch {
+    console.error('Error: GitHub CLI (gh) is not installed or not in PATH')
+    console.error('Install from: https://cli.github.com/')
+    process.exit(1)
+  }
+}
+
 interface BuildSummary {
   timestamp: string
   factions: { factionId: string; filename: string; version: string }[]
@@ -109,6 +122,9 @@ async function main() {
   console.log('Uploading faction zips to GitHub Releases...')
   console.log(`Release tag: ${RELEASE_TAG}`)
   console.log()
+
+  // Pre-flight check: ensure gh CLI is available
+  checkGhCli()
 
   // Check for build summary
   const summaryPath = path.join(OUTPUT_DIR, 'build-summary.json')

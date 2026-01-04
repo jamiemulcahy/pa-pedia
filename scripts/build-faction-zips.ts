@@ -43,12 +43,25 @@ function generateTimestamp(): string {
 }
 
 /**
- * Read faction metadata from metadata.json
+ * Read and validate faction metadata from metadata.json
  */
 function readFactionMetadata(factionDir: string): FactionMetadata {
   const metadataPath = path.join(factionDir, 'metadata.json')
   const content = fs.readFileSync(metadataPath, 'utf-8')
-  return JSON.parse(content) as FactionMetadata
+  const data = JSON.parse(content) as FactionMetadata
+
+  // Validate required fields
+  if (!data.identifier) {
+    throw new Error(`Invalid metadata.json in ${factionDir}: missing 'identifier' field`)
+  }
+  if (!data.version) {
+    throw new Error(`Invalid metadata.json in ${factionDir}: missing 'version' field`)
+  }
+  if (!data.displayName) {
+    throw new Error(`Invalid metadata.json in ${factionDir}: missing 'displayName' field`)
+  }
+
+  return data
 }
 
 /**
@@ -69,14 +82,16 @@ function getFactionFolders(): string[] {
 
 /**
  * Create a zip file for a faction
+ * Uses metadata.identifier (not folder name) for consistent casing in zip filenames
  */
 async function createFactionZip(
-  factionId: string,
+  folderName: string,
   metadata: FactionMetadata,
   timestamp: string
 ): Promise<string> {
-  const factionDir = path.join(FACTIONS_DIR, factionId)
-  const zipFilename = `${factionId}-${metadata.version}-pedia${timestamp}.zip`
+  const factionDir = path.join(FACTIONS_DIR, folderName)
+  // Use metadata.identifier for zip filename to ensure consistent casing
+  const zipFilename = `${metadata.identifier}-${metadata.version}-pedia${timestamp}.zip`
   const zipPath = path.join(OUTPUT_DIR, zipFilename)
 
   return new Promise((resolve, reject) => {
@@ -132,12 +147,13 @@ async function main() {
   // Build each faction
   const results: { factionId: string; filename: string; version: string }[] = []
 
-  for (const factionId of factionFolders) {
-    console.log(`Processing ${factionId}...`)
+  for (const folderName of factionFolders) {
+    console.log(`Processing ${folderName}...`)
     try {
-      const metadata = readFactionMetadata(path.join(FACTIONS_DIR, factionId))
-      const filename = await createFactionZip(factionId, metadata, timestamp)
-      results.push({ factionId, filename, version: metadata.version })
+      const metadata = readFactionMetadata(path.join(FACTIONS_DIR, folderName))
+      const filename = await createFactionZip(folderName, metadata, timestamp)
+      // Use metadata.identifier as the canonical faction ID
+      results.push({ factionId: metadata.identifier, filename, version: metadata.version })
     } catch (error) {
       console.error(`  Error: ${error}`)
       process.exit(1)

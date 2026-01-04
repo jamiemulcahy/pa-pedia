@@ -19,13 +19,27 @@ const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
 const RELEASE_TAG = 'faction-data'
 
+/**
+ * Check if GitHub CLI is installed and available
+ */
+function checkGhCli(): void {
+  try {
+    execSync('gh --version', { stdio: 'pipe' })
+  } catch {
+    console.error('Error: GitHub CLI (gh) is not installed or not in PATH')
+    console.error('Install from: https://cli.github.com/')
+    process.exit(1)
+  }
+}
+
 // Regex to parse zip filename: {FactionId}-{version}-pedia{timestamp}.zip
 const ZIP_FILENAME_PATTERN = /^([A-Za-z0-9-]+)-([0-9.]+)-pedia(\d{14})\.zip$/
 
 interface ReleaseAsset {
   name: string
   size: number
-  url: string
+  url: string // API URL
+  browser_download_url: string // Direct download URL
 }
 
 interface FactionMetadata {
@@ -61,32 +75,11 @@ interface Manifest {
 }
 
 /**
- * Get repository info from git remote
- */
-function getRepoInfo(): { owner: string; repo: string } {
-  const remoteUrl = execSync('git remote get-url origin', { encoding: 'utf-8' }).trim()
-
-  // Handle SSH format: git@github.com:owner/repo.git
-  const sshMatch = remoteUrl.match(/git@github\.com:([^/]+)\/(.+?)(?:\.git)?$/)
-  if (sshMatch) {
-    return { owner: sshMatch[1], repo: sshMatch[2] }
-  }
-
-  // Handle HTTPS format: https://github.com/owner/repo.git
-  const httpsMatch = remoteUrl.match(/github\.com\/([^/]+)\/(.+?)(?:\.git)?$/)
-  if (httpsMatch) {
-    return { owner: httpsMatch[1], repo: httpsMatch[2] }
-  }
-
-  throw new Error(`Could not parse repository info from remote: ${remoteUrl}`)
-}
-
-/**
  * Get release assets from GitHub
  */
 function getReleaseAssets(): ReleaseAsset[] {
   const output = execSync(
-    `gh release view ${RELEASE_TAG} --json assets -q ".assets[] | {name, size, url}"`,
+    `gh release view ${RELEASE_TAG} --json assets -q ".assets[] | {name, size, url, browser_download_url}"`,
     { encoding: 'utf-8' }
   )
 
@@ -145,23 +138,14 @@ async function extractMetadataFromZip(downloadUrl: string): Promise<FactionMetad
 }
 
 /**
- * Build download URL for a release asset
- */
-function buildDownloadUrl(owner: string, repo: string, filename: string): string {
-  return `https://github.com/${owner}/${repo}/releases/download/${RELEASE_TAG}/${filename}`
-}
-
-/**
  * Main entry point
  */
 async function main() {
   console.log('Generating faction manifest...')
   console.log()
 
-  // Get repo info
-  const { owner, repo } = getRepoInfo()
-  console.log(`Repository: ${owner}/${repo}`)
-  console.log()
+  // Pre-flight check: ensure gh CLI is available
+  checkGhCli()
 
   // Get release assets
   console.log('Fetching release assets...')
@@ -201,7 +185,8 @@ async function main() {
 
   for (const [key, zip] of factionMap) {
     const { factionId, version, timestamp } = zip.parsed!
-    const downloadUrl = buildDownloadUrl(owner, repo, zip.asset.name)
+    // Use API-provided download URL instead of constructing manually
+    const downloadUrl = zip.asset.browser_download_url
 
     console.log(`Processing ${factionId} v${version}...`)
 

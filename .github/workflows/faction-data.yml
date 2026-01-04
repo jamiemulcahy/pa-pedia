@@ -12,6 +12,11 @@ on:
 permissions:
   contents: write
 
+# Prevent concurrent runs to avoid race conditions when uploading to releases
+concurrency:
+  group: faction-data-release
+  cancel-in-progress: false
+
 jobs:
   release-factions:
     runs-on: ubuntu-latest
@@ -44,3 +49,11 @@ jobs:
         run: npm run generate:manifest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faction-zips
+          path: factions/dist/
+          retention-days: 7
