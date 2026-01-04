@@ -14,7 +14,9 @@ export interface ParseError {
   message: string
 }
 
-const STATIC_FACTIONS = ['mla', 'legion']
+// Static factions that conflict with user-uploaded factions
+// These are normalized to lowercase for case-insensitive comparison
+const STATIC_FACTIONS = ['mla', 'legion', 'bugs', 'exiles', 'second-wave']
 
 /**
  * Sanitize a string to prevent XSS

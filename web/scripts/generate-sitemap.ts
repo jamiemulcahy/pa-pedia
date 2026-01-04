@@ -7,14 +7,28 @@ const __dirname = path.dirname(__filename)
 
 const SITE_URL = 'https://pa-pedia.com'
 
-// Import static factions from shared constant
-// Note: We read the file directly since this is a Node.js build script
-const constantsPath = path.join(__dirname, '..', 'src', 'constants', 'factions.ts')
-const constantsContent = fs.readFileSync(constantsPath, 'utf-8')
-const match = constantsContent.match(/STATIC_FACTIONS\s*=\s*\[([^\]]+)\]/)
-const STATIC_FACTIONS = match
-  ? match[1].split(',').map(s => s.trim().replace(/['"]/g, ''))
-  : ['MLA', 'Legion', 'Bugs', 'Exiles'] // Fallback
+// Faction data is now at repo root /factions/ folder
+const FACTIONS_DIR = path.join(__dirname, '..', '..', 'factions')
+
+// Discover factions by reading the factions directory
+function discoverFactions(): string[] {
+  if (!fs.existsSync(FACTIONS_DIR)) {
+    console.warn('Factions directory not found:', FACTIONS_DIR)
+    return []
+  }
+
+  return fs.readdirSync(FACTIONS_DIR, { withFileTypes: true })
+    .filter(entry => {
+      if (!entry.isDirectory()) return false
+      if (entry.name === 'dist') return false
+      // Must have metadata.json to be a valid faction
+      const metadataPath = path.join(FACTIONS_DIR, entry.name, 'metadata.json')
+      return fs.existsSync(metadataPath)
+    })
+    .map(entry => entry.name)
+}
+
+const STATIC_FACTIONS = discoverFactions()
 
 interface UnitIndexEntry {
   identifier: string
@@ -50,15 +64,8 @@ function generateSitemap(): void {
       lastmod: buildDate,
     })
 
-    // Load units.json for this faction
-    const unitsPath = path.join(
-      __dirname,
-      '..',
-      'public',
-      'factions',
-      factionId,
-      'units.json'
-    )
+    // Load units.json for this faction from repo root factions folder
+    const unitsPath = path.join(FACTIONS_DIR, factionId, 'units.json')
 
     if (fs.existsSync(unitsPath)) {
       try {

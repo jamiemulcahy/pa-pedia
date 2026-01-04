@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
-import { getUnitIconPathFromImage, getLocalAssetUrl } from '@/services/factionLoader'
+import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
 
 /**
  * Hook to get the icon URL for a unit
- * Handles both static factions (URL path) and local factions (blob URL from IndexedDB)
+ * Handles both static factions (in dev: URL path, in prod: blob from cache)
+ * and local factions (blob URL from IndexedDB)
  */
 export function useUnitIcon(factionId: string, imagePath: string | undefined) {
   const { isLocalFaction } = useFactionContext()
@@ -16,39 +17,37 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
   useEffect(() => {
     if (!imagePath) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIconUrl(undefined)
       return
     }
 
-    if (!isLocal) {
-      // Static faction - use direct URL path
-      setIconUrl(getUnitIconPathFromImage(factionId, imagePath))
-      return
-    }
-
-    // Local faction - load from IndexedDB
-    let blobUrl: string | undefined
+    let isMounted = true
     setLoading(true)
     setError(null)
 
-    getLocalAssetUrl(factionId, imagePath)
-      .then((url) => {
-        blobUrl = url
-        setIconUrl(url)
+    getAssetUrl(factionId, imagePath, isLocal)
+      .then((url: string | undefined) => {
+        if (isMounted) {
+          setIconUrl(url)
+        }
       })
-      .catch((err) => {
-        setError(err)
-        setIconUrl(undefined)
+      .catch((err: Error) => {
+        if (isMounted) {
+          setError(err)
+          setIconUrl(undefined)
+        }
       })
       .finally(() => {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       })
 
-    // Cleanup: revoke blob URL when component unmounts or deps change
+    // Cleanup: release asset URL when component unmounts or deps change
     return () => {
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl)
+      isMounted = false
+      if (imagePath) {
+        releaseAssetUrl(factionId, imagePath)
       }
     }
   }, [factionId, imagePath, isLocal])

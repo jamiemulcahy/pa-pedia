@@ -1,11 +1,32 @@
+/**
+ * Faction Loader Service
+ *
+ * Loads faction data from various sources:
+ * - Development mode: Direct file access from /factions/
+ * - Production mode: Download zips from GitHub Releases with IndexedDB caching
+ * - Local factions: User-uploaded factions stored in IndexedDB
+ */
+
+import JSZip from 'jszip'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
 import {
   getLocalFactionIds,
   getLocalFactionMetadata,
   getLocalFactionIndex,
-  getLocalAssetUrl,
 } from './localFactionStorage'
-import { STATIC_FACTIONS } from '@/constants/factions'
+import {
+  loadManifest,
+  getManifestEntry,
+  isDevelopmentMode,
+  type ManifestEntry,
+} from './manifestLoader'
+import {
+  isStaticFactionCached,
+  getStaticFactionCache,
+  cacheStaticFaction,
+  pruneStaleStaticFactions,
+} from './staticFactionCache'
+import { getAssetUrl } from './assetUrlManager'
 
 const FACTIONS_BASE_PATH = `${import.meta.env.BASE_URL}factions`
 
@@ -15,34 +36,112 @@ export interface FactionDiscoveryEntry {
 }
 
 /**
- * Discovers available factions by checking for known faction directories
- * Includes both static factions and local (user-uploaded) factions
+ * Discovers available factions
+ * - In dev mode: Uses hardcoded list from local /factions/ folder
+ * - In prod mode: Loads manifest from GitHub Releases
+ * - Always includes local (user-uploaded) factions
  */
 export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
-  const staticFactions: FactionDiscoveryEntry[] = STATIC_FACTIONS.map(id => ({
-    id,
-    isLocal: false,
-  }))
+  const entries: FactionDiscoveryEntry[] = []
 
+  if (isDevelopmentMode()) {
+    // In dev mode, use hardcoded list of static factions
+    // These match the folders in /factions/
+    const staticFactionIds = ['MLA', 'Legion', 'Bugs', 'Exiles', 'Second-Wave']
+    for (const id of staticFactionIds) {
+      entries.push({ id, isLocal: false })
+    }
+  } else {
+    // In prod mode, load from manifest
+    try {
+      const manifest = await loadManifest()
+      for (const faction of manifest.factions) {
+        entries.push({ id: faction.id, isLocal: false })
+      }
+
+      // Prune stale cached factions not in manifest
+      const manifestIds = manifest.factions.map((f) => f.id)
+      await pruneStaleStaticFactions(manifestIds)
+    } catch (error) {
+      console.error('Failed to load manifest:', error)
+      // Fall back to empty list - user can still use local factions
+    }
+  }
+
+  // Add local factions
   try {
     const localIds = await getLocalFactionIds()
-    const localFactions: FactionDiscoveryEntry[] = localIds.map(id => ({
-      id,
-      isLocal: true,
-    }))
-    return [...staticFactions, ...localFactions]
+    for (const id of localIds) {
+      entries.push({ id, isLocal: true })
+    }
   } catch (error) {
     console.warn('Failed to load local factions:', error)
-    return staticFactions
   }
+
+  return entries
 }
 
 /**
- * Loads faction metadata from metadata.json
- * Supports both static factions (fetched) and local factions (IndexedDB)
+ * Downloads and extracts a faction zip from GitHub Releases
  */
-export async function loadFactionMetadata(factionId: string, isLocal: boolean = false): Promise<FactionMetadata> {
-  // Try local storage first if marked as local
+async function downloadAndExtractFaction(
+  entry: ManifestEntry
+): Promise<{ metadata: FactionMetadata; index: FactionIndex; assets: Map<string, Blob> }> {
+  console.log(`Downloading faction ${entry.id} from ${entry.downloadUrl}`)
+
+  const response = await fetch(entry.downloadUrl)
+  if (!response.ok) {
+    throw new Error(`Failed to download faction: ${response.status} ${response.statusText}`)
+  }
+
+  const buffer = await response.arrayBuffer()
+  const zip = await JSZip.loadAsync(buffer)
+
+  // Find metadata.json (at root of zip)
+  const metadataFile = zip.file('metadata.json')
+  if (!metadataFile) {
+    throw new Error('metadata.json not found in faction zip')
+  }
+
+  const metadataText = await metadataFile.async('string')
+  const metadata: FactionMetadata = JSON.parse(metadataText)
+
+  // Find units.json
+  const unitsFile = zip.file('units.json')
+  if (!unitsFile) {
+    throw new Error('units.json not found in faction zip')
+  }
+
+  const unitsText = await unitsFile.async('string')
+  const index: FactionIndex = JSON.parse(unitsText)
+
+  // Extract assets
+  const assets = new Map<string, Blob>()
+  const assetsPath = 'assets/'
+
+  for (const [path, zipEntry] of Object.entries(zip.files)) {
+    if (path.startsWith(assetsPath) && !zipEntry.dir) {
+      const blob = await zipEntry.async('blob')
+      assets.set(path, blob)
+    }
+  }
+
+  console.log(`Extracted faction ${entry.id}: ${index.units.length} units, ${assets.size} assets`)
+
+  return { metadata, index, assets }
+}
+
+/**
+ * Loads faction metadata
+ * - Dev mode: Fetches from local file
+ * - Prod mode: Gets from cache or downloads zip
+ * - Local factions: Gets from IndexedDB
+ */
+export async function loadFactionMetadata(
+  factionId: string,
+  isLocal: boolean = false
+): Promise<FactionMetadata> {
+  // Local factions always come from IndexedDB
   if (isLocal) {
     const localMetadata = await getLocalFactionMetadata(factionId)
     if (localMetadata) {
@@ -51,43 +150,60 @@ export async function loadFactionMetadata(factionId: string, isLocal: boolean = 
     throw new Error(`Local faction '${factionId}' not found`)
   }
 
-  try {
+  // Development mode: fetch from local file
+  if (isDevelopmentMode()) {
     const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
     if (!response.ok) {
-      // 404 means faction doesn't exist
-      if (response.status === 404) {
-        throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
-      }
       throw new Error(`Failed to load faction metadata for ${factionId}: ${response.statusText}`)
     }
-
-    // Check if we got HTML instead of JSON (common when server returns error pages)
-    const contentType = response.headers.get('content-type')
-    if (contentType && !contentType.includes('application/json')) {
-      throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
-    }
-
     return await response.json()
-  } catch (error) {
-    // Re-throw our custom errors as-is
-    if (error instanceof Error && error.message.includes('not found')) {
-      throw error
-    }
-    // For JSON parse errors, provide a better message
-    if (error instanceof SyntaxError) {
-      throw new Error(`Faction '${factionId}' not found. Please generate faction data using the CLI.`)
-    }
-    console.error(`Error loading faction metadata for ${factionId}:`, error)
-    throw error
   }
+
+  // Production mode: check cache or download
+  const manifestEntry = await getManifestEntry(factionId)
+  if (!manifestEntry) {
+    throw new Error(`Faction '${factionId}' not found in manifest`)
+  }
+
+  // Check if cached and up-to-date
+  const isCached = await isStaticFactionCached(
+    factionId,
+    manifestEntry.version,
+    manifestEntry.timestamp
+  )
+
+  if (isCached) {
+    const cached = await getStaticFactionCache(factionId)
+    if (cached) {
+      return cached.metadata
+    }
+  }
+
+  // Download and cache
+  const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
+  await cacheStaticFaction(
+    factionId,
+    manifestEntry.version,
+    manifestEntry.timestamp,
+    metadata,
+    index,
+    assets
+  )
+
+  return metadata
 }
 
 /**
- * Loads faction unit index from units.json
- * Supports both static factions (fetched) and local factions (IndexedDB)
+ * Loads faction unit index
+ * - Dev mode: Fetches from local file
+ * - Prod mode: Gets from cache or downloads zip
+ * - Local factions: Gets from IndexedDB
  */
-export async function loadFactionIndex(factionId: string, isLocal: boolean = false): Promise<FactionIndex> {
-  // Try local storage first if marked as local
+export async function loadFactionIndex(
+  factionId: string,
+  isLocal: boolean = false
+): Promise<FactionIndex> {
+  // Local factions always come from IndexedDB
   if (isLocal) {
     const localIndex = await getLocalFactionIndex(factionId)
     if (localIndex) {
@@ -96,43 +212,90 @@ export async function loadFactionIndex(factionId: string, isLocal: boolean = fal
     throw new Error(`Local faction '${factionId}' index not found`)
   }
 
-  try {
+  // Development mode: fetch from local file
+  if (isDevelopmentMode()) {
     const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/units.json`)
     if (!response.ok) {
       throw new Error(`Failed to load faction index for ${factionId}: ${response.statusText}`)
     }
     return await response.json()
-  } catch (error) {
-    console.error(`Error loading faction index for ${factionId}:`, error)
-    throw error
   }
+
+  // Production mode: check cache or download
+  const manifestEntry = await getManifestEntry(factionId)
+  if (!manifestEntry) {
+    throw new Error(`Faction '${factionId}' not found in manifest`)
+  }
+
+  // Check if cached and up-to-date
+  const isCached = await isStaticFactionCached(
+    factionId,
+    manifestEntry.version,
+    manifestEntry.timestamp
+  )
+
+  if (isCached) {
+    const cached = await getStaticFactionCache(factionId)
+    if (cached) {
+      return cached.index
+    }
+  }
+
+  // Download and cache
+  const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
+  await cacheStaticFaction(
+    factionId,
+    manifestEntry.version,
+    manifestEntry.timestamp,
+    metadata,
+    index,
+    assets
+  )
+
+  return index
 }
 
 /**
- * Gets the icon path for a unit using the unit's image field
- * The image field contains the path relative to the faction folder
- * (e.g., "assets/pa/units/land/tank/tank_icon_buildbar.png")
+ * Gets the icon URL for a unit
+ * - Dev mode static factions: Direct file URL
+ * - Prod mode static factions: Blob URL from cache
+ * - Local factions: Blob URL from IndexedDB
+ */
+export async function getUnitIconUrl(
+  factionId: string,
+  imagePath: string | undefined,
+  isLocal: boolean
+): Promise<string | undefined> {
+  if (!imagePath) return undefined
+  return getAssetUrl(factionId, imagePath, isLocal)
+}
+
+/**
+ * Gets the icon path for static factions in dev mode (direct URL)
+ * @deprecated Use getUnitIconUrl instead for unified handling
  */
 export function getUnitIconPathFromImage(factionId: string, imagePath: string): string {
   if (!imagePath) {
-    return '' // Return empty string for missing images - caller should handle fallback
+    return ''
   }
   return `${FACTIONS_BASE_PATH}/${factionId}/${imagePath}`
 }
 
 /**
- * Gets the icon URL for a local faction unit
- * Returns a blob URL that must be revoked when no longer needed
+ * Gets the background image URL for a faction
  */
-export async function getLocalUnitIconUrl(factionId: string, imagePath: string): Promise<string | undefined> {
-  if (!imagePath) {
-    return undefined
-  }
-  return getLocalAssetUrl(factionId, imagePath)
+export async function getFactionBackgroundUrl(
+  factionId: string,
+  backgroundPath: string | undefined,
+  isLocal: boolean
+): Promise<string | undefined> {
+  if (!backgroundPath) return undefined
+  return getAssetUrl(factionId, backgroundPath, isLocal)
 }
 
 /**
- * Gets the background image path for a faction (static factions)
+ * Gets the background image path for static factions in dev mode
+ * @deprecated Use getFactionBackgroundUrl instead
  */
 export function getFactionBackgroundPath(factionId: string, backgroundPath: string): string {
   if (!backgroundPath) {
@@ -141,46 +304,34 @@ export function getFactionBackgroundPath(factionId: string, backgroundPath: stri
   return `${FACTIONS_BASE_PATH}/${factionId}/${backgroundPath}`
 }
 
-/**
- * Gets the background image URL for a local faction
- * Returns a blob URL that must be revoked when no longer needed
- */
-export async function getLocalFactionBackgroundUrl(factionId: string, backgroundPath: string): Promise<string | undefined> {
-  if (!backgroundPath) {
-    return undefined
-  }
-  return getLocalAssetUrl(factionId, backgroundPath)
-}
-
 // Re-export for convenience
-export { getLocalAssetUrl }
+export { getAssetUrl }
 
 export interface FactionMetadataWithLocal extends FactionMetadata {
   isLocal: boolean
+  /** The folder name / faction ID used for routing */
+  folderName: string
 }
 
 /**
  * Loads all faction metadata at once for initial app load
- * Maps by folder name (not metadata.identifier) since routes use folder names
- * Now includes isLocal flag for each faction
  */
 export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetadataWithLocal>> {
   const factionEntries = await discoverFactions()
   const metadataMap = new Map<string, FactionMetadataWithLocal>()
 
   const results = await Promise.allSettled(
-    factionEntries.map(entry => loadFactionMetadata(entry.id, entry.isLocal))
+    factionEntries.map((entry) => loadFactionMetadata(entry.id, entry.isLocal))
   )
 
   const errors: Error[] = []
   results.forEach((result, index) => {
     if (result.status === 'fulfilled') {
-      // Use folder name as key, not metadata.identifier
-      // This ensures routes like /faction/MLA match the map key
       const entry = factionEntries[index]
       metadataMap.set(entry.id, {
         ...result.value,
         isLocal: entry.isLocal,
+        folderName: entry.id,
       })
     } else {
       console.warn(`Skipping faction ${factionEntries[index].id}: ${result.reason.message}`)
@@ -188,18 +339,12 @@ export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetad
     }
   })
 
-  // If no factions were loaded, that's okay - return empty map
-  // The UI will show a "no factions found" message
-  // Only throw an error if we got unexpected errors (not 404s)
+  // Only throw if we have unexpected errors (not 404s)
   if (metadataMap.size === 0 && errors.length > 0) {
-    // Check if all errors are "not found" errors
-    const allNotFound = errors.every(e => e.message.includes('not found'))
+    const allNotFound = errors.every((e) => e.message.includes('not found'))
     if (!allNotFound) {
-      // We have some unexpected errors, throw the first one
       throw errors[0]
     }
-    // All errors are "not found" - this is expected when no factions exist
-    // Return empty map and let the UI handle it
   }
 
   return metadataMap

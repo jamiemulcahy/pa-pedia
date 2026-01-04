@@ -25,7 +25,8 @@ export const mockMLAMetadata: FactionMetadataWithLocal = {
   build: '123456',
   type: 'mod',
   mods: ['com.pa.mla'],
-  isLocal: false
+  isLocal: false,
+  folderName: 'MLA'
 }
 
 export const mockLegionMetadata: FactionMetadataWithLocal = {
@@ -38,7 +39,8 @@ export const mockLegionMetadata: FactionMetadataWithLocal = {
   build: '789012',
   type: 'mod',
   mods: ['com.pa.legion-expansion'],
-  isLocal: false
+  isLocal: false,
+  folderName: 'Legion'
 }
 
 export const mockBugsMetadata: FactionMetadataWithLocal = {
@@ -51,7 +53,8 @@ export const mockBugsMetadata: FactionMetadataWithLocal = {
   build: '345678',
   type: 'mod',
   mods: ['com.pa.bugs'],
-  isLocal: false
+  isLocal: false,
+  folderName: 'Bugs'
 }
 
 export const mockExilesMetadata: FactionMetadataWithLocal = {
@@ -64,7 +67,8 @@ export const mockExilesMetadata: FactionMetadataWithLocal = {
   build: '456789',
   type: 'mod',
   mods: ['com.pa.nik.exiles'],
-  isLocal: false
+  isLocal: false,
+  folderName: 'Exiles'
 }
 
 export const mockSecondWaveMetadata: FactionMetadataWithLocal = {
@@ -79,7 +83,8 @@ export const mockSecondWaveMetadata: FactionMetadataWithLocal = {
   mods: ['pa.mla.unit.addon', 'pa.mla.unit.addon.companion'],
   isLocal: false,
   isAddon: true,
-  baseFactions: ['Bugs', 'Legion', 'MLA']
+  baseFactions: ['Bugs', 'Legion', 'MLA'],
+  folderName: 'Second-Wave'
 }
 
 /**
@@ -569,10 +574,31 @@ export function createMockFetchResponse<T>(data: T, ok = true, status?: number):
 
 /**
  * Setup mock fetch for all faction data
+ * Handles both relative and absolute URLs (including localhost from test setup)
  */
 export function setupMockFetch() {
   const mockFn = vi.fn((url: string | URL | Request) => {
-    const urlString = typeof url === 'string' ? url : url.toString()
+    // Handle URL objects and Request objects, extracting pathname for matching
+    let urlString: string
+    if (typeof url === 'string') {
+      // Handle absolute URLs (including localhost from test setup)
+      if (url.startsWith('http://localhost')) {
+        urlString = url.replace('http://localhost', '')
+      } else {
+        urlString = url
+      }
+    } else if (url instanceof URL) {
+      urlString = url.pathname + url.search
+    } else if (url instanceof Request) {
+      try {
+        const reqUrl = new URL(url.url)
+        urlString = reqUrl.pathname + reqUrl.search
+      } catch {
+        urlString = url.url
+      }
+    } else {
+      urlString = String(url)
+    }
 
     // Faction metadata
     if (urlString.includes('/factions/MLA/metadata.json')) {
