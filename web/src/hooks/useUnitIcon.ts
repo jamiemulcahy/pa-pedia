@@ -1,57 +1,58 @@
 import { useState, useEffect } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
-import { getUnitIconPathFromImage, getLocalAssetUrl } from '@/services/factionLoader'
+import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
 
 /**
  * Hook to get the icon URL for a unit
- * Handles both static factions (URL path) and local factions (blob URL from IndexedDB)
+ * Handles both static factions (in dev: URL path, in prod: blob from cache)
+ * and local factions (blob URL from IndexedDB)
  */
 export function useUnitIcon(factionId: string, imagePath: string | undefined) {
   const { isLocalFaction } = useFactionContext()
-  const [iconUrl, setIconUrl] = useState<string | undefined>(undefined)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  // Combined state with request key to track which request the result is for
+  const [state, setState] = useState<{
+    key: string | null
+    iconUrl: string | undefined
+    error: Error | null
+  }>({ key: null, iconUrl: undefined, error: null })
 
   const isLocal = isLocalFaction(factionId)
+  // Create a unique key for the current request to track loading state
+  const currentKey = imagePath ? `${factionId}:${imagePath}:${isLocal}` : null
 
   useEffect(() => {
+    // Early return if no image path - no state updates needed
     if (!imagePath) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIconUrl(undefined)
       return
     }
 
-    if (!isLocal) {
-      // Static faction - use direct URL path
-      setIconUrl(getUnitIconPathFromImage(factionId, imagePath))
-      return
-    }
+    let isMounted = true
 
-    // Local faction - load from IndexedDB
-    let blobUrl: string | undefined
-    setLoading(true)
-    setError(null)
-
-    getLocalAssetUrl(factionId, imagePath)
-      .then((url) => {
-        blobUrl = url
-        setIconUrl(url)
+    getAssetUrl(factionId, imagePath, isLocal)
+      .then((url: string | undefined) => {
+        if (isMounted) {
+          setState({ key: currentKey, iconUrl: url, error: null })
+        }
       })
-      .catch((err) => {
-        setError(err)
-        setIconUrl(undefined)
-      })
-      .finally(() => {
-        setLoading(false)
+      .catch((err: Error) => {
+        if (isMounted) {
+          setState({ key: currentKey, iconUrl: undefined, error: err })
+        }
       })
 
-    // Cleanup: revoke blob URL when component unmounts or deps change
+    // Cleanup: release asset URL when component unmounts or deps change
     return () => {
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl)
-      }
+      isMounted = false
+      releaseAssetUrl(factionId, imagePath)
     }
+  // currentKey is derived from factionId/imagePath/isLocal, so excluding it is intentional
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [factionId, imagePath, isLocal])
 
-  return { iconUrl, loading, error }
+  // Compute loading: we have a request but state doesn't match current key yet
+  const loading = currentKey !== null && state.key !== currentKey
+  // Return undefined iconUrl when no imagePath is provided
+  const effectiveIconUrl = imagePath ? state.iconUrl : undefined
+
+  return { iconUrl: effectiveIconUrl, loading, error: state.error }
 }

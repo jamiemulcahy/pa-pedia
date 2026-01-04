@@ -67,7 +67,7 @@ describe('factionLoader', () => {
       ) as unknown as MockFetch
 
       await expect(loadFactionMetadata('Invalid')).rejects.toThrow(
-        "Faction 'Invalid' not found. Please generate faction data using the CLI."
+        'Failed to load faction metadata for Invalid: Not Found'
       )
     })
 

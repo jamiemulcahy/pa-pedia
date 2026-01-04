@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useFactions } from '@/hooks/useFactions'
-import { getFactionBackgroundPath, getLocalFactionBackgroundUrl } from '@/services/factionLoader'
+import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
 import { WEBSITE_SCHEMA, PA_TITANS_GAME } from '@/components/seoSchemas'
@@ -13,56 +13,45 @@ interface FactionCardProps {
 }
 
 function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
-  const [localBackgroundUrl, setLocalBackgroundUrl] = useState<string | null>(null)
-  const blobUrlRef = useRef<string | null>(null)
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
 
-  // For static factions, compute the URL directly (no need for state)
-  const staticBackgroundUrl = !faction.isLocal && faction.backgroundImage
-    ? getFactionBackgroundPath(faction.folderName, faction.backgroundImage)
-    : null
-
-  // For local factions, load from IndexedDB asynchronously
+  // Load background image asynchronously for all factions
   useEffect(() => {
-    if (!faction.isLocal || !faction.backgroundImage) {
+    // Early return if no background image - no state updates needed
+    if (!faction.backgroundImage) {
       return
     }
 
     let isMounted = true
 
-    getLocalFactionBackgroundUrl(faction.folderName, faction.backgroundImage)
-      .then(url => {
+    getAssetUrl(faction.folderName, faction.backgroundImage, faction.isLocal)
+      .then((url: string | undefined) => {
         if (isMounted && url) {
-          blobUrlRef.current = url
-          setLocalBackgroundUrl(url)
-        } else if (url) {
-          // Component unmounted before we could use the URL, revoke it immediately
-          URL.revokeObjectURL(url)
+          setBackgroundUrl(url)
         }
       })
-      .catch(err => {
-        console.warn('Failed to load local faction background:', err)
+      .catch((err: Error) => {
+        console.warn('Failed to load faction background:', err)
       })
 
     return () => {
       isMounted = false
-      // Revoke blob URL on cleanup
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current)
-        blobUrlRef.current = null
+      if (faction.backgroundImage) {
+        releaseAssetUrl(faction.folderName, faction.backgroundImage)
       }
     }
   }, [faction.folderName, faction.backgroundImage, faction.isLocal])
 
-  // Use the appropriate URL based on faction type
-  const rawBackgroundUrl = faction.isLocal ? localBackgroundUrl : staticBackgroundUrl
+  // Return null when no backgroundImage is provided
+  const effectiveBackgroundUrl = faction.backgroundImage ? backgroundUrl : null
 
   // Sanitize URL to prevent XSS - only allow blob:, http:, https:, or relative paths
-  const backgroundUrl = rawBackgroundUrl && (
-    rawBackgroundUrl.startsWith('blob:') ||
-    rawBackgroundUrl.startsWith('http://') ||
-    rawBackgroundUrl.startsWith('https://') ||
-    rawBackgroundUrl.startsWith('/')
-  ) ? rawBackgroundUrl : null
+  const safeBackgroundUrl = effectiveBackgroundUrl && (
+    effectiveBackgroundUrl.startsWith('blob:') ||
+    effectiveBackgroundUrl.startsWith('http://') ||
+    effectiveBackgroundUrl.startsWith('https://') ||
+    effectiveBackgroundUrl.startsWith('/')
+  ) ? effectiveBackgroundUrl : null
 
   return (
     <div key={faction.folderName} className="relative group h-full">
@@ -71,10 +60,10 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
         className="relative block h-full min-h-[280px] border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden"
       >
         {/* Background image layer */}
-        {backgroundUrl && (
+        {safeBackgroundUrl && (
           <div
             className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{ backgroundImage: `url(${backgroundUrl})` }}
+            style={{ backgroundImage: `url(${safeBackgroundUrl})` }}
           />
         )}
         {/* Content layer */}
