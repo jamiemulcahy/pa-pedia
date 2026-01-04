@@ -8,7 +8,7 @@ on:
       - 'schema/**'
   # Also deploy when faction data is updated by the faction workflow
   workflow_run:
-    workflows: ["Build and Release Faction Data"]
+    workflows: ["Faction Data Release"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
