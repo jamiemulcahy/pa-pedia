@@ -1,0 +1,46 @@
+name: Faction Data Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'factions/**'
+      - '!factions/dist/**'
+      - '!factions/**/*.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-factions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm ci
+
+      - name: Build faction zips
+        working-directory: scripts
+        run: npm run build:zips
+
+      - name: Upload to GitHub Release
+        working-directory: scripts
+        run: npm run upload:releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate manifest
+        working-directory: scripts
+        run: npm run generate:manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
