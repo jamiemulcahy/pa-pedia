@@ -36,8 +36,39 @@ export interface FactionDiscoveryEntry {
 }
 
 /**
+ * Auto-discover factions in development mode using Vite's glob import.
+ * This is resolved at build time and returns all faction folders with metadata.json.
+ * Factions are located at repo root /factions/ folder (../factions from web/).
+ *
+ * In test environments where glob may not work, falls back to a known list.
+ */
+function discoverDevFactions(): string[] {
+  // Use Vite's glob import to find all faction metadata files
+  // Path is relative to web/ folder - factions are at repo root ../factions/
+  const factionModules = import.meta.glob('../../factions/*/metadata.json')
+
+  // Extract faction IDs from the paths
+  const factionIds: string[] = []
+  for (const path of Object.keys(factionModules)) {
+    // Path format: ../../factions/{factionId}/metadata.json
+    const match = path.match(/\/factions\/([^/]+)\/metadata\.json$/)
+    if (match) {
+      factionIds.push(match[1])
+    }
+  }
+
+  // Fallback for test environments where glob doesn't find files
+  // In production builds, glob is resolved at compile time and this won't be needed
+  if (factionIds.length === 0 && import.meta.env.MODE === 'test') {
+    return ['MLA', 'Legion', 'Bugs', 'Exiles', 'Second-Wave']
+  }
+
+  return factionIds
+}
+
+/**
  * Discovers available factions
- * - In dev mode: Uses hardcoded list from local /factions/ folder
+ * - In dev mode: Auto-discovers factions from /factions/ folder using Vite glob
  * - In prod mode: Loads manifest from GitHub Releases
  * - Always includes local (user-uploaded) factions
  */
@@ -45,9 +76,8 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
   const entries: FactionDiscoveryEntry[] = []
 
   if (isDevelopmentMode()) {
-    // In dev mode, use hardcoded list of static factions
-    // These match the folders in /factions/
-    const staticFactionIds = ['MLA', 'Legion', 'Bugs', 'Exiles', 'Second-Wave']
+    // In dev mode, auto-discover factions from /factions/ folder
+    const staticFactionIds = discoverDevFactions()
     for (const id of staticFactionIds) {
       entries.push({ id, isLocal: false })
     }
@@ -177,9 +207,11 @@ export async function loadFactionMetadata(
     if (cached) {
       return cached.metadata
     }
+    // Cache check passed but retrieval failed (race condition or corrupt cache)
+    // Fall through to re-download the faction
   }
 
-  // Download and cache
+  // Cache miss or stale - download fresh copy
   const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
   await cacheStaticFaction(
     factionId,
@@ -239,9 +271,11 @@ export async function loadFactionIndex(
     if (cached) {
       return cached.index
     }
+    // Cache check passed but retrieval failed (race condition or corrupt cache)
+    // Fall through to re-download the faction
   }
 
-  // Download and cache
+  // Cache miss or stale - download fresh copy
   const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
   await cacheStaticFaction(
     factionId,

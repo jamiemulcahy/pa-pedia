@@ -45,7 +45,9 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
       isMounted = false
       releaseAssetUrl(factionId, imagePath)
     }
-  }, [factionId, imagePath, isLocal, currentKey])
+  // currentKey is derived from factionId/imagePath/isLocal, so excluding it is intentional
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [factionId, imagePath, isLocal])
 
   // Compute loading: we have a request but state doesn't match current key yet
   const loading = currentKey !== null && state.key !== currentKey
