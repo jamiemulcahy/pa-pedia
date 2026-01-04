@@ -1,0 +1,22 @@
+{
+  "name": "pa-pedia-scripts",
+  "version": "1.0.0",
+  "description": "Build scripts for PA-Pedia faction data management",
+  "type": "module",
+  "scripts": {
+    "build:zips": "tsx build-faction-zips.ts",
+    "upload:releases": "tsx upload-to-releases.ts",
+    "generate:manifest": "tsx generate-manifest.ts",
+    "release": "npm run build:zips && npm run upload:releases && npm run generate:manifest"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
