@@ -184,13 +184,17 @@ async function main() {
 
   for (const [key, zip] of factionMap) {
     const { factionId, version, timestamp } = zip.parsed!
-    // Use the download URL from gh CLI (it's in the 'url' field, not 'browser_download_url')
-    const downloadUrl = zip.asset.url
+    // GitHub API URL for extracting metadata during generation
+    const ghDownloadUrl = zip.asset.url
 
     console.log(`Processing ${factionId} v${version}...`)
 
     // Extract metadata for build number and display name
-    const metadata = await extractMetadataFromZip(downloadUrl)
+    const metadata = await extractMetadataFromZip(ghDownloadUrl)
+
+    // Use relative path for downloadUrl - files are served from /factions/ on GitHub Pages
+    // This avoids CORS issues that would occur with GitHub Releases URLs
+    const downloadUrl = `/factions/${zip.asset.name}`
 
     entries.push({
       id: factionId,
