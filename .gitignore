@@ -11,8 +11,11 @@ cli/*.exe
 *.test
 
 # CLI output directories (temporary/testing)
-/factions/
 /output/
+
+# Faction data - track source folders, ignore generated files
+/factions/**/*.zip
+/factions/dist/
 
 # IDE
 .vscode/
@@ -28,11 +31,14 @@ Thumbs.db
 # Go
 vendor/
 
-# Web app (to be added later)
+# Web app
 web/node_modules/
 web/dist/
 web/.env
 web/.env.local
+
+# Scripts
+scripts/node_modules/
 
 # Logs
 *.log

@@ -1,0 +1,1 @@
+{"base_spec":"/pa/ammo/base_missiles/base_missile_aa_seeking.json","display_name":"!LOC:Phoenix Air-To-Air Missile","damage":150,"splash_damage":10,"splash_radius":0.75,"full_damage_splash_radius":0.75,"initial_velocity":150.0,"max_velocity":150.0,"lifetime":2,"model":{"filename":"/pa/units/air/atoa_missile/atoa_missile.papa"}}

@@ -1,0 +1,31 @@
+{
+  "display_name": "Legion Class Commander",
+  "description": "!LOC:Legion Commander Description - If you're seeing this, something is wrong in your commander.",
+  "base_spec": "/pa/units/commanders/base_commander/base_commander.json",
+  "buildable_types": "CmdBuild & Custom1",
+  "custom": true,
+  "fx_offsets": [
+    {
+      "bone": "socket_leftMuzzle",
+      "filename": "/pa/effects/specs/legion_fab_spray.pfx",
+      "type": "build"
+    }
+  ],
+  "selection_icon": {
+    "diameter": -20.6
+  },
+  "si_name": "l_commander",
+  "unit_types": [
+    "UNITTYPE_Commander",
+    "UNITTYPE_Construction",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Offense",
+    "UNITTYPE_Land",
+    "UNITTYPE_NoBuild",
+    "UNITTYPE_Custom1"
+  ],
+  "ai_metal_extractor_names": {
+    "basic": "LegionEcoBasicMetalExtractor",
+    "advanced": "LegionEcoAdvancedMetalExtractor"
+  }
+}

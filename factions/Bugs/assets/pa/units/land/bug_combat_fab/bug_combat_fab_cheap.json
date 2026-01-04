@@ -1,0 +1,182 @@
+{
+    "display_name": "Forager",
+    "description": "Reclaim Fabricator, can only reclaim and has hover.",
+    "TEMP_texelinfo": 5.11028,
+    "si_name":"fabrication_bot_combat",
+    "attachable": {
+      "offsets": {
+        "head": [
+          0,
+          0,
+          5.4
+        ],
+        "root": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "audio": {
+      "loops": {
+        "build": {
+          "cue": "/SE/Construction/Fab_contruction_beam_loop",
+          "flag": "build_target_changed",
+          "should_start_func": "has_build_target",
+          "should_stop_func": "no_build_target"
+        },
+        "move": {
+          "cue": "/SE/Movement/bot/fab_combat_loop",
+          "flag": "vel_changed",
+          "should_start_func": "is_moving",
+          "should_stop_func": "is_not_moving"
+        }
+      },
+      "selection_response": {
+        "cue": "/SE/Selection/bot/fab_combat"
+      }
+    },
+    "base_spec": "/pa/units/land/base_bot/base_bot.json",
+    "build_metal_cost": 100,
+    "command_caps": [
+      "ORDER_Move",
+      "ORDER_Patrol",
+      "ORDER_Build",
+      "ORDER_Reclaim",
+      "ORDER_Assist",
+      "ORDER_Use"
+    ],
+    "events": {
+      "build_complete": {
+        "audio_cue": "/SE/Build_Complete/fab"
+      },
+      "died": {
+        "audio_cue": "/SE/Death/Bot",
+        "effect_scale": 1.3
+      }
+    },
+    "fx_offsets": [
+      {
+        "bone": "bone_turret",
+        "filename": "/pa/effects/specs/fab_combat_spray.pfx",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "orientation": [
+          0,
+          0,
+          0
+        ],
+        "type": "build"
+      },
+      {
+        "bone": "bone_turret",
+        "filename": "/pa/units/land/bug_combat_fab/forager_hover.pfx",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "orientation": [
+          0,
+          0,
+          0
+        ],
+        "type": "idle"
+      },
+      {
+        "bone": "bone_turret",
+        "filename": "/pa/units/land/bug_combat_fab/forager_trail.pfx",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "orientation": [
+          0,
+          0,
+          0
+        ],
+        "type": "moving"
+      }
+    ],
+    "guard_layer": "WL_LandHorizontal",
+    "max_health": 30,
+    "mesh_bounds": [
+      2.7,
+      3.5,
+      5
+    ],
+    "model": {
+    
+      "filename": "/pa/units/land/bug_combat_fab/bug_combat_fab_cheap.papa",
+      "animtree": "/pa/units/land/bug_combat_fab/bug_combat_fab_anim_tree.json"
+      
+    },
+    "navigation": {
+      "acceleration": 120,
+      "brake": -1,
+      "group_preference": "back",
+      "move_speed": 12,
+      "turn_speed": 720,
+      "type": "hover"
+    },
+    "physics": {
+      "allow_pushing": true,
+      "radius": 2
+    },
+    "recon": {
+      "observer": {
+        "items": [
+          {
+            "channel": "sight",
+            "layer": "surface_and_air",
+            "radius": 100,
+            "shape": "capsule"
+          },
+          {
+            "channel": "sight",
+            "layer": "underwater",
+            "radius": 100,
+            "shape": "capsule"
+          },
+          {
+            "channel": "sight",
+            "layer": "mine",
+            "radius": 100,
+            "shape": "capsule"
+          },
+          {
+            "channel": "radar",
+            "layer": "surface_and_air",
+            "radius": 100,
+            "shape": "capsule",
+            "uses_energy": true
+          }
+        ]
+      }
+    },
+    "selection_icon": {
+      "diameter": 9.5
+    },
+    "tools": [
+      {
+        "aim_bone": "bone_turret",
+        "spec_id": "/pa/units/land/bug_combat_fab/bug_combat_fab_build_arm.json"
+      }
+    ],
+    "transportable": {
+      "size": 1
+    },
+    "unit_types": [
+      "UNITTYPE_Construction",
+      "UNITTYPE_Tank",
+      "UNITTYPE_Mobile",
+      "UNITTYPE_Fabber",
+      "UNITTYPE_Land",
+      "UNITTYPE_Basic",
+      "UNITTYPE_Custom2"
+    ]
+  }
