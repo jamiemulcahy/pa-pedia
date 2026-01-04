@@ -164,24 +164,45 @@ web/src/
 │   ├── useFaction.ts   # Single faction
 │   └── useUnit.ts      # Single unit
 ├── services/        # Data loading
-│   └── factionLoader.ts  # Fetch functions
+│   ├── factionLoader.ts        # Unified interface (dev/prod aware)
+│   ├── manifestLoader.ts       # GitHub Releases manifest loading
+│   ├── staticFactionCache.ts   # IndexedDB cache for static factions
+│   ├── assetUrlManager.ts      # Blob URL management with ref counting
+│   ├── zipHandler.ts           # Zip extraction and parsing
+│   └── localFactionStorage.ts  # User-uploaded faction storage
 └── types/           # TypeScript types
     └── faction.ts   # Data models
 ```
 
 ### Data Loading Strategy
 
+**Development vs Production Mode**:
+- **Development** (`npm run dev`): Loads faction data directly from `/factions/` folder at repo root via Vite plugin. No zips, no manifest, no caching. Uses standard file URLs.
+- **Production** (deployed build): Fetches manifest from GitHub Releases, downloads faction zips on-demand, caches in IndexedDB. Uses Blob URLs.
+
 **Two-Tier Lazy Loading**:
 1. **App Load** (immediate): All faction metadata from `metadata.json`
 2. **Faction View** (on-demand): Complete unit data from `units.json` when viewing faction
 
-All data cached in FactionContext to avoid redundant fetches.
+**Production Data Flow**:
+1. App loads manifest from GitHub Releases (`manifest.json`)
+2. User selects faction → downloads faction zip if not cached
+3. Extracts zip, stores in IndexedDB with version tracking
+4. Subsequent loads serve from IndexedDB cache
+5. Version changes invalidate cache and trigger re-download
+
+**Key Services**:
+- `manifestLoader.ts`: Loads faction manifest from GitHub Releases with offline fallback
+- `staticFactionCache.ts`: IndexedDB caching for faction data with version-aware invalidation
+- `assetUrlManager.ts`: Blob URL management with reference counting
+- `factionLoader.ts`: Unified interface for loading factions (dev/prod aware)
+- `zipHandler.ts`: Zip extraction and parsing
 
 **Key Functions** (`factionLoader.ts`):
-- `discoverFactions()`: Returns list of available faction IDs
-- `loadFactionMetadata(id)`: Loads faction metadata
+- `discoverFactions()`: Returns list of available faction IDs (manifest in prod, hardcoded in dev)
+- `loadFactionMetadata(id)`: Loads faction metadata (cached or fresh)
 - `loadFactionIndex(id)`: Loads unit index with embedded unit data
-- `getUnitIconPath(factionId, unitId, filename)`: Returns icon URL
+- `getUnitIconPath(factionId, unitId, filename)`: Returns icon URL (file URL in dev, Blob URL in prod)
 
 ### Custom Hooks Usage
 
@@ -233,6 +254,50 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 - **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
 - **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
+### Faction Data Deployment
+
+**GitHub Actions Workflow** (`.github/workflows/faction-data.yml`):
+
+Triggers on:
+- Push to `main` branch with changes to `/factions/**` (excluding zips and dist folder)
+- Manual workflow dispatch
+
+**Workflow Steps**:
+1. Zip each faction folder in `/factions/` (output to `/factions/dist/`)
+2. Upload zips to GitHub Releases (tag: `faction-data`, replaces existing assets)
+3. Generate `manifest.json` from release assets
+4. Upload manifest to same release
+
+**Manifest Structure**:
+```json
+{
+  "generated": "2025-01-04T12:00:00Z",
+  "releaseTag": "faction-data",
+  "factions": [
+    {
+      "id": "MLA",
+      "version": "v1.0.0",
+      "filename": "MLA.zip",
+      "downloadUrl": "https://github.com/.../MLA.zip",
+      "size": 1234567,
+      "timestamp": 1704369600000,
+      "displayName": "MLA",
+      "isAddon": false
+    }
+  ]
+}
+```
+
+**Version Tracking**:
+- `version`: Extracted from faction `metadata.json` (CLI-generated)
+- `timestamp`: Unix timestamp from `metadata.json` (build time)
+- Web app compares cached version/timestamp to manifest and re-downloads if different
+
+**Cache Invalidation**:
+- Version or timestamp mismatch → delete cached faction → download fresh zip
+- Factions removed from manifest → pruned from IndexedDB cache
+- Manifest cached in IndexedDB for offline mode
+
 ## Common Development Tasks
 
 ### Add New Unit Field
@@ -242,22 +307,33 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 4. Update TypeScript types in `web/src/types/faction.ts` manually
 
 ### Add New Static Faction
-Static factions are shipped with the web app and available to all users. They require two steps to add:
+Static factions are served from GitHub Releases and available to all users. To add a new faction:
 
 1. **Export faction data** using the CLI:
    ```bash
    pa-pedia describe-faction --name "Faction Name" \
      --pa-root "C:/PA/media" \
      --mod com.pa.example-mod \
-     --output "./web/public/factions"
+     --output "./factions"
    ```
-   This creates `web/public/factions/{FactionName}/` with `metadata.json`, `units.json`, and `assets/`.
+   This creates `factions/{FactionName}/` with `metadata.json`, `units.json`, and `assets/`.
 
-2. **Register the faction** in `web/src/services/factionLoader.ts`:
-   - Add the faction ID to the static array in `discoverFactions()` function
-   - Example: `['MLA', 'Legion', 'Bugs']` → `['MLA', 'Legion', 'Bugs', 'NewFaction']`
+2. **Commit and push** to the `main` branch:
+   ```bash
+   git add factions/{FactionName}
+   git commit -m "Add Faction Name faction"
+   git push
+   ```
 
-**Important**: Adding the folder alone is not enough - the web app discovers static factions from the hardcoded array, not by scanning directories. User-uploaded factions are stored in IndexedDB and discovered dynamically.
+3. **Automated workflow** runs on push:
+   - Zips each faction folder in `/factions/`
+   - Uploads zips to GitHub Releases (tag: `faction-data`)
+   - Generates `manifest.json` with faction metadata and download URLs
+   - Web app discovers factions from manifest automatically
+
+**Development Mode**: During local development, factions are loaded directly from `/factions/` folder without zipping or manifest. Add factions to `/factions/` and they appear immediately in dev server.
+
+**Production Mode**: Deployed app fetches manifest from GitHub Releases, downloads faction zips on-demand, and caches in IndexedDB.
 
 For CLI-specific development tasks (debugging parsing, build issues, gotchas), see [cli/CLAUDE.md](cli/CLAUDE.md).
 

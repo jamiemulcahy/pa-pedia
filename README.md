@@ -13,13 +13,35 @@ PA-Pedia consists of:
 
 ## Why PA-Pedia?
 
-**100% Static** — The web app is completely static, hosted on GitHub Pages with faction data served directly from this repository. If maintenance stops, anyone can fork and host it themselves.
+**100% Static** — The web app is completely static, hosted on GitHub Pages with faction data served from GitHub Releases. If maintenance stops, anyone can fork and host it themselves.
 
 **Separation of Concerns** — Data extraction (CLI) and display (web) are separate, reducing complexity and making the codebase more approachable for contributors.
 
-**Isolated Faction Data** — Unlike PALobby which requires all factions installed locally, PA-Pedia handles factions independently. Add or update faction data by submitting a PR to `/web/public/factions`.
+**Isolated Faction Data** — Unlike PALobby which requires all factions installed locally, PA-Pedia handles factions independently. Faction data is downloaded on-demand and cached locally.
 
 **Local Import** — Upload exported faction data directly to the site for local viewing. Perfect for mod developers comparing their faction against others during development.
+
+## Architecture
+
+**Faction Data Delivery**:
+- **Production**: Faction data served from GitHub Releases
+  - Manifest-driven discovery of available factions
+  - On-demand zip downloads with browser caching (IndexedDB)
+  - Version-aware cache invalidation for automatic updates
+  - Offline support for previously loaded factions
+- **Development**: Faction data loaded directly from `/factions/` folder
+  - No zipping or manifest required
+  - Instant updates when faction data changes
+  - Served via Vite dev server
+
+**Automated Deployment**:
+When faction data is added or updated in `/factions/` and pushed to `main`:
+1. GitHub Actions zips each faction folder
+2. Uploads zips to GitHub Releases (tag: `faction-data`)
+3. Generates manifest.json with faction metadata and download URLs
+4. Web app automatically discovers new/updated factions via manifest
+
+See [CLAUDE.md](CLAUDE.md) for detailed technical documentation.
 
 ## Quick Start
 
@@ -67,6 +89,9 @@ Each faction folder contains:
 
 The web app provides a modern interface for browsing faction data.
 
+**Production Deployment**: The live site at [jamiemulcahy.github.io/pa-pedia](https://jamiemulcahy.github.io/pa-pedia) loads faction data from GitHub Releases. Factions are downloaded on-demand and cached in your browser for offline use.
+
+**Local Development**:
 ```bash
 # Navigate to web directory
 cd web
@@ -80,6 +105,8 @@ npm run dev
 # Open http://localhost:5173 in your browser
 ```
 
+In development mode, faction data loads directly from the `/factions/` folder at the repository root.
+
 **Available Factions**: MLA, Legion, and Bugs
 
 **Features**:
@@ -89,6 +116,7 @@ npm run dev
 - View detailed unit specifications (combat, economy, mobility)
 - Navigate build relationships between units
 - Responsive design for mobile and desktop
+- Offline support (cached factions available without internet)
 
 #### Production Build
 
@@ -105,7 +133,9 @@ Production build is highly optimized:
 - Bundle size: ~241 KB (~76 KB gzipped)
 - CSS size: ~10 KB (~3 KB gzipped)
 - Three-tier lazy loading for fast initial load
-- Cached data to avoid redundant requests
+- On-demand faction downloads from GitHub Releases
+- IndexedDB caching with version-aware invalidation
+- Offline support for previously viewed factions
 
 ## Installation
 
@@ -205,8 +235,10 @@ Quick ways to help:
 - Open issues for bugs or feature requests
 - Submit pull requests with improvements
 - Add new static faction data:
-  1. Export faction data to `/web/public/factions/{FactionName}/`
-  2. Register faction ID in `web/src/services/factionLoader.ts` (see `discoverFactions()` function)
+  1. Export faction data using CLI: `pa-pedia describe-faction --output "./factions"`
+  2. Commit and push to `main` branch
+  3. GitHub Actions workflow automatically zips, uploads to Releases, and generates manifest
+  4. Web app discovers new faction automatically from manifest
 
 ## Acknowledgments
 
