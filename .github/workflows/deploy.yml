@@ -6,6 +6,11 @@ on:
     paths:
       - 'web/**'
       - 'schema/**'
+  # Also deploy when faction data is updated by the faction workflow
+  workflow_run:
+    workflows: ["Build and Release Faction Data"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +25,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Skip if triggered by failed faction workflow
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +44,25 @@ jobs:
       - name: Build
         working-directory: web
         run: npm run build
+
+      # Download faction data from GitHub Releases and include in dist
+      # This serves faction zips from the same origin, avoiding CORS issues
+      - name: Download faction data from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p web/dist/factions
+
+          # Download all assets from the faction-data release
+          echo "Downloading faction data from release..."
+          gh release download faction-data --dir web/dist/factions --pattern "*.zip" --pattern "manifest.json" || {
+            echo "Warning: Could not download faction data from release"
+            echo "This is expected if the faction-data release doesn't exist yet"
+          }
+
+          # List what was downloaded
+          echo "Faction data downloaded:"
+          ls -la web/dist/factions/ || echo "No faction data found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

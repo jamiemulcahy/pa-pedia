@@ -12,13 +12,15 @@
 
 import { getCachedManifestInfo, cacheManifestInfo } from './staticFactionCache'
 
-// Repository info - these should match your GitHub repo
-const REPO_OWNER = 'jamiemulcahy'
-const REPO_NAME = 'pa-pedia'
-const RELEASE_TAG = 'faction-data'
+// In production, faction data is served from the same origin (/factions/)
+// This avoids CORS issues that would occur with GitHub Releases URLs
+const FACTIONS_BASE_PATH = `${import.meta.env.BASE_URL}factions`
 
-// Manifest URL with cache-busting
-const MANIFEST_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/manifest.json`
+// Manifest URL - served from same origin in production
+const MANIFEST_URL = `${FACTIONS_BASE_PATH}/manifest.json`
+
+// Release tag for reference (used in cached manifest fallback)
+const RELEASE_TAG = 'faction-data'
 
 export interface ManifestEntry {
   id: string
@@ -150,11 +152,8 @@ export function isDevelopmentMode(): boolean {
 
 /**
  * Get the base path for faction data
- * In dev mode: local files; In prod: GitHub Releases
+ * Both dev and prod serve from the same origin at /factions/
  */
 export function getFactionBasePath(): string {
-  if (isDevelopmentMode()) {
-    return `${import.meta.env.BASE_URL}factions`
-  }
-  return `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}`
+  return FACTIONS_BASE_PATH
 }
