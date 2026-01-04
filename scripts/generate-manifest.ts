@@ -38,8 +38,7 @@ const ZIP_FILENAME_PATTERN = /^([A-Za-z0-9-]+)-([0-9.]+)-pedia(\d{14})\.zip$/
 interface ReleaseAsset {
   name: string
   size: number
-  url: string // API URL
-  browser_download_url: string // Direct download URL
+  url: string // Direct download URL (gh CLI returns this, not browser_download_url)
 }
 
 interface FactionMetadata {
@@ -79,7 +78,7 @@ interface Manifest {
  */
 function getReleaseAssets(): ReleaseAsset[] {
   const output = execSync(
-    `gh release view ${RELEASE_TAG} --json assets -q ".assets[] | {name, size, url, browser_download_url}"`,
+    `gh release view ${RELEASE_TAG} --json assets -q ".assets[] | {name, size, url}"`,
     { encoding: 'utf-8' }
   )
 
@@ -185,8 +184,8 @@ async function main() {
 
   for (const [key, zip] of factionMap) {
     const { factionId, version, timestamp } = zip.parsed!
-    // Use API-provided download URL instead of constructing manually
-    const downloadUrl = zip.asset.browser_download_url
+    // Use the download URL from gh CLI (it's in the 'url' field, not 'browser_download_url')
+    const downloadUrl = zip.asset.url
 
     console.log(`Processing ${factionId} v${version}...`)
 
