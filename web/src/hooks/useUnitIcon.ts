@@ -9,48 +9,48 @@ import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
  */
 export function useUnitIcon(factionId: string, imagePath: string | undefined) {
   const { isLocalFaction } = useFactionContext()
-  const [iconUrl, setIconUrl] = useState<string | undefined>(undefined)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  // Combined state with request key to track which request the result is for
+  const [state, setState] = useState<{
+    key: string | null
+    iconUrl: string | undefined
+    error: Error | null
+  }>({ key: null, iconUrl: undefined, error: null })
 
   const isLocal = isLocalFaction(factionId)
+  // Create a unique key for the current request to track loading state
+  const currentKey = imagePath ? `${factionId}:${imagePath}:${isLocal}` : null
 
   useEffect(() => {
+    // Early return if no image path - no state updates needed
     if (!imagePath) {
-      setIconUrl(undefined)
       return
     }
 
     let isMounted = true
-    setLoading(true)
-    setError(null)
 
     getAssetUrl(factionId, imagePath, isLocal)
       .then((url: string | undefined) => {
         if (isMounted) {
-          setIconUrl(url)
+          setState({ key: currentKey, iconUrl: url, error: null })
         }
       })
       .catch((err: Error) => {
         if (isMounted) {
-          setError(err)
-          setIconUrl(undefined)
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setLoading(false)
+          setState({ key: currentKey, iconUrl: undefined, error: err })
         }
       })
 
     // Cleanup: release asset URL when component unmounts or deps change
     return () => {
       isMounted = false
-      if (imagePath) {
-        releaseAssetUrl(factionId, imagePath)
-      }
+      releaseAssetUrl(factionId, imagePath)
     }
-  }, [factionId, imagePath, isLocal])
+  }, [factionId, imagePath, isLocal, currentKey])
 
-  return { iconUrl, loading, error }
+  // Compute loading: we have a request but state doesn't match current key yet
+  const loading = currentKey !== null && state.key !== currentKey
+  // Return undefined iconUrl when no imagePath is provided
+  const effectiveIconUrl = imagePath ? state.iconUrl : undefined
+
+  return { iconUrl: effectiveIconUrl, loading, error: state.error }
 }

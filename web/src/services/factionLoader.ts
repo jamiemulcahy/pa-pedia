@@ -341,7 +341,7 @@ export async function loadAllFactionMetadata(): Promise<Map<string, FactionMetad
 
   // Only throw if we have unexpected errors (not 404s)
   if (metadataMap.size === 0 && errors.length > 0) {
-    const allNotFound = errors.every((e) => e.message.includes('not found'))
+    const allNotFound = errors.every((e) => e.message.toLowerCase().includes('not found'))
     if (!allNotFound) {
       throw errors[0]
     }

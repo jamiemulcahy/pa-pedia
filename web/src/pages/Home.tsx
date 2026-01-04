@@ -17,8 +17,8 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
 
   // Load background image asynchronously for all factions
   useEffect(() => {
+    // Early return if no background image - no state updates needed
     if (!faction.backgroundImage) {
-      setBackgroundUrl(null)
       return
     }
 
@@ -42,13 +42,16 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
     }
   }, [faction.folderName, faction.backgroundImage, faction.isLocal])
 
+  // Return null when no backgroundImage is provided
+  const effectiveBackgroundUrl = faction.backgroundImage ? backgroundUrl : null
+
   // Sanitize URL to prevent XSS - only allow blob:, http:, https:, or relative paths
-  const safeBackgroundUrl = backgroundUrl && (
-    backgroundUrl.startsWith('blob:') ||
-    backgroundUrl.startsWith('http://') ||
-    backgroundUrl.startsWith('https://') ||
-    backgroundUrl.startsWith('/')
-  ) ? backgroundUrl : null
+  const safeBackgroundUrl = effectiveBackgroundUrl && (
+    effectiveBackgroundUrl.startsWith('blob:') ||
+    effectiveBackgroundUrl.startsWith('http://') ||
+    effectiveBackgroundUrl.startsWith('https://') ||
+    effectiveBackgroundUrl.startsWith('/')
+  ) ? effectiveBackgroundUrl : null
 
   return (
     <div key={faction.folderName} className="relative group h-full">

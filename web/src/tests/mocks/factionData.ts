@@ -553,10 +553,18 @@ export const mockSecondWaveIndex: FactionIndex = {
  */
 export function createMockFetchResponse<T>(data: T, ok = true, status?: number): Response {
   const responseStatus = status ?? (ok ? 200 : 404)
+  // Map common status codes to their text
+  const statusTextMap: Record<number, string> = {
+    200: 'OK',
+    404: 'Not Found',
+    500: 'Internal Server Error',
+    503: 'Service Unavailable',
+  }
+  const statusText = statusTextMap[responseStatus] ?? (ok ? 'OK' : 'Error')
   return {
     ok,
     status: responseStatus,
-    statusText: ok ? 'OK' : 'Not Found',
+    statusText,
     json: async () => data,
     text: async () => JSON.stringify(data),
     headers: new Headers({ 'content-type': 'application/json' }),
