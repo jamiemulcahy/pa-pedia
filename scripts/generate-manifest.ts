@@ -33,7 +33,10 @@ function checkGhCli(): void {
 }
 
 // Regex to parse zip filename: {FactionId}-{version}-pedia{timestamp}.zip
-const ZIP_FILENAME_PATTERN = /^([A-Za-z0-9-]+)-([0-9.]+)-pedia(\d{14})\.zip$/
+// Faction ID: starts with letter, contains only letters/digits/dashes, ends with letter
+// Version: starts with digit, may contain digits/dots/dashes (e.g., "1.32.1-124615")
+// The key insight is that faction IDs end with a letter, versions start with a digit
+const ZIP_FILENAME_PATTERN = /^([a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*)-([0-9][0-9.-]*)-pedia(\d{14})\.zip$/i
 
 interface ReleaseAsset {
   name: string
