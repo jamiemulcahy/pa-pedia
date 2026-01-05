@@ -41,6 +41,10 @@ jobs:
         working-directory: web
         run: npm ci
 
+      - name: Generate sitemap
+        working-directory: web
+        run: npm run generate-sitemap
+
       - name: Build
         working-directory: web
         run: npm run build
