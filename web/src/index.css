@@ -58,29 +58,3 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
-
-/* Snowfall animation for Christmas festive mode */
-@keyframes snowfall {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-  }
-  100% {
-    transform: translateY(100vh) translateX(var(--drift)) rotate(360deg);
-  }
-}
-
-/* Respect user's motion preferences for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  @keyframes snowfall {
-    0% {
-      transform: translateY(0);
-    }
-    100% {
-      transform: translateY(100vh);
-    }
-  }
-}
-
-.snowflake {
-  animation: snowfall linear infinite;
-}
