@@ -44,8 +44,8 @@ export interface FactionDiscoveryEntry {
  */
 function discoverDevFactions(): string[] {
   // Use Vite's glob import to find all faction metadata files
-  // Path is relative to web/ folder - factions are at repo root ../factions/
-  const factionModules = import.meta.glob('../../factions/*/metadata.json')
+  // Path is relative to this file (web/src/services/) - factions are at repo root
+  const factionModules = import.meta.glob('../../../factions/*/metadata.json')
 
   // Extract faction IDs from the paths
   const factionIds: string[] = []
