@@ -4,11 +4,9 @@ import { CLI_RELEASE } from '@/config/releases'
 interface HeaderProps {
   onUploadClick: () => void
   onDownloadClick: () => void
-  isFestiveMode: boolean
-  onToggleFestiveMode: () => void
 }
 
-export function Header({ onUploadClick, onDownloadClick, isFestiveMode, onToggleFestiveMode }: HeaderProps) {
+export function Header({ onUploadClick, onDownloadClick }: HeaderProps) {
   const githubUrl = `https://github.com/${CLI_RELEASE.githubRepo}`
 
   return (
@@ -17,36 +15,18 @@ export function Header({ onUploadClick, onDownloadClick, isFestiveMode, onToggle
         {/* Center - Title and subtitle */}
         <Link
           to="/"
-          className="flex flex-col items-start sm:items-center hover:opacity-80 transition-opacity min-w-0 flex-shrink relative"
+          className="flex flex-col items-start sm:items-center hover:opacity-80 transition-opacity min-w-0 flex-shrink"
         >
-          <span className="text-xl sm:text-2xl font-display font-bold tracking-wider text-foreground relative">
-            {isFestiveMode && (
-              <span className="absolute -top-3 -right-4 text-2xl transform -rotate-12" title="Happy Holidays!">
-                🎅
-              </span>
-            )}
+          <span className="text-xl sm:text-2xl font-display font-bold tracking-wider text-foreground">
             PA-PEDIA
           </span>
           <span className="text-xs text-muted-foreground font-medium hidden sm:block">
             Browse Planetary Annihilation Titans faction data
-            {isFestiveMode && ' 🎄'}
           </span>
         </Link>
 
         {/* Right - Actions */}
         <div className="flex items-center gap-1 sm:absolute sm:right-4 sm:w-32 justify-end">
-          <button
-            onClick={onToggleFestiveMode}
-            className={`p-2 rounded-lg transition-colors ${
-              isFestiveMode
-                ? 'text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-            }`}
-            title={isFestiveMode ? 'Disable festive mode' : 'Enable festive mode'}
-            aria-label={isFestiveMode ? 'Disable festive mode' : 'Enable festive mode'}
-          >
-            <span className="text-xl">{isFestiveMode ? '🎅' : '☃️'}</span>
-          </button>
           <a
             href={githubUrl}
             target="_blank"

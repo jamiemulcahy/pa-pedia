@@ -6,17 +6,13 @@ import { Header } from '../Header'
 
 function renderHeader(
   onUploadClick = vi.fn(),
-  onDownloadClick = vi.fn(),
-  isFestiveMode = false,
-  onToggleFestiveMode = vi.fn()
+  onDownloadClick = vi.fn()
 ) {
   return render(
     <BrowserRouter>
       <Header
         onUploadClick={onUploadClick}
         onDownloadClick={onDownloadClick}
-        isFestiveMode={isFestiveMode}
-        onToggleFestiveMode={onToggleFestiveMode}
       />
     </BrowserRouter>
   )
@@ -88,39 +84,5 @@ describe('Header', () => {
     renderHeader()
     const header = screen.getByRole('banner')
     expect(header).toHaveClass('z-40')
-  })
-
-  it('should render festive mode toggle button', () => {
-    renderHeader()
-    expect(screen.getByLabelText('Enable festive mode')).toBeInTheDocument()
-  })
-
-  it('should call onToggleFestiveMode when toggle button is clicked', async () => {
-    const onToggleFestiveMode = vi.fn()
-    renderHeader(vi.fn(), vi.fn(), false, onToggleFestiveMode)
-
-    const toggleButton = screen.getByLabelText('Enable festive mode')
-    await userEvent.click(toggleButton)
-
-    expect(onToggleFestiveMode).toHaveBeenCalledTimes(1)
-  })
-
-  it('should show Santa emoji when festive mode is enabled', () => {
-    renderHeader(vi.fn(), vi.fn(), true)
-    expect(screen.getByLabelText('Disable festive mode')).toBeInTheDocument()
-    // Should have Santa in both the toggle button and as decoration on logo
-    const santaEmojis = screen.getAllByText('🎅')
-    expect(santaEmojis).toHaveLength(2)
-  })
-
-  it('should show snowman emoji when festive mode is disabled', () => {
-    renderHeader(vi.fn(), vi.fn(), false)
-    expect(screen.getByLabelText('Enable festive mode')).toBeInTheDocument()
-    expect(screen.getByText('☃️')).toBeInTheDocument()
-  })
-
-  it('should show Christmas tree in subtitle when festive mode is enabled', () => {
-    renderHeader(vi.fn(), vi.fn(), true)
-    expect(screen.getByText(/🎄/)).toBeInTheDocument()
   })
 })
