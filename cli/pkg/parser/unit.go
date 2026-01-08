@@ -116,8 +116,18 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 	unit.Specs.Combat.Health = loader.GetFloat(data, "max_health", unit.Specs.Combat.Health)
 	unit.Specs.Economy.BuildCost = loader.GetFloat(data, "build_metal_cost", unit.Specs.Economy.BuildCost)
 
+	// Extract buildable_projectiles for factory-sourced weapons
+	var buildableProjectiles []string
+	if bpInterface, ok := data["buildable_projectiles"].([]interface{}); ok {
+		for _, bp := range bpInterface {
+			if bpStr, ok := bp.(string); ok && bpStr != "" {
+				buildableProjectiles = append(buildableProjectiles, bpStr)
+			}
+		}
+	}
+
 	// Parse tools (weapons, build arms)
-	if err := parseTools(l, data, unit); err != nil {
+	if err := parseTools(l, data, unit, buildableProjectiles); err != nil {
 		return nil, err
 	}
 
@@ -178,7 +188,8 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 }
 
 // parseTools parses weapons and build arms from the tools array
-func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit) error {
+// buildableProjectiles contains ammo paths that factory-sourced weapons can use
+func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit, buildableProjectiles []string) error {
 	toolsInterface := loader.GetArray(data, "tools")
 
 	// If this unit defines its own tools array, it completely replaces inherited tools.
@@ -231,7 +242,7 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 		}
 
 		if isWeapon || isDeathWeapon {
-			if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
+			if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon, buildableProjectiles); weapon != nil {
 				unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 			}
 		} else if isBuildArm {
@@ -244,7 +255,7 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 			// Check tool_type in the actual tool spec (following base_spec inheritance)
 			toolType := getToolType(l, specID)
 			if toolType == "TOOL_Weapon" {
-				if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon); weapon != nil {
+				if weapon := parseWeaponWithOverrides(l, specID, tool, count, isDeathWeapon, buildableProjectiles); weapon != nil {
 					unit.Specs.Combat.Weapons = append(unit.Specs.Combat.Weapons, *weapon)
 				}
 			}
@@ -255,7 +266,8 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 }
 
 // parseWeaponWithOverrides parses a weapon and applies tool-level overrides
-func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]interface{}, count int, isDeathWeapon bool) *models.Weapon {
+// buildableProjectiles is used to override ammo for factory-sourced weapons
+func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]interface{}, count int, isDeathWeapon bool, buildableProjectiles []string) *models.Weapon {
 	weapon, err := ParseWeapon(l, specID, nil)
 	if err != nil {
 		return nil
@@ -263,6 +275,30 @@ func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]i
 
 	weapon.Count = count
 	weapon.DeathExplosion = isDeathWeapon
+
+	// For factory-sourced weapons, use buildable_projectiles ammo instead of weapon's ammo_id
+	// This ensures we display the correct ammo that the factory can actually build
+	if weapon.AmmoSource == "factory" && len(buildableProjectiles) > 0 {
+		// Use the first buildable projectile as the primary ammo
+		ammo, err := ParseAmmo(l, buildableProjectiles[0], nil)
+		if err == nil {
+			weapon.Ammo = ammo
+			weapon.Damage = ammo.Damage
+			weapon.MuzzleVelocity = ammo.MuzzleVelocity
+			weapon.SplashDamage = ammo.SplashDamage
+			weapon.SplashRadius = ammo.SplashRadius
+			weapon.FullDamageRadius = ammo.FullDamageRadius
+
+			// Recalculate DPS with new damage values
+			weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+
+			// Recalculate sustained DPS if applicable
+			if weapon.AmmoDemand > 0 && weapon.AmmoPerShot > 0 && weapon.Damage > 0 {
+				sustainedROF := weapon.AmmoDemand / weapon.AmmoPerShot
+				weapon.SustainedDPS = math.Round(sustainedROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+			}
+		}
+	}
 
 	// Handle projectiles_per_fire override from unit's tool definition
 	if ppf, ok := tool["projectiles_per_fire"]; ok {
