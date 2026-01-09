@@ -71,6 +71,35 @@ Tools (weapons, build arms) are detected by both:
 
 **Gotcha**: Some tools match by name only, some by field only. Always check both.
 
+### 3.1 Factory Weapon Ammo Handling
+
+Factory-sourced weapons (like nuke/missile launchers) can fire multiple ammo types that are built separately. These weapons have `ammo_source: "factory"` and the unit defines available ammo in `buildable_projectiles`.
+
+**How it works**:
+- Parser extracts `buildable_projectiles` array from unit data
+- For weapons with `ammo_source: "factory"`, all buildable projectiles are parsed
+- Individual ammo specs stored in `weapon.BuildableAmmo[]` array
+- First ammo also set as `weapon.Ammo` for backwards compatibility
+
+**Aggregation strategy (MAX values)**:
+- Weapon-level stats (damage, DPS, splash radius, etc.) use MAX values across all ammo types
+- Rationale: Factory weapons fire one ammo type at a time, not all simultaneously
+- MAX represents the weapon's "best case" potential, which is how players evaluate weapons
+- Individual ammo details remain available in `BuildableAmmo` for granular display
+
+**Example** (Exiles missile_facility):
+```
+buildable_projectiles:
+- large_DOT_ammo (spawns damage-over-time unit)
+- large_stun_ammo (splash=100, radius=150)
+- precision_strike_ammo (damage=10000, splash=10000)
+
+Aggregated weapon stats:
+- damage: 10000 (from precision_strike)
+- splashRadius: 150 (from large_stun)
+- muzzleVelocity: 200 (from large_DOT)
+```
+
 ### 4. Data Export (`pkg/exporter`)
 
 Generates faction folder with three-tier structure:
