@@ -35,12 +35,20 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const compareEffectiveSplashDamage = getEffectiveSplashDamage(compareAmmo);
 
   // Calculate damage falloff breakdown for splash weapons
-  const calculateFalloffBreakdown = (damage: number, fullRadius: number, splashRadius: number) => {
+  // Within full damage radius: targets receive BASE damage (same as direct hit)
+  // From full radius to splash radius: falloff from splash_damage to 0
+  const calculateFalloffBreakdown = (
+    baseDamage: number,
+    splashDamage: number,
+    fullRadius: number,
+    splashRadius: number
+  ) => {
     const midRadius = Math.round((fullRadius + splashRadius) / 2);
-    const midDamage = Math.round(damage * (1 - (midRadius - fullRadius) / (splashRadius - fullRadius)));
+    const midDamage = Math.round(splashDamage * (1 - (midRadius - fullRadius) / (splashRadius - fullRadius)));
     return [
-      { radius: `0-${fullRadius}`, damage, percent: 100 },
-      { radius: `${midRadius}`, damage: midDamage, percent: 50 },
+      // Full damage radius uses BASE damage, not splash damage
+      { radius: `0-${fullRadius}`, damage: baseDamage, percent: 100 },
+      { radius: `${midRadius}`, damage: midDamage, percent: Math.round(midDamage / splashDamage * 100) },
       { radius: `${splashRadius}`, damage: 0, percent: 0 },
     ];
   };
@@ -52,7 +60,12 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
     ammo.fullDamageRadius < ammo.splashRadius;
 
   const falloffBreakdown = showFalloff
-    ? calculateFalloffBreakdown(effectiveSplashDamage!, ammo.fullDamageRadius!, ammo.splashRadius!)
+    ? calculateFalloffBreakdown(
+        ammo.damage ?? effectiveSplashDamage!,
+        effectiveSplashDamage!,
+        ammo.fullDamageRadius!,
+        ammo.splashRadius!
+      )
     : null;
 
   // Check which rows have differences

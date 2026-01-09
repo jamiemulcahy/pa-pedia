@@ -356,5 +356,31 @@ describe('AmmoSection', () => {
       expect(screen.getAllByText('100')).toHaveLength(2) // In splash radius row and falloff
       expect(screen.getByText('0 (0%)')).toBeInTheDocument()
     })
+
+    it('should use base damage for full radius when splash damage differs (#204)', () => {
+      // This tests the fix for bug #204:
+      // Within full damage radius, targets receive BASE damage (3000),
+      // not splash damage (2000). Falloff is calculated from splash damage.
+      const nukeAmmo: Ammo = {
+        resourceName: '/pa/ammo/nuke/nuke.json',
+        safeName: 'nuke',
+        damage: 3000,
+        splashDamage: 2000,
+        splashRadius: 30,
+        fullDamageRadius: 20,
+      }
+      renderAmmoSection({ ammo: nukeAmmo })
+
+      expect(screen.getByTestId('damage-falloff')).toBeInTheDocument()
+      // Full damage at epicenter (0-20) uses BASE damage (3000), not splash (2000)
+      expect(screen.getByText('0-20')).toBeInTheDocument()
+      expect(screen.getByText(/3.?000 \(100%\)/)).toBeInTheDocument()
+      // Midpoint: (20+30)/2 = 25, splash damage falloff = 2000 * (1 - (25-20)/(30-20)) = 1000
+      expect(screen.getByText('25')).toBeInTheDocument()
+      expect(screen.getByText(/1.?000 \(50%\)/)).toBeInTheDocument()
+      // Edge of splash radius
+      expect(screen.getAllByText('30')).toHaveLength(2) // In splash radius row and falloff
+      expect(screen.getByText('0 (0%)')).toBeInTheDocument()
+    })
   })
 })
