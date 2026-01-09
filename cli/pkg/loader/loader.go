@@ -707,6 +707,17 @@ func (l *Loader) collectSpecsRecursively(resourcePath string, specs map[string]*
 		}
 	}
 
+	// Collect buildable_projectiles (for factory units that build missiles/ammo)
+	if buildableProjectiles, ok := data["buildable_projectiles"].([]interface{}); ok {
+		for _, projectileInterface := range buildableProjectiles {
+			if projectilePath, ok := projectileInterface.(string); ok && projectilePath != "" {
+				if err := l.collectSpecsRecursively(projectilePath, specs, visited, verbose); err != nil && verbose {
+					fmt.Fprintf(os.Stderr, "    [spec] Error collecting buildable_projectile %s: %v\n", projectilePath, err)
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
