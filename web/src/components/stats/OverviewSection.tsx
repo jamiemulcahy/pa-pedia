@@ -86,6 +86,11 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
     ?.filter(w => w.maxRange !== undefined)
     .reduce((max, w) => Math.max(max, w.maxRange || 0), 0));
 
+  // Check if comparison unit has sustained DPS that differs from burst
+  const compareHasSustainedDps = compareSustainedDps !== undefined &&
+    compareDps !== undefined &&
+    compareSustainedDps !== compareDps;
+
   // Unit-only: build locations
   const buildLocations: string[] = [];
   if (!isGroupMode && unit) {
@@ -181,8 +186,12 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
             <ComparisonValue
               value={Number((hasSustainedDps ? sustainedDps! : dps).toFixed(1))}
               compareValue={
-                hasSustainedDps
-                  ? (compareSustainedDps !== undefined ? Number(compareSustainedDps.toFixed(1)) : undefined)
+                // Compare "effective" DPS: sustained DPS if available (either unit), else burst
+                // This ensures like-for-like comparison (sustained vs sustained, not burst vs sustained)
+                hasSustainedDps || compareHasSustainedDps
+                  ? (compareSustainedDps !== undefined
+                      ? Number(compareSustainedDps.toFixed(1))
+                      : (compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined))
                   : (compareDps !== undefined ? Number(compareDps.toFixed(1)) : undefined)
               }
               comparisonType="higher-better"

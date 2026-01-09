@@ -210,5 +210,31 @@ describe('OverviewSection', () => {
       // Should show sustained DPS comparison (60 vs 90 = -30)
       expect(screen.getByText('(-30)')).toBeInTheDocument()
     })
+
+    it('should compare burst DPS to comparison sustained DPS when current has no sustained (#205)', () => {
+      // This tests the fix for bug #205:
+      // When a unit without sustained DPS (Dox) is compared against a unit with sustained DPS (Cub),
+      // it should compare burst DPS vs sustained DPS, not burst vs burst
+
+      // Simulating: Dox (DPS: 50) vs Cub (sustained: 60, burst: 100)
+      // Should show: 50 vs 60 = -10, NOT 50 vs 100 = -50
+
+      renderOverviewSection(mockUnit, mockUnitWithAmmoWeapon)
+
+      // mockUnit has DPS: 50, mockUnitWithAmmoWeapon has sustained DPS: 60, burst: 100
+      // Comparison should be 50 vs 60 = -10
+      expect(screen.getByText('(-10)')).toBeInTheDocument()
+    })
+
+    it('should compare sustained DPS to comparison burst DPS when comparison has no sustained', () => {
+      // Reverse case: unit with sustained compared to unit without sustained
+      // mockUnitWithAmmoWeapon (sustained: 60) vs mockUnit (DPS: 50)
+      // Should show: 60 vs 50 = +10
+
+      renderOverviewSection(mockUnitWithAmmoWeapon, mockUnit)
+
+      // Comparison should be 60 vs 50 = +10
+      expect(screen.getByText('(+10)')).toBeInTheDocument()
+    })
   })
 })
