@@ -1126,7 +1126,31 @@ export function UnitDetail() {
                       )
                     })}
                   </div>
-                  {weapon.ammoDetails && (
+                  {/* Show buildable ammo options for factory weapons, or single ammoDetails */}
+                  {weapon.buildableAmmo && weapon.buildableAmmo.length > 0 ? (
+                    weapon.buildableAmmo.map((ammo, ammoIndex) => {
+                      const matchedWeapon = weaponMatchMaps[0]?.get(weapon)
+                      const compareAmmo = matchedWeapon?.buildableAmmo?.[ammoIndex] ?? matchedWeapon?.ammoDetails
+                      return (
+                        <div key={`ammo-${wIndex}-${ammoIndex}`} className="flex gap-6 items-stretch">
+                          <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
+                            <AmmoSection ammo={ammo} compareAmmo={compareAmmo} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                          </div>
+                          {comparisonRefs.map((_ref, index) => {
+                            const compMatchedWeapon = weaponMatchMaps[index]?.get(weapon)
+                            const compAmmo = compMatchedWeapon?.buildableAmmo?.[ammoIndex] ?? compMatchedWeapon?.ammoDetails
+                            return (
+                              <div key={`ammo-${wIndex}-${ammoIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
+                                {compAmmo && (
+                                  <AmmoSection ammo={compAmmo} compareAmmo={ammo} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )
+                    })
+                  ) : weapon.ammoDetails ? (
                     <div className="flex gap-6 items-stretch">
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
                         <AmmoSection ammo={weapon.ammoDetails} compareAmmo={weaponMatchMaps[0]?.get(weapon)?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
@@ -1143,7 +1167,7 @@ export function UnitDetail() {
                         )
                       })}
                     </div>
-                  )}
+                  ) : null}
                 </React.Fragment>
               ))}
 
@@ -1414,9 +1438,17 @@ export function UnitDetail() {
               {regularWeapons.map((weapon, index) => (
                 <React.Fragment key={`${weapon.resourceName}-${index}`}>
                   <WeaponSection weapon={weapon} />
-                  {weapon.ammoDetails && (
+                  {/* Show buildable ammo options for factory weapons */}
+                  {weapon.buildableAmmo && weapon.buildableAmmo.length > 0 ? (
+                    weapon.buildableAmmo.map((ammo, ammoIndex) => (
+                      <AmmoSection
+                        key={`${weapon.resourceName}-ammo-${ammoIndex}`}
+                        ammo={ammo}
+                      />
+                    ))
+                  ) : weapon.ammoDetails ? (
                     <AmmoSection ammo={weapon.ammoDetails} />
-                  )}
+                  ) : null}
                 </React.Fragment>
               ))}
 

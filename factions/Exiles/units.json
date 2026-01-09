@@ -1,6 +1,126 @@
 {
   "units": [
     {
+      "identifier": "dot_huge",
+      "displayName": "Acid Cloud",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "Naval",
+        "Defense",
+        "NoBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/base/dot_huge/dot_huge.json",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "dot_huge",
+        "resourceName": "/pa/units/base/dot_huge/dot_huge.json",
+        "displayName": "Acid Cloud",
+        "description": "damage over time unit",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "Naval",
+          "Defense",
+          "NoBuild"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 30000,
+            "dps": 30,
+            "salvoDamage": 30,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/base/dot_huge/dot_huge_weapon.json",
+                "safeName": "dot_huge_weapon",
+                "name": "dot_huge_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 30,
+                "dps": 30,
+                "sustainedDps": 30,
+                "projectilesPerFire": 1,
+                "maxRange": 15,
+                "splashRadius": 90,
+                "fullDamageRadius": 90,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 1,
+                "ammoCapacity": 1,
+                "ammoRechargeTime": 1,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/base/dot_huge/dot_huge_ammo.json",
+                  "safeName": "dot_huge_ammo",
+                  "name": "dot_huge_ammo",
+                  "damage": 30,
+                  "fullDamageRadius": 90,
+                  "splashRadius": 90
+                }
+              },
+              {
+                "resourceName": "/pa/units/base/dot_huge/dot_huge_death_weapon.json",
+                "safeName": "dot_huge_death_weapon",
+                "name": "dot_huge_death_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "maxRange": 20,
+                "splashRadius": 1,
+                "fullDamageRadius": 1,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 1,
+                "ammoCapacity": 1,
+                "ammoRechargeTime": 1,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/base/stun/stun_ammo.json",
+                  "safeName": "stun_ammo",
+                  "name": "stun_ammo",
+                  "fullDamageRadius": 1,
+                  "splashRadius": 1
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 0.01,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 5,
+            "underwaterVisionRadius": 5
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
       "identifier": "t_air_fac",
       "displayName": "Air factory",
       "unitTypes": [
@@ -56,14 +176,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 30,
-              "energy": 1350
+              "metal": 15,
+              "energy": 675
             },
             "weaponConsumption": {},
-            "buildRate": 30,
+            "buildRate": 15,
             "buildInefficiency": 45,
-            "metalRate": -30,
-            "energyRate": -1350,
+            "metalRate": -15,
+            "energyRate": -675,
             "buildArms": [
               {
                 "resourceName": "/pa/units/air/air_factory/air_factory_build_arm.json",
@@ -93,16 +213,15 @@
             "dragonfly",
             "t_transport",
             "chirp",
-            "t_air_fab",
-            "t_vulture",
             "fighter_stealth",
+            "t_air_fab",
             "t_bomber"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -227,8 +346,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -288,33 +407,6 @@
             "salvoDamage": 50,
             "weapons": [
               {
-                "resourceName": "/pa/units/land/ambush_twr/ambush_twr_tool_recover.json",
-                "safeName": "ambush_twr_tool_recover",
-                "name": "ambush_twr_tool_recover",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 15,
-                "maxRange": 5000,
-                "selfDestruct": true,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/ambush_twr/ambush_twr_recover_ammo.json",
-                  "safeName": "ambush_twr_recover_ammo",
-                  "name": "ambush_twr_recover_ammo",
-                  "muzzleVelocity": 15,
-                  "maxVelocity": 15,
-                  "lifetime": 8,
-                  "spawnUnitOnDeath": "/pa/units/land/ambush_twr/hid/ambush_twr_hid.json"
-                }
-              },
-              {
                 "resourceName": "/pa/units/land/ambush_twr/ambush_twr_tool_weapon.json",
                 "safeName": "ambush_twr_tool_weapon",
                 "name": "ambush_twr_tool_weapon",
@@ -352,6 +444,33 @@
                   "splashDamage": 50,
                   "splashRadius": 5
                 }
+              },
+              {
+                "resourceName": "/pa/units/land/ambush_twr/ambush_twr_tool_recover.json",
+                "safeName": "ambush_twr_tool_recover",
+                "name": "ambush_twr_tool_recover",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 15,
+                "maxRange": 5000,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/ambush_twr/ambush_twr_recover_ammo.json",
+                  "safeName": "ambush_twr_recover_ammo",
+                  "name": "ambush_twr_recover_ammo",
+                  "muzzleVelocity": 15,
+                  "maxVelocity": 15,
+                  "lifetime": 8,
+                  "spawnUnitOnDeath": "/pa/units/land/ambush_twr/hid/ambush_twr_hid.json"
+                }
               }
             ]
           },
@@ -380,128 +499,9 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "t_aa_twr_adv",
-      "displayName": "Aurora Turret",
-      "unitTypes": [
-        "Structure",
-        "Land",
-        "AirDefense",
-        "Defense",
-        "FabAdvBuild",
-        "Custom6"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/t_aa_twr_adv/t_aa_twr_adv.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "t_aa_twr_adv",
-        "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv.json",
-        "displayName": "Aurora Turret",
-        "description": "Advanced Anti-Air Defense - Equipped with multi-Sparky Spinning Lightining thingy. Only attacks air.",
-        "image": "assets/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Land",
-          "AirDefense",
-          "Defense",
-          "FabAdvBuild",
-          "Custom6"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 3000,
-            "dps": 240,
-            "salvoDamage": 120,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_weapon.json",
-                "safeName": "t_aa_twr_adv_weapon",
-                "name": "t_aa_twr_adv_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 120,
-                "dps": 240,
-                "sustainedDps": 120,
-                "projectilesPerFire": 1,
-                "maxRange": 130,
-                "splashDamage": 120,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 1,
-                "ammoCapacity": 10,
-                "ammoDrainTime": 9,
-                "ammoRechargeTime": 10,
-                "ammoShotsToDrain": 19,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 3600,
-                "pitchRange": 85,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_ammo.json",
-                  "safeName": "t_aa_twr_adv_ammo",
-                  "name": "t_aa_twr_adv_ammo",
-                  "damage": 120,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 120,
-                  "splashRadius": 20
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 750,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 170,
-            "underwaterVisionRadius": 170
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "t_bot_fab_adv",
-            "t_air_fab_adv",
-            "t_tank_fab_adv",
-            "t_naval_fab_adv"
           ]
         }
       }
@@ -612,8 +612,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -671,7 +671,7 @@
           "FactoryBuild",
           "Amphibious"
         ],
-        "accessible": true,
+        "accessible": false,
         "specs": {
           "combat": {
             "health": 250,
@@ -778,19 +778,17 @@
             "t_orbital_launcher",
             "t_tank_fac",
             "t_naval_fac",
-            "factory_1",
+            "t_naval_fac_adv",
+            "r_teleporter",
             "t_storage",
             "t_arta",
-            "reactor",
             "r_umbrella",
+            "t_air_fac_adv",
             "t_bot_fac_adv",
             "t_tank_fac_adv"
-          ],
-          "builtBy": [
-            "factory_1"
           ]
         },
-        "buildableTypes": "(Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 Land \u0026 Bot | Factory \u0026 Advanced \u0026 Land \u0026 Tank | FabBuild \u0026 Basic) \u0026 Custom6"
+        "buildableTypes": "(Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabBuild) \u0026 Custom6 - Custom7"
       }
     },
     {
@@ -860,39 +858,6 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_tool_torpedo_weapon.json",
-                "safeName": "exiles_blueberry_tool_torpedo_weapon",
-                "name": "exiles_blueberry_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 0.66,
-                "damage": 250,
-                "dps": 165,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -1010,6 +975,39 @@
                   "maxVelocity": 125,
                   "lifetime": 2
                 }
+              },
+              {
+                "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_tool_torpedo_weapon.json",
+                "safeName": "exiles_blueberry_tool_torpedo_weapon",
+                "name": "exiles_blueberry_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 0.66,
+                "damage": 250,
+                "dps": 165,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
               }
             ]
           },
@@ -1025,16 +1023,16 @@
               "energy": 37500
             },
             "toolConsumption": {
-              "metal": 70,
-              "energy": 3750
+              "metal": 40,
+              "energy": 2000
             },
             "weaponConsumption": {
-              "energy": 3000
+              "energy": 500
             },
-            "buildRate": 70,
-            "buildInefficiency": 53.57142857142857,
-            "metalRate": -50,
-            "energyRate": -4750,
+            "buildRate": 40,
+            "buildInefficiency": 50,
+            "metalRate": -20,
+            "energyRate": -500,
             "buildArms": [
               {
                 "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_build_arm.json",
@@ -1079,7 +1077,6 @@
             "t_orbital_launcher",
             "t_tank_fac",
             "t_naval_fac",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "reactor",
@@ -1116,7 +1113,7 @@
         "id": "lightning",
         "resourceName": "/pa/units/land/lightning/lightning.json",
         "displayName": "Bolt",
-        "description": "Tank equipped with high damage arc thrower. Can shoot through obstacles. Can not be disarmed.",
+        "description": "Tank equipped with high damage arc thrower. Can shoot through obstacles. Cannot be disarmed.",
         "image": "assets/pa/units/land/lightning/lightning_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
@@ -1291,15 +1288,15 @@
             "can",
             "hunter",
             "lice",
-            "tin",
             "t_bot_fab",
+            "tin",
             "hyena"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -1481,13 +1478,13 @@
                 "muzzleVelocity": 10,
                 "maxRange": 140,
                 "ammoSource": "metal",
-                "ammoDemand": 20,
+                "ammoDemand": 15,
                 "ammoPerShot": 150,
-                "ammoCapacity": 1500,
-                "ammoDrainTime": 0.9,
-                "ammoRechargeTime": 75,
-                "ammoShotsToDrain": 10,
-                "metalRate": -20,
+                "ammoCapacity": 1200,
+                "ammoDrainTime": 0.7,
+                "ammoRechargeTime": 80,
+                "ammoShotsToDrain": 8,
+                "metalRate": -15,
                 "metalPerShot": 150,
                 "targetLayers": [
                   "LandHorizontal",
@@ -1528,17 +1525,16 @@
               "energy": 45000
             },
             "toolConsumption": {
-              "metal": 60,
-              "energy": 3500
+              "metal": 30,
+              "energy": 1750
             },
             "weaponConsumption": {
-              "metal": 20,
-              "energy": 2500
+              "metal": 15
             },
-            "buildRate": 60,
+            "buildRate": 30,
             "buildInefficiency": 58.333333333333336,
-            "metalRate": -60,
-            "energyRate": -4000,
+            "metalRate": -25,
+            "energyRate": 250,
             "buildArms": [
               {
                 "resourceName": "/pa/units/commanders/exiles_brainiac/exiles_brainiac_build_arm.json",
@@ -1583,7 +1579,6 @@
             "t_orbital_launcher",
             "t_tank_fac",
             "t_naval_fac",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "reactor",
@@ -2465,8 +2460,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -2550,8 +2545,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -2661,8 +2656,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -2673,119 +2668,6 @@
             "exiles_maxim"
           ]
         }
-      }
-    },
-    {
-      "identifier": "factory_1",
-      "displayName": "Fabber Foundry",
-      "unitTypes": [
-        "Custom6",
-        "Factory",
-        "Construction",
-        "Bot",
-        "Structure",
-        "Basic",
-        "CmdBuild",
-        "FabBuild",
-        "FabAdvBuild",
-        "Important",
-        "Economy"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/factory_1/factory_1.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "/pa/units/land/factory_1/factory_1_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "factory_1",
-        "resourceName": "/pa/units/land/factory_1/factory_1.json",
-        "displayName": "Fabber Foundry",
-        "description": "Foundry - Produces Improved fabs. Required for Improved Mex.",
-        "image": "assets/pa/units/land/factory_1/factory_1_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Custom6",
-          "Factory",
-          "Construction",
-          "Bot",
-          "Structure",
-          "Basic",
-          "CmdBuild",
-          "FabBuild",
-          "FabAdvBuild",
-          "Important",
-          "Economy"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 3000
-          },
-          "economy": {
-            "buildCost": 800,
-            "production": {},
-            "consumption": {},
-            "storage": {
-              "metal": 25,
-              "energy": 2000
-            },
-            "toolConsumption": {
-              "metal": 20
-            },
-            "weaponConsumption": {},
-            "buildRate": 20,
-            "metalRate": -20,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/land/factory_1/factory_1_build_arm.json",
-                "safeName": "factory_1_build_arm",
-                "name": "factory_1_build_arm",
-                "count": 1,
-                "metalConsumption": 20,
-                "energyConsumption": 0
-              }
-            ]
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 100
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "sword_dox",
-            "battle_fab"
-          ],
-          "builtBy": [
-            "t_bot_fab",
-            "t_tank_fab",
-            "t_air_fab",
-            "t_naval_fab",
-            "battle_fab",
-            "t_bot_fab_adv",
-            "t_air_fab_adv",
-            "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "union_formidable",
-            "exiles_brainiac",
-            "exiles_maxim"
-          ]
-        },
-        "buildableTypes": "Bot \u0026 Mobile \u0026 Basic \u0026 FactoryBuild \u0026 Custom6 \u0026 Custom7"
       }
     },
     {
@@ -2833,19 +2715,19 @@
             "health": 100
           },
           "economy": {
-            "buildCost": 200,
+            "buildCost": 300,
             "production": {},
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 18,
-              "energy": 1600
+              "metal": 9,
+              "energy": 800
             },
             "weaponConsumption": {},
-            "buildRate": 18,
+            "buildRate": 9,
             "buildInefficiency": 88.88888888888889,
-            "metalRate": -18,
-            "energyRate": -1600,
+            "metalRate": -9,
+            "energyRate": -800,
             "buildArms": [
               {
                 "resourceName": "/pa/units/air/t_air_fab/t_air_fab_build_arm.json",
@@ -2861,6 +2743,7 @@
           },
           "mobility": {
             "moveSpeed": 50,
+            "turnSpeed": 180,
             "acceleration": 25,
             "brake": 25
           },
@@ -2895,7 +2778,6 @@
             "t_tank_fac",
             "t_naval_fac",
             "t_naval_fac_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -3004,8 +2886,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -3065,12 +2947,31 @@
             "health": 40
           },
           "economy": {
-            "buildCost": 140,
+            "buildCost": 135,
             "production": {},
             "consumption": {},
             "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
+            "toolConsumption": {
+              "metal": 6,
+              "energy": 500
+            },
+            "weaponConsumption": {},
+            "buildRate": 6,
+            "buildInefficiency": 83.33333333333333,
+            "metalRate": -6,
+            "energyRate": -500,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/land/t_bot_fab/t_bot_fab_build_arm.json",
+                "safeName": "t_bot_fab_build_arm",
+                "name": "t_bot_fab_build_arm",
+                "count": 1,
+                "metalConsumption": 6,
+                "energyConsumption": 500,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
           },
           "mobility": {
             "moveSpeed": 18,
@@ -3105,7 +3006,6 @@
             "t_tank_fac",
             "t_naval_fac",
             "t_naval_fac_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -3232,7 +3132,6 @@
             "t_tank_fac",
             "t_naval_fac",
             "t_naval_fac_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -3301,14 +3200,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 21,
-              "energy": 1300
+              "metal": 10,
+              "energy": 600
             },
             "weaponConsumption": {},
-            "buildRate": 21,
-            "buildInefficiency": 61.904761904761905,
-            "metalRate": -21,
-            "energyRate": -1300,
+            "buildRate": 10,
+            "buildInefficiency": 60,
+            "metalRate": -10,
+            "energyRate": -600,
             "buildArms": [
               {
                 "resourceName": "/pa/units/land/t_tank_fab/t_tank_fab_build_arm.json",
@@ -3355,7 +3254,6 @@
             "t_tank_fac",
             "t_naval_fac",
             "t_naval_fac_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -3624,8 +3522,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -3642,6 +3540,7 @@
         "Custom6",
         "Naval",
         "Mobile",
+        "AirDefense",
         "Offense",
         "Basic",
         "FactoryBuild",
@@ -3662,13 +3561,14 @@
         "id": "hardtack",
         "resourceName": "/pa/units/sea/hardtack/hardtack.json",
         "displayName": "Hardtack",
-        "description": "Suport AA Craft - Water hover. Attacks Air units and intercepts torpedoes. Detects Mines.",
+        "description": "Support AA Craft - Water hover. Attacks Air units and intercepts torpedoes. Detects Mines.",
         "image": "assets/pa/units/sea/hardtack/hardtack_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Custom6",
           "Naval",
           "Mobile",
+          "AirDefense",
           "Offense",
           "Basic",
           "FactoryBuild",
@@ -3921,8 +3821,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -3963,7 +3863,7 @@
         "id": "tank_wheel",
         "resourceName": "/pa/units/land/tank_wheel/tank_wheel.json",
         "displayName": "Hellball",
-        "description": "Mele Browler. Fast and durable, equipped with two short range flamethrowers",
+        "description": "Melee Brawler. Fast and durable, equipped with two short range flamethrowers",
         "image": "assets/pa/units/land/tank_wheel/tank_wheel_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
@@ -4057,10 +3957,10 @@
       "displayName": "Hyena",
       "unitTypes": [
         "Bot",
-        "Scout",
         "Mobile",
         "Land",
         "Basic",
+        "Construction",
         "FactoryBuild",
         "Custom6"
       ],
@@ -4084,10 +3984,10 @@
         "tier": 1,
         "unitTypes": [
           "Bot",
-          "Scout",
           "Mobile",
           "Land",
           "Basic",
+          "Construction",
           "FactoryBuild",
           "Custom6"
         ],
@@ -4202,117 +4102,6 @@
       }
     },
     {
-      "identifier": "t_vulture",
-      "displayName": "Kikimora",
-      "unitTypes": [
-        "Custom6",
-        "Fighter",
-        "Air",
-        "Mobile",
-        "Offense",
-        "Basic",
-        "FactoryBuild"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/air/t_vulture/t_vulture.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "/pa/units/air/t_vulture/t_vulture_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "t_vulture",
-        "resourceName": "/pa/units/air/t_vulture/t_vulture.json",
-        "displayName": "Kikimora",
-        "description": "Stealth Fighter - Slow. Radar stealthy. Can only shoot forwards. Only attacks air targets",
-        "image": "assets/pa/units/air/t_vulture/t_vulture_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Custom6",
-          "Fighter",
-          "Air",
-          "Mobile",
-          "Offense",
-          "Basic",
-          "FactoryBuild"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 200,
-            "dps": 100,
-            "salvoDamage": 10,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/air/t_vulture/t_vulture_tool_weapon.json",
-                "safeName": "t_vulture_tool_weapon",
-                "name": "t_vulture_tool_weapon",
-                "count": 2,
-                "rateOfFire": 10,
-                "damage": 5,
-                "dps": 50,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 500,
-                "maxRange": 105,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 75,
-                "yawRate": 3000,
-                "pitchRange": 180,
-                "pitchRate": 1500,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/t_vulture/t_vulture_ammo.json",
-                  "safeName": "t_vulture_ammo",
-                  "name": "t_vulture_ammo",
-                  "damage": 5,
-                  "muzzleVelocity": 500,
-                  "maxVelocity": 500
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 275,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 45,
-            "turnSpeed": 80,
-            "acceleration": 100,
-            "brake": 50
-          },
-          "recon": {
-            "visionRadius": 100,
-            "underwaterVisionRadius": 500
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "air"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "t_air_fac",
-            "t_air_fac_adv"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "fighter_stealth",
       "displayName": "Kikimora",
       "unitTypes": [
@@ -4355,8 +4144,8 @@
         "specs": {
           "combat": {
             "health": 200,
-            "dps": 72,
-            "salvoDamage": 8,
+            "dps": 90,
+            "salvoDamage": 10,
             "weapons": [
               {
                 "resourceName": "/pa/units/air/fighter_stealth/fighter_stealth_tool_weapon.json",
@@ -4364,8 +4153,8 @@
                 "name": "fighter_stealth_tool_weapon",
                 "count": 1,
                 "rateOfFire": 9,
-                "damage": 8,
-                "dps": 72,
+                "damage": 10,
+                "dps": 90,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 500,
                 "maxRange": 110,
@@ -4383,7 +4172,7 @@
                   "resourceName": "/pa/units/air/fighter_stealth/fighter_stealth_ammo.json",
                   "safeName": "fighter_stealth_ammo",
                   "name": "fighter_stealth_ammo",
-                  "damage": 8,
+                  "damage": 10,
                   "muzzleVelocity": 500,
                   "maxVelocity": 500
                 }
@@ -4400,9 +4189,9 @@
           },
           "mobility": {
             "moveSpeed": 65,
-            "turnSpeed": 90,
-            "acceleration": 100,
-            "brake": 50
+            "turnSpeed": 120,
+            "acceleration": 130,
+            "brake": 130
           },
           "recon": {
             "visionRadius": 105,
@@ -4466,7 +4255,7 @@
           "FactoryBuild",
           "CannonBuildable"
         ],
-        "accessible": true,
+        "accessible": false,
         "specs": {
           "combat": {
             "health": 85,
@@ -4525,19 +4314,15 @@
             "brake": -1
           },
           "recon": {
-            "visionRadius": 105,
-            "underwaterVisionRadius": 105
+            "visionRadius": 50,
+            "underwaterVisionRadius": 50
           },
           "storage": {},
           "special": {
             "amphibious": true
           }
         },
-        "buildRelationships": {
-          "builtBy": [
-            "factory_1"
-          ]
-        }
+        "buildRelationships": {}
       }
     },
     {
@@ -4668,7 +4453,7 @@
       "unitTypes": [
         "Bot",
         "Mobile",
-        "Recon",
+        "Scout",
         "Land",
         "Basic",
         "FactoryBuild",
@@ -4690,13 +4475,13 @@
         "id": "lice",
         "resourceName": "/pa/units/land/lice/lice.json",
         "displayName": "Lice",
-        "description": "Survailance Crawler. Invisible but unarmed.",
+        "description": "Surveillance Crawler. Invisible but unarmed. Can be spotted by mine detectors",
         "image": "assets/pa/units/land/lice/lice_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Bot",
           "Mobile",
-          "Recon",
+          "Scout",
           "Land",
           "Basic",
           "FactoryBuild",
@@ -4784,8 +4569,8 @@
         "specs": {
           "combat": {
             "health": 17500,
-            "dps": 952,
-            "salvoDamage": 4020,
+            "dps": 982,
+            "salvoDamage": 4050,
             "weapons": [
               {
                 "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
@@ -4809,18 +4594,52 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/exiles_maxim/exiles_maxim_tool_weapon.json",
                 "safeName": "exiles_maxim_tool_weapon",
                 "name": "exiles_maxim_tool_weapon",
                 "count": 1,
                 "rateOfFire": 1,
-                "damage": 120,
-                "dps": 120,
+                "damage": 150,
+                "dps": 150,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 125,
-                "maxRange": 100,
-                "splashDamage": 120,
-                "splashRadius": 3,
+                "maxRange": 110,
+                "splashDamage": 150,
+                "splashRadius": 5,
+                "fullDamageRadius": 5,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface",
@@ -4839,9 +4658,10 @@
                   "resourceName": "/pa/units/commanders/exiles_maxim/exiles_maxim_ammo.json",
                   "safeName": "exiles_maxim_ammo",
                   "name": "exiles_maxim_ammo",
-                  "damage": 120,
-                  "splashDamage": 120,
-                  "splashRadius": 3,
+                  "damage": 150,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 150,
+                  "splashRadius": 5,
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 1.25
@@ -4863,14 +4683,14 @@
                 "splashRadius": 5,
                 "fullDamageRadius": 5,
                 "ammoSource": "energy",
-                "ammoDemand": 5000,
-                "ammoPerShot": 4000,
-                "ammoCapacity": 50000,
+                "ammoDemand": 500,
+                "ammoPerShot": 400,
+                "ammoCapacity": 5000,
                 "ammoDrainTime": 3,
                 "ammoRechargeTime": 10,
                 "ammoShotsToDrain": 16,
-                "energyRate": -5000,
-                "energyPerShot": 4000,
+                "energyRate": -500,
+                "energyPerShot": 400,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface",
@@ -4962,39 +4782,6 @@
                   "name": "bot_sniper_beam_ammo",
                   "damage": 400
                 }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
               }
             ]
           },
@@ -5010,16 +4797,16 @@
               "energy": 45000
             },
             "toolConsumption": {
-              "metal": 60,
-              "energy": 3500
+              "metal": 30,
+              "energy": 1750
             },
             "weaponConsumption": {
-              "energy": 7500
+              "energy": 500
             },
-            "buildRate": 60,
+            "buildRate": 30,
             "buildInefficiency": 58.333333333333336,
-            "metalRate": -40,
-            "energyRate": -9000,
+            "metalRate": -10,
+            "energyRate": -250,
             "buildArms": [
               {
                 "resourceName": "/pa/units/commanders/exiles_maxim/exiles_maxim_build_arm.json",
@@ -5064,7 +4851,6 @@
             "t_orbital_launcher",
             "t_tank_fac",
             "t_naval_fac",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "reactor",
@@ -5340,7 +5126,7 @@
         "id": "t_tank_flak",
         "resourceName": "/pa/units/land/t_tank_flak/t_tank_flak.json",
         "displayName": "Ocelot",
-        "description": "Anti-air Tank: Durable tank armed with 4 flak cannons. Medium range. Low AoE",
+        "description": "Anti-air Tank: Durable tank armed with 4 flak cannons. Medium range. Low AOE",
         "image": "assets/pa/units/land/t_tank_flak/t_tank_flak_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
@@ -5521,8 +5307,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -5663,8 +5449,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -5754,8 +5540,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -5856,12 +5642,7 @@
             "weaponConsumption": {},
             "energyRate": 600
           },
-          "mobility": {
-            "moveSpeed": 6,
-            "turnSpeed": 100,
-            "acceleration": 100,
-            "brake": -1
-          },
+          "mobility": {},
           "recon": {
             "visionRadius": 25,
             "underwaterVisionRadius": 120,
@@ -5872,13 +5653,11 @@
             "spawnLayers": [
               "land",
               "water surface"
-            ],
-            "amphibious": true
+            ]
           }
         },
         "buildRelationships": {
           "builtBy": [
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -6498,14 +6277,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 30,
-              "energy": 1350
+              "metal": 15,
+              "energy": 675
             },
             "weaponConsumption": {},
-            "buildRate": 30,
+            "buildRate": 15,
             "buildInefficiency": 45,
-            "metalRate": -30,
-            "energyRate": -1350,
+            "metalRate": -15,
+            "energyRate": -675,
             "buildArms": [
               {
                 "resourceName": "/pa/units/land/t_tank_fac/t_tank_fac_build_arm.json",
@@ -6541,8 +6320,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -6631,9 +6410,10 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
             "hyena",
+            "t_air_fab",
+            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -6744,8 +6524,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -7094,8 +6874,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -7217,8 +6997,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -7277,7 +7057,7 @@
                 "safeName": "t_metal_extractor_01_weapon",
                 "name": "t_metal_extractor_01_weapon",
                 "count": 2,
-                "rateOfFire": 0.008333333333333333,
+                "rateOfFire": 0.006666666666666667,
                 "damage": 0,
                 "dps": 0,
                 "projectilesPerFire": 1,
@@ -7285,9 +7065,9 @@
                 "selfDestruct": true,
                 "ammoSource": "time",
                 "ammoDemand": 1,
-                "ammoPerShot": 120,
-                "ammoCapacity": 120,
-                "ammoRechargeTime": 120,
+                "ammoPerShot": 150,
+                "ammoCapacity": 150,
+                "ammoRechargeTime": 150,
                 "targetLayers": [
                   "AnyHorizontalGroundOrWaterSurface"
                 ],
@@ -7471,8 +7251,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -7553,8 +7333,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -7987,7 +7767,6 @@
             "t_naval_fac",
             "t_naval_fac_adv",
             "t_aa_twr_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -8070,14 +7849,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 90,
-              "energy": 3000
+              "metal": 45,
+              "energy": 1500
             },
             "weaponConsumption": {},
-            "buildRate": 90,
+            "buildRate": 45,
             "buildInefficiency": 33.333333333333336,
-            "metalRate": -90,
-            "energyRate": -3000,
+            "metalRate": -45,
+            "energyRate": -1500,
             "buildArms": [
               {
                 "resourceName": "/pa/units/air/air_factory_adv/air_factory_adv_build_arm.json",
@@ -8107,9 +7886,8 @@
             "dragonfly",
             "t_transport",
             "chirp",
-            "t_air_fab",
-            "t_vulture",
             "fighter_stealth",
+            "t_air_fab",
             "t_bomber",
             "t_gunship",
             "t_int",
@@ -8120,8 +7898,9 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
+            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -8219,8 +7998,8 @@
             "can",
             "hunter",
             "lice",
-            "tin",
             "t_bot_fab",
+            "tin",
             "hyena",
             "t_bot_aa",
             "gale",
@@ -8234,8 +8013,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -8356,7 +8135,6 @@
             "t_naval_fac",
             "t_naval_fac_adv",
             "t_aa_twr_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -8623,14 +8401,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 105,
-              "energy": 2750
+              "metal": 60,
+              "energy": 1250
             },
             "weaponConsumption": {},
-            "buildRate": 105,
-            "buildInefficiency": 26.19047619047619,
-            "metalRate": -105,
-            "energyRate": -2750,
+            "buildRate": 60,
+            "buildInefficiency": 20.833333333333332,
+            "metalRate": -60,
+            "energyRate": -1250,
             "buildArms": [
               {
                 "resourceName": "/pa/units/land/t_tank_fac_adv/t_tank_fac_adv_build_arm.json",
@@ -8672,8 +8450,8 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
             "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
@@ -8853,14 +8631,14 @@
             "consumption": {},
             "storage": {},
             "toolConsumption": {
-              "metal": 120,
-              "energy": 4750
+              "metal": 60,
+              "energy": 2500
             },
             "weaponConsumption": {},
-            "buildRate": 120,
-            "buildInefficiency": 39.583333333333336,
-            "metalRate": -120,
-            "energyRate": -4750,
+            "buildRate": 60,
+            "buildInefficiency": 41.666666666666664,
+            "metalRate": -60,
+            "energyRate": -2500,
             "buildArms": [
               {
                 "resourceName": "/pa/units/land/t_tank_fab_adv/t_tank_fab_adv_build_arm.json",
@@ -8875,7 +8653,10 @@
             "buildRange": 45
           },
           "mobility": {
-            "moveSpeed": 16
+            "moveSpeed": 16,
+            "turnSpeed": 360,
+            "acceleration": 120,
+            "brake": 120
           },
           "recon": {
             "visionRadius": 100,
@@ -8906,7 +8687,6 @@
             "t_naval_fac",
             "t_naval_fac_adv",
             "t_aa_twr_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -9154,7 +8934,20 @@
                   "maxVelocity": 1500,
                   "lifetime": 5,
                   "metalCost": 5000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/anti_nuke_launcher/anti_nuke_launcher_ammo.json",
+                    "safeName": "anti_nuke_launcher_ammo",
+                    "name": "anti_nuke_launcher_ammo",
+                    "damage": 1,
+                    "splashDamage": 1,
+                    "muzzleVelocity": 1500,
+                    "maxVelocity": 1500,
+                    "lifetime": 5,
+                    "metalCost": 5000
+                  }
+                ]
               }
             ]
           },
@@ -9216,7 +9009,7 @@
         "Land",
         "Structure",
         "Defense",
-        "NukeDefense",
+        "AirDefense",
         "Advanced",
         "Factory",
         "FabAdvBuild",
@@ -9245,7 +9038,7 @@
           "Land",
           "Structure",
           "Defense",
-          "NukeDefense",
+          "AirDefense",
           "Advanced",
           "Factory",
           "FabAdvBuild",
@@ -9293,7 +9086,19 @@
                   "maxVelocity": 300,
                   "lifetime": 5,
                   "metalCost": 2000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/aa_missile_launcher/air_defense_complex_adv_ammo.json",
+                    "safeName": "air_defense_complex_adv_ammo",
+                    "name": "air_defense_complex_adv_ammo",
+                    "damage": 2000,
+                    "muzzleVelocity": 10,
+                    "maxVelocity": 300,
+                    "lifetime": 5,
+                    "metalCost": 2000
+                  }
+                ]
               }
             ]
           },
@@ -9332,6 +9137,127 @@
             "unitStorage": 4,
             "storedUnitType": "unit"
           },
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "t_bot_fab_adv",
+            "t_air_fab_adv",
+            "t_tank_fab_adv",
+            "t_naval_fab_adv"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "t_aa_twr_adv",
+      "displayName": "Aurora Turret",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "AirDefense",
+        "Advanced",
+        "Defense",
+        "FabAdvBuild",
+        "Custom6"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/t_aa_twr_adv/t_aa_twr_adv.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "t_aa_twr_adv",
+        "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv.json",
+        "displayName": "Aurora Turret",
+        "description": "Advanced Anti-Air Defense - Fires stored Lightning charges. Only attacks air.",
+        "image": "assets/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "AirDefense",
+          "Advanced",
+          "Defense",
+          "FabAdvBuild",
+          "Custom6"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 3000,
+            "dps": 240,
+            "salvoDamage": 120,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_weapon.json",
+                "safeName": "t_aa_twr_adv_weapon",
+                "name": "t_aa_twr_adv_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 120,
+                "dps": 240,
+                "sustainedDps": 120,
+                "projectilesPerFire": 1,
+                "maxRange": 130,
+                "splashDamage": 120,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 1,
+                "ammoCapacity": 10,
+                "ammoDrainTime": 9,
+                "ammoRechargeTime": 10,
+                "ammoShotsToDrain": 19,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 3600,
+                "pitchRange": 85,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/t_aa_twr_adv/t_aa_twr_adv_ammo.json",
+                  "safeName": "t_aa_twr_adv_ammo",
+                  "name": "t_aa_twr_adv_ammo",
+                  "damage": 120,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 120,
+                  "splashRadius": 20
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 750,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 170,
+            "underwaterVisionRadius": 170
+          },
+          "storage": {},
           "special": {
             "spawnLayers": [
               "land",
@@ -9553,7 +9479,7 @@
         "id": "stalker",
         "resourceName": "/pa/units/land/stalker/stalker.json",
         "displayName": "Cobra",
-        "description": "Cloaked Assasin Vehicle - Invisible short-range tank. Low Damage.",
+        "description": "Cloaked Assassin Vehicle - Invisible short-range tank. Low Damage.",
         "image": "assets/pa/units/land/stalker/stalker_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
@@ -9792,7 +9718,7 @@
         "id": "tripod",
         "resourceName": "/pa/units/land/tripod/tripod.json",
         "displayName": "Cyclops",
-        "description": "Anti-Heavy Bot. Long Range. High damage. Durable. Amphibious.",
+        "description": "Anti-Heavy Bot. Long Range. High damage continuous laser. Durable. Amphibious.",
         "image": "assets/pa/units/land/tripod/tripod_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
@@ -9810,23 +9736,35 @@
         "accessible": true,
         "specs": {
           "combat": {
-            "health": 3000,
-            "dps": 999.75,
-            "salvoDamage": 750,
+            "health": 4000,
+            "dps": 1000,
+            "salvoDamage": 100,
             "weapons": [
               {
                 "resourceName": "/pa/units/land/tripod/tripod_tool_weapon.json",
                 "safeName": "tripod_tool_weapon",
                 "name": "tripod_tool_weapon",
                 "count": 1,
-                "rateOfFire": 1.333,
-                "damage": 750,
-                "dps": 999.75,
+                "rateOfFire": 10,
+                "damage": 100,
+                "dps": 1000,
+                "sustainedDps": 500,
                 "projectilesPerFire": 1,
-                "muzzleVelocity": 500,
+                "muzzleVelocity": 700,
                 "maxRange": 140,
+                "splashDamage": 50,
+                "splashRadius": 3,
+                "fullDamageRadius": 1,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 0.2,
+                "ammoCapacity": 10.1,
+                "ammoDrainTime": 9.8,
+                "ammoRechargeTime": 10.1,
+                "ammoShotsToDrain": 99,
                 "targetLayers": [
                   "LandHorizontal",
+                  "Seafloor",
                   "WaterSurface"
                 ],
                 "targetPriorities": [
@@ -9837,23 +9775,26 @@
                   "Wall"
                 ],
                 "yawRange": 180,
-                "yawRate": 90,
-                "pitchRange": 180,
-                "pitchRate": 80,
+                "yawRate": 45,
+                "pitchRange": 45,
+                "pitchRate": 180,
                 "ammoDetails": {
                   "resourceName": "/pa/units/land/tripod/tripod_ammo.json",
                   "safeName": "tripod_ammo",
                   "name": "tripod_ammo",
-                  "damage": 750,
-                  "muzzleVelocity": 500,
-                  "maxVelocity": 500,
-                  "lifetime": 0.4
+                  "damage": 100,
+                  "fullDamageRadius": 1,
+                  "splashDamage": 50,
+                  "splashRadius": 3,
+                  "muzzleVelocity": 700,
+                  "maxVelocity": 700,
+                  "lifetime": 0.25
                 }
               }
             ]
           },
           "economy": {
-            "buildCost": 3000,
+            "buildCost": 4000,
             "production": {},
             "consumption": {},
             "storage": {},
@@ -9992,7 +9933,6 @@
             "t_naval_fac",
             "t_naval_fac_adv",
             "t_aa_twr_adv",
-            "factory_1",
             "r_teleporter",
             "t_storage",
             "t_arta",
@@ -10469,7 +10409,7 @@
         "id": "adv_tank_hover",
         "resourceName": "/pa/units/land/adv_tank_hover/adv_tank_hover.json",
         "displayName": "Hippo",
-        "description": "Adv Hover Tank - Slow. Excells at sinking ships. Vulnerable to flanking. Can cross water and lava. Attacks land and sea targets.",
+        "description": "Adv Hover Tank - Slow. Excels at sinking ships. Vulnerable to flanking. Can cross water and lava. Attacks land and sea targets.",
         "image": "assets/pa/units/land/adv_tank_hover/adv_tank_hover_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
@@ -10792,8 +10732,9 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
-            "t_air_fab",
             "t_naval_fab",
+            "t_air_fab",
+            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -10859,7 +10800,7 @@
                 "dps": 0,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 150,
-                "maxRange": 50,
+                "maxRange": 75,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
@@ -11197,7 +11138,7 @@
         "specs": {
           "combat": {
             "health": 500,
-            "dps": 640,
+            "dps": 320,
             "salvoDamage": 80,
             "weapons": [
               {
@@ -11205,9 +11146,9 @@
                 "safeName": "t_int_tool_weapon",
                 "name": "t_int_tool_weapon",
                 "count": 1,
-                "rateOfFire": 8,
+                "rateOfFire": 4,
                 "damage": 80,
-                "dps": 640,
+                "dps": 320,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 300,
                 "maxRange": 130,
@@ -11400,8 +11341,9 @@
       "displayName": "Puma",
       "unitTypes": [
         "Custom6",
+        "Important",
+        "Offense",
         "Bot",
-        "SupportCommander",
         "Mobile",
         "Land",
         "Advanced",
@@ -11424,13 +11366,14 @@
         "id": "ft_commander",
         "resourceName": "/pa/units/commanders/ft_commander/ft_commander.json",
         "displayName": "Puma",
-        "description": "Experimental Assault bot. Extremly durable. Can deploy disarm areas with Alt-Fire. Auto-Reclaims nearby wreckage.",
+        "description": "Experimental Assault bot. Amphibious. Extremely durable. Can deploy disarm areas with Alt-Fire. Auto-Reclaims nearby wreckage.",
         "image": "assets/pa/units/commanders/ft_commander/ft_commander_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
           "Custom6",
+          "Important",
+          "Offense",
           "Bot",
-          "SupportCommander",
           "Mobile",
           "Land",
           "Advanced",
@@ -11740,15 +11683,15 @@
           "combat": {
             "health": 1600,
             "dps": 200,
-            "salvoDamage": 100,
+            "salvoDamage": 200,
             "weapons": [
               {
                 "resourceName": "/pa/units/land/luddite/weapon.json",
                 "safeName": "weapon",
                 "name": "weapon",
                 "count": 1,
-                "rateOfFire": 1,
-                "damage": 100,
+                "rateOfFire": 0.5,
+                "damage": 200,
                 "dps": 200,
                 "projectilesPerFire": 2,
                 "muzzleVelocity": 80,
@@ -11771,7 +11714,7 @@
                   "resourceName": "/pa/units/land/luddite/ammo.json",
                   "safeName": "ammo",
                   "name": "ammo",
-                  "damage": 100,
+                  "damage": 200,
                   "muzzleVelocity": 80,
                   "maxVelocity": 120,
                   "lifetime": 2
@@ -11874,8 +11817,7 @@
                 "energyPerShot": 5000,
                 "targetLayers": [
                   "Orbital",
-                  "LandHorizontal",
-                  "WaterSurface"
+                  "Air"
                 ],
                 "targetPriorities": [
                   "Mobile \u0026 Orbital",
@@ -12108,8 +12050,8 @@
         "specs": {
           "combat": {
             "health": 1500,
-            "dps": 33000,
-            "salvoDamage": 33000,
+            "dps": 10000,
+            "salvoDamage": 10000,
             "weapons": [
               {
                 "resourceName": "/pa/units/land/missile_facility/missile_facility_tool_weapon.json",
@@ -12117,14 +12059,14 @@
                 "name": "missile_facility_tool_weapon",
                 "count": 1,
                 "rateOfFire": 1,
-                "damage": 33000,
-                "dps": 33000,
+                "damage": 10000,
+                "dps": 10000,
                 "projectilesPerFire": 1,
-                "muzzleVelocity": 40,
+                "muzzleVelocity": 200,
                 "maxRange": 5000,
-                "splashDamage": 33000,
+                "splashDamage": 10000,
                 "splashRadius": 150,
-                "fullDamageRadius": 125,
+                "fullDamageRadius": 37.5,
                 "ammoSource": "factory",
                 "targetLayers": [
                   "LandHorizontal",
@@ -12139,17 +12081,50 @@
                 "yawRange": 180,
                 "pitchRange": 180,
                 "ammoDetails": {
-                  "resourceName": "/pa/units/land/nuke_launcher/nuke_launcher_ammo.json",
-                  "safeName": "nuke_launcher_ammo",
-                  "name": "nuke_launcher_ammo",
-                  "damage": 33000,
-                  "fullDamageRadius": 125,
-                  "splashDamage": 33000,
-                  "splashRadius": 150,
-                  "muzzleVelocity": 40,
-                  "maxVelocity": 75,
-                  "metalCost": 30000
-                }
+                  "resourceName": "/pa/units/land/missile_facility/large_DOT_ammo.json",
+                  "safeName": "large_DOT_ammo",
+                  "name": "large_DOT_ammo",
+                  "muzzleVelocity": 200,
+                  "maxVelocity": 55,
+                  "metalCost": 10000,
+                  "spawnUnitOnDeath": "/pa/units/base/dot_huge/dot_huge.json",
+                  "spawnUnitOnDeathWithVelocity": true
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/missile_facility/large_DOT_ammo.json",
+                    "safeName": "large_DOT_ammo",
+                    "name": "large_DOT_ammo",
+                    "muzzleVelocity": 200,
+                    "maxVelocity": 55,
+                    "metalCost": 10000,
+                    "spawnUnitOnDeath": "/pa/units/base/dot_huge/dot_huge.json",
+                    "spawnUnitOnDeathWithVelocity": true
+                  },
+                  {
+                    "resourceName": "/pa/units/land/missile_facility/large_stun_ammo.json",
+                    "safeName": "large_stun_ammo",
+                    "name": "large_stun_ammo",
+                    "splashDamage": 100,
+                    "splashRadius": 150,
+                    "muzzleVelocity": 40,
+                    "maxVelocity": 75,
+                    "metalCost": 10000,
+                    "spawnUnitOnDeath": "/pa/units/base/stun_huge/stun_huge.json"
+                  },
+                  {
+                    "resourceName": "/pa/units/land/missile_facility/precision_strike_ammo.json",
+                    "safeName": "precision_strike_ammo",
+                    "name": "precision_strike_ammo",
+                    "damage": 10000,
+                    "fullDamageRadius": 37.5,
+                    "splashDamage": 10000,
+                    "splashRadius": 37.5,
+                    "muzzleVelocity": 40,
+                    "maxVelocity": 150,
+                    "metalCost": 10000
+                  }
+                ]
               }
             ]
           },
@@ -12510,6 +12485,10 @@
       "identifier": "seizmic",
       "displayName": "Tremble",
       "unitTypes": [
+        "Land",
+        "Recon",
+        "Radar",
+        "RadarJammer",
         "Structure",
         "Advanced",
         "FabAdvBuild",
@@ -12531,10 +12510,14 @@
         "id": "seizmic",
         "resourceName": "/pa/units/land/seizmic/seizmic.json",
         "displayName": "Tremble",
-        "description": "Seizmic survailance and jamming facility. Long range radar. Short range jamming. Short range cloack detection",
+        "description": "Seismic surveillance and jamming facility. Long range radar. Short range jamming. Short range cloak detection",
         "image": "assets/pa/units/land/seizmic/seizmic_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
+          "Land",
+          "Recon",
+          "Radar",
+          "RadarJammer",
           "Structure",
           "Advanced",
           "FabAdvBuild",

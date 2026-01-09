@@ -48,6 +48,14 @@
         "metalCost": {
           "type": "number",
           "description": "Metal cost per projectile"
+        },
+        "spawnUnitOnDeath": {
+          "type": "string",
+          "description": "PA resource path of unit spawned when projectile ends"
+        },
+        "spawnUnitOnDeathWithVelocity": {
+          "type": "boolean",
+          "description": "Whether spawned unit inherits projectile velocity"
         }
       },
       "additionalProperties": false,
@@ -293,6 +301,10 @@
         "hover": {
           "type": "boolean",
           "description": "Hovers above ground"
+        },
+        "spawnUnitOnDeath": {
+          "type": "string",
+          "description": "PA resource path of unit spawned when this unit dies"
         }
       },
       "additionalProperties": false,
@@ -444,6 +456,10 @@
           "type": "number",
           "description": "Total damage per second (includes count ROF and projectiles)"
         },
+        "sustainedDps": {
+          "type": "number",
+          "description": "Damage per second when ammo-limited (recovery rate determines fire rate)"
+        },
         "projectilesPerFire": {
           "type": "integer",
           "description": "Number of projectiles per shot (e.g. shotgun)"
@@ -553,6 +569,13 @@
         "ammoDetails": {
           "$ref": "#/$defs/Ammo",
           "description": "Detailed projectile specifications"
+        },
+        "buildableAmmo": {
+          "items": {
+            "$ref": "#/$defs/Ammo"
+          },
+          "type": "array",
+          "description": "Available ammo types that can be built for this weapon (factory weapons only)"
         }
       },
       "additionalProperties": false,

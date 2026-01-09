@@ -51,6 +51,17 @@
         "backgroundImage": {
           "type": "string",
           "description": "Path to faction background image relative to faction folder root"
+        },
+        "isAddon": {
+          "type": "boolean",
+          "description": "True if this is an addon mod that extends existing factions rather than defining a new one"
+        },
+        "baseFactions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Faction display names that this addon extends (e.g. MLA or Legion)"
         }
       },
       "additionalProperties": false,

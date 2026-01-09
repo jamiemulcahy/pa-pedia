@@ -53,6 +53,9 @@ type Weapon struct {
 
 	// Nested Ammo Details
 	Ammo *Ammo `json:"ammoDetails,omitempty" jsonschema:"description=Detailed projectile specifications"`
+
+	// Buildable Ammo Options (for factory-sourced weapons with multiple ammo types)
+	BuildableAmmo []Ammo `json:"buildableAmmo,omitempty" jsonschema:"description=Available ammo types that can be built for this weapon (factory weapons only)"`
 }
 
 // Ammo represents detailed projectile specifications

@@ -97,6 +97,8 @@ export interface Weapon {
   pitchRange?: number;
   pitchRate?: number;
   ammoDetails?: Ammo;
+  /** Available ammo types that can be built for this weapon (factory weapons only) */
+  buildableAmmo?: Ammo[];
 }
 
 export interface CombatSpecs {

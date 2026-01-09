@@ -1,5 +1,5 @@
 {
-    "base_spec": "/pa/units/commanders/base_commander/base_commander.json",
+    "base_spec": "/pa/units/commanders/base_exiles_commander/base_exiles_commander.json",
     "display_name": "Brainiac Commander",
     "si_name": "exiles_brainiac",
     "description": "Hover Exile Commander. Slow, Low HP but armed with devastating long-range laser.",
@@ -16,6 +16,7 @@
         "animtree": "/pa/units/commanders/exiles_brainiac/brainiac_anim_tree.json",
         "walk_speed": 9
     },
+    "has_death_effects": true,
     "strategic_icon_priority": 0,
     "max_health": 10500,
     "build_metal_cost": 8000,
@@ -80,6 +81,14 @@
             "shape": "sphere",
             "cost": 20,
             "type_data": [
+                {
+                    "move_type": "land-small",
+                    "stamp_type": "simple"
+                },
+                {
+                    "move_type": "amphibious",
+                    "stamp_type": "simple"
+                },
                 {
                     "move_type": "hover",
                     "stamp_type": "simple"

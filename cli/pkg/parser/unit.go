@@ -125,7 +125,6 @@ func ParseUnit(l *loader.Loader, resourceName string, baseUnit *models.Unit) (*m
 			}
 		}
 	}
-
 	// Parse tools (weapons, build arms)
 	if err := parseTools(l, data, unit, buildableProjectiles); err != nil {
 		return nil, err
@@ -276,26 +275,57 @@ func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]i
 	weapon.Count = count
 	weapon.DeathExplosion = isDeathWeapon
 
-	// For factory-sourced weapons, use buildable_projectiles ammo instead of weapon's ammo_id
-	// This ensures we display the correct ammo that the factory can actually build
+	// For factory-sourced weapons, parse ALL buildable_projectiles as ammo options
+	// and use MAX values for weapon stats (since only one fires at a time, show max potential)
 	if weapon.AmmoSource == "factory" && len(buildableProjectiles) > 0 {
-		// Use the first buildable projectile as the primary ammo
-		ammo, err := ParseAmmo(l, buildableProjectiles[0], nil)
-		if err == nil {
-			weapon.Ammo = ammo
-			weapon.Damage = ammo.Damage
-			weapon.MuzzleVelocity = ammo.MuzzleVelocity
-			weapon.SplashDamage = ammo.SplashDamage
-			weapon.SplashRadius = ammo.SplashRadius
-			weapon.FullDamageRadius = ammo.FullDamageRadius
+		var parsedAmmos []models.Ammo
+		var maxDamage, maxSplashDamage, maxSplashRadius, maxFullDamageRadius, maxMuzzleVelocity float64
 
-			// Recalculate DPS with new damage values
-			weapon.DPS = math.Round(weapon.ROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+		for _, projectilePath := range buildableProjectiles {
+			ammo, err := ParseAmmo(l, projectilePath, nil)
+			if err == nil {
+				parsedAmmos = append(parsedAmmos, *ammo)
+
+				// Track max values across all ammo types
+				if ammo.Damage > maxDamage {
+					maxDamage = ammo.Damage
+				}
+				if ammo.SplashDamage > maxSplashDamage {
+					maxSplashDamage = ammo.SplashDamage
+				}
+				if ammo.SplashRadius > maxSplashRadius {
+					maxSplashRadius = ammo.SplashRadius
+				}
+				if ammo.FullDamageRadius > maxFullDamageRadius {
+					maxFullDamageRadius = ammo.FullDamageRadius
+				}
+				if ammo.MuzzleVelocity > maxMuzzleVelocity {
+					maxMuzzleVelocity = ammo.MuzzleVelocity
+				}
+			}
+		}
+
+		if len(parsedAmmos) > 0 {
+			// Store all buildable ammo options
+			weapon.BuildableAmmo = parsedAmmos
+
+			// Use first ammo as the "primary" ammo details (for backwards compatibility)
+			weapon.Ammo = &parsedAmmos[0]
+
+			// Use MAX values for weapon-level stats
+			weapon.Damage = maxDamage
+			weapon.MuzzleVelocity = maxMuzzleVelocity
+			weapon.SplashDamage = maxSplashDamage
+			weapon.SplashRadius = maxSplashRadius
+			weapon.FullDamageRadius = maxFullDamageRadius
+
+			// Recalculate DPS with max damage values
+			weapon.DPS = math.Round(weapon.ROF*maxDamage*float64(weapon.ProjectilesPerFire)*100) / 100
 
 			// Recalculate sustained DPS if applicable
-			if weapon.AmmoDemand > 0 && weapon.AmmoPerShot > 0 && weapon.Damage > 0 {
+			if weapon.AmmoDemand > 0 && weapon.AmmoPerShot > 0 && maxDamage > 0 {
 				sustainedROF := weapon.AmmoDemand / weapon.AmmoPerShot
-				weapon.SustainedDPS = math.Round(sustainedROF*weapon.Damage*float64(weapon.ProjectilesPerFire)*100) / 100
+				weapon.SustainedDPS = math.Round(sustainedROF*maxDamage*float64(weapon.ProjectilesPerFire)*100) / 100
 			}
 		}
 	}
