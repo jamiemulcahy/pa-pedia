@@ -372,15 +372,24 @@ func (l *Loader) LoadMergedUnitList() ([]string, map[string]string, error) {
 
 	// Process sources in priority order
 	for _, src := range l.sources {
-		unitListPath := "/pa/units/unit_list.json"
+		// Try standard unit_list.json first, then faction-specific alternatives
+		unitListPaths := []string{
+			"/pa/units/unit_list.json",
+			"/pa/units/unit_list_legion.json", // Legion uses this in source repo
+		}
 
 		var data map[string]interface{}
 		var err error
 
-		if src.IsZip {
-			data, err = l.loadJSONFromZip(src, unitListPath)
-		} else {
-			data, err = l.loadJSONFromDir(src, unitListPath)
+		for _, unitListPath := range unitListPaths {
+			if src.IsZip {
+				data, err = l.loadJSONFromZip(src, unitListPath)
+			} else {
+				data, err = l.loadJSONFromDir(src, unitListPath)
+			}
+			if err == nil {
+				break // Found a valid unit list
+			}
 		}
 
 		if err != nil {
@@ -412,7 +421,7 @@ func (l *Loader) LoadMergedUnitList() ([]string, map[string]string, error) {
 	}
 
 	if len(unitPaths) == 0 {
-		return nil, nil, fmt.Errorf("no unit_list.json found in any source")
+		return nil, nil, fmt.Errorf("no unit list found in any source (tried unit_list.json and unit_list_legion.json)")
 	}
 
 	return unitPaths, provenance, nil
