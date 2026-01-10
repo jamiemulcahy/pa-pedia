@@ -13,7 +13,7 @@ export interface Preferences {
 }
 
 const DEFAULT_PREFERENCES: Preferences = {
-  viewMode: 'grid',
+  viewMode: 'list',
   categoryOrder: null,
   collapsedCategories: [],
   compactView: false,
