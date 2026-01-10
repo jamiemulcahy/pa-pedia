@@ -299,22 +299,50 @@ Triggers on:
   "releaseTag": "faction-data",
   "factions": [
     {
-      "id": "MLA",
-      "version": "v1.0.0",
-      "filename": "MLA.zip",
-      "downloadUrl": "https://github.com/.../MLA.zip",
-      "size": 1234567,
-      "timestamp": 1704369600000,
+      "id": "mla",
       "displayName": "MLA",
-      "isAddon": false
+      "isAddon": false,
+      "latest": {
+        "version": "1.0.0",
+        "filename": "mla-1.0.0-pedia20250104120000.zip",
+        "downloadUrl": "/factions/mla-1.0.0-pedia20250104120000.zip",
+        "size": 1234567,
+        "timestamp": 20250104120000,
+        "build": "124610"
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "filename": "mla-1.0.0-pedia20250104120000.zip",
+          "downloadUrl": "/factions/mla-1.0.0-pedia20250104120000.zip",
+          "size": 1234567,
+          "timestamp": 20250104120000,
+          "build": "124610"
+        },
+        {
+          "version": "0.9.0",
+          "filename": "mla-0.9.0-pedia20241215100000.zip",
+          "downloadUrl": "/factions/mla-0.9.0-pedia20241215100000.zip",
+          "size": 1200000,
+          "timestamp": 20241215100000,
+          "build": "124500"
+        }
+      ]
     }
   ]
 }
 ```
 
+**Version History**:
+- `latest`: Points to the most recent version (highest timestamp)
+- `versions`: Array of all available versions (newest first)
+- Historical versions are preserved when a faction's version number changes
+- Same-version rebuilds (different timestamp, same version) replace older timestamps
+
 **Version Tracking**:
 - `version`: Extracted from faction `metadata.json` (CLI-generated)
-- `timestamp`: Unix timestamp from `metadata.json` (build time)
+- `timestamp`: Build timestamp in format YYYYMMDDHHmmss
+- `build`: PA build number the faction was extracted against
 - Web app compares cached version/timestamp to manifest and re-downloads if different
 
 **Cache Invalidation**:

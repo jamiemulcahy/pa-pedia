@@ -80,10 +80,15 @@ function ensureReleaseExists(): void {
 }
 
 /**
- * Delete old versions of a faction from the release
- * Keeps only the zip being uploaded
+ * Delete older timestamps of the same version from the release
+ * Preserves different versions (e.g., keeps 0.6 when uploading 0.7)
+ * Only deletes same-version duplicates with older timestamps
  */
-async function deleteOldVersions(factionId: string, newFilename: string): Promise<void> {
+async function deleteSameVersionDuplicates(
+  factionId: string,
+  version: string,
+  newFilename: string
+): Promise<void> {
   // List current release assets
   const output = execSync(`gh release view ${RELEASE_TAG} --json assets -q ".assets[].name"`, {
     encoding: 'utf-8',
@@ -91,14 +96,26 @@ async function deleteOldVersions(factionId: string, newFilename: string): Promis
 
   const assets = output.trim().split('\n').filter(Boolean)
 
-  // Find assets for this faction (pattern: FactionId-*.zip)
-  const factionPattern = new RegExp(`^${factionId}-.*\\.zip$`)
-  const oldAssets = assets.filter((name) => factionPattern.test(name) && name !== newFilename)
+  // Pattern to match same faction AND same version with any timestamp
+  // e.g., exiles-0.7-pedia*.zip
+  const sameVersionPattern = new RegExp(
+    `^${escapeRegex(factionId)}-${escapeRegex(version)}-pedia\\d{14}\\.zip$`,
+    'i'
+  )
 
-  for (const asset of oldAssets) {
-    console.log(`  Deleting old version: ${asset}`)
+  const duplicates = assets.filter((name) => sameVersionPattern.test(name) && name !== newFilename)
+
+  for (const asset of duplicates) {
+    console.log(`  Deleting older timestamp: ${asset}`)
     exec(`gh release delete-asset ${RELEASE_TAG} "${asset}" --yes`, { silent: true })
   }
+}
+
+/**
+ * Escape special regex characters in a string
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 /**
@@ -142,12 +159,12 @@ async function main() {
   ensureReleaseExists()
   console.log()
 
-  // Upload each faction, removing old versions
+  // Upload each faction, removing same-version duplicates (keeps different versions)
   for (const faction of summary.factions) {
-    console.log(`Processing ${faction.factionId}...`)
+    console.log(`Processing ${faction.factionId} v${faction.version}...`)
 
-    // Delete old versions first
-    await deleteOldVersions(faction.factionId, faction.filename)
+    // Delete same-version duplicates (older timestamps), preserve different versions
+    await deleteSameVersionDuplicates(faction.factionId, faction.version, faction.filename)
 
     // Upload new version
     await uploadZip(faction.filename)
