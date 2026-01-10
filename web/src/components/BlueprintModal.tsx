@@ -3,6 +3,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
 import { getLocalAsset } from '@/services/localFactionStorage';
+import { getStaticAsset } from '@/services/staticFactionCache';
+import { isDevelopmentMode } from '@/services/manifestLoader';
 import type { Unit, Weapon, Ammo } from '@/types/faction';
 
 type ViewMode = 'raw' | 'resolved';
@@ -121,10 +123,14 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
       try {
         let json;
 
+        // Extract asset path from the full URL path
+        // Convert path like {BASE_URL}factions/MyFaction/assets/pa/units/... to assets/pa/units/...
+        const baseUrl = import.meta.env.BASE_URL;
+        const escapedBase = baseUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const assetPath = currentPath.replace(new RegExp(`^${escapedBase}factions/[^/]+/`), '');
+
         if (isLocal && factionId) {
           // Load from IndexedDB for local factions
-          // Convert path like /factions/MyFaction/assets/pa/units/... to assets/pa/units/...
-          const assetPath = currentPath.replace(/^\/factions\/[^/]+\//, '');
           const blob = await getLocalAsset(factionId, assetPath);
 
           if (!blob) {
@@ -133,8 +139,18 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
 
           const text = await blob.text();
           json = JSON.parse(text);
+        } else if (!isDevelopmentMode() && factionId) {
+          // Production mode: Load from IndexedDB for static factions
+          const blob = await getStaticAsset(factionId, assetPath);
+
+          if (!blob) {
+            throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
+          }
+
+          const text = await blob.text();
+          json = JSON.parse(text);
         } else {
-          // Load from server for static factions
+          // Development mode: Load from server for static factions
           const response = await fetch(currentPath, { signal: controller.signal });
           if (!response.ok) {
             if (response.status === 404) {

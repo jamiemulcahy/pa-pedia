@@ -121,7 +121,7 @@ export function UnitDetail() {
   }, [searchParams])
 
   // For backwards compatibility, comparisonRefs refers to the first comparison group
-  const comparisonRefs = comparisonGroups[0] || []
+  const comparisonRefs = useMemo(() => comparisonGroups[0] || [], [comparisonGroups])
 
   // Flattened array of all comparison refs across all groups (for loading units)
   const allComparisonRefs = useMemo(() => comparisonGroups.flat(), [comparisonGroups])
