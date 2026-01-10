@@ -86,6 +86,7 @@ export function useComparisonUnits(refs: ComparisonRef[]) {
   // Load all units that aren't cached yet
   useEffect(() => {
     let mounted = true
+    const loadingSet = loadingRef.current
 
     for (let i = 0; i < refs.length; i++) {
       const ref = refs[i]
@@ -99,30 +100,30 @@ export function useComparisonUnits(refs: ComparisonRef[]) {
       const cached = getUnit(key)
 
       // Skip if already cached or already loading
-      if (cached || loadingRef.current.has(key)) {
+      if (cached || loadingSet.has(key)) {
         continue
       }
 
       // Mark as loading
-      loadingRef.current.add(key)
+      loadingSet.add(key)
       dispatch({ type: 'LOAD_START', key })
 
       loadUnit(ref.factionId, ref.unitId)
         .then(() => {
           if (!mounted) return
-          loadingRef.current.delete(key)
+          loadingSet.delete(key)
           dispatch({ type: 'LOAD_SUCCESS', key })
         })
         .catch((err) => {
           if (!mounted) return
-          loadingRef.current.delete(key)
+          loadingSet.delete(key)
           dispatch({ type: 'LOAD_ERROR', key, error: err })
         })
     }
 
     return () => {
       mounted = false
-      loadingRef.current.clear()
+      loadingSet.clear()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refsKey, getUnit, loadUnit])
