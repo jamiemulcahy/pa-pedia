@@ -22,6 +22,34 @@ const MANIFEST_URL = `${FACTIONS_BASE_PATH}/manifest.json`
 // Release tag for reference (used in cached manifest fallback)
 const RELEASE_TAG = 'faction-data'
 
+export interface VersionEntry {
+  version: string
+  filename: string
+  downloadUrl: string
+  size: number
+  timestamp: number
+  build?: string
+}
+
+export interface FactionEntry {
+  id: string
+  displayName?: string
+  isAddon?: boolean
+  baseFactions?: string[]
+  latest: VersionEntry
+  versions: VersionEntry[]
+}
+
+export interface FactionManifest {
+  generated: string
+  releaseTag: string
+  factions: FactionEntry[]
+}
+
+/**
+ * Flattened manifest entry for backwards compatibility
+ * Combines faction info with a specific version's download info
+ */
 export interface ManifestEntry {
   id: string
   version: string
@@ -33,12 +61,6 @@ export interface ManifestEntry {
   displayName?: string
   isAddon?: boolean
   baseFactions?: string[]
-}
-
-export interface FactionManifest {
-  generated: string
-  releaseTag: string
-  factions: ManifestEntry[]
 }
 
 // In-memory cache for the current session
@@ -100,16 +122,20 @@ async function doLoadManifest(): Promise<FactionManifest> {
       console.log('Using cached manifest info for offline mode')
       // Return a minimal manifest from cache
       // Note: This won't have download URLs, so new factions can't be loaded
+      const placeholderVersion: VersionEntry = {
+        version: 'cached',
+        filename: '',
+        downloadUrl: '',
+        size: 0,
+        timestamp: 0,
+      }
       return {
         generated: cached.generated,
         releaseTag: RELEASE_TAG,
         factions: cached.factions.map((id) => ({
           id,
-          version: 'cached',
-          filename: '',
-          downloadUrl: '',
-          size: 0,
-          timestamp: 0,
+          latest: placeholderVersion,
+          versions: [placeholderVersion],
         })),
       }
     }
@@ -119,11 +145,53 @@ async function doLoadManifest(): Promise<FactionManifest> {
 }
 
 /**
- * Get a specific faction entry from the manifest
+ * Get a specific faction entry from the manifest (flattened with latest version)
  */
 export async function getManifestEntry(factionId: string): Promise<ManifestEntry | null> {
   const manifest = await loadManifest()
-  return manifest.factions.find((f) => f.id === factionId) ?? null
+  const faction = manifest.factions.find((f) => f.id === factionId)
+  if (!faction) return null
+
+  // Flatten faction info with latest version for backwards compatibility
+  return {
+    id: faction.id,
+    displayName: faction.displayName,
+    isAddon: faction.isAddon,
+    baseFactions: faction.baseFactions,
+    ...faction.latest,
+  }
+}
+
+/**
+ * Get a specific version of a faction from the manifest
+ */
+export async function getManifestVersion(
+  factionId: string,
+  version: string
+): Promise<ManifestEntry | null> {
+  const manifest = await loadManifest()
+  const faction = manifest.factions.find((f) => f.id === factionId)
+  if (!faction) return null
+
+  const versionEntry = faction.versions.find((v) => v.version === version)
+  if (!versionEntry) return null
+
+  return {
+    id: faction.id,
+    displayName: faction.displayName,
+    isAddon: faction.isAddon,
+    baseFactions: faction.baseFactions,
+    ...versionEntry,
+  }
+}
+
+/**
+ * Get all available versions for a faction
+ */
+export async function getFactionVersions(factionId: string): Promise<VersionEntry[]> {
+  const manifest = await loadManifest()
+  const faction = manifest.factions.find((f) => f.id === factionId)
+  return faction?.versions ?? []
 }
 
 /**

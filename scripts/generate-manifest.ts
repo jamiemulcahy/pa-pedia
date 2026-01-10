@@ -57,23 +57,28 @@ interface FactionMetadata {
   build?: string
 }
 
-interface ManifestEntry {
-  id: string
+interface VersionEntry {
   version: string
   filename: string
   downloadUrl: string
   size: number
   timestamp: number
   build?: string
+}
+
+interface FactionEntry {
+  id: string
   displayName?: string
   isAddon?: boolean
   baseFactions?: string[]
+  latest: VersionEntry
+  versions: VersionEntry[]
 }
 
 interface Manifest {
   generated: string
   releaseTag: string
-  factions: ManifestEntry[]
+  factions: FactionEntry[]
 }
 
 /**
@@ -167,27 +172,32 @@ async function main() {
   console.log(`Found ${zipAssets.length} faction zips`)
   console.log()
 
-  // Group by faction ID, keep only latest timestamp for each faction+version
-  const factionMap = new Map<string, (typeof zipAssets)[0]>()
+  // Step 1: Dedupe same-version timestamps (keep latest timestamp per faction+version)
+  const versionMap = new Map<string, (typeof zipAssets)[0]>()
 
   for (const zip of zipAssets) {
     const key = `${zip.parsed!.factionId}-${zip.parsed!.version}`
-    const existing = factionMap.get(key)
+    const existing = versionMap.get(key)
 
     if (!existing || zip.parsed!.timestamp > existing.parsed!.timestamp) {
-      factionMap.set(key, zip)
+      versionMap.set(key, zip)
     }
   }
 
-  console.log(`Unique faction versions: ${factionMap.size}`)
+  console.log(`Unique faction versions: ${versionMap.size}`)
   console.log()
 
-  // Build manifest entries
-  const entries: ManifestEntry[] = []
+  // Step 2: Group versions by faction ID and extract metadata
+  const factionVersions = new Map<
+    string,
+    {
+      versions: Array<{ zip: (typeof zipAssets)[0]; metadata: FactionMetadata | null }>
+      latestTimestamp: number
+    }
+  >()
 
-  for (const [key, zip] of factionMap) {
+  for (const [key, zip] of versionMap) {
     const { factionId, version, timestamp } = zip.parsed!
-    // GitHub API URL for extracting metadata during generation
     const ghDownloadUrl = zip.asset.url
 
     console.log(`Processing ${factionId} v${version}...`)
@@ -195,32 +205,60 @@ async function main() {
     // Extract metadata for build number and display name
     const metadata = await extractMetadataFromZip(ghDownloadUrl)
 
-    // Use relative path for downloadUrl - files are served from /factions/ on GitHub Pages
-    // This avoids CORS issues that would occur with GitHub Releases URLs
-    const downloadUrl = `/factions/${zip.asset.name}`
+    // Get or create faction entry
+    let factionData = factionVersions.get(factionId)
+    if (!factionData) {
+      factionData = { versions: [], latestTimestamp: 0 }
+      factionVersions.set(factionId, factionData)
+    }
 
-    entries.push({
-      id: factionId,
-      version,
+    factionData.versions.push({ zip, metadata })
+
+    // Track latest timestamp for determining the "latest" version
+    if (timestamp > factionData.latestTimestamp) {
+      factionData.latestTimestamp = timestamp
+    }
+  }
+
+  // Step 3: Build faction entries with version arrays
+  const factionEntries: FactionEntry[] = []
+
+  for (const [factionId, factionData] of factionVersions) {
+    // Sort versions by timestamp (newest first)
+    factionData.versions.sort((a, b) => b.zip.parsed!.timestamp - a.zip.parsed!.timestamp)
+
+    // Build version entries
+    const versions: VersionEntry[] = factionData.versions.map(({ zip, metadata }) => ({
+      version: zip.parsed!.version,
       filename: zip.asset.name,
-      downloadUrl,
+      downloadUrl: `/factions/${zip.asset.name}`,
       size: zip.asset.size,
-      timestamp,
+      timestamp: zip.parsed!.timestamp,
       build: metadata?.build,
-      displayName: metadata?.displayName,
-      isAddon: metadata?.isAddon,
-      baseFactions: metadata?.baseFactions,
+    }))
+
+    // Latest is the first one (highest timestamp)
+    const latestVersion = factionData.versions[0]
+    const latestMetadata = latestVersion.metadata
+
+    factionEntries.push({
+      id: factionId,
+      displayName: latestMetadata?.displayName,
+      isAddon: latestMetadata?.isAddon,
+      baseFactions: latestMetadata?.baseFactions,
+      latest: versions[0],
+      versions,
     })
   }
 
-  // Sort by faction ID
-  entries.sort((a, b) => a.id.localeCompare(b.id))
+  // Sort factions by ID
+  factionEntries.sort((a, b) => a.id.localeCompare(b.id))
 
   // Build manifest
   const manifest: Manifest = {
     generated: new Date().toISOString(),
     releaseTag: RELEASE_TAG,
-    factions: entries,
+    factions: factionEntries,
   }
 
   // Write manifest to file
