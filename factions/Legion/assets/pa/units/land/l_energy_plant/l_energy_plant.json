@@ -23,30 +23,19 @@
   "fx_offsets": [
     {
       "filename": "/pa/units/land/l_energy_plant/energy_plant_idle.pfx",
-      "offset": [
-        0,
-        0,
-        6
-      ],
+      "offset": [0, 0, 6],
       "type": "idle"
     }
   ],
   "max_health": 1000,
-  "mesh_bounds": [
-    9.426,
-    9.426,
-    9.764
-  ],
+  "mesh_bounds": [9.426, 9.426, 9.764],
   "model": [
     {
       "filename": "/pa/units/land/l_energy_plant/l_energy_plant.papa",
       "skirt_decal": "/pa/effects/specs/skirt_energy.json"
     }
   ],
-  "placement_size": [
-    12,
-    12
-  ],
+  "placement_size": [12, 12],
   "production": {
     "energy": 600
   },

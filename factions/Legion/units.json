@@ -19,7 +19,7 @@
         },
         {
           "path": "/pa/units/air/l_air_bomb/triggered/l_air_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -27,7 +27,7 @@
         "resourceName": "/pa/units/air/l_air_bomb/triggered/l_air_bomb.json",
         "displayName": "AOE Nova",
         "description": "Flying Bomb - In the process of exploding. Deals very heavy damage over an area over time. Attacks air targets only.",
-        "image": "assets/pa/units/air/l_air_bomb/triggered/triggered_icon_buildbar.png",
+        "image": "assets/pa/units/air/l_air_bomb/triggered/l_air_bomb_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Air",
@@ -180,7 +180,7 @@
         },
         {
           "path": "/pa/units/sea/l_attack_sub/l_attack_sub_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -307,7 +307,7 @@
         },
         {
           "path": "/pa/units/land/l_fabrication_vehicle/l_fabrication_vehicle_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -429,7 +429,7 @@
         },
         {
           "path": "/pa/units/land/l_vehicle_factory/l_vehicle_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -544,7 +544,7 @@
         },
         {
           "path": "/pa/units/sea/l_destroyer/l_destroyer_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -755,7 +755,7 @@
         },
         {
           "path": "/pa/units/commanders/l_cataphract/l_cataphract_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1045,7 +1045,7 @@
         },
         {
           "path": "/pa/units/sea/l_sea_scout/l_sea_scout_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1194,7 +1194,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_lander/l_orbital_lander_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1269,7 +1269,7 @@
         },
         {
           "path": "/pa/units/land/l_land_barrier/l_land_barrier_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1359,7 +1359,7 @@
         },
         {
           "path": "/pa/units/commanders/l_quad/l_quad_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1405,6 +1405,41 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -1521,41 +1556,6 @@
                   "maxVelocity": 75,
                   "lifetime": 4
                 }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
               }
             ]
           },
@@ -1653,7 +1653,7 @@
         },
         {
           "path": "/pa/units/land/l_hover_tank/l_hover_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -1778,7 +1778,7 @@
         },
         {
           "path": "/pa/units/commanders/l_cyclops/l_cyclops_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2069,7 +2069,7 @@
         },
         {
           "path": "/pa/units/air/l_bomber/l_bomber_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2207,7 +2207,7 @@
         },
         {
           "path": "/pa/units/air/l_fabrication_aircraft/l_fabrication_aircraft_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2327,7 +2327,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_fabrication_bot/l_orbital_fabrication_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2435,7 +2435,7 @@
         },
         {
           "path": "/pa/units/sea/l_fabrication_ship/l_fabrication_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2556,7 +2556,7 @@
         },
         {
           "path": "/pa/units/land/l_fabrication_bot/l_fabrication_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2677,7 +2677,7 @@
         },
         {
           "path": "/pa/units/air/l_air_factory/l_air_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2795,7 +2795,7 @@
         },
         {
           "path": "/pa/units/land/l_fabrication_vehicle_combat/l_fabrication_vehicle_combat_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -2897,7 +2897,7 @@
         },
         {
           "path": "/pa/units/land/l_swarm_hive/l_swarm_hive_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -3028,7 +3028,7 @@
         },
         {
           "path": "/pa/units/land/l_scout_bot/l_scout_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -3183,7 +3183,7 @@
         },
         {
           "path": "/pa/units/land/l_scout_bot/l_scout_bot_radar_mode_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -3404,7 +3404,7 @@
         },
         {
           "path": "/pa/units/land/l_t1_turret_basic/l_t1_turret_basic_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -3549,7 +3549,7 @@
         },
         {
           "path": "/pa/units/land/l_sniper_bot/l_sniper_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -3689,39 +3689,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -3839,6 +3806,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
                 "safeName": "nuke_pbaoe",
                 "name": "nuke_pbaoe",
@@ -3953,7 +3953,7 @@
         },
         {
           "path": "/pa/units/air/l_raider/l_raider_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4070,7 +4070,7 @@
         },
         {
           "path": "/pa/units/land/l_mex/l_mex_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4163,7 +4163,7 @@
         },
         {
           "path": "/pa/units/land/l_shotgun_tank/l_shotgun_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4261,6 +4261,145 @@
       }
     },
     {
+      "identifier": "l_drone",
+      "displayName": "Meteoroid",
+      "unitTypes": [
+        "Mobile",
+        "Air",
+        "Basic",
+        "Custom1"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/air/l_air_carrier/l_drone/l_drone.json",
+          "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/air/l_air_carrier/l_drone/l_drone_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-server"
+        }
+      ],
+      "unit": {
+        "id": "l_drone",
+        "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone.json",
+        "displayName": "Meteoroid",
+        "description": "Drone - Fast. Fragile. Attacks land, sea and air targets.",
+        "image": "assets/pa/units/air/l_air_carrier/l_drone/l_drone_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Mobile",
+          "Air",
+          "Basic",
+          "Custom1"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 60,
+            "dps": 20,
+            "salvoDamage": 20,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_tool_weapon.json",
+                "safeName": "l_drone_tool_weapon",
+                "name": "l_drone_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 20,
+                "dps": 20,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense",
+                  "Air",
+                  "Mobile",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 1000,
+                "pitchRange": 180,
+                "pitchRate": 1000,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
+                  "safeName": "l_drone_ammo",
+                  "name": "l_drone_ammo",
+                  "damage": 20,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
+                "safeName": "l_drone_death_tool_weapon",
+                "name": "l_drone_death_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.06666666666666667,
+                "damage": 0,
+                "dps": 0,
+                "sustainedDps": 0.07,
+                "projectilesPerFire": 1,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 15,
+                "ammoCapacity": 15,
+                "ammoRechargeTime": 15,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure - Wall",
+                  "Mobile - Air",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
+                  "safeName": "l_drone_death_ammo",
+                  "name": "l_drone_death_ammo"
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 90,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 80,
+            "turnSpeed": 240,
+            "acceleration": 80,
+            "brake": 30
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
       "identifier": "l_drone_2",
       "displayName": "Meteoroid",
       "unitTypes": [
@@ -4277,7 +4416,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4285,7 +4424,7 @@
         "resourceName": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
         "displayName": "Meteoroid",
         "description": "Drone - Fast. Fragile. Attacks land, sea and air targets.",
-        "image": "assets/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_2_icon_buildbar.png",
+        "image": "assets/pa/units/orbital/l_orbital_battleship/l_drone/l_drone_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Mobile",
@@ -4399,145 +4538,6 @@
                   "muzzleVelocity": 150,
                   "maxVelocity": 150,
                   "lifetime": 2
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 90,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 80,
-            "turnSpeed": 240,
-            "acceleration": 80,
-            "brake": 30
-          },
-          "recon": {
-            "visionRadius": 150,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {}
-      }
-    },
-    {
-      "identifier": "l_drone",
-      "displayName": "Meteoroid",
-      "unitTypes": [
-        "Mobile",
-        "Air",
-        "Basic",
-        "Custom1"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/air/l_air_carrier/l_drone/l_drone.json",
-          "source": "com.pa.legion-expansion-server"
-        },
-        {
-          "path": "/pa/units/air/l_air_carrier/l_drone/l_drone_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
-        }
-      ],
-      "unit": {
-        "id": "l_drone",
-        "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone.json",
-        "displayName": "Meteoroid",
-        "description": "Drone - Fast. Fragile. Attacks land, sea and air targets.",
-        "image": "assets/pa/units/air/l_air_carrier/l_drone/l_drone_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Mobile",
-          "Air",
-          "Basic",
-          "Custom1"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 60,
-            "dps": 20,
-            "salvoDamage": 20,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_tool_weapon.json",
-                "safeName": "l_drone_tool_weapon",
-                "name": "l_drone_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 20,
-                "dps": 20,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "AirDefense",
-                  "Air",
-                  "Mobile",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 1000,
-                "pitchRange": 180,
-                "pitchRate": 1000,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_ammo.json",
-                  "safeName": "l_drone_ammo",
-                  "name": "l_drone_ammo",
-                  "damage": 20,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_tool_weapon.json",
-                "safeName": "l_drone_death_tool_weapon",
-                "name": "l_drone_death_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.06666666666666667,
-                "damage": 0,
-                "dps": 0,
-                "sustainedDps": 0.07,
-                "projectilesPerFire": 1,
-                "selfDestruct": true,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 15,
-                "ammoCapacity": 15,
-                "ammoRechargeTime": 15,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Structure - Wall",
-                  "Mobile - Air",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_carrier/l_drone/l_drone_death_ammo.json",
-                  "safeName": "l_drone_death_ammo",
-                  "name": "l_drone_death_ammo"
                 }
               }
             ]
@@ -4720,7 +4720,7 @@
         },
         {
           "path": "/pa/units/air/l_air_bomb/l_air_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4744,40 +4744,6 @@
           "combat": {
             "health": 180,
             "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_tool_weapon.json",
-                "safeName": "l_air_bomb_tool_weapon",
-                "name": "l_air_bomb_tool_weapon",
-                "count": 1,
-                "rateOfFire": 5,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 10,
-                "selfDestruct": true,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 Bomber",
-                  "Air \u0026 Gunship",
-                  "Air \u0026 Transport",
-                  "Air \u0026 Mobile"
-                ],
-                "yawRange": 360,
-                "yawRate": 3600,
-                "pitchRange": 180,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_ammo.json",
-                  "safeName": "l_air_bomb_ammo",
-                  "name": "l_air_bomb_ammo",
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 10,
-                  "lifetime": 1
-                }
-              },
               {
                 "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_deploy_tool_weapon.json",
                 "safeName": "l_air_bomb_deploy_tool_weapon",
@@ -4842,6 +4808,40 @@
                   "name": "l_air_bomb_tracer_ammo",
                   "fullDamageRadius": 1
                 }
+              },
+              {
+                "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_tool_weapon.json",
+                "safeName": "l_air_bomb_tool_weapon",
+                "name": "l_air_bomb_tool_weapon",
+                "count": 1,
+                "rateOfFire": 5,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 10,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRange": 360,
+                "yawRate": 3600,
+                "pitchRange": 180,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_air_bomb/l_air_bomb_ammo.json",
+                  "safeName": "l_air_bomb_ammo",
+                  "name": "l_air_bomb_ammo",
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 10,
+                  "lifetime": 1
+                }
               }
             ]
           },
@@ -4898,7 +4898,7 @@
         },
         {
           "path": "/pa/units/air/l_transport/l_transport_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -4975,7 +4975,7 @@
         },
         {
           "path": "/pa/units/commanders/l_overwatch/l_overwatch_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -5021,41 +5021,6 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               },
               {
@@ -5172,6 +5137,41 @@
                   "maxVelocity": 75,
                   "lifetime": 4
                 }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
               }
             ]
           },
@@ -5268,7 +5268,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_aa/l_bot_aa_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -5390,7 +5390,7 @@
         },
         {
           "path": "/pa/units/land/l_assault_bot/l_assault_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -5508,7 +5508,7 @@
         },
         {
           "path": "/pa/units/land/l_energy_plant/l_energy_plant_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -5599,7 +5599,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -5760,7 +5760,7 @@
         },
         {
           "path": "/pa/units/land/l_necromancer/l_minion/l_minion_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6090,7 +6090,7 @@
         },
         {
           "path": "/pa/units/land/l_radar/l_radar_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6178,7 +6178,7 @@
         },
         {
           "path": "/pa/units/commanders/l_tank/l_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6224,6 +6224,77 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -6303,77 +6374,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -6469,7 +6469,7 @@
         },
         {
           "path": "/pa/units/orbital/l_mining_platform/l_mining_platform_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6569,7 +6569,7 @@
         },
         {
           "path": "/pa/units/sea/l_torpedo_launcher/l_torpedo_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6699,7 +6699,7 @@
         },
         {
           "path": "/pa/units/land/l_t1_turret_adv/l_t1_turret_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6820,7 +6820,7 @@
         },
         {
           "path": "/pa/units/commanders/l_raptor/l_raptor_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -6866,6 +6866,77 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -6945,77 +7016,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -7111,7 +7111,7 @@
         },
         {
           "path": "/pa/units/air/l_fighter/l_fighter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7221,7 +7221,7 @@
         },
         {
           "path": "/pa/units/sea/l_sea_mine/l_sea_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7323,7 +7323,7 @@
         },
         {
           "path": "/pa/units/land/l_tank_shank/l_tank_shank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7446,7 +7446,7 @@
         },
         {
           "path": "/pa/units/sea/l_naval_factory/l_naval_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7563,7 +7563,7 @@
         },
         {
           "path": "/pa/units/land/l_air_defense/l_air_defense_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7721,7 +7721,7 @@
         },
         {
           "path": "/pa/units/land/l_teleporter/l_teleporter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7815,7 +7815,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_probe/l_orbital_probe_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -7870,116 +7870,6 @@
       }
     },
     {
-      "identifier": "l_land_mine",
-      "displayName": "Spoiler",
-      "unitTypes": [
-        "Structure",
-        "Land",
-        "Defense",
-        "CombatFabBuild",
-        "Custom1"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/l_land_mine/l_land_mine.json",
-          "source": "com.pa.legion-expansion-server"
-        },
-        {
-          "path": "/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
-        }
-      ],
-      "unit": {
-        "id": "l_land_mine",
-        "resourceName": "/pa/units/land/l_land_mine/l_land_mine.json",
-        "displayName": "Spoiler",
-        "description": "Land Mine - Sprays shrapnel then explodes after four seconds. Can be detonated manually using alt fire. Invisible to most units.",
-        "image": "assets/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Land",
-          "Defense",
-          "CombatFabBuild",
-          "Custom1"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 5,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_tool_weapon.json",
-                "safeName": "l_land_mine_trigger_tool_weapon",
-                "name": "l_land_mine_trigger_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 0,
-                "dps": 0,
-                "sustainedDps": 450,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 1,
-                "maxRange": 5,
-                "selfDestruct": true,
-                "ammoSource": "energy",
-                "ammoDemand": 100000,
-                "ammoPerShot": 100000,
-                "ammoCapacity": 100000,
-                "ammoRechargeTime": 1,
-                "energyRate": -100000,
-                "energyPerShot": 100000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 360,
-                "yawRate": 3600,
-                "pitchRange": 360,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_ammo.json",
-                  "safeName": "l_land_mine_trigger_ammo",
-                  "name": "l_land_mine_trigger_ammo",
-                  "muzzleVelocity": 1,
-                  "maxVelocity": 1,
-                  "lifetime": 5,
-                  "spawnUnitOnDeath": "/pa/units/land/l_land_mine/triggered/l_land_mine.json"
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 20,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {
-              "energy": 100000
-            },
-            "energyRate": -100000
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 2,
-            "radarRadius": 5
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "l_fabrication_vehicle_combat"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "triggered_4",
       "displayName": "Spoiler",
       "unitTypes": [
@@ -7993,6 +7883,10 @@
         {
           "path": "pa/units/land/l_land_mine/triggered/l_land_mine.json",
           "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/land/l_land_mine/triggered/l_land_mine_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8000,6 +7894,7 @@
         "resourceName": "/pa/units/land/l_land_mine/triggered/l_land_mine.json",
         "displayName": "Spoiler",
         "description": "Land Mine - Sprays shrapnel then explodes after four seconds. Can be detonated manually using alt fire. Invisible to most units.",
+        "image": "assets/pa/units/land/l_land_mine/triggered/l_land_mine_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Land",
@@ -8096,6 +7991,116 @@
       }
     },
     {
+      "identifier": "l_land_mine",
+      "displayName": "Spoiler",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "Defense",
+        "CombatFabBuild",
+        "Custom1"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/l_land_mine/l_land_mine.json",
+          "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-server"
+        }
+      ],
+      "unit": {
+        "id": "l_land_mine",
+        "resourceName": "/pa/units/land/l_land_mine/l_land_mine.json",
+        "displayName": "Spoiler",
+        "description": "Land Mine - Sprays shrapnel then explodes after four seconds. Can be detonated manually using alt fire. Invisible to most units.",
+        "image": "assets/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "Defense",
+          "CombatFabBuild",
+          "Custom1"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_tool_weapon.json",
+                "safeName": "l_land_mine_trigger_tool_weapon",
+                "name": "l_land_mine_trigger_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 0,
+                "dps": 0,
+                "sustainedDps": 450,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 1,
+                "maxRange": 5,
+                "selfDestruct": true,
+                "ammoSource": "energy",
+                "ammoDemand": 100000,
+                "ammoPerShot": 100000,
+                "ammoCapacity": 100000,
+                "ammoRechargeTime": 1,
+                "energyRate": -100000,
+                "energyPerShot": 100000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "yawRange": 360,
+                "yawRate": 3600,
+                "pitchRange": 360,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_ammo.json",
+                  "safeName": "l_land_mine_trigger_ammo",
+                  "name": "l_land_mine_trigger_ammo",
+                  "muzzleVelocity": 1,
+                  "maxVelocity": 1,
+                  "lifetime": 5,
+                  "spawnUnitOnDeath": "/pa/units/land/l_land_mine/triggered/l_land_mine.json"
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 20,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {
+              "energy": 100000
+            },
+            "energyRate": -100000
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 2,
+            "radarRadius": 5
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_vehicle_combat"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "l_radar_satellite",
       "displayName": "Sputnik",
       "unitTypes": [
@@ -8115,7 +8120,7 @@
         },
         {
           "path": "/pa/units/orbital/l_radar_satellite/l_radar_satellite_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8198,7 +8203,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_launcher/l_orbital_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8316,7 +8321,7 @@
         },
         {
           "path": "/pa/units/land/l_mortar_tank/l_mortar_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8477,7 +8482,7 @@
         },
         {
           "path": "/pa/units/sea/l_frigate/l_frigate_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8585,7 +8590,7 @@
         },
         {
           "path": "/pa/units/land/l_artillery_short/l_artillery_short_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8723,7 +8728,7 @@
         },
         {
           "path": "/pa/units/orbital/l_ion_defense/l_ion_defense_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8877,7 +8882,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_fighter/l_orbital_fighter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -8989,7 +8994,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_factory/l_bot_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9107,7 +9112,7 @@
         },
         {
           "path": "/pa/units/land/l_fabrication_vehicle_adv/l_fabrication_vehicle_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9241,7 +9246,7 @@
         },
         {
           "path": "/pa/units/land/l_vehicle_factory_adv/l_vehicle_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9346,7 +9351,7 @@
         },
         {
           "path": "/pa/units/air/l_fabrication_aircraft_adv/l_fabrication_aircraft_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9480,7 +9485,7 @@
         },
         {
           "path": "/pa/units/sea/l_fabrication_ship_adv/l_fabrication_ship_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9614,7 +9619,7 @@
         },
         {
           "path": "/pa/units/land/l_fabrication_bot_adv/l_fabrication_bot_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9747,7 +9752,7 @@
         },
         {
           "path": "/pa/units/air/l_air_factory_adv/l_air_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9852,7 +9857,7 @@
         },
         {
           "path": "/pa/units/land/l_mex_adv/l_mex_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -9929,7 +9934,7 @@
         },
         {
           "path": "/pa/units/land/l_energy_plant_adv/l_energy_plant_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10070,7 +10075,7 @@
         },
         {
           "path": "/pa/units/sea/l_naval_factory_adv/l_naval_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10174,7 +10179,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_factory_adv/l_bot_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10281,7 +10286,7 @@
         },
         {
           "path": "/pa/units/land/l_air_defense_adv/l_air_defense_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10399,7 +10404,7 @@
         },
         {
           "path": "/pa/units/land/l_flame_turret/l_flame_turret_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10520,7 +10525,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_laser/l_orbital_laser_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10783,7 +10788,7 @@
         },
         {
           "path": "/pa/units/land/l_control_module/l_control_module_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10857,7 +10862,7 @@
         },
         {
           "path": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -10883,6 +10888,38 @@
             "dps": 670,
             "salvoDamage": 165,
             "weapons": [
+              {
+                "resourceName": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_ground_tool_weapon.json",
+                "safeName": "l_defense_satellite_ground_tool_weapon",
+                "name": "l_defense_satellite_ground_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 100,
+                "dps": 150,
+                "projectilesPerFire": 1,
+                "maxRange": 80,
+                "targetLayers": [
+                  "Air",
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 180,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_ground_ammo.json",
+                  "safeName": "l_defense_satellite_ground_ammo",
+                  "name": "l_defense_satellite_ground_ammo",
+                  "damage": 100
+                }
+              },
               {
                 "resourceName": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_tool_weapon.json",
                 "safeName": "l_defense_satellite_tool_weapon",
@@ -10914,38 +10951,6 @@
                   "damage": 65,
                   "muzzleVelocity": 500,
                   "maxVelocity": 500
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_ground_tool_weapon.json",
-                "safeName": "l_defense_satellite_ground_tool_weapon",
-                "name": "l_defense_satellite_ground_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 100,
-                "dps": 150,
-                "projectilesPerFire": 1,
-                "maxRange": 80,
-                "targetLayers": [
-                  "Air",
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 180,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/l_defense_satellite/l_defense_satellite_ground_ammo.json",
-                  "safeName": "l_defense_satellite_ground_ammo",
-                  "name": "l_defense_satellite_ground_ammo",
-                  "damage": 100
                 }
               }
             ]
@@ -11323,7 +11328,7 @@
         },
         {
           "path": "/pa/units/air/l_flying_teleporter/l_flying_teleporter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11409,7 +11414,7 @@
         },
         {
           "path": "/pa/units/land/l_sniper_tank/l_sniper_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11527,7 +11532,7 @@
         },
         {
           "path": "/pa/units/land/l_rocket_barrage/l_rocket_barrage_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11651,7 +11656,7 @@
         },
         {
           "path": "/pa/units/orbital/l_delta_v_engine/l_delta_v_engine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11729,7 +11734,7 @@
         },
         {
           "path": "/pa/units/land/l_tank_heavy_armor/l_tank_heavy_armor_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11845,7 +11850,7 @@
         },
         {
           "path": "/pa/units/land/l_riot_bot/l_riot_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -11959,7 +11964,7 @@
         },
         {
           "path": "/pa/units/sea/l_battleship/l_battleship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12124,7 +12129,7 @@
         },
         {
           "path": "/pa/units/air/l_fighter_adv/l_fighter_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12276,7 +12281,7 @@
         },
         {
           "path": "/pa/units/land/l_artillery_long/l_artillery_long_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12409,7 +12414,7 @@
         },
         {
           "path": "/pa/units/sea/l_sea_tank/l_sea_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12610,7 +12615,7 @@
         },
         {
           "path": "/pa/units/land/l_tank_swarm/l_tank_swarm_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12773,7 +12778,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -12801,6 +12806,50 @@
             "dps": 455,
             "salvoDamage": 1045,
             "weapons": [
+              {
+                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_tool_weapon_drone.json",
+                "safeName": "l_orbital_battleship_tool_weapon_drone",
+                "name": "l_orbital_battleship_tool_weapon_drone",
+                "count": 1,
+                "rateOfFire": 4,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 90,
+                "maxRange": 140,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 1,
+                "ammoCapacity": 8,
+                "ammoDrainTime": 2.25,
+                "ammoRechargeTime": 8,
+                "ammoShotsToDrain": 10,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "yawRange": 360,
+                "yawRate": 720,
+                "pitchRange": 180,
+                "pitchRate": 720,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_ammo_drone.json",
+                  "safeName": "l_orbital_battleship_ammo_drone",
+                  "name": "l_orbital_battleship_ammo_drone",
+                  "muzzleVelocity": 90,
+                  "maxVelocity": 90,
+                  "lifetime": 5,
+                  "spawnUnitOnDeath": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
+                  "spawnUnitOnDeathWithVelocity": true
+                }
+              },
               {
                 "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_tool_weapon.json",
                 "safeName": "l_orbital_battleship_tool_weapon",
@@ -12905,50 +12954,6 @@
                   "splashDamage": 300,
                   "splashRadius": 4
                 }
-              },
-              {
-                "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_tool_weapon_drone.json",
-                "safeName": "l_orbital_battleship_tool_weapon_drone",
-                "name": "l_orbital_battleship_tool_weapon_drone",
-                "count": 1,
-                "rateOfFire": 4,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 90,
-                "maxRange": 140,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 1,
-                "ammoCapacity": 8,
-                "ammoDrainTime": 2.25,
-                "ammoRechargeTime": 8,
-                "ammoShotsToDrain": 10,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "yawRange": 360,
-                "yawRate": 720,
-                "pitchRange": 180,
-                "pitchRate": 720,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship_ammo_drone.json",
-                  "safeName": "l_orbital_battleship_ammo_drone",
-                  "name": "l_orbital_battleship_ammo_drone",
-                  "muzzleVelocity": 90,
-                  "maxVelocity": 90,
-                  "lifetime": 5,
-                  "spawnUnitOnDeath": "/pa/units/orbital/l_orbital_battleship/l_drone/l_drone.json",
-                  "spawnUnitOnDeathWithVelocity": true
-                }
               }
             ]
           },
@@ -13004,7 +13009,7 @@
         },
         {
           "path": "/pa/units/air/l_air_scout_adv/l_air_scout_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13132,7 +13137,7 @@
         },
         {
           "path": "/pa/units/land/l_anti_nuke_launcher/l_anti_nuke_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13186,16 +13191,29 @@
                 "yawRange": 180,
                 "pitchRange": 180,
                 "ammoDetails": {
-                  "resourceName": "/pa/units/land/anti_nuke_launcher/anti_nuke_launcher_ammo.json",
-                  "safeName": "anti_nuke_launcher_ammo",
-                  "name": "anti_nuke_launcher_ammo",
+                  "resourceName": "/pa/units/land/l_anti_nuke_launcher/l_anti_nuke_launcher_ammo.json",
+                  "safeName": "l_anti_nuke_launcher_ammo",
+                  "name": "l_anti_nuke_launcher_ammo",
                   "damage": 1,
                   "splashDamage": 1,
                   "muzzleVelocity": 1500,
                   "maxVelocity": 1500,
                   "lifetime": 5,
                   "metalCost": 5000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/l_anti_nuke_launcher/l_anti_nuke_launcher_ammo.json",
+                    "safeName": "l_anti_nuke_launcher_ammo",
+                    "name": "l_anti_nuke_launcher_ammo",
+                    "damage": 1,
+                    "splashDamage": 1,
+                    "muzzleVelocity": 1500,
+                    "maxVelocity": 1500,
+                    "lifetime": 5,
+                    "metalCost": 5000
+                  }
+                ]
               }
             ]
           },
@@ -13272,7 +13290,7 @@
         },
         {
           "path": "/pa/units/sea/l_hover_ship/l_hover_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13432,7 +13450,7 @@
         },
         {
           "path": "/pa/units/orbital/l_radar_satellite_adv/l_radar_satellite_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13548,7 +13566,7 @@
         },
         {
           "path": "/pa/units/air/l_gunship/l_gunship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13574,42 +13592,6 @@
             "dps": 705,
             "salvoDamage": 270,
             "weapons": [
-              {
-                "resourceName": "/pa/units/air/l_gunship/l_gunship_main_tool_weapon.json",
-                "safeName": "l_gunship_main_tool_weapon",
-                "name": "l_gunship_main_tool_weapon",
-                "count": 1,
-                "rateOfFire": 4,
-                "damage": 20,
-                "dps": 80,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 150,
-                "maxRange": 80,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "AirDefense \u0026 (Land | Naval)",
-                  "Titan \u0026 (Land | Naval)",
-                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
-                  "Nuke | NukeDefense"
-                ],
-                "yawRange": 360,
-                "yawRate": 360,
-                "pitchRange": 100,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/l_gunship/l_gunship_main_ammo.json",
-                  "safeName": "l_gunship_main_ammo",
-                  "name": "l_gunship_main_ammo",
-                  "damage": 20,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
-                }
-              },
               {
                 "resourceName": "/pa/units/air/l_gunship/l_gunship_rocket_tool_weapon.json",
                 "safeName": "l_gunship_rocket_tool_weapon",
@@ -13652,6 +13634,42 @@
                   "muzzleVelocity": 80,
                   "maxVelocity": 120,
                   "lifetime": 30
+                }
+              },
+              {
+                "resourceName": "/pa/units/air/l_gunship/l_gunship_main_tool_weapon.json",
+                "safeName": "l_gunship_main_tool_weapon",
+                "name": "l_gunship_main_tool_weapon",
+                "count": 1,
+                "rateOfFire": 4,
+                "damage": 20,
+                "dps": 80,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 80,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 (Land | Naval)",
+                  "Titan \u0026 (Land | Naval)",
+                  "Artillery \u0026 Advanced \u0026 (Land | Naval)",
+                  "Nuke | NukeDefense"
+                ],
+                "yawRange": 360,
+                "yawRate": 360,
+                "pitchRange": 100,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/l_gunship/l_gunship_main_ammo.json",
+                  "safeName": "l_gunship_main_ammo",
+                  "name": "l_gunship_main_ammo",
+                  "damage": 20,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
                 }
               }
             ]
@@ -13708,7 +13726,7 @@
         },
         {
           "path": "/pa/units/sea/l_missile_ship/l_missile_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -13734,72 +13752,6 @@
             "dps": 2300,
             "salvoDamage": 960,
             "weapons": [
-              {
-                "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_light_tool_weapon.json",
-                "safeName": "l_missile_ship_light_tool_weapon",
-                "name": "l_missile_ship_light_tool_weapon",
-                "count": 2,
-                "rateOfFire": 8,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 2,
-                "muzzleVelocity": 280,
-                "maxRange": 130,
-                "splashDamage": 10,
-                "splashRadius": 1,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
-                  "Air \u0026 Mobile"
-                ],
-                "yawRange": 360,
-                "yawRate": 360,
-                "pitchRange": 90,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_light_ammo.json",
-                  "safeName": "l_missile_ship_light_ammo",
-                  "name": "l_missile_ship_light_ammo",
-                  "splashDamage": 10,
-                  "splashRadius": 1,
-                  "muzzleVelocity": 280,
-                  "maxVelocity": 280,
-                  "lifetime": 0.7
-                }
-              },
-              {
-                "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_antiuc_tool_weapon.json",
-                "safeName": "l_missile_ship_antiuc_tool_weapon",
-                "name": "l_missile_ship_antiuc_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.2,
-                "damage": 400,
-                "dps": 80,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 225,
-                "targetLayers": [
-                  "Orbital",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_antidrop_ammo.json",
-                  "safeName": "l_missile_ship_antidrop_ammo",
-                  "name": "l_missile_ship_antidrop_ammo",
-                  "damage": 400,
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 400,
-                  "lifetime": 3
-                }
-              },
               {
                 "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_rocket_tool_weapon.json",
                 "safeName": "l_missile_ship_rocket_tool_weapon",
@@ -13869,6 +13821,72 @@
                   "name": "l_missile_ship_beam_ammo",
                   "damage": 30
                 }
+              },
+              {
+                "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_light_tool_weapon.json",
+                "safeName": "l_missile_ship_light_tool_weapon",
+                "name": "l_missile_ship_light_tool_weapon",
+                "count": 2,
+                "rateOfFire": 8,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 2,
+                "muzzleVelocity": 280,
+                "maxRange": 130,
+                "splashDamage": 10,
+                "splashRadius": 1,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRange": 360,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_light_ammo.json",
+                  "safeName": "l_missile_ship_light_ammo",
+                  "name": "l_missile_ship_light_ammo",
+                  "splashDamage": 10,
+                  "splashRadius": 1,
+                  "muzzleVelocity": 280,
+                  "maxVelocity": 280,
+                  "lifetime": 0.7
+                }
+              },
+              {
+                "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_antiuc_tool_weapon.json",
+                "safeName": "l_missile_ship_antiuc_tool_weapon",
+                "name": "l_missile_ship_antiuc_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.2,
+                "damage": 400,
+                "dps": 80,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 225,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/sea/l_missile_ship/l_missile_ship_antidrop_ammo.json",
+                  "safeName": "l_missile_ship_antidrop_ammo",
+                  "name": "l_missile_ship_antidrop_ammo",
+                  "damage": 400,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 400,
+                  "lifetime": 3
+                }
               }
             ]
           },
@@ -13923,7 +13941,7 @@
         },
         {
           "path": "/pa/units/air/l_air_carrier/l_air_carrier_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14048,7 +14066,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_artillery/l_bot_artillery_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14168,7 +14186,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14195,6 +14213,44 @@
             "dps": 420,
             "salvoDamage": 1680,
             "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_tool_weapon.json",
+                "safeName": "l_bot_artillery_adv_light_tool_weapon",
+                "name": "l_bot_artillery_adv_light_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 30,
+                "dps": 90,
+                "projectilesPerFire": 2,
+                "muzzleVelocity": 150,
+                "maxRange": 75,
+                "fullDamageRadius": 2,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Air",
+                  "Wall"
+                ],
+                "yawRange": 360,
+                "yawRate": 360,
+                "pitchRange": 20,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_ammo.json",
+                  "safeName": "l_bot_artillery_adv_light_ammo",
+                  "name": "l_bot_artillery_adv_light_ammo",
+                  "damage": 30,
+                  "fullDamageRadius": 2,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              },
               {
                 "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_tool_weapon.json",
                 "safeName": "l_bot_artillery_adv_tool_weapon",
@@ -14234,44 +14290,6 @@
                   "muzzleVelocity": 600,
                   "maxVelocity": 600,
                   "lifetime": 0.75
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_tool_weapon.json",
-                "safeName": "l_bot_artillery_adv_light_tool_weapon",
-                "name": "l_bot_artillery_adv_light_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1.5,
-                "damage": 30,
-                "dps": 90,
-                "projectilesPerFire": 2,
-                "muzzleVelocity": 150,
-                "maxRange": 75,
-                "fullDamageRadius": 2,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Structure - Wall",
-                  "Air",
-                  "Wall"
-                ],
-                "yawRange": 360,
-                "yawRate": 360,
-                "pitchRange": 20,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_light_ammo.json",
-                  "safeName": "l_bot_artillery_adv_light_ammo",
-                  "name": "l_bot_artillery_adv_light_ammo",
-                  "damage": 30,
-                  "fullDamageRadius": 2,
-                  "muzzleVelocity": 150,
-                  "maxVelocity": 150,
-                  "lifetime": 2
                 }
               }
             ]
@@ -14326,7 +14344,7 @@
         },
         {
           "path": "/pa/units/land/l_necromancer/l_necromancer_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14443,7 +14461,7 @@
         },
         {
           "path": "/pa/units/land/l_storage/l_storage_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14561,7 +14579,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_aa_adv/l_bot_aa_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14671,7 +14689,7 @@
         },
         {
           "path": "/pa/units/land/l_radar_adv/l_radar_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14753,7 +14771,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_railgun/l_orbital_railgun_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -14876,7 +14894,7 @@
         },
         {
           "path": "/pa/units/land/l_hover_tank_adv/l_hover_tank_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15047,7 +15065,7 @@
         },
         {
           "path": "/pa/units/land/l_bot_support_commander/l_bot_support_commander_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15231,7 +15249,7 @@
         },
         {
           "path": "/pa/units/air/l_firestarter/l_drop_turret/l_drop_turret_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15349,7 +15367,7 @@
         },
         {
           "path": "/pa/units/land/l_shield_gen/l_shield_gen_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15490,7 +15508,7 @@
         },
         {
           "path": "/pa/units/sea/l_fabrication_sub_combat_adv/l_fabrication_sub_combat_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15597,7 +15615,7 @@
         },
         {
           "path": "/pa/units/air/l_firestarter/l_firestarter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15760,7 +15778,7 @@
         },
         {
           "path": "/pa/units/land/l_tank_laser_adv/l_tank_laser_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -15881,7 +15899,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_dropper/l_orbital_dropper_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16028,7 +16046,7 @@
         },
         {
           "path": "/pa/units/orbital/l_orbital_factory/l_orbital_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16130,7 +16148,7 @@
         },
         {
           "path": "/pa/units/land/l_nuke_launcher/l_nuke_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16196,7 +16214,21 @@
                   "muzzleVelocity": 40,
                   "maxVelocity": 75,
                   "metalCost": 30000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/l_nuke_launcher/l_nuke_launcher_ammo.json",
+                    "safeName": "l_nuke_launcher_ammo",
+                    "name": "l_nuke_launcher_ammo",
+                    "damage": 33000,
+                    "fullDamageRadius": 125,
+                    "splashDamage": 33000,
+                    "splashRadius": 150,
+                    "muzzleVelocity": 40,
+                    "maxVelocity": 75,
+                    "metalCost": 30000
+                  }
+                ]
               }
             ]
           },
@@ -16266,6 +16298,10 @@
         {
           "path": "pa/units/land/l_bot_artillery/bomb/bomb.json",
           "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "/pa/units/land/l_bot_artillery/bomb/bomb_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16273,6 +16309,7 @@
         "resourceName": "/pa/units/land/l_bot_artillery/bomb/bomb.json",
         "displayName": "Time Delay Bomb",
         "description": "KABOOM!",
+        "image": "assets/pa/units/land/l_bot_artillery/bomb/bomb_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
           "Land",
@@ -16368,7 +16405,7 @@
         },
         {
           "path": "/pa/units/sea/l_torpedo_launcher_adv/l_torpedo_launcher_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16487,7 +16524,7 @@
         },
         {
           "path": "/pa/units/land/l_titan_structure/l_titan_structure_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16598,7 +16635,7 @@
         },
         {
           "path": "/pa/units/air/l_titan_air/l_titan_air_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16793,7 +16830,7 @@
         },
         {
           "path": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -16822,44 +16859,6 @@
             "dps": 1360,
             "salvoDamage": 10680,
             "weapons": [
-              {
-                "resourceName": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_tool_weapon_side.json",
-                "safeName": "l_titan_vehicle_tool_weapon_side",
-                "name": "l_titan_vehicle_tool_weapon_side",
-                "count": 2,
-                "rateOfFire": 3,
-                "damage": 40,
-                "dps": 120,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 250,
-                "maxRange": 160,
-                "splashDamage": 40,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
-                  "Air \u0026 Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 280,
-                "pitchRange": 60,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_ammo_side.json",
-                  "safeName": "l_titan_vehicle_ammo_side",
-                  "name": "l_titan_vehicle_ammo_side",
-                  "damage": 40,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 40,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 250,
-                  "maxVelocity": 250,
-                  "lifetime": 1
-                }
-              },
               {
                 "resourceName": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_tool_weapon_main.json",
                 "safeName": "l_titan_vehicle_tool_weapon_main",
@@ -16900,6 +16899,44 @@
                   "splashRadius": 25,
                   "muzzleVelocity": 300,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_tool_weapon_side.json",
+                "safeName": "l_titan_vehicle_tool_weapon_side",
+                "name": "l_titan_vehicle_tool_weapon_side",
+                "count": 2,
+                "rateOfFire": 3,
+                "damage": 40,
+                "dps": 120,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 250,
+                "maxRange": 160,
+                "splashDamage": 40,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 (EnergyProduction | Transport | Bomber | Gunship | Titan)",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 280,
+                "pitchRange": 60,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_titan_vehicle/l_titan_vehicle_ammo_side.json",
+                  "safeName": "l_titan_vehicle_ammo_side",
+                  "name": "l_titan_vehicle_ammo_side",
+                  "damage": 40,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 40,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 250,
+                  "maxVelocity": 250,
+                  "lifetime": 1
                 }
               },
               {
@@ -16979,7 +17016,7 @@
         },
         {
           "path": "/pa/units/land/l_titan_bot/l_titan_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {
@@ -17008,6 +17045,44 @@
             "dps": 2290,
             "salvoDamage": 5875,
             "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_titan_bot/l_titan_bot_rocket_tool_weapon.json",
+                "safeName": "l_titan_bot_rocket_tool_weapon",
+                "name": "l_titan_bot_rocket_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.09,
+                "damage": 100,
+                "dps": 144,
+                "projectilesPerFire": 16,
+                "muzzleVelocity": 50,
+                "maxRange": 170,
+                "splashDamage": 100,
+                "splashRadius": 12,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense",
+                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
+                ],
+                "yawRate": 180,
+                "pitchRate": 180,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_titan_bot/l_titan_bot_rocket_ammo.json",
+                  "safeName": "l_titan_bot_rocket_ammo",
+                  "name": "l_titan_bot_rocket_ammo",
+                  "damage": 100,
+                  "splashDamage": 100,
+                  "splashRadius": 12,
+                  "muzzleVelocity": 50,
+                  "maxVelocity": 200,
+                  "lifetime": 10
+                }
+              },
               {
                 "resourceName": "/pa/units/land/l_titan_bot/l_titan_bot_cannon_tool_weapon.json",
                 "safeName": "l_titan_bot_cannon_tool_weapon",
@@ -17099,44 +17174,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/land/l_titan_bot/l_titan_bot_rocket_tool_weapon.json",
-                "safeName": "l_titan_bot_rocket_tool_weapon",
-                "name": "l_titan_bot_rocket_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.09,
-                "damage": 100,
-                "dps": 144,
-                "projectilesPerFire": 16,
-                "muzzleVelocity": 50,
-                "maxRange": 170,
-                "splashDamage": 100,
-                "splashRadius": 12,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "Titan \u0026 ( Land | Naval )",
-                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
-                  "Nuke | NukeDefense",
-                  "Structure \u0026 Advanced \u0026 SurfaceDefense \u0026 CombatFabAdvBuild \u0026 Custom1"
-                ],
-                "yawRate": 180,
-                "pitchRate": 180,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_titan_bot/l_titan_bot_rocket_ammo.json",
-                  "safeName": "l_titan_bot_rocket_ammo",
-                  "name": "l_titan_bot_rocket_ammo",
-                  "damage": 100,
-                  "splashDamage": 100,
-                  "splashRadius": 12,
-                  "muzzleVelocity": 50,
-                  "maxVelocity": 200,
-                  "lifetime": 10
-                }
-              },
-              {
                 "resourceName": "/pa/units/land/titan_bot/titan_bot_ammo_death.json",
                 "safeName": "titan_bot_ammo_death",
                 "name": "titan_bot_ammo_death",
@@ -17217,7 +17254,7 @@
         },
         {
           "path": "/pa/units/orbital/l_titan_orbital/l_titan_orbital_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-client"
+          "source": "com.pa.legion-expansion-server"
         }
       ],
       "unit": {

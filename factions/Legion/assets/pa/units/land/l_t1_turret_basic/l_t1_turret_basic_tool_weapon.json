@@ -13,11 +13,7 @@
   "ammo_capacity": 1,
   "ammo_demand": 1,
   "ammo_per_shot": 0.3,
-  "target_layers": [
-    "WL_LandHorizontal",
-    "WL_Seafloor",
-    "WL_WaterSurface"
-  ],
+  "target_layers": ["WL_LandHorizontal", "WL_Seafloor", "WL_WaterSurface"],
   "yaw_range": 180,
   "yaw_rate": 300
 }
