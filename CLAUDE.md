@@ -13,6 +13,27 @@ PA-Pedia extracts Planetary Annihilation faction data (base game + mods) into po
 
 **Current Phase**: 3 - Advanced Features (Planned)
 
+## Justfile Commands
+
+This project uses [just](https://github.com/casey/just) as a command runner. Run `just` from the repo root to see all available commands.
+
+**Common commands:**
+```bash
+just                  # List all available commands
+just dev              # Run web dev server
+just web-build        # Build web app for production
+just web-test-run     # Run web tests once
+just web-lint         # Run ESLint on web app
+just cli-build        # Build CLI binary
+just cli-test         # Run CLI tests
+just schema-sync      # Full schema sync (Go → JSON Schema → TypeScript)
+just test             # Run all tests (CLI + Web)
+just build            # Build everything (CLI + Web)
+just install          # Install all dependencies
+```
+
+**Prefer justfile commands** over raw commands (e.g., use `just dev` instead of `cd web && npm run dev`).
+
 ## Data Models & Output
 
 ### Faction Folder Structure
@@ -139,8 +160,11 @@ This solves a PA modding quirk where addon mods must "shadow" all base game unit
 
 **Workflow**:
 1. Modify Go structs in `cli/pkg/models/`
-2. Generate schemas: `cd cli/tools/generate-schema && ./build-and-run.bat`
-3. Generate TypeScript types: `cd web && npm run generate-types`
+2. Run `just schema-sync` to regenerate schemas and TypeScript types
+
+**Individual commands** (if needed):
+- `just generate-schema` - Generate JSON schemas from Go structs only
+- `just generate-types` - Generate TypeScript types from JSON schemas only
 
 **Important**: Never edit schemas in `schema/` directory directly - they are generated from Go structs.
 
@@ -177,7 +201,7 @@ web/src/
 ### Data Loading Strategy
 
 **Development vs Production Mode**:
-- **Development** (`npm run dev`): Loads faction data directly from `/factions/` folder at repo root via Vite plugin. No zips, no manifest, no caching. Uses standard file URLs.
+- **Development** (`just dev`): Loads faction data directly from `/factions/` folder at repo root via Vite plugin. No zips, no manifest, no caching. Uses standard file URLs.
 - **Production** (deployed build): Fetches manifest from GitHub Releases, downloads faction zips on-demand, caches in IndexedDB. Uses Blob URLs.
 
 **Two-Tier Lazy Loading**:
@@ -303,8 +327,8 @@ Triggers on:
 ### Add New Unit Field
 1. Update Go struct in `cli/pkg/models/` with JSON tags
 2. Update parser in `cli/pkg/parser/unit.go`
-3. Regenerate schema: `cd cli/tools/generate-schema && ./build-and-run.bat`
-4. Update TypeScript types in `web/src/types/faction.ts` manually
+3. Run `just schema-sync` to regenerate schemas and TypeScript types
+4. Update TypeScript types in `web/src/types/faction.ts` manually (if needed)
 
 ### Add New Static Faction
 Static factions are served from GitHub Releases and available to all users. To add a new faction:
@@ -389,25 +413,27 @@ Use agents when their expertise matches the task. For complex Go work, defer to 
 ### When Adding Dependencies
 
 **CLI (Go)**:
-1. Update `go.mod` with required package
+1. Update `go.mod` with required package (or `cd cli && go get <pkg>`)
 2. Document why needed in code or comments
 3. Consider binary size impact
 4. Verify cross-platform compatibility
 
 **Web (npm)**:
-1. Add to `package.json` (use `npm install <pkg>`)
+1. Add to `package.json` (`cd web && npm install <pkg>`)
 2. Document why needed
-3. Check bundle size impact (`npm run build` and check dist/)
+3. Check bundle size impact (`just web-build` and check `web/dist/`)
 4. Verify browser compatibility
 
 ## Resources
 
 **Internal**:
+- [justfile](justfile) - Command runner with all common commands
 - [PROJECT_PLAN.md](PROJECT_PLAN.md) - Architecture and roadmap
 - [README.md](README.md) - User-facing docs
 - [cli/CLAUDE.md](cli/CLAUDE.md) - CLI-specific development guide
 
 **External**:
+- Just (command runner): https://github.com/casey/just
 - JSON Schema: https://json-schema.org/
 - Go jsonschema: https://github.com/invopop/jsonschema
 - Cobra CLI: https://github.com/spf13/cobra
