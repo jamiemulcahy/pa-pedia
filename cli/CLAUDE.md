@@ -116,8 +116,8 @@ Generates faction folder with three-tier structure:
 Profiles define faction identity (name, unit type, mods) in reusable JSON files. Built-in profiles are embedded in the binary.
 
 ```bash
-# List available profiles
-pa-pedia describe-faction --list-profiles
+# List available profiles (from repo root)
+just cli-list-profiles
 
 # Base game (MLA)
 pa-pedia describe-faction --profile mla --pa-root "C:/PA/media"
@@ -267,15 +267,15 @@ Optional override fields (auto-detected from primary mod if not specified):
 
 **Flow**: Go Structs → JSON Schema → TypeScript Types
 
+**Preferred** (from repo root):
+```bash
+just schema-sync  # Generates schemas and TypeScript types
+```
+
+**Individual steps** (if needed):
 1. Modify Go structs in `pkg/models/`
-2. Run schema generator:
-   ```bash
-   cd tools/generate-schema
-   ./build-and-run.bat  # Windows
-   ./build-and-run.sh   # Unix/Mac
-   ```
-3. Schemas output to `../../schema/`
-4. Web team runs `npm run generate-types` to update TypeScript
+2. `just generate-schema` - Generates JSON schemas to `schema/`
+3. `just generate-types` - Generates TypeScript types from schemas
 
 **Critical**: Schemas in `schema/` are generated. Never edit them directly.
 
@@ -314,25 +314,27 @@ Optional override fields (auto-detected from primary mod if not specified):
 
 ## Building
 
+**Preferred** (from repo root):
 ```bash
-# Build binary
-go build -o pa-pedia.exe
+just cli-build       # Build binary
+just cli-test        # Run tests
+just cli-build-race  # Build with race detection
+```
 
-# Run tests
-go test ./...
-
-# Build with race detection (development)
-go build -race -o pa-pedia.exe
+**From cli directory**:
+```bash
+go build -o pa-pedia.exe      # Build binary
+go test ./...                  # Run tests
+go build -race -o pa-pedia.exe # Build with race detection
 ```
 
 ## Development Workflow
 
 1. Make changes to Go structs/parsing logic
-2. Build: `go build -o pa-pedia.exe`
-3. Test with real PA data: `./pa-pedia.exe describe-faction ...`
-4. Regenerate schemas if models changed: `cd tools/generate-schema && ./build-and-run.bat`
-5. Update tests if behavior changed: `go test ./...`
-6. Notify web team if schemas changed (they need to regenerate TypeScript)
+2. Build: `just cli-build`
+3. Test with real PA data: `./cli/pa-pedia.exe describe-faction ...`
+4. Regenerate schemas if models changed: `just schema-sync`
+5. Update tests if behavior changed: `just cli-test`
 
 ## File Paths (Windows)
 
