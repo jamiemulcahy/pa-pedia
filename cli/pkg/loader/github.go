@@ -18,23 +18,29 @@ type GitHubSource struct {
 	Owner string // Repository owner (user or org)
 	Repo  string // Repository name
 	Ref   string // Branch, tag, or commit SHA (default: "main")
+	Path  string // Optional subdirectory path within the repo (e.g., "src/server")
 	URL   string // Original URL for error messages
 }
 
 // gitHubURLPatterns matches various GitHub URL formats
+// Order matters: more specific patterns (with path) must come before less specific ones
 var gitHubURLPatterns = []*regexp.Regexp{
-	// https://github.com/owner/repo
-	// https://github.com/owner/repo/
-	regexp.MustCompile(`^https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$`),
+	// https://github.com/owner/repo/tree/branch/path/to/folder
+	regexp.MustCompile(`^https?://github\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.+?)/?$`),
 	// https://github.com/owner/repo/tree/branch
 	// https://github.com/owner/repo/tree/branch/
 	regexp.MustCompile(`^https?://github\.com/([^/]+)/([^/]+)/tree/([^/]+)/?$`),
-	// github.com/owner/repo
-	// github.com/owner/repo/
-	regexp.MustCompile(`^github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$`),
+	// https://github.com/owner/repo
+	// https://github.com/owner/repo/
+	regexp.MustCompile(`^https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$`),
+	// github.com/owner/repo/tree/branch/path/to/folder
+	regexp.MustCompile(`^github\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.+?)/?$`),
 	// github.com/owner/repo/tree/branch
 	// github.com/owner/repo/tree/branch/
 	regexp.MustCompile(`^github\.com/([^/]+)/([^/]+)/tree/([^/]+)/?$`),
+	// github.com/owner/repo
+	// github.com/owner/repo/
+	regexp.MustCompile(`^github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$`),
 }
 
 // IsGitHubURL checks if a string is a GitHub repository URL
@@ -65,15 +71,20 @@ func ParseGitHubURL(urlStr string) (*GitHubSource, error) {
 			URL:   urlStr,
 		}
 
-		// If pattern has 4 groups, the 4th is the branch/ref
+		// If pattern has 4+ groups, the 4th is the branch/ref
 		if len(matches) > 3 && matches[3] != "" {
 			src.Ref = matches[3]
+		}
+
+		// If pattern has 5 groups, the 5th is the subdirectory path
+		if len(matches) > 4 && matches[4] != "" {
+			src.Path = matches[4]
 		}
 
 		return src, nil
 	}
 
-	return nil, fmt.Errorf("invalid GitHub URL format: %s\nExpected formats:\n  github.com/owner/repo\n  github.com/owner/repo/tree/branch\n  https://github.com/owner/repo", urlStr)
+	return nil, fmt.Errorf("invalid GitHub URL format: %s\nExpected formats:\n  github.com/owner/repo\n  github.com/owner/repo/tree/branch\n  github.com/owner/repo/tree/branch/path\n  https://github.com/owner/repo", urlStr)
 }
 
 // GetGitHubArchiveURL returns the zip archive download URL for a GitHub source
@@ -155,11 +166,21 @@ func LoadModInfoFromGitHubArchive(src *GitHubSource, zipPath string) (*ModInfo, 
 	pathSafeRef = strings.ReplaceAll(pathSafeRef, "\\", "")
 	rootPrefix := fmt.Sprintf("%s-%s/", src.Repo, pathSafeRef)
 
+	// If a subdirectory path is specified, append it to the root prefix
+	// This allows loading mods from specific folders within a repository
+	if src.Path != "" {
+		// Sanitize path to prevent traversal
+		sanitizedPath := strings.ReplaceAll(src.Path, "..", "")
+		sanitizedPath = strings.ReplaceAll(sanitizedPath, "\\", "/")
+		sanitizedPath = strings.Trim(sanitizedPath, "/")
+		rootPrefix = rootPrefix + sanitizedPath + "/"
+	}
+
 	// Look for modinfo.json
 	var modinfoFile *zip.File
 	for _, file := range reader.File {
 		name := file.Name
-		// Check for modinfo.json at root of repo content
+		// Check for modinfo.json at the target location
 		if name == rootPrefix+"modinfo.json" || name == "modinfo.json" {
 			modinfoFile = file
 			break
@@ -168,7 +189,11 @@ func LoadModInfoFromGitHubArchive(src *GitHubSource, zipPath string) (*ModInfo, 
 
 	if modinfoFile == nil {
 		// No modinfo.json found - synthesize a minimal ModInfo
-		fmt.Printf("Warning: No modinfo.json found in %s/%s. Using repository name as identifier.\n", src.Owner, src.Repo)
+		location := fmt.Sprintf("%s/%s", src.Owner, src.Repo)
+		if src.Path != "" {
+			location = fmt.Sprintf("%s/%s/%s", src.Owner, src.Repo, src.Path)
+		}
+		fmt.Printf("Warning: No modinfo.json found in %s. Using repository name as identifier.\n", location)
 		return &ModInfo{
 			Identifier:    fmt.Sprintf("github_%s_%s", src.Owner, src.Repo),
 			DisplayName:   src.Repo,

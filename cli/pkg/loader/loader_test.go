@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -436,5 +437,36 @@ func TestLoadMergedUnitListEmptySources(t *testing.T) {
 	expectedErrMsg := "no sources configured in loader"
 	if err != nil && err.Error() != expectedErrMsg {
 		t.Errorf("LoadMergedUnitList() error = %q, want %q", err.Error(), expectedErrMsg)
+	}
+}
+
+// TestLoadMergedUnitListNoUnitListFound tests error message when no unit list files exist
+func TestLoadMergedUnitListNoUnitListFound(t *testing.T) {
+	// Create a temp directory with no unit list files
+	tempDir := t.TempDir()
+
+	l := &Loader{
+		sources: []Source{
+			{
+				Type:       ModSourceBaseGame,
+				Path:       tempDir,
+				IsZip:      false,
+				Identifier: "test",
+			},
+		},
+	}
+
+	_, _, err := l.LoadMergedUnitList()
+	if err == nil {
+		t.Error("LoadMergedUnitList() with no unit list files should return error")
+	}
+
+	// Verify error message mentions both filenames tried
+	errMsg := err.Error()
+	if !strings.Contains(errMsg, "unit_list.json") {
+		t.Errorf("Error message should mention unit_list.json, got: %q", errMsg)
+	}
+	if !strings.Contains(errMsg, "unit_list_legion.json") {
+		t.Errorf("Error message should mention unit_list_legion.json, got: %q", errMsg)
 	}
 }

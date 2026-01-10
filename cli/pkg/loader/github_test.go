@@ -23,6 +23,10 @@ func TestIsGitHubURL(t *testing.T) {
 		{"with version tag", "github.com/owner/repo/tree/v1.2.3", true},
 		{"with feature branch", "github.com/owner/repo/tree/feature-branch", true},
 		{"with trailing slash on branch", "github.com/owner/repo/tree/main/", true},
+		{"with subfolder path", "github.com/owner/repo/tree/main/src/server", true},
+		{"https with subfolder path", "https://github.com/owner/repo/tree/develop/src/client", true},
+		{"with deep path", "github.com/owner/repo/tree/main/path/to/nested/folder", true},
+		{"with trailing slash on path", "github.com/owner/repo/tree/main/src/server/", true},
 
 		// Invalid URLs
 		{"empty string", "", false},
@@ -51,6 +55,7 @@ func TestParseGitHubURL(t *testing.T) {
 		expectedOwner string
 		expectedRepo  string
 		expectedRef   string
+		expectedPath  string
 		shouldError   bool
 	}{
 		// Valid URLs
@@ -117,6 +122,38 @@ func TestParseGitHubURL(t *testing.T) {
 			expectedRepo:  "my-cool-mod",
 			expectedRef:   "main",
 		},
+		{
+			name:          "with subfolder path",
+			input:         "github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/server",
+			expectedOwner: "Legion-Expansion",
+			expectedRepo:  "Legion-Expansion",
+			expectedRef:   "develop",
+			expectedPath:  "src/server",
+		},
+		{
+			name:          "https with subfolder path",
+			input:         "https://github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/client",
+			expectedOwner: "Legion-Expansion",
+			expectedRepo:  "Legion-Expansion",
+			expectedRef:   "develop",
+			expectedPath:  "src/client",
+		},
+		{
+			name:          "with deep nested path",
+			input:         "github.com/owner/repo/tree/main/path/to/deeply/nested/folder",
+			expectedOwner: "owner",
+			expectedRepo:  "repo",
+			expectedRef:   "main",
+			expectedPath:  "path/to/deeply/nested/folder",
+		},
+		{
+			name:          "path with trailing slash",
+			input:         "github.com/owner/repo/tree/main/src/server/",
+			expectedOwner: "owner",
+			expectedRepo:  "repo",
+			expectedRef:   "main",
+			expectedPath:  "src/server",
+		},
 
 		// Invalid URLs
 		{
@@ -160,6 +197,9 @@ func TestParseGitHubURL(t *testing.T) {
 			}
 			if result.Ref != tt.expectedRef {
 				t.Errorf("ParseGitHubURL(%q).Ref = %q, want %q", tt.input, result.Ref, tt.expectedRef)
+			}
+			if result.Path != tt.expectedPath {
+				t.Errorf("ParseGitHubURL(%q).Path = %q, want %q", tt.input, result.Path, tt.expectedPath)
 			}
 		})
 	}
