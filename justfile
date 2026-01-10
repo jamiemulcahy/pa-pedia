@@ -61,15 +61,15 @@ web-install:
 # CLI Commands
 # ============================================================================
 
-# Build CLI binary
+# Build CLI binary (Go adds .exe on Windows automatically)
 [working-directory: 'cli']
 cli-build:
-    go build -o pa-pedia.exe .
+    go build -o pa-pedia .
 
 # Build CLI with race detection (for development)
 [working-directory: 'cli']
 cli-build-race:
-    go build -race -o pa-pedia.exe .
+    go build -race -o pa-pedia .
 
 # Run CLI tests
 [working-directory: 'cli']
@@ -81,15 +81,25 @@ cli-test:
 cli-test-verbose:
     go test -v ./...
 
-# Run CLI tests with coverage
+# Generate CLI test coverage report (CI-friendly)
 [working-directory: 'cli']
 cli-test-coverage:
-    go test -coverprofile=coverage.out ./...; go tool cover -html=coverage.out
+    go test -coverprofile=coverage.out ./...
+
+# Generate and view CLI test coverage in browser
+[working-directory: 'cli']
+cli-test-coverage-html: cli-test-coverage
+    go tool cover -html=coverage.out
 
 # List available faction profiles
 [working-directory: 'cli']
 cli-list-profiles:
     go run . describe-faction --list-profiles
+
+# Format Go code
+[working-directory: 'cli']
+cli-fmt:
+    go fmt ./...
 
 # ============================================================================
 # Schema Generation
@@ -98,7 +108,7 @@ cli-list-profiles:
 # Generate JSON schemas from Go structs
 [working-directory: 'cli/tools/generate-schema']
 generate-schema:
-    go build -o generate-schema.exe .; ./generate-schema.exe --output ../../../schema
+    go run . --output ../../../schema
 
 # Generate TypeScript types from JSON schemas
 [working-directory: 'web']
@@ -125,6 +135,12 @@ test: cli-test web-test-run
 lint: web-lint
     go vet ./...
 
+# Format all code
+fmt: cli-fmt
+
+# Pre-commit check: format, lint, and test
+check: fmt lint test
+
 # Build everything (CLI + Web)
 build: cli-build web-build
 
@@ -132,6 +148,11 @@ build: cli-build web-build
 [working-directory: 'web']
 generate-sitemap:
     npm run generate-sitemap
+
+# Clean build artifacts
+[working-directory: 'cli']
+clean:
+    -Remove-Item -Force pa-pedia, pa-pedia.exe, coverage.out -ErrorAction SilentlyContinue
 
 # ============================================================================
 # Shortcuts / Aliases
