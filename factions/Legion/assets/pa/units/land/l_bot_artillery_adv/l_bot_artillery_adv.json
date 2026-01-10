@@ -5,16 +5,8 @@
   "has_death_effects": true,
   "attachable": {
     "offsets": {
-      "head": [
-        0,
-        0,
-        7.4
-      ],
-      "root": [
-        0,
-        0,
-        0
-      ]
+      "head": [0, 0, 7.4],
+      "root": [0, 0, 0]
     }
   },
   "audio": {
@@ -74,11 +66,7 @@
   ],
   "lamps": [],
   "max_health": 4000,
-  "mesh_bounds": [
-    10,
-    12,
-    12
-  ],
+  "mesh_bounds": [10, 12, 12],
   "model": {
     "animations": {
       "idle": "/pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_idle.papa",

@@ -5,16 +5,8 @@
   "armor_type": "AT_Bot",
   "attachable": {
     "offsets": {
-      "head": [
-        0,
-        0,
-        3.1
-      ],
-      "root": [
-        0,
-        0,
-        0
-      ]
+      "head": [0, 0, 3.1],
+      "root": [0, 0, 0]
     }
   },
   "audio": {
@@ -42,11 +34,7 @@
   "guard_layer": "WL_AnySurface",
   "guard_radius": 10,
   "max_health": 225,
-  "mesh_bounds": [
-    5,
-    5,
-    2.6
-  ],
+  "mesh_bounds": [5, 5, 2.6],
   "model": {
     "animtree": "/pa/anim/anim_trees/l_mortar_tank_anim_tree.json",
     "arrows": 5,
