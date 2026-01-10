@@ -192,6 +192,15 @@ describe('FactionDetail', () => {
   })
 
   it('should render unit cards with icons', async () => {
+    // Set grid view to test icon rendering in grid mode
+    localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+      viewMode: 'grid',
+      categoryOrder: null,
+      collapsedCategories: [],
+      compactView: false,
+      showInaccessible: false,
+    }))
+
     renderFactionDetail('MLA')
 
     // Wait for units to load and icons to render
@@ -207,6 +216,15 @@ describe('FactionDetail', () => {
   })
 
   it('should render unit type badges', async () => {
+    // Set grid view to test badge rendering in grid mode
+    localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+      viewMode: 'grid',
+      categoryOrder: null,
+      collapsedCategories: [],
+      compactView: false,
+      showInaccessible: false,
+    }))
+
     renderFactionDetail('MLA')
 
     await waitFor(() => {
@@ -252,6 +270,15 @@ describe('FactionDetail', () => {
 
   describe('compact view', () => {
     it('should render compact view toggle button', async () => {
+      // Set grid view - compact view is only available in grid mode
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
@@ -262,6 +289,16 @@ describe('FactionDetail', () => {
 
     it('should toggle compact view when button is clicked', async () => {
       const user = userEvent.setup()
+
+      // Set grid view - compact view is only available in grid mode
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
@@ -280,6 +317,16 @@ describe('FactionDetail', () => {
 
     it('should hide unit names in compact view', async () => {
       const user = userEvent.setup()
+
+      // Set grid view - compact view is only available in grid mode
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       // Wait for units to load
@@ -335,21 +382,22 @@ describe('FactionDetail', () => {
     it('should render view mode toggle button', async () => {
       renderFactionDetail('MLA')
 
+      // Default is list view, so button should show "switch to grid view"
       await waitFor(() => {
-        const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
+        const viewToggle = screen.getByRole('button', { name: /switch to grid view/i })
         expect(viewToggle).toBeInTheDocument()
       })
     })
 
-    it('should start in grid view by default', async () => {
+    it('should start in list view by default', async () => {
       renderFactionDetail('MLA')
 
       await waitFor(() => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Grid view shows category sections
-      expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
+      // List view shows category sections
+      expect(screen.getByText('Tanks')).toBeInTheDocument()
 
       // Table should not be present
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
@@ -363,9 +411,9 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Click once to cycle from grid -> table
-      const viewToggle = screen.getByRole('button', { name: /switch to table view/i })
-      await user.click(viewToggle)
+      // Click twice to cycle from list -> grid -> table
+      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
+      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       // Table should now be present
       expect(screen.getByRole('table')).toBeInTheDocument()
@@ -374,7 +422,7 @@ describe('FactionDetail', () => {
       expect(screen.queryByRole('heading', { name: 'Tanks' })).not.toBeInTheDocument()
     })
 
-    it('should cycle back to grid view when toggle is clicked through all modes', async () => {
+    it('should cycle back to list view when toggle is clicked through all modes', async () => {
       const user = userEvent.setup()
       renderFactionDetail('MLA')
 
@@ -382,20 +430,20 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Click 1: grid -> table (button says "switch to table")
+      // Click 1: list -> grid (button says "switch to grid")
+      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
+      expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
+
+      // Click 2: grid -> table (button says "switch to table")
       await user.click(screen.getByRole('button', { name: /switch to table view/i }))
       expect(screen.getByRole('table')).toBeInTheDocument()
 
-      // Click 2: table -> list (button says "switch to list")
+      // Click 3: table -> list (button says "switch to list")
       await user.click(screen.getByRole('button', { name: /switch to list view/i }))
-      expect(screen.queryByRole('table')).not.toBeInTheDocument()
 
-      // Click 3: list -> grid (button says "switch to grid")
-      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
-
-      // Grid view should be back
+      // List view should be back
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Tanks' })).toBeInTheDocument()
+      expect(screen.getByText('Tanks')).toBeInTheDocument()
     })
 
     it('should update toggle button label based on next view', async () => {
@@ -406,7 +454,13 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // In grid view, button should show next mode is table
+      // In list view, button should show next mode is grid
+      expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
+
+      // Click to cycle to grid view
+      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
+
+      // Now button should show next mode is table
       expect(screen.getByRole('button', { name: /switch to table view/i })).toBeInTheDocument()
 
       // Click to cycle to table view
@@ -414,16 +468,20 @@ describe('FactionDetail', () => {
 
       // Now button should show next mode is list
       expect(screen.getByRole('button', { name: /switch to list view/i })).toBeInTheDocument()
-
-      // Click to cycle to list view
-      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
-
-      // Now button should show next mode is grid
-      expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
     })
 
     it('should hide compact view button when in table view', async () => {
       const user = userEvent.setup()
+
+      // Start in grid view to have compact button visible
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
@@ -443,6 +501,16 @@ describe('FactionDetail', () => {
 
     it('should hide expand/collapse all button when in table view', async () => {
       const user = userEvent.setup()
+
+      // Start in grid view to have expand/collapse button visible
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
@@ -462,14 +530,21 @@ describe('FactionDetail', () => {
 
     it('should apply filters in table view', async () => {
       const user = userEvent.setup()
+
+      // Start in table view
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+        expect(screen.getByRole('table')).toBeInTheDocument()
       })
-
-      // Switch to table view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       // Apply search filter - react-select uses aria-label
       const searchInput = screen.getByLabelText(/search units by name/i)
@@ -485,15 +560,20 @@ describe('FactionDetail', () => {
     })
 
     it('should render sortable column headers in table view', async () => {
-      const user = userEvent.setup()
+      // Start in table view
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+        expect(screen.getByRole('table')).toBeInTheDocument()
       })
-
-      // Switch to table view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       // Check for sortable headers
       expect(screen.getByRole('button', { name: /sort by name/i })).toBeInTheDocument()
@@ -512,10 +592,11 @@ describe('FactionDetail', () => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Initially should be grid view (default)
+      // Initially should be list view (default)
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
 
-      // Switch to table view
+      // Switch to grid view then table view
+      await user.click(screen.getByRole('button', { name: /switch to grid view/i }))
       await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       expect(screen.getByRole('table')).toBeInTheDocument()
@@ -648,14 +729,21 @@ describe('FactionDetail', () => {
 
     it('should work with inaccessible filter in table view', async () => {
       const user = userEvent.setup()
+
+      // Start in table view
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
+        expect(screen.getByRole('table')).toBeInTheDocument()
       })
-
-      // Switch to table view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       // Sea Mine should be hidden in table view too
       const table = screen.getByRole('table')
@@ -734,6 +822,15 @@ describe('FactionDetail', () => {
     })
 
     it('should display drag handles on category headers in grid view', async () => {
+      // Set grid view to test drag handles
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'grid',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
+
       renderFactionDetail('MLA')
 
       await waitFor(() => {
@@ -746,16 +843,16 @@ describe('FactionDetail', () => {
     })
 
     it('should not show drag handles in table view', async () => {
-      const user = userEvent.setup()
+      // Start in table view
+      localStorage.setItem('pa-pedia-preferences', JSON.stringify({
+        viewMode: 'table',
+        categoryOrder: null,
+        collapsedCategories: [],
+        compactView: false,
+        showInaccessible: false,
+      }))
 
       renderFactionDetail('MLA')
-
-      await waitFor(() => {
-        const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
-      })
-
-      // Switch to table view
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument()
@@ -767,22 +864,19 @@ describe('FactionDetail', () => {
   })
 
   describe('list view', () => {
-    it('should render list view when toggled to list mode', async () => {
-      const user = userEvent.setup()
+    it('should render list view by default', async () => {
       renderFactionDetail('MLA')
 
       await waitFor(() => {
         const tanks = screen.getAllByText('Tank'); expect(tanks.length).toBeGreaterThan(0)
       })
 
-      // Click twice to get to list view (grid -> table -> list)
-      await user.click(screen.getByRole('button', { name: /switch to table view/i }))
-      await user.click(screen.getByRole('button', { name: /switch to list view/i }))
-
       // List view should show category headers but not table
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
       // Category headers should be present
       expect(screen.getByText('Tanks')).toBeInTheDocument()
+      // Button should indicate next mode is grid (since we're in list)
+      expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
     })
   })
 })

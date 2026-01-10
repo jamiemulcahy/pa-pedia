@@ -33,7 +33,8 @@
       "Bash(gh issue list:*)",
       "Bash(gh label list:*)",
       "Bash(npm run generate-sitemap:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(just web-test-run:*)"
     ],
     "deny": [],
     "ask": []
