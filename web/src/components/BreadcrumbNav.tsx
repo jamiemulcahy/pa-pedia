@@ -4,6 +4,7 @@ import Select from 'react-select'
 import { useFactionContext } from '@/contexts/FactionContext'
 import { selectStyles, type SelectOption } from './selectStyles'
 import { findBestMatchingUnit } from '@/utils/unitMatcher'
+import { UnitIcon } from './UnitIcon'
 
 const ALL_FACTIONS_VALUE = '__all__'
 
@@ -14,6 +15,7 @@ interface FactionOption extends SelectOption {
 interface UnitOptionWithFaction extends SelectOption {
   factionId: string
   factionName: string
+  imagePath?: string
 }
 
 interface BreadcrumbNavProps {
@@ -77,6 +79,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             label: entry.displayName,
             factionId: facId,
             factionName: factionName,
+            imagePath: entry.unit.image,
           })
         }
       }
@@ -99,6 +102,7 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
       label: entry.displayName,
       factionId: selectedFactionId,
       factionName: factionName,
+      imagePath: entry.unit.image,
     })).sort((a, b) => a.label.localeCompare(b.label))
   }, [selectedFactionId, getFactionIndex, isAllFactionsSelected, factionIndexes, factions])
 
@@ -184,10 +188,16 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
     }
   }
 
-  // Custom format for unit options - show faction tag when in "All factions" mode
+  // Custom format for unit options - show icon and faction tag when in "All factions" mode
   const formatUnitOption = (option: UnitOptionWithFaction) => (
-    <div className="flex items-center justify-between gap-2 w-full">
-      <span className="truncate">{option.label}</span>
+    <div className="flex items-center gap-2 w-full">
+      <UnitIcon
+        imagePath={option.imagePath}
+        alt={option.label}
+        factionId={option.factionId}
+        className="w-5 h-5 flex-shrink-0"
+      />
+      <span className="truncate flex-1">{option.label}</span>
       {isAllFactionsSelected && (
         <span className="px-1.5 py-0.5 text-xs font-medium bg-gray-600 text-gray-200 rounded flex-shrink-0">
           {option.factionName}

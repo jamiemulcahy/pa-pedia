@@ -69,10 +69,13 @@ describe('UnitDetail', () => {
     renderUnitDetail('MLA', 'tank')
 
     await waitFor(() => {
-      const icon = screen.getByAltText('Tank')
-      expect(icon).toBeInTheDocument()
+      // Multiple icons may exist (unit detail + dropdown selector), find the main one
+      const icons = screen.getAllByAltText('Tank')
+      // The main unit icon has the object-contain class
+      const mainIcon = icons.find(icon => icon.className.includes('object-contain'))
+      expect(mainIcon).toBeInTheDocument()
       // New path uses unit.image field which contains assets path
-      expect(icon).toHaveAttribute('src', '/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
+      expect(mainIcon).toHaveAttribute('src', '/factions/MLA/assets/pa/units/land/tank/tank_icon_buildbar.png')
     })
   })
 
