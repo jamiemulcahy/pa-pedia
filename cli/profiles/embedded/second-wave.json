@@ -1,6 +1,9 @@
 {
   "displayName": "Second Wave",
   "isAddon": true,
-  "mods": ["pa.mla.unit.addon", "pa.mla.unit.addon.companion"],
+  "mods": [
+    "github.com/Anonemous2/pa.mla.unit.addon/tree/master",
+    "github.com/Anonemous2/pa.mla.unit.addon/tree/companion"
+  ],
   "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions"
 }
