@@ -19,8 +19,8 @@ export function UnitIcon({ imagePath, alt, className, onError, factionId: propFa
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center bg-muted ${className || ''}`}>
-        <div className="animate-pulse w-8 h-8 bg-muted-foreground/20 rounded" />
+      <div className={`flex items-center justify-center ${className || ''}`}>
+        <div className="animate-pulse w-full h-full bg-muted-foreground/20 rounded" />
       </div>
     )
   }

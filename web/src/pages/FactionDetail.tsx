@@ -6,6 +6,7 @@ import { SortableCategorySection } from '@/components/SortableCategorySection'
 import { CategoryDragOverlay } from '@/components/CategoryDragOverlay'
 import { UnitTable } from '@/components/UnitTable'
 import { UnitListView } from '@/components/UnitListView'
+import { UnitIcon } from '@/components/UnitIcon'
 import { FactionSelector } from '@/components/FactionSelector'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
@@ -26,6 +27,11 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Select from 'react-select'
 import { selectStyles, multiSelectStyles, type SelectOption } from '@/components/selectStyles'
 import type { UnitIndexEntry } from '@/types/faction'
+
+interface UnitSearchOption extends SelectOption {
+  imagePath?: string
+  factionId: string
+}
 
 const VIEW_MODES = ['grid', 'table', 'list'] as const
 
@@ -105,12 +111,28 @@ export function FactionDetail() {
   }, [isAllMode, units])
 
   // Convert units to react-select options for search
-  const unitSearchOptions = useMemo(() =>
+  const unitSearchOptions = useMemo((): UnitSearchOption[] =>
     units.map(unit => ({
       value: unit.identifier,
       label: unit.displayName,
+      imagePath: unit.unit.image,
+      // In "All" mode units have factionId, in single mode use the current factionId
+      factionId: 'factionId' in unit ? unit.factionId : factionId,
     })).sort((a, b) => a.label.localeCompare(b.label)),
-    [units]
+    [units, factionId]
+  )
+
+  // Custom format for unit search options - show icon
+  const formatUnitSearchOption = (option: UnitSearchOption) => (
+    <div className="flex items-center gap-2 w-full">
+      <UnitIcon
+        imagePath={option.imagePath}
+        alt={option.label}
+        factionId={option.factionId}
+        className="w-5 h-5 flex-shrink-0"
+      />
+      <span className="truncate">{option.label}</span>
+    </div>
   )
 
   // Convert types to react-select options for filter
@@ -311,7 +333,7 @@ export function FactionDetail() {
         </div>
         {/* Row 2 on mobile: Search (full width) */}
         <div className="w-full sm:w-auto sm:flex-[2] sm:min-w-[200px]">
-          <Select<SelectOption>
+          <Select<UnitSearchOption>
             options={unitSearchOptions}
             value={searchQuery ? unitSearchOptions.find(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase())) || null : null}
             onChange={(option) => setSearchQuery(option?.label || '')}
@@ -326,6 +348,7 @@ export function FactionDetail() {
             isClearable
             aria-label="Search units by name"
             noOptionsMessage={() => "No units found"}
+            formatOptionLabel={formatUnitSearchOption}
           />
         </div>
         {/* Row 3 on mobile: Type filter (full width) */}
