@@ -1,6 +1,9 @@
 {
   "displayName": "Bugs",
   "factionUnitType": "Custom2",
-  "mods": ["com.pa.ferretmaster.bugs", "com.pa.ferretmaster.bugs-client"],
+  "mods": [
+    "github.com/Ferret-Master/Bug-Faction/tree/main",
+    "github.com/Ferret-Master/Bug-Faction-Client/tree/main"
+  ],
   "backgroundImage": "ui/mods/bugs_faction/img/Bug_Menu.png"
 }
