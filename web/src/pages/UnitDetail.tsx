@@ -31,6 +31,7 @@ import {
 import { StatSection } from '@/components/StatSection'
 import type { Weapon, Unit } from '@/types/faction'
 import type { ComparisonMode, GroupMember } from '@/types/group'
+import { parseFactionRef, parseComparisonRef, buildComparisonRef } from '@/utils/versionedFactionId'
 
 /** Filter to get regular weapons (excludes self-destruct and death explosions) */
 const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
@@ -69,10 +70,21 @@ function buildWeaponMatchMap(
   return matchMap
 }
 
+// Unit reference with optional version for comparison mode
+interface UnitRef {
+  factionId: string
+  version?: string | null
+  unitId: string
+  quantity: number
+}
+
 export function UnitDetail() {
-  const { factionId, unitId } = useParams<{ factionId: string; unitId: string }>()
+  const { factionId: factionIdParam, unitId } = useParams<{ factionId: string; unitId: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  // Parse version from faction ID (format: "factionId@version")
+  const { factionId, version } = useMemo(() => parseFactionRef(factionIdParam || ''), [factionIdParam])
 
   // Parse comparison parameters from URL (comma-separated list)
   const compareParam = searchParams.get('compare')
@@ -84,19 +96,15 @@ export function UnitDetail() {
   const isGroupMode = comparisonMode === 'group'
   const primaryQuantity = parseInt(searchParams.get('qty') || '1', 10) || 1
 
-  // Helper to parse unit refs from URL param
-  const parseUnitRefs = (param: string | null): { factionId: string; unitId: string; quantity: number }[] => {
+  // Helper to parse unit refs from URL param (supports versioned faction IDs)
+  const parseUnitRefs = (param: string | null): UnitRef[] => {
     if (!param) return []
-    const refs: { factionId: string; unitId: string; quantity: number }[] = []
+    const refs: UnitRef[] = []
     const entries = param.split(',').filter(Boolean)
     for (const entry of entries) {
-      const [refPart, qtyPart] = entry.split(':')
-      if (refPart.includes('/')) {
-        const [cFactionId, cUnitId] = refPart.split('/')
-        if (cFactionId) {
-          const quantity = qtyPart ? parseInt(qtyPart, 10) || 1 : 1
-          refs.push({ factionId: cFactionId, unitId: cUnitId || '', quantity })
-        }
+      const parsed = parseComparisonRef(entry)
+      if (parsed.factionId) {
+        refs.push(parsed)
       }
     }
     return refs
@@ -108,7 +116,7 @@ export function UnitDetail() {
 
   // Parse comparison group units - support multiple groups via compare, compare2, compare3, etc.
   const comparisonGroups = useMemo(() => {
-    const groups: { factionId: string; unitId: string; quantity: number }[][] = []
+    const groups: UnitRef[][] = []
     // First group from 'compare'
     const firstGroup = parseUnitRefs(searchParams.get('compare'))
     if (firstGroup.length > 0) groups.push(firstGroup)
@@ -131,11 +139,8 @@ export function UnitDetail() {
   // For multiple comparison groups, track which group has pending selection (-1 means no pending)
   const [pendingComparisonGroupIndex, setPendingComparisonGroupIndex] = useState<number>(-1)
 
-  // Helper to serialize a unit ref to URL format
-  const serializeRef = (r: { factionId: string; unitId: string; quantity: number }) => {
-    const base = `${r.factionId}/${r.unitId}`
-    return r.quantity > 1 ? `${base}:${r.quantity}` : base
-  }
+  // Helper to serialize a unit ref to URL format (supports versioned faction IDs)
+  const serializeRef = (r: UnitRef) => buildComparisonRef(r)
 
   // Helper to get URL parameter name for a comparison group index
   const getCompareParamName = (groupIndex: number) =>
@@ -640,13 +645,14 @@ export function UnitDetail() {
                   {/* Unit mode: Nav row */}
                   <div className="flex gap-6 items-stretch">
                     <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                      <BreadcrumbNav factionId={factionId || ''} unitId={unitId} enableAllFactions />
+                      <BreadcrumbNav factionId={factionId || ''} unitId={unitId} version={version} enableAllFactions />
                     </div>
                     {comparisonRefs.map((_ref, index) => (
                       <div key={`nav-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                         <BreadcrumbNav
                           factionId={_ref.factionId}
                           unitId={_ref.unitId || undefined}
+                          version={_ref.version}
                           onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(0, index, newFactionId, newUnitId)}
                           sourceUnitTypes={unit.unitTypes}
                         />
@@ -1374,7 +1380,7 @@ export function UnitDetail() {
           <>
             {/* Non-comparison mode - navigation with Compare button */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <BreadcrumbNav factionId={factionId || ''} unitId={unitId} />
+              <BreadcrumbNav factionId={factionId || ''} unitId={unitId} version={version} />
               <button
                 onClick={() => {
                   // Start comparison mode with one empty slot for selection

@@ -1,6 +1,7 @@
 import { vi, type Mock } from 'vitest'
 import type { FactionIndex, Unit } from '@/types/faction'
 import type { FactionMetadataWithLocal } from '@/services/factionLoader'
+import type { FactionManifest } from '@/services/manifestLoader'
 
 /**
  * Type for mocked fetch function
@@ -549,6 +550,91 @@ export const mockSecondWaveIndex: FactionIndex = {
 }
 
 /**
+ * Mock manifest for version testing
+ * In dev mode, manifest is not used, but tests may simulate production mode
+ */
+export const mockManifest: FactionManifest = {
+  generated: '2025-01-15T00:00:00Z',
+  releaseTag: 'faction-data',
+  factions: [
+    {
+      id: 'mla',
+      displayName: 'MLA',
+      latest: {
+        version: '1.0.0',
+        filename: 'mla-1.0.0-pedia20250115.zip',
+        downloadUrl: '/factions/mla-1.0.0-pedia20250115.zip',
+        size: 1000000,
+        timestamp: 20250115000000,
+        build: '123456',
+      },
+      versions: [
+        {
+          version: '1.0.0',
+          filename: 'mla-1.0.0-pedia20250115.zip',
+          downloadUrl: '/factions/mla-1.0.0-pedia20250115.zip',
+          size: 1000000,
+          timestamp: 20250115000000,
+          build: '123456',
+        },
+      ],
+    },
+    {
+      id: 'legion',
+      displayName: 'Legion',
+      latest: {
+        version: '1.0.0',
+        filename: 'legion-1.0.0-pedia20250115.zip',
+        downloadUrl: '/factions/legion-1.0.0-pedia20250115.zip',
+        size: 1000000,
+        timestamp: 20250115000000,
+        build: '123456',
+      },
+      versions: [
+        {
+          version: '1.0.0',
+          filename: 'legion-1.0.0-pedia20250115.zip',
+          downloadUrl: '/factions/legion-1.0.0-pedia20250115.zip',
+          size: 1000000,
+          timestamp: 20250115000000,
+          build: '123456',
+        },
+      ],
+    },
+    {
+      id: 'exiles',
+      displayName: 'Exiles',
+      latest: {
+        version: '0.7.1',
+        filename: 'exiles-0.7.1-pedia20250115.zip',
+        downloadUrl: '/factions/exiles-0.7.1-pedia20250115.zip',
+        size: 1000000,
+        timestamp: 20250115000000,
+        build: '123456',
+      },
+      versions: [
+        {
+          version: '0.7.1',
+          filename: 'exiles-0.7.1-pedia20250115.zip',
+          downloadUrl: '/factions/exiles-0.7.1-pedia20250115.zip',
+          size: 1000000,
+          timestamp: 20250115000000,
+          build: '123456',
+        },
+        {
+          version: '0.7.0',
+          filename: 'exiles-0.7.0-pedia20250110.zip',
+          downloadUrl: '/factions/exiles-0.7.0-pedia20250110.zip',
+          size: 1000000,
+          timestamp: 20250110000000,
+          build: '123456',
+        },
+      ],
+    },
+  ],
+}
+
+/**
  * Factory function to create mock fetch responses
  */
 export function createMockFetchResponse<T>(data: T, ok = true, status?: number): Response {
@@ -608,37 +694,45 @@ export function setupMockFetch() {
       urlString = String(url)
     }
 
-    // Faction metadata
-    if (urlString.includes('/factions/MLA/metadata.json')) {
+    // Normalize URL to lowercase for case-insensitive matching
+    const urlLower = urlString.toLowerCase()
+
+    // Manifest for version selection (used in production mode and dev-live mode)
+    if (urlLower.includes('/factions/manifest.json')) {
+      return Promise.resolve(createMockFetchResponse(mockManifest))
+    }
+
+    // Faction metadata (case-insensitive)
+    if (urlLower.includes('/factions/mla/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockMLAMetadata))
     }
-    if (urlString.includes('/factions/Legion/metadata.json')) {
+    if (urlLower.includes('/factions/legion/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionMetadata))
     }
-    if (urlString.includes('/factions/Bugs/metadata.json')) {
+    if (urlLower.includes('/factions/bugs/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockBugsMetadata))
     }
-    if (urlString.includes('/factions/Exiles/metadata.json')) {
+    if (urlLower.includes('/factions/exiles/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesMetadata))
     }
-    if (urlString.includes('/factions/Second-Wave/metadata.json')) {
+    if (urlLower.includes('/factions/second-wave/metadata.json')) {
       return Promise.resolve(createMockFetchResponse(mockSecondWaveMetadata))
     }
 
-    // Faction indexes (now include embedded units, no need for separate resolved files)
-    if (urlString.includes('/factions/MLA/units.json')) {
+    // Faction indexes (case-insensitive, now include embedded units)
+    if (urlLower.includes('/factions/mla/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockMLAIndex))
     }
-    if (urlString.includes('/factions/Legion/units.json')) {
+    if (urlLower.includes('/factions/legion/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockLegionIndex))
     }
-    if (urlString.includes('/factions/Bugs/units.json')) {
+    if (urlLower.includes('/factions/bugs/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockBugsIndex))
     }
-    if (urlString.includes('/factions/Exiles/units.json')) {
+    if (urlLower.includes('/factions/exiles/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockExilesIndex))
     }
-    if (urlString.includes('/factions/Second-Wave/units.json')) {
+    if (urlLower.includes('/factions/second-wave/units.json')) {
       return Promise.resolve(createMockFetchResponse(mockSecondWaveIndex))
     }
 

@@ -12,12 +12,39 @@
 
 import { getCachedManifestInfo, cacheManifestInfo } from './staticFactionCache'
 
+// Production site URL for dev-live mode
+const PRODUCTION_SITE_URL = 'https://pa-pedia.com'
+
 // In production, faction data is served from the same origin (/factions/)
 // This avoids CORS issues that would occur with GitHub Releases URLs
 const FACTIONS_BASE_PATH = `${import.meta.env.BASE_URL}factions`
 
-// Manifest URL - served from same origin in production
-const MANIFEST_URL = `${FACTIONS_BASE_PATH}/manifest.json`
+/**
+ * Check if we're in dev-live mode (local dev server using production data)
+ */
+function isDevLiveMode(): boolean {
+  return import.meta.env.DEV && import.meta.env.VITE_USE_LIVE_DATA === 'true'
+}
+
+/**
+ * Get the manifest URL, accounting for dev-live mode
+ */
+function getManifestUrl(): string {
+  if (isDevLiveMode()) {
+    return `${PRODUCTION_SITE_URL}/factions/manifest.json`
+  }
+  return `${FACTIONS_BASE_PATH}/manifest.json`
+}
+
+/**
+ * Get the base URL for downloading faction assets
+ */
+export function getSiteBaseUrl(): string {
+  if (isDevLiveMode()) {
+    return PRODUCTION_SITE_URL
+  }
+  return ''
+}
 
 // Release tag for reference (used in cached manifest fallback)
 const RELEASE_TAG = 'faction-data'
@@ -97,7 +124,7 @@ export async function loadManifest(): Promise<FactionManifest> {
 async function doLoadManifest(): Promise<FactionManifest> {
   try {
     // Add cache-busting parameter
-    const url = `${MANIFEST_URL}?_=${Date.now()}`
+    const url = `${getManifestUrl()}?_=${Date.now()}`
     const response = await fetch(url)
 
     if (!response.ok) {
@@ -149,7 +176,9 @@ async function doLoadManifest(): Promise<FactionManifest> {
  */
 export async function getManifestEntry(factionId: string): Promise<ManifestEntry | null> {
   const manifest = await loadManifest()
-  const faction = manifest.factions.find((f) => f.id === factionId)
+  // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
+  const normalizedId = factionId.toLowerCase()
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
   if (!faction) return null
 
   // Flatten faction info with latest version for backwards compatibility
@@ -170,7 +199,9 @@ export async function getManifestVersion(
   version: string
 ): Promise<ManifestEntry | null> {
   const manifest = await loadManifest()
-  const faction = manifest.factions.find((f) => f.id === factionId)
+  // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
+  const normalizedId = factionId.toLowerCase()
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
   if (!faction) return null
 
   const versionEntry = faction.versions.find((v) => v.version === version)
@@ -190,7 +221,9 @@ export async function getManifestVersion(
  */
 export async function getFactionVersions(factionId: string): Promise<VersionEntry[]> {
   const manifest = await loadManifest()
-  const faction = manifest.factions.find((f) => f.id === factionId)
+  // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
+  const normalizedId = factionId.toLowerCase()
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
   return faction?.versions ?? []
 }
 

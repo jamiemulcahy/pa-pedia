@@ -44,8 +44,12 @@ function unitLoadReducer(state: UnitLoadState, action: UnitLoadAction): UnitLoad
  *
  * Refactored to use useReducer pattern to eliminate setState calls inside useEffect,
  * which prevents cascading renders and satisfies react-hooks/set-state-in-effect rule.
+ *
+ * @param factionId - The faction ID
+ * @param unitId - The unit ID
+ * @param version - Optional version to load (null = latest)
  */
-export function useUnit(factionId: string, unitId: string) {
+export function useUnit(factionId: string, unitId: string, version?: string | null) {
   const { getUnit, loadUnit } = useFactionContext()
   const [{ loading, error }, dispatch] = useReducer(unitLoadReducer, {
     loading: false,
@@ -57,7 +61,12 @@ export function useUnit(factionId: string, unitId: string) {
   // the effect could trigger multiple fetches since `unit` is still undefined
   const loadingRef = useRef(false)
 
-  const cacheKey = `${factionId}:${unitId}`
+  // Build cache key that includes version
+  // Normalize factionId to lowercase for consistent cache lookup
+  // (FactionContext stores units with lowercase keys)
+  const normalizedFactionId = factionId.toLowerCase()
+  const factionCacheKey = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
+  const cacheKey = `${factionCacheKey}:${unitId}`
   const unit: Unit | undefined = getUnit(cacheKey)
 
   useEffect(() => {
@@ -70,7 +79,7 @@ export function useUnit(factionId: string, unitId: string) {
       // because dispatch is stable and doesn't cause re-renders itself
       dispatch({ type: 'LOAD_START' })
 
-      loadUnit(factionId, unitId)
+      loadUnit(factionId, unitId, version)
         .then(() => {
           loadingRef.current = false
           dispatch({ type: 'LOAD_SUCCESS' })
@@ -84,7 +93,7 @@ export function useUnit(factionId: string, unitId: string) {
       loadingRef.current = false
       dispatch({ type: 'RESET' })
     }
-  }, [factionId, unitId, unit, loadUnit])
+  }, [factionId, unitId, version, unit, loadUnit])
 
   return {
     unit,

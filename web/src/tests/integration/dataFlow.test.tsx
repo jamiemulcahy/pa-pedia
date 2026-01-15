@@ -135,11 +135,11 @@ describe('Data Flow Integration Tests', () => {
       expect(tanks.length).toBeGreaterThan(0)
     })
 
-    // Verify units.json was fetched
+    // Verify units.json was fetched (use lowercase - faction IDs are normalized)
     const unitsJsonFetches = (global.fetch as MockFetch).mock.calls.filter(
       (call: FetchCallArgs) => {
         const url = typeof call[0] === 'string' ? call[0] : call[0].toString()
-        return url.includes('MLA/units.json')
+        return url.toLowerCase().includes('mla/units.json')
       }
     )
     // Should have fetched MLA units.json exactly once
