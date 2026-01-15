@@ -78,10 +78,9 @@ export function parseComparisonRef(ref: string): ParsedComparisonRef {
 
 /**
  * Build a comparison reference string for URL.
- * Format: "factionId@version/unitId:quantity" (version and quantity omitted if default)
+ * Format: "factionId@version/unitId:quantity" (version omitted if null)
  */
 export function buildComparisonRef(ref: { factionId: string; version?: string | null; unitId: string; quantity: number }): string {
   const factionPart = buildFactionRef(ref.factionId, ref.version)
-  const base = `${factionPart}/${ref.unitId}`
-  return ref.quantity > 1 ? `${base}:${ref.quantity}` : base
+  return `${factionPart}/${ref.unitId}:${ref.quantity}`
 }

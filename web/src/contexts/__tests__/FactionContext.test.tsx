@@ -114,9 +114,9 @@ describe('FactionContext', () => {
       // Load faction index
       await result.current.loadFaction('MLA')
 
-      // Wait for state to update
+      // Wait for state to update (cache uses lowercase faction IDs)
       await waitFor(() => {
-        expect(result.current.factionIndexes.get('MLA')).toEqual(mockMLAIndex)
+        expect(result.current.factionIndexes.get('mla')).toEqual(mockMLAIndex)
       })
     })
 
@@ -132,9 +132,9 @@ describe('FactionContext', () => {
       // Load once
       await result.current.loadFaction('MLA')
 
-      // Wait for state to update
+      // Wait for state to update (cache uses lowercase faction IDs)
       await waitFor(() => {
-        expect(result.current.factionIndexes.has('MLA')).toBe(true)
+        expect(result.current.factionIndexes.has('mla')).toBe(true)
       })
 
       const firstCallCount = (global.fetch as MockFetch).mock.calls.length
@@ -182,9 +182,9 @@ describe('FactionContext', () => {
 
       expect(unit).toEqual(mockTankUnit)
 
-      // Wait for cache to update
+      // Wait for cache to update (cache uses lowercase faction IDs)
       await waitFor(() => {
-        expect(result.current.unitsCache.get('MLA:tank')).toEqual(mockTankUnit)
+        expect(result.current.unitsCache.get('mla:tank')).toEqual(mockTankUnit)
       })
     })
 
@@ -208,9 +208,9 @@ describe('FactionContext', () => {
       // First load
       const unit1 = await result.current.loadUnit('MLA', 'tank')
 
-      // Wait for cache to update
+      // Wait for cache to update (cache uses lowercase faction IDs)
       await waitFor(() => {
-        expect(result.current.unitsCache.has('MLA:tank')).toBe(true)
+        expect(result.current.unitsCache.has('mla:tank')).toBe(true)
       })
 
       const firstCallCount = (global.fetch as MockFetch).mock.calls.length
@@ -249,9 +249,9 @@ describe('FactionContext', () => {
         expect(result.current.unitsCache.size).toBe(5)
       })
 
-      // Verify specific units are accessible
-      expect(result.current.unitsCache.get('MLA:tank')).toEqual(mockTankUnit)
-      expect(result.current.unitsCache.get('MLA:bot')).toEqual(mockBotUnit)
+      // Verify specific units are accessible (cache uses lowercase faction IDs)
+      expect(result.current.unitsCache.get('mla:tank')).toEqual(mockTankUnit)
+      expect(result.current.unitsCache.get('mla:bot')).toEqual(mockBotUnit)
     })
 
     it('should throw error on load failure', async () => {
@@ -348,9 +348,9 @@ describe('FactionContext', () => {
 
       await result.current.loadUnit('MLA', 'tank')
 
-      // Wait for unit to be cached
+      // Wait for unit to be cached (cache uses lowercase faction IDs)
       await waitFor(() => {
-        const unit = result.current.getUnit('MLA:tank')
+        const unit = result.current.getUnit('mla:tank')
         expect(unit).toEqual(mockTankUnit)
       })
     })
@@ -364,7 +364,8 @@ describe('FactionContext', () => {
         expect(result.current.factionsLoading).toBe(false)
       })
 
-      const unit = result.current.getUnit('MLA:tank')
+      // Cache uses lowercase faction IDs
+      const unit = result.current.getUnit('mla:tank')
       expect(unit).toBeUndefined()
     })
   })

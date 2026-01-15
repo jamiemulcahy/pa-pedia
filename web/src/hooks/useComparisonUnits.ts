@@ -70,7 +70,8 @@ export function useComparisonUnits(refs: ComparisonRef[]) {
 
   // Create a stable key string from refs to avoid infinite loops
   // (refs array is created fresh each render, but this string is stable)
-  const refsKey = refs.map(r => `${r.factionId}:${r.unitId}`).join(',')
+  // Normalize factionId to lowercase for consistent cache lookup
+  const refsKey = refs.map(r => `${r.factionId.toLowerCase()}:${r.unitId}`).join(',')
 
   // Generate cache keys for all refs - memoized on the stable string key
   const cacheKeys = useMemo(

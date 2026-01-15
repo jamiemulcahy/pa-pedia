@@ -62,7 +62,10 @@ export function useUnit(factionId: string, unitId: string, version?: string | nu
   const loadingRef = useRef(false)
 
   // Build cache key that includes version
-  const factionCacheKey = version ? `${factionId}@${version}` : factionId
+  // Normalize factionId to lowercase for consistent cache lookup
+  // (FactionContext stores units with lowercase keys)
+  const normalizedFactionId = factionId.toLowerCase()
+  const factionCacheKey = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
   const cacheKey = `${factionCacheKey}:${unitId}`
   const unit: Unit | undefined = getUnit(cacheKey)
 
