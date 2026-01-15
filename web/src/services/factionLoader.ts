@@ -201,15 +201,18 @@ export async function loadFactionMetadata(
     throw new Error(`Faction '${factionId}' not found in manifest`)
   }
 
+  // Normalize factionId to lowercase for consistent cache keys
+  const normalizedFactionId = factionId.toLowerCase()
+
   // Check if cached and up-to-date
   const isCached = await isStaticFactionCached(
-    factionId,
+    normalizedFactionId,
     manifestEntry.version,
     manifestEntry.timestamp
   )
 
   if (isCached) {
-    const cached = await getStaticFactionCache(factionId)
+    const cached = await getStaticFactionCache(normalizedFactionId)
     if (cached) {
       return cached.metadata
     }
@@ -220,7 +223,7 @@ export async function loadFactionMetadata(
   // Cache miss or stale - download fresh copy
   const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
   await cacheStaticFaction(
-    factionId,
+    normalizedFactionId,
     manifestEntry.version,
     manifestEntry.timestamp,
     metadata,
