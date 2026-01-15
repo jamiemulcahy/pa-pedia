@@ -31,10 +31,10 @@ interface FactionContextState {
   unitErrors: Map<string, Error>
 
   // Actions
-  loadFaction: (factionId: string) => Promise<void>
-  loadUnit: (factionId: string, unitId: string) => Promise<Unit>
+  loadFaction: (factionId: string, version?: string | null) => Promise<void>
+  loadUnit: (factionId: string, unitId: string, version?: string | null) => Promise<Unit>
   getFaction: (factionId: string) => FactionMetadataWithLocal | undefined
-  getFactionIndex: (factionId: string) => FactionIndex | undefined
+  getFactionIndex: (factionId: string, version?: string | null) => FactionIndex | undefined
   getUnit: (cacheKey: string) => Unit | undefined
   getFactionError: (factionId: string) => Error | undefined
   getUnitError: (cacheKey: string) => Error | undefined
@@ -108,39 +108,49 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     loadFactionsData()
   }, [loadFactionsData])
 
+  // Build a cache key for faction index (includes version)
+  const buildFactionCacheKey = (factionId: string, version: string | null | undefined): string => {
+    return version ? `${factionId}@${version}` : factionId
+  }
+
   // Load a faction's unit index and populate units cache
-  const loadFaction = useCallback(async (factionId: string) => {
+  const loadFaction = useCallback(async (factionId: string, version?: string | null) => {
+    // Normalize factionId to lowercase for consistent cache keys
+    // (manifest uses lowercase IDs but URLs may have uppercase)
+    const normalizedId = factionId.toLowerCase()
+    const cacheKey = buildFactionCacheKey(normalizedId, version)
+
     // Check if already loaded or currently loading
-    if (factionIndexesRef.current.has(factionId) || loadingFactionsRef.current.has(factionId)) {
+    if (factionIndexesRef.current.has(cacheKey) || loadingFactionsRef.current.has(cacheKey)) {
       return
     }
 
     // Mark as loading to prevent duplicate requests
-    loadingFactionsRef.current.add(factionId)
+    loadingFactionsRef.current.add(cacheKey)
 
     try {
       // Check if this is a local faction
       // Use metadata if available, fall back to ID suffix check for direct navigation
-      const factionMeta = factionsRef.current.get(factionId)
+      const factionMeta = factionsRef.current.get(normalizedId) || factionsRef.current.get(factionId)
       const isLocal = factionMeta?.isLocal ?? factionId.endsWith('--local')
-      const index = await loadFactionIndex(factionId, isLocal)
+      const index = await loadFactionIndex(normalizedId, isLocal, version)
 
       // Update refs immediately to prevent race conditions
-      factionIndexesRef.current.set(factionId, index)
+      factionIndexesRef.current.set(cacheKey, index)
 
       // Populate units cache ref from the index
       index.units.forEach(entry => {
-        const cacheKey = `${factionId}:${entry.identifier}`
-        unitsCacheRef.current.set(cacheKey, entry.unit)
+        const unitCacheKey = `${cacheKey}:${entry.identifier}`
+        unitsCacheRef.current.set(unitCacheKey, entry.unit)
       })
 
       // Update state for React components
-      setFactionIndexes(prev => new Map(prev).set(factionId, index))
+      setFactionIndexes(prev => new Map(prev).set(cacheKey, index))
       setUnitsCache(prev => {
         const next = new Map(prev)
         index.units.forEach(entry => {
-          const cacheKey = `${factionId}:${entry.identifier}`
-          next.set(cacheKey, entry.unit)
+          const unitCacheKey = `${cacheKey}:${entry.identifier}`
+          next.set(unitCacheKey, entry.unit)
         })
         return next
       })
@@ -148,56 +158,63 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
       // Clear any previous error for this faction
       setFactionErrors(prev => {
         const next = new Map(prev)
-        next.delete(factionId)
+        next.delete(cacheKey)
         return next
       })
     } catch (error) {
       const err = error as Error
-      console.error(`Failed to load faction index for ${factionId}:`, err)
+      console.error(`Failed to load faction index for ${cacheKey}:`, err)
       // Track faction-specific error
-      setFactionErrors(prev => new Map(prev).set(factionId, err))
+      setFactionErrors(prev => new Map(prev).set(cacheKey, err))
       throw error
     } finally {
       // Remove from loading set
-      loadingFactionsRef.current.delete(factionId)
+      loadingFactionsRef.current.delete(cacheKey)
     }
   }, [])
 
   // Load a specific unit (now just retrieves from cache after faction index is loaded)
-  const loadUnit = useCallback(async (factionId: string, unitId: string): Promise<Unit> => {
-    const cacheKey = `${factionId}:${unitId}`
+  const loadUnit = useCallback(async (factionId: string, unitId: string, version?: string | null): Promise<Unit> => {
+    // Normalize factionId for consistent cache keys
+    const normalizedFactionId = factionId.toLowerCase()
+    const factionCacheKey = buildFactionCacheKey(normalizedFactionId, version)
+    const unitCacheKey = `${factionCacheKey}:${unitId}`
 
     // Check cache first - units are now loaded with the faction index
-    const cached = unitsCacheRef.current.get(cacheKey)
+    const cached = unitsCacheRef.current.get(unitCacheKey)
     if (cached) {
       return cached
     }
 
     // If not in cache, we need to load the faction index first
     // This can happen when navigating directly to a unit page
-    if (!factionIndexesRef.current.has(factionId)) {
-      await loadFaction(factionId)
+    if (!factionIndexesRef.current.has(factionCacheKey)) {
+      await loadFaction(normalizedFactionId, version)
     }
 
     // Check cache again after loading faction
-    const cachedAfterLoad = unitsCacheRef.current.get(cacheKey)
+    const cachedAfterLoad = unitsCacheRef.current.get(unitCacheKey)
     if (cachedAfterLoad) {
       return cachedAfterLoad
     }
 
     // If still not found, the unit doesn't exist
-    const err = new Error(`Unit ${unitId} not found for faction ${factionId}.`)
+    const err = new Error(`Unit ${unitId} not found for faction ${factionCacheKey}.`)
     console.error(err.message)
-    setUnitErrors(prev => new Map(prev).set(cacheKey, err))
+    setUnitErrors(prev => new Map(prev).set(unitCacheKey, err))
     throw err
   }, [loadFaction])
 
   const getFaction = useCallback((factionId: string) => {
-    return factions.get(factionId)
+    // Try exact match first, then case-insensitive match
+    // This handles URL case differences (e.g., /faction/MLA vs manifest's 'mla')
+    return factions.get(factionId) || factions.get(factionId.toLowerCase())
   }, [factions])
 
-  const getFactionIndex = useCallback((factionId: string) => {
-    return factionIndexes.get(factionId)
+  const getFactionIndex = useCallback((factionId: string, version?: string | null) => {
+    // Normalize to lowercase for consistent cache key lookup
+    const cacheKey = buildFactionCacheKey(factionId.toLowerCase(), version)
+    return factionIndexes.get(cacheKey)
   }, [factionIndexes])
 
   const getUnit = useCallback((cacheKey: string) => {
@@ -296,7 +313,8 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
 
   // Check if a faction is local
   const isLocalFaction = useCallback((factionId: string): boolean => {
-    return factionsRef.current.get(factionId)?.isLocal ?? false
+    const faction = factionsRef.current.get(factionId) || factionsRef.current.get(factionId.toLowerCase())
+    return faction?.isLocal ?? false
   }, [])
 
   // Refresh factions list

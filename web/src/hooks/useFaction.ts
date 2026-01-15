@@ -45,8 +45,11 @@ function factionLoadReducer(state: FactionLoadState, action: FactionLoadAction):
  *
  * Refactored to use useReducer pattern to eliminate setState calls inside useEffect,
  * which prevents cascading renders and satisfies react-hooks/set-state-in-effect rule.
+ *
+ * @param factionId - The faction ID to load
+ * @param version - Optional version to load (null = latest)
  */
-export function useFaction(factionId: string) {
+export function useFaction(factionId: string, version?: string | null) {
   const { getFaction, getFactionIndex, loadFaction, factionsLoading } = useFactionContext()
   const [{ loading, error }, dispatch] = useReducer(factionLoadReducer, {
     loading: false,
@@ -59,7 +62,7 @@ export function useFaction(factionId: string) {
   const loadingRef = useRef(false)
 
   const metadata: FactionMetadataWithLocal | undefined = getFaction(factionId)
-  const index: FactionIndex | undefined = getFactionIndex(factionId)
+  const index: FactionIndex | undefined = getFactionIndex(factionId, version)
 
   useEffect(() => {
     // Only load if we don't have the index yet and we're not already loading
@@ -71,7 +74,7 @@ export function useFaction(factionId: string) {
       // because dispatch is stable and doesn't cause re-renders itself
       dispatch({ type: 'LOAD_START' })
 
-      loadFaction(factionId)
+      loadFaction(factionId, version)
         .then(() => {
           loadingRef.current = false
           dispatch({ type: 'LOAD_SUCCESS' })
@@ -85,7 +88,7 @@ export function useFaction(factionId: string) {
       loadingRef.current = false
       dispatch({ type: 'RESET' })
     }
-  }, [factionId, index, metadata, loadFaction])
+  }, [factionId, version, index, metadata, loadFaction])
 
   return {
     metadata,

@@ -1,17 +1,20 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
 import { useAllFactions, type UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
+import { useFactionContext } from '@/contexts/FactionContext'
 import { SortableCategorySection } from '@/components/SortableCategorySection'
 import { CategoryDragOverlay } from '@/components/CategoryDragOverlay'
 import { UnitTable } from '@/components/UnitTable'
 import { UnitListView } from '@/components/UnitListView'
 import { UnitIcon } from '@/components/UnitIcon'
 import { FactionSelector } from '@/components/FactionSelector'
+import { VersionSelector } from '@/components/VersionSelector'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
 import { createWebPageSchema } from '@/components/seoSchemas'
 import { useState, useCallback, useMemo } from 'react'
+import { parseFactionRef } from '@/utils/versionedFactionId'
 import { groupUnitsByCategory, type UnitCategory } from '@/utils/unitCategories'
 import { groupCommanderVariants } from '@/utils/commanderDedup'
 import { usePreferences } from '@/hooks/usePreferences'
@@ -37,11 +40,19 @@ const VIEW_MODES = ['grid', 'table', 'list'] as const
 
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
-  const factionId = id || ''
+  const navigate = useNavigate()
+  const { isLocalFaction } = useFactionContext()
+
+  // Parse faction ID and version from URL (e.g., "exiles@0.7.0")
+  const { factionId: parsedFactionId, version } = useMemo(
+    () => parseFactionRef(id || ''),
+    [id]
+  )
+  const factionId = parsedFactionId
   const isAllMode = factionId === ''
 
   // Use appropriate hook based on mode
-  const singleFaction = useFaction(isAllMode ? '__skip__' : factionId)
+  const singleFaction = useFaction(isAllMode ? '__skip__' : factionId, version)
   const allFactions = useAllFactions()
 
   // Unified data based on mode
@@ -71,6 +82,12 @@ export function FactionDetail() {
     () => new Set(savedCollapsedCategories),
     [savedCollapsedCategories]
   )
+
+  // Handle version change - navigate to new URL
+  const handleVersionChange = useCallback((newVersion: string | null) => {
+    const newFactionId = newVersion ? `${factionId}@${newVersion}` : factionId
+    navigate(`/faction/${newFactionId}`)
+  }, [factionId, navigate])
 
   const cycleViewMode = useCallback(() => {
     const currentIndex = VIEW_MODES.indexOf(viewMode)
@@ -331,6 +348,16 @@ export function FactionDetail() {
         <div className="w-full sm:w-auto sm:flex-none">
           <FactionSelector currentFactionId={factionId} />
         </div>
+        {/* Version selector - only show for non-local factions with multiple versions */}
+        {!isAllMode && !isLocalFaction(factionId) && (
+          <div className="w-full sm:w-auto sm:flex-none">
+            <VersionSelector
+              factionId={factionId}
+              currentVersion={version}
+              onVersionChange={handleVersionChange}
+            />
+          </div>
+        )}
         {/* Row 2 on mobile: Search (full width) */}
         <div className="w-full sm:w-auto sm:flex-[2] sm:min-w-[200px]">
           <Select<UnitSearchOption>

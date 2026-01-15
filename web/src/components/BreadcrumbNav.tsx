@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Select from 'react-select'
 import { useFactionContext } from '@/contexts/FactionContext'
 import { selectStyles, type SelectOption } from './selectStyles'
 import { findBestMatchingUnit } from '@/utils/unitMatcher'
 import { UnitIcon } from './UnitIcon'
+import { VersionSelector } from './VersionSelector'
 
 const ALL_FACTIONS_VALUE = '__all__'
 
@@ -21,18 +22,22 @@ interface UnitOptionWithFaction extends SelectOption {
 interface BreadcrumbNavProps {
   factionId: string
   unitId?: string
+  /** Optional version (null = latest). Used for building URLs. */
+  version?: string | null
   /** Optional callback for custom navigation (used in comparison mode) */
   onUnitChange?: (factionId: string, unitId: string) => void
+  /** Optional callback for version changes (used in comparison mode) */
+  onVersionChange?: (version: string | null) => void
   /** Source unit types for auto-matching when faction changes (comparison mode) */
   sourceUnitTypes?: string[]
   /** Enable "All factions" option even without onUnitChange (for primary unit in comparison mode) */
   enableAllFactions?: boolean
 }
 
-export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes, enableAllFactions }: BreadcrumbNavProps) {
+export function BreadcrumbNav({ factionId, unitId, version = null, onUnitChange, onVersionChange, sourceUnitTypes, enableAllFactions }: BreadcrumbNavProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { factions, getFactionIndex, loadFaction, factionIndexes } = useFactionContext()
+  const { factions, getFactionIndex, loadFaction, factionIndexes, isLocalFaction } = useFactionContext()
 
   // Track selected faction for filtering units (may differ from URL during selection)
   const [selectedFactionId, setSelectedFactionId] = useState(factionId)
@@ -179,14 +184,40 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
         onUnitChange(targetFactionId, targetUnitId)
       } else {
         // Preserve compare parameter when changing primary unit
+        // Include version in URL if staying within same faction
+        const targetVersion = targetFactionId === factionId ? version : null
+        const versionedFactionId = targetVersion ? `${targetFactionId}@${targetVersion}` : targetFactionId
         const compareParam = searchParams.get('compare')
         const url = compareParam
-          ? `/faction/${targetFactionId}/unit/${targetUnitId}?compare=${compareParam}`
-          : `/faction/${targetFactionId}/unit/${targetUnitId}`
+          ? `/faction/${versionedFactionId}/unit/${targetUnitId}?compare=${compareParam}`
+          : `/faction/${versionedFactionId}/unit/${targetUnitId}`
         navigate(url)
       }
     }
   }
+
+  // Handle version changes
+  const handleVersionChange = useCallback((newVersion: string | null) => {
+    if (onVersionChange) {
+      // Use callback for comparison mode
+      onVersionChange(newVersion)
+    } else {
+      // Default navigation for primary unit
+      const newFactionId = newVersion ? `${factionId}@${newVersion}` : factionId
+      const params = new URLSearchParams(searchParams)
+      const url = unitId
+        ? `/faction/${newFactionId}/unit/${unitId}?${params.toString()}`
+        : `/faction/${newFactionId}?${params.toString()}`
+      navigate(url.replace(/\?$/, ''), { replace: true })
+    }
+  }, [factionId, unitId, searchParams, navigate, onVersionChange])
+
+  // Check if we should show version selector:
+  // - Must have a factionId
+  // - Not in "All factions" mode
+  // - Not a local faction
+  // - Selected faction matches URL faction (not mid-selection)
+  const showVersionSelector = factionId && !isAllFactionsSelected && !isLocalFaction(factionId) && selectedFactionId === factionId
 
   // Custom format for unit options - show icon and faction tag when in "All factions" mode
   const formatUnitOption = (option: UnitOptionWithFaction) => (
@@ -223,6 +254,15 @@ export function BreadcrumbNav({ factionId, unitId, onUnitChange, sourceUnitTypes
             menuPosition="fixed"
           />
         </div>
+
+        {/* Version selector - between faction and unit selectors */}
+        {showVersionSelector && (
+          <VersionSelector
+            factionId={factionId}
+            currentVersion={version}
+            onVersionChange={handleVersionChange}
+          />
+        )}
 
         <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline self-center">&rarr;</span>
 

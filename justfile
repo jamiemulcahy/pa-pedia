@@ -161,5 +161,10 @@ clean:
 # Alias: Run web dev server
 dev: web-dev
 
+# Run web dev server with live production faction data
+[working-directory: 'web']
+dev-live:
+    $env:VITE_USE_LIVE_DATA='true'; npm run dev
+
 # Alias: Build CLI
 build-cli: cli-build
