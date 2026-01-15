@@ -1,10 +1,10 @@
 {
   "identifier": "bugs",
   "displayName": "Bugs",
-  "version": "1.36",
+  "version": "1.37",
   "author": "Ferretmaster, BillTheBlueBot, Anonemous2, Taiga, Quitch, Quildtide",
   "description": "Adds a biological bugs faction",
-  "dateCreated": "2025-05-19",
+  "dateCreated": "2025-01-15",
   "build": "120799",
   "type": "mod",
   "mods": [
