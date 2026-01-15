@@ -258,6 +258,32 @@
             "salvoDamage": 80,
             "weapons": [
               {
+                "resourceName": "/pa/units/orbital/bug_orbital_battleship/bug_land_drone/bug_land_drone_death_weapon.json",
+                "safeName": "bug_land_drone_death_weapon",
+                "name": "bug_land_drone_death_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 0,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "maxRange": 20,
+                "splashRadius": 1,
+                "fullDamageRadius": 1,
+                "selfDestruct": true,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 1,
+                "ammoCapacity": 1,
+                "ammoRechargeTime": 1,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/bug_orbital_battleship/bug_land_drone/bug_land_drone_death_ammo.json",
+                  "safeName": "bug_land_drone_death_ammo",
+                  "name": "bug_land_drone_death_ammo",
+                  "fullDamageRadius": 1,
+                  "splashRadius": 1
+                }
+              },
+              {
                 "resourceName": "/pa/units/orbital/bug_orbital_battleship/bug_land_drone/bug_land_drone_weapon.json",
                 "safeName": "bug_land_drone_weapon",
                 "name": "bug_land_drone_weapon",
@@ -292,32 +318,6 @@
                   "damage": 80,
                   "splashDamage": 30,
                   "splashRadius": 3.5
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/bug_orbital_battleship/bug_land_drone/bug_land_drone_death_weapon.json",
-                "safeName": "bug_land_drone_death_weapon",
-                "name": "bug_land_drone_death_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 0,
-                "dps": 0,
-                "projectilesPerFire": 1,
-                "maxRange": 20,
-                "splashRadius": 1,
-                "fullDamageRadius": 1,
-                "selfDestruct": true,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 1,
-                "ammoCapacity": 1,
-                "ammoRechargeTime": 1,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/bug_orbital_battleship/bug_land_drone/bug_land_drone_death_ammo.json",
-                  "safeName": "bug_land_drone_death_ammo",
-                  "name": "bug_land_drone_death_ammo",
-                  "fullDamageRadius": 1,
-                  "splashRadius": 1
                 }
               }
             ]
@@ -4061,6 +4061,70 @@
       }
     },
     {
+      "identifier": "bug_needler_fast_unlock",
+      "displayName": "Fast Needler Unlock",
+      "unitTypes": [
+        "Tank",
+        "Basic",
+        "FactoryBuild",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_needler_fast_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock.json",
+        "displayName": "Fast Needler Unlock",
+        "description": "Raises the needler speed from 14 to 16",
+        "image": "assets/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Tank",
+          "Basic",
+          "FactoryBuild",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 400,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "turnSpeed": 1,
+            "acceleration": 1,
+            "brake": 1
+          },
+          "recon": {
+            "visionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_needler"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "research_needler",
       "displayName": "Fast Needler Unlock",
       "unitTypes": [
@@ -4163,70 +4227,6 @@
           ]
         },
         "buildableTypes": "(Custom2 \u0026 FactoryBuild \u0026 Basic \u0026 Tank) - Mobile"
-      }
-    },
-    {
-      "identifier": "bug_needler_fast_unlock",
-      "displayName": "Fast Needler Unlock",
-      "unitTypes": [
-        "Tank",
-        "Basic",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_needler_fast_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock.json",
-        "displayName": "Fast Needler Unlock",
-        "description": "Raises the needler speed from 14 to 16",
-        "image": "assets/pa/units/research/unlocks/bug_needler_fast_unlock/bug_needler_fast_unlock_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Tank",
-          "Basic",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 400,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "turnSpeed": 1,
-            "acceleration": 1,
-            "brake": 1
-          },
-          "recon": {
-            "visionRadius": 100
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_needler"
-          ]
-        }
       }
     },
     {
@@ -6589,6 +6589,72 @@
       }
     },
     {
+      "identifier": "bug_ripper_stealth_unlock",
+      "displayName": "Stealth Ripper Unlock",
+      "unitTypes": [
+        "Bot",
+        "Basic",
+        "FactoryBuild",
+        "RadarJammer",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs-client"
+        }
+      ],
+      "unit": {
+        "id": "bug_ripper_stealth_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock.json",
+        "displayName": "Stealth Ripper Unlock",
+        "description": "Replaces the ripper with the stealth ripper, which is faster, has radar stealth, and more dps",
+        "image": "assets/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Bot",
+          "Basic",
+          "FactoryBuild",
+          "RadarJammer",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1200,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "turnSpeed": 1,
+            "acceleration": 1,
+            "brake": 1
+          },
+          "recon": {
+            "visionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_ripper"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "research_ripper",
       "displayName": "Stealth Ripper Unlock",
       "unitTypes": [
@@ -6691,72 +6757,6 @@
           ]
         },
         "buildableTypes": "(Custom2 \u0026 FactoryBuild \u0026 Basic \u0026 Bot \u0026 RadarJammer) - Mobile"
-      }
-    },
-    {
-      "identifier": "bug_ripper_stealth_unlock",
-      "displayName": "Stealth Ripper Unlock",
-      "unitTypes": [
-        "Bot",
-        "Basic",
-        "FactoryBuild",
-        "RadarJammer",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs-client"
-        }
-      ],
-      "unit": {
-        "id": "bug_ripper_stealth_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock.json",
-        "displayName": "Stealth Ripper Unlock",
-        "description": "Replaces the ripper with the stealth ripper, which is faster, has radar stealth, and more dps",
-        "image": "assets/pa/units/research/unlocks/bug_ripper_stealth_unlock/bug_ripper_stealth_unlock_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Bot",
-          "Basic",
-          "FactoryBuild",
-          "RadarJammer",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1200,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "turnSpeed": 1,
-            "acceleration": 1,
-            "brake": 1
-          },
-          "recon": {
-            "visionRadius": 100
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_ripper"
-          ]
-        }
       }
     },
     {
@@ -7499,98 +7499,6 @@
       }
     },
     {
-      "identifier": "turret_acid_dot",
-      "displayName": "bug bomber dot",
-      "unitTypes": [
-        "Structure",
-        "Land",
-        "Naval",
-        "Defense",
-        "CombatFabBuild",
-        "CombatFabAdvBuild",
-        "NoBuild"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/structure/bug_turret_acid/turret_acid_dot.json",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "turret_acid_dot",
-        "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot.json",
-        "displayName": "bug bomber dot",
-        "description": "Land Mine - damage over time unit",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Land",
-          "Naval",
-          "Defense",
-          "CombatFabBuild",
-          "CombatFabAdvBuild",
-          "NoBuild"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 100,
-            "dps": 30,
-            "salvoDamage": 5,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot_weapon.json",
-                "safeName": "turret_acid_dot_weapon",
-                "name": "turret_acid_dot_weapon",
-                "count": 1,
-                "rateOfFire": 6,
-                "damage": 5,
-                "dps": 30,
-                "projectilesPerFire": 1,
-                "maxRange": 20,
-                "splashRadius": 12,
-                "fullDamageRadius": 4,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot_ammo.json",
-                  "safeName": "turret_acid_dot_ammo",
-                  "name": "turret_acid_dot_ammo",
-                  "damage": 5,
-                  "fullDamageRadius": 4,
-                  "splashRadius": 12
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 0.01,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 2,
-            "underwaterVisionRadius": 2
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land",
-              "water surface"
-            ]
-          }
-        },
-        "buildRelationships": {}
-      }
-    },
-    {
       "identifier": "bug_bomber_dot",
       "displayName": "bug bomber dot",
       "unitTypes": [
@@ -7771,6 +7679,98 @@
                   "name": "bug_wall_acid_ammo",
                   "damage": 5,
                   "fullDamageRadius": 6,
+                  "splashRadius": 12
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 0.01,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 2,
+            "underwaterVisionRadius": 2
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
+      "identifier": "turret_acid_dot",
+      "displayName": "bug bomber dot",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "Naval",
+        "Defense",
+        "CombatFabBuild",
+        "CombatFabAdvBuild",
+        "NoBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/structure/bug_turret_acid/turret_acid_dot.json",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "turret_acid_dot",
+        "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot.json",
+        "displayName": "bug bomber dot",
+        "description": "Land Mine - damage over time unit",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "Naval",
+          "Defense",
+          "CombatFabBuild",
+          "CombatFabAdvBuild",
+          "NoBuild"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 100,
+            "dps": 30,
+            "salvoDamage": 5,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot_weapon.json",
+                "safeName": "turret_acid_dot_weapon",
+                "name": "turret_acid_dot_weapon",
+                "count": 1,
+                "rateOfFire": 6,
+                "damage": 5,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "maxRange": 20,
+                "splashRadius": 12,
+                "fullDamageRadius": 4,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/structure/bug_turret_acid/turret_acid_dot_ammo.json",
+                  "safeName": "turret_acid_dot_ammo",
+                  "name": "turret_acid_dot_ammo",
+                  "damage": 5,
+                  "fullDamageRadius": 4,
                   "splashRadius": 12
                 }
               }
@@ -10882,70 +10882,6 @@
       }
     },
     {
-      "identifier": "bug_orbital_battleship_unlock",
-      "displayName": "Bug Orbital Carrier Unlock",
-      "unitTypes": [
-        "Orbital",
-        "Heavy",
-        "Advanced",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_orbital_battleship_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
-        "displayName": "Bug Orbital Carrier Unlock",
-        "description": "Unlocks the bug orbital carrier, which launches land based drones",
-        "image": "assets/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Orbital",
-          "Heavy",
-          "Advanced",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 1000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "turnSpeed": 1000,
-            "acceleration": 10000,
-            "brake": 10000
-          },
-          "recon": {},
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_bug_orbital_battleship"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "research_bug_orbital_battleship",
       "displayName": "Bug Orbital Carrier Unlock",
       "unitTypes": [
@@ -11039,38 +10975,38 @@
       }
     },
     {
-      "identifier": "bug_orbital_laser_unlock",
-      "displayName": "Bug Orbital Laser Unlock",
+      "identifier": "bug_orbital_battleship_unlock",
+      "displayName": "Bug Orbital Carrier Unlock",
       "unitTypes": [
         "Orbital",
+        "Heavy",
         "Advanced",
         "FactoryBuild",
-        "LaserPlatform",
         "Custom2"
       ],
       "source": "pa",
       "files": [
         {
-          "path": "pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock.json",
+          "path": "pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
           "source": "com.pa.ferretmaster.bugs"
         },
         {
-          "path": "/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock_icon_buildbar.png",
+          "path": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
           "source": "com.pa.ferretmaster.bugs"
         }
       ],
       "unit": {
-        "id": "bug_orbital_laser_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock.json",
-        "displayName": "Bug Orbital Laser Unlock",
-        "description": "Unlocks the bug orbital laser",
-        "image": "assets/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock_icon_buildbar.png",
+        "id": "bug_orbital_battleship_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock.json",
+        "displayName": "Bug Orbital Carrier Unlock",
+        "description": "Unlocks the bug orbital carrier, which launches land based drones",
+        "image": "assets/pa/units/research/unlocks/bug_orbital_battleship_unlock/bug_orbital_battleship_unlock_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
           "Orbital",
+          "Heavy",
           "Advanced",
           "FactoryBuild",
-          "LaserPlatform",
           "Custom2"
         ],
         "accessible": true,
@@ -11097,7 +11033,7 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "research_bug_orbital_laser"
+            "research_bug_orbital_battleship"
           ]
         }
       }
@@ -11193,6 +11129,70 @@
           ]
         },
         "buildableTypes": "(Custom2 \u0026 FactoryBuild \u0026 Advanced \u0026 Orbital \u0026 LaserPlatform) - Mobile"
+      }
+    },
+    {
+      "identifier": "bug_orbital_laser_unlock",
+      "displayName": "Bug Orbital Laser Unlock",
+      "unitTypes": [
+        "Orbital",
+        "Advanced",
+        "FactoryBuild",
+        "LaserPlatform",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_orbital_laser_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock.json",
+        "displayName": "Bug Orbital Laser Unlock",
+        "description": "Unlocks the bug orbital laser",
+        "image": "assets/pa/units/research/unlocks/bug_orbital_laser_unlock/bug_orbital_laser_unlock_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Orbital",
+          "Advanced",
+          "FactoryBuild",
+          "LaserPlatform",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 1000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "turnSpeed": 1000,
+            "acceleration": 10000,
+            "brake": 10000
+          },
+          "recon": {},
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_bug_orbital_laser"
+          ]
+        }
       }
     },
     {
@@ -12230,72 +12230,6 @@
       }
     },
     {
-      "identifier": "bug_hydra_unlock",
-      "displayName": "Hydra Unlock",
-      "unitTypes": [
-        "Bot",
-        "Artillery",
-        "Advanced",
-        "FactoryBuild",
-        "Custom2"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock.json",
-          "source": "com.pa.ferretmaster.bugs"
-        },
-        {
-          "path": "/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock_icon_buildbar.png",
-          "source": "com.pa.ferretmaster.bugs"
-        }
-      ],
-      "unit": {
-        "id": "bug_hydra_unlock",
-        "resourceName": "/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock.json",
-        "displayName": "Hydra Unlock",
-        "description": "Unlocks the hydra, a mobile artillery bug",
-        "image": "assets/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Bot",
-          "Artillery",
-          "Advanced",
-          "FactoryBuild",
-          "Custom2"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1
-          },
-          "economy": {
-            "buildCost": 800,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "turnSpeed": 1,
-            "acceleration": 1,
-            "brake": 1
-          },
-          "recon": {
-            "visionRadius": 100
-          },
-          "storage": {},
-          "special": {}
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "research_hydra"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "research_hydra",
       "displayName": "Hydra Unlock",
       "unitTypes": [
@@ -12391,6 +12325,72 @@
           ]
         },
         "buildableTypes": "(Bot \u0026 Artillery \u0026 Advanced \u0026 FactoryBuild \u0026 Custom2) - Mobile"
+      }
+    },
+    {
+      "identifier": "bug_hydra_unlock",
+      "displayName": "Hydra Unlock",
+      "unitTypes": [
+        "Bot",
+        "Artillery",
+        "Advanced",
+        "FactoryBuild",
+        "Custom2"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock.json",
+          "source": "com.pa.ferretmaster.bugs"
+        },
+        {
+          "path": "/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock_icon_buildbar.png",
+          "source": "com.pa.ferretmaster.bugs"
+        }
+      ],
+      "unit": {
+        "id": "bug_hydra_unlock",
+        "resourceName": "/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock.json",
+        "displayName": "Hydra Unlock",
+        "description": "Unlocks the hydra, a mobile artillery bug",
+        "image": "assets/pa/units/research/unlocks/bug_hydra_unlock/bug_hydra_unlock_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Bot",
+          "Artillery",
+          "Advanced",
+          "FactoryBuild",
+          "Custom2"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1
+          },
+          "economy": {
+            "buildCost": 800,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "turnSpeed": 1,
+            "acceleration": 1,
+            "brake": 1
+          },
+          "recon": {
+            "visionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "research_hydra"
+          ]
+        }
       }
     },
     {
