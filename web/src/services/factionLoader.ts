@@ -278,7 +278,9 @@ export async function loadFactionIndex(
   }
 
   // Build cache key that includes version
-  const cacheKey = version ? `${factionId}@${version}` : factionId
+  // Normalize factionId to lowercase for consistent cache keys
+  const normalizedFactionId = factionId.toLowerCase()
+  const cacheKey = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
 
   // Check if cached and up-to-date
   const isCached = await isStaticFactionCached(

@@ -37,6 +37,26 @@ describe('versionedFactionId', () => {
       const result = parseFactionRef('test@1.0@extra')
       expect(result).toEqual({ factionId: 'test', version: '1.0@extra' })
     })
+
+    it('should handle empty version string after @', () => {
+      const result = parseFactionRef('exiles@')
+      expect(result).toEqual({ factionId: 'exiles', version: null })
+    })
+
+    it('should handle consecutive @ symbols', () => {
+      const result = parseFactionRef('test@@1.0')
+      expect(result).toEqual({ factionId: 'test', version: '@1.0' })
+    })
+
+    it('should handle special characters in version (semver prerelease)', () => {
+      const result = parseFactionRef('exiles@v1.0.0-beta+build.123')
+      expect(result).toEqual({ factionId: 'exiles', version: 'v1.0.0-beta+build.123' })
+    })
+
+    it('should handle version with only numbers', () => {
+      const result = parseFactionRef('mla@123')
+      expect(result).toEqual({ factionId: 'mla', version: '123' })
+    })
   })
 
   describe('buildFactionRef', () => {
@@ -102,6 +122,47 @@ describe('versionedFactionId', () => {
         version: '0.14.5',
         unitId: 'addon-tank',
         quantity: 3,
+      })
+    })
+
+    it('should handle empty version in comparison ref', () => {
+      const result = parseComparisonRef('exiles@/exodus:2')
+      expect(result).toEqual({
+        factionId: 'exiles',
+        version: null,
+        unitId: 'exodus',
+        quantity: 2,
+      })
+    })
+
+    it('should handle invalid quantity gracefully', () => {
+      const result = parseComparisonRef('MLA/tank:abc')
+      expect(result).toEqual({
+        factionId: 'MLA',
+        version: null,
+        unitId: 'tank',
+        quantity: 1,
+      })
+    })
+
+    it('should handle zero quantity as 1 (falsy fallback)', () => {
+      const result = parseComparisonRef('MLA/tank:0')
+      expect(result).toEqual({
+        factionId: 'MLA',
+        version: null,
+        unitId: 'tank',
+        quantity: 1,
+      })
+    })
+
+    it('should parse negative quantity (no validation)', () => {
+      // Note: negative quantities are parsed as-is, validation is done elsewhere
+      const result = parseComparisonRef('MLA/tank:-5')
+      expect(result).toEqual({
+        factionId: 'MLA',
+        version: null,
+        unitId: 'tank',
+        quantity: -5,
       })
     })
   })

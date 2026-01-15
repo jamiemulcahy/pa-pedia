@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useFaction } from '@/hooks/useFaction'
 import { useAllFactions, type UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
@@ -41,6 +41,7 @@ const VIEW_MODES = ['grid', 'table', 'list'] as const
 export function FactionDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { isLocalFaction } = useFactionContext()
 
   // Parse faction ID and version from URL (e.g., "exiles@0.7.0")
@@ -83,11 +84,13 @@ export function FactionDetail() {
     [savedCollapsedCategories]
   )
 
-  // Handle version change - navigate to new URL
+  // Handle version change - navigate to new URL while preserving query params
   const handleVersionChange = useCallback((newVersion: string | null) => {
     const newFactionId = newVersion ? `${factionId}@${newVersion}` : factionId
-    navigate(`/faction/${newFactionId}`)
-  }, [factionId, navigate])
+    const queryString = searchParams.toString()
+    const url = queryString ? `/faction/${newFactionId}?${queryString}` : `/faction/${newFactionId}`
+    navigate(url)
+  }, [factionId, navigate, searchParams])
 
   const cycleViewMode = useCallback(() => {
     const currentIndex = VIEW_MODES.indexOf(viewMode)
