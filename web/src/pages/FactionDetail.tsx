@@ -528,6 +528,7 @@ export function FactionDetail() {
             showFactionColumn={isAllMode}
             getUnitFactionId={isAllMode ? getUnitFactionId : undefined}
             commanderGrouping={commanderGrouping}
+            typeFilters={typeFilters}
           />
         ) : filteredUnits.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">

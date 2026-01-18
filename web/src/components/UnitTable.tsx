@@ -6,6 +6,13 @@ import type { UnitIndexEntryWithFaction } from '@/hooks/useAllFactions'
 import { getUnitCategory, CATEGORY_ORDER, type UnitCategory } from '@/utils/unitCategories'
 import type { CommanderGroup, CommanderGroupingResult } from '@/utils/commanderDedup'
 import { useCommanderGroupMaps } from '@/hooks/useCommanderGroupMaps'
+import {
+  detectPresetFromFilters,
+  getColumnsForPreset,
+  COLUMN_DEFS,
+  type ColumnId,
+  type ColumnDef,
+} from '@/utils/tableColumns'
 
 interface UnitTableProps {
   units: (UnitIndexEntry | UnitIndexEntryWithFaction)[]
@@ -15,37 +22,10 @@ interface UnitTableProps {
   showFactionColumn?: boolean
   getUnitFactionId?: (unit: UnitIndexEntry | UnitIndexEntryWithFaction) => string
   commanderGrouping?: CommanderGroupingResult
+  typeFilters?: string[]
 }
 
-type SortColumn = 'name' | 'faction' | 'category' | 'tier' | 'health' | 'dps' | 'range' | 'cost' | 'speed'
 type SortDirection = 'asc' | 'desc'
-
-function formatNumber(value: number | undefined): string {
-  if (value === undefined) return '-'
-  if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}k`
-  }
-  return value.toFixed(0)
-}
-
-function formatDps(value: number | undefined): string {
-  if (value === undefined || value === 0) return '-'
-  return value.toFixed(1)
-}
-
-function formatSpeed(value: number | undefined): string {
-  if (value === undefined) return '-'
-  return value.toFixed(0)
-}
-
-function getTierLabel(tier: number): string {
-  switch (tier) {
-    case 1: return 'T1'
-    case 2: return 'T2'
-    case 3: return 'T3'
-    default: return '-'
-  }
-}
 
 function getCategoryBadgeClass(category: UnitCategory): string {
   const baseClass = 'px-1.5 py-0.5 text-xs font-mono rounded whitespace-nowrap'
@@ -65,34 +45,28 @@ function getCategoryBadgeClass(category: UnitCategory): string {
   }
 }
 
-function getMaxRange(entry: UnitIndexEntry): number {
-  return entry.unit.specs.combat.weapons?.reduce(
-    (max, w) => Math.max(max, w.maxRange ?? 0),
-    0
-  ) ?? 0
-}
-
 interface SortHeaderProps {
-  column: SortColumn
-  currentSort: SortColumn
+  column: ColumnId
+  columnDef: ColumnDef
+  currentSort: ColumnId
   direction: SortDirection
-  onSort: (column: SortColumn) => void
-  children: React.ReactNode
-  className?: string
+  onSort: (column: ColumnId) => void
 }
 
-function SortHeader({ column, currentSort, direction, onSort, children, className = '' }: SortHeaderProps) {
+function SortHeader({ column, columnDef, currentSort, direction, onSort }: SortHeaderProps) {
   const isActive = currentSort === column
+  const alignClass = columnDef.align === 'left' ? 'text-left' : columnDef.align === 'right' ? 'text-right' : 'text-center'
+  const responsiveClass = columnDef.responsive ?? ''
 
   return (
-    <th className={`py-3 px-2 font-semibold ${className}`}>
+    <th className={`py-3 px-2 font-semibold ${alignClass} ${responsiveClass}`}>
       <button
         type="button"
         onClick={() => onSort(column)}
         className="inline-flex items-center gap-1 hover:text-primary transition-colors"
-        aria-label={`Sort by ${column}${isActive ? (direction === 'asc' ? ', currently ascending' : ', currently descending') : ''}`}
+        aria-label={`Sort by ${columnDef.label}${isActive ? (direction === 'asc' ? ', currently ascending' : ', currently descending') : ''}`}
       >
-        {children}
+        {columnDef.shortLabel ?? columnDef.label}
         <span className="inline-flex flex-col text-[10px] leading-none" aria-hidden="true">
           <svg
             className={`w-2 h-2 ${isActive && direction === 'asc' ? 'text-primary' : 'text-muted-foreground/40'}`}
@@ -122,19 +96,31 @@ export function UnitTable({
   showFactionColumn = false,
   getUnitFactionId,
   commanderGrouping,
+  typeFilters = [],
 }: UnitTableProps) {
-  const [sortColumn, setSortColumn] = useState<SortColumn>('name')
+  const [sortColumn, setSortColumn] = useState<ColumnId>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
 
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
+  // Detect which column preset to use based on type filters
+  const presetId = useMemo(() => detectPresetFromFilters(typeFilters), [typeFilters])
+
+  // Get column definitions for this preset
+  const columns = useMemo(
+    () => getColumnsForPreset(presetId, showFactionColumn),
+    [presetId, showFactionColumn]
+  )
+
+  const handleSort = useCallback((column: ColumnId) => {
+    setSortColumn(prev => {
+      if (prev === column) {
+        setSortDirection(d => d === 'asc' ? 'desc' : 'asc')
+        return prev
+      }
       setSortDirection('asc')
-    }
-  }
+      return column
+    })
+  }, [])
 
   const toggleGroup = useCallback((statsHash: string, e: React.MouseEvent) => {
     e.preventDefault()
@@ -159,6 +145,7 @@ export function UnitTable({
     const sorted = [...units].sort((a, b) => {
       let comparison = 0
 
+      // Special handling for columns that need custom sorting
       switch (sortColumn) {
         case 'name':
           comparison = a.displayName.localeCompare(b.displayName)
@@ -178,21 +165,18 @@ export function UnitTable({
         case 'tier':
           comparison = a.unit.tier - b.unit.tier
           break
-        case 'health':
-          comparison = a.unit.specs.combat.health - b.unit.specs.combat.health
+        default: {
+          // Use column definition's getValue for other columns
+          const columnDef = COLUMN_DEFS[sortColumn]
+          if (columnDef) {
+            const valueA = columnDef.getValue(a)
+            const valueB = columnDef.getValue(b)
+            const numA = typeof valueA === 'number' ? valueA : 0
+            const numB = typeof valueB === 'number' ? valueB : 0
+            comparison = numA - numB
+          }
           break
-        case 'dps':
-          comparison = (a.unit.specs.combat.dps ?? 0) - (b.unit.specs.combat.dps ?? 0)
-          break
-        case 'range':
-          comparison = getMaxRange(a) - getMaxRange(b)
-          break
-        case 'cost':
-          comparison = a.unit.specs.economy.buildCost - b.unit.specs.economy.buildCost
-          break
-        case 'speed':
-          comparison = (a.unit.specs.mobility?.moveSpeed ?? 0) - (b.unit.specs.mobility?.moveSpeed ?? 0)
-          break
+        }
       }
 
       return sortDirection === 'asc' ? comparison : -comparison
@@ -249,97 +233,25 @@ export function UnitTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
+            {/* Icon column - always first */}
             <th className="text-left py-3 px-2 font-semibold w-10"></th>
-            <SortHeader
-              column="name"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-left"
-            >
-              Name
-            </SortHeader>
-            {showFactionColumn && (
+            {/* Dynamic columns based on preset */}
+            {columns.map((colDef) => (
               <SortHeader
-                column="faction"
+                key={colDef.id}
+                column={colDef.id}
+                columnDef={colDef}
                 currentSort={sortColumn}
                 direction={sortDirection}
                 onSort={handleSort}
-                className="text-left hidden sm:table-cell"
-              >
-                Faction
-              </SortHeader>
-            )}
-            <SortHeader
-              column="category"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-left hidden sm:table-cell"
-            >
-              Category
-            </SortHeader>
-            <SortHeader
-              column="tier"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-center hidden md:table-cell"
-            >
-              Tier
-            </SortHeader>
-            <SortHeader
-              column="health"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-right"
-            >
-              Health
-            </SortHeader>
-            <SortHeader
-              column="dps"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-right hidden sm:table-cell"
-            >
-              DPS
-            </SortHeader>
-            <SortHeader
-              column="range"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-right hidden lg:table-cell"
-            >
-              Range
-            </SortHeader>
-            <SortHeader
-              column="cost"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-right hidden md:table-cell"
-            >
-              Cost
-            </SortHeader>
-            <SortHeader
-              column="speed"
-              currentSort={sortColumn}
-              direction={sortDirection}
-              onSort={handleSort}
-              className="text-right hidden xl:table-cell"
-            >
-              Speed
-            </SortHeader>
+              />
+            ))}
           </tr>
         </thead>
         <tbody>
           {displayRows.map(({ entry, isVariant, group }) => {
             const unit = entry.unit
             const category = getUnitCategory(entry.unitTypes)
-            const maxRange = getMaxRange(entry)
             const unitFactionId = getUnitFactionId ? getUnitFactionId(entry) : factionId
             const factionDisplayName = showFactionColumn ? (entry as UnitIndexEntryWithFaction).factionDisplayName : ''
             const hasVariants = group && group.variants.length > 0
@@ -350,6 +262,7 @@ export function UnitTable({
                 key={showFactionColumn ? `${unitFactionId}:${entry.identifier}` : entry.identifier}
                 className={`border-b hover:bg-muted/30 transition-colors ${isVariant ? 'bg-muted/20 border-dashed' : ''}`}
               >
+                {/* Icon cell */}
                 <td className="py-2 px-2">
                   <div className={`w-8 h-8 flex items-center justify-center ${isVariant ? 'ml-2' : ''}`}>
                     {brokenImages.has(entry.identifier) ? (
@@ -367,69 +280,91 @@ export function UnitTable({
                     )}
                   </div>
                 </td>
-                <td className="py-2 px-2">
-                  <div className="flex items-center gap-2">
-                    {isVariant && (
-                      <span className="text-muted-foreground">↳</span>
-                    )}
-                    <Link
-                      to={showFactionColumn
-                        ? `/faction/${unitFactionId}/unit/${entry.identifier}?from=all`
-                        : `/faction/${unitFactionId}/unit/${entry.identifier}`
-                      }
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {entry.displayName}
-                    </Link>
-                    {hasVariants && !isVariant && (
-                      <button
-                        type="button"
-                        onClick={(e) => toggleGroup(group.statsHash, e)}
-                        className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
-                        aria-expanded={isExpanded}
-                        aria-label={isExpanded ? `Hide ${group.variants.length} variants` : `Show ${group.variants.length} variants`}
-                      >
-                        {isExpanded ? `Hide ${group.variants.length}` : `+${group.variants.length}`}
-                      </button>
-                    )}
-                    {isVariant && (
-                      <span className="text-[10px] text-muted-foreground italic">(identical stats)</span>
-                    )}
-                  </div>
-                </td>
-                {showFactionColumn && (
-                  <td className="py-2 px-2 hidden sm:table-cell">
-                    <Link
-                      to={`/faction/${unitFactionId}`}
-                      className="text-muted-foreground hover:text-primary hover:underline text-xs"
-                    >
-                      {factionDisplayName}
-                    </Link>
-                  </td>
-                )}
-                <td className="py-2 px-2 hidden sm:table-cell">
-                  <span className={getCategoryBadgeClass(category)}>
-                    {category}
-                  </span>
-                </td>
-                <td className="py-2 px-2 text-center hidden md:table-cell">
-                  <span className="font-mono text-xs">{getTierLabel(unit.tier)}</span>
-                </td>
-                <td className="py-2 px-2 text-right font-mono">
-                  {formatNumber(unit.specs.combat.health)}
-                </td>
-                <td className="py-2 px-2 text-right font-mono hidden sm:table-cell">
-                  {formatDps(unit.specs.combat.dps)}
-                </td>
-                <td className="py-2 px-2 text-right font-mono hidden lg:table-cell">
-                  {maxRange ? formatNumber(maxRange) : '-'}
-                </td>
-                <td className="py-2 px-2 text-right font-mono hidden md:table-cell">
-                  {formatNumber(unit.specs.economy.buildCost)}
-                </td>
-                <td className="py-2 px-2 text-right font-mono hidden xl:table-cell">
-                  {formatSpeed(unit.specs.mobility?.moveSpeed)}
-                </td>
+                {/* Dynamic column cells */}
+                {columns.map((colDef) => {
+                  const alignClass = colDef.align === 'left' ? 'text-left' : colDef.align === 'right' ? 'text-right' : 'text-center'
+                  const responsiveClass = colDef.responsive ?? ''
+
+                  // Special handling for name column (includes link and variant controls)
+                  if (colDef.id === 'name') {
+                    return (
+                      <td key={colDef.id} className="py-2 px-2">
+                        <div className="flex items-center gap-2">
+                          {isVariant && (
+                            <span className="text-muted-foreground">↳</span>
+                          )}
+                          <Link
+                            to={showFactionColumn
+                              ? `/faction/${unitFactionId}/unit/${entry.identifier}?from=all`
+                              : `/faction/${unitFactionId}/unit/${entry.identifier}`
+                            }
+                            className="font-medium text-primary hover:underline"
+                          >
+                            {entry.displayName}
+                          </Link>
+                          {hasVariants && !isVariant && (
+                            <button
+                              type="button"
+                              onClick={(e) => toggleGroup(group.statsHash, e)}
+                              className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+                              aria-expanded={isExpanded}
+                              aria-label={isExpanded ? `Hide ${group.variants.length} variants` : `Show ${group.variants.length} variants`}
+                            >
+                              {isExpanded ? `Hide ${group.variants.length}` : `+${group.variants.length}`}
+                            </button>
+                          )}
+                          {isVariant && (
+                            <span className="text-[10px] text-muted-foreground italic">(identical stats)</span>
+                          )}
+                        </div>
+                      </td>
+                    )
+                  }
+
+                  // Special handling for faction column
+                  if (colDef.id === 'faction') {
+                    return (
+                      <td key={colDef.id} className={`py-2 px-2 ${responsiveClass}`}>
+                        <Link
+                          to={`/faction/${unitFactionId}`}
+                          className="text-muted-foreground hover:text-primary hover:underline text-xs"
+                        >
+                          {factionDisplayName}
+                        </Link>
+                      </td>
+                    )
+                  }
+
+                  // Special handling for category column (with badge styling)
+                  if (colDef.id === 'category') {
+                    return (
+                      <td key={colDef.id} className={`py-2 px-2 ${responsiveClass}`}>
+                        <span className={getCategoryBadgeClass(category)}>
+                          {category}
+                        </span>
+                      </td>
+                    )
+                  }
+
+                  // Special handling for tier column (centered, styled)
+                  if (colDef.id === 'tier') {
+                    return (
+                      <td key={colDef.id} className={`py-2 px-2 ${alignClass} ${responsiveClass}`}>
+                        <span className="font-mono text-xs">{colDef.format(colDef.getValue(entry))}</span>
+                      </td>
+                    )
+                  }
+
+                  // Standard numeric/text columns
+                  const value = colDef.getValue(entry)
+                  const formatted = colDef.format(value)
+
+                  return (
+                    <td key={colDef.id} className={`py-2 px-2 ${alignClass} ${responsiveClass} font-mono`}>
+                      {formatted}
+                    </td>
+                  )
+                })}
               </tr>
             )
           })}
