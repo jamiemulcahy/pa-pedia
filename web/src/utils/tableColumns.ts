@@ -350,13 +350,13 @@ const DEFAULT_COLUMNS: ColumnId[] = ['name', 'category', 'tier', 'hp', 'dps', 'r
 const COMBAT_COLUMNS: ColumnId[] = ['name', 'cost', 'dps', 'hp', 'speed', 'accel', 'brake', 'turn', 'range', 'vision', 'underwater']
 
 // Builders preset (Builder, Construction, FabBuild, FabAdvBuild)
-const BUILDERS_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'buildRate', 'buildEnergy', 'energyPerMetal', 'range', 'speed', 'accel', 'brake', 'turn']
+const BUILDERS_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'buildRate', 'buildEnergy', 'energyPerMetal', 'buildRange', 'speed', 'accel', 'brake', 'turn']
 
 // Factories preset (Factory)
 const FACTORIES_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'buildRate', 'buildEnergy', 'energyPerMetal', 'buildRange']
 
 // Commanders preset (Commander)
-const COMMANDERS_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'buildRate', 'buildEnergy', 'energyPerMetal', 'range', 'speed', 'accel', 'brake', 'turn']
+const COMMANDERS_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'buildRate', 'buildEnergy', 'energyPerMetal', 'buildRange', 'speed', 'accel', 'brake', 'turn']
 
 // Economy preset (Economy, MetalProduction, EnergyProduction, EnergyStorage, MetalStorage)
 const ECONOMY_COLUMNS: ColumnId[] = ['name', 'cost', 'hp', 'metalRate', 'energyRate', 'metalStorage', 'energyStorage']
