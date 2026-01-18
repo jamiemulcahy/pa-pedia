@@ -149,10 +149,17 @@ build: cli-build web-build
 generate-sitemap:
     npm run generate-sitemap
 
-# Clean build artifacts
+# Clean build artifacts (Windows)
+[windows]
 [working-directory: 'cli']
 clean:
     -Remove-Item -Force pa-pedia, pa-pedia.exe, coverage.out -ErrorAction SilentlyContinue
+
+# Clean build artifacts (Unix/Container)
+[unix]
+[working-directory: 'cli']
+clean:
+    rm -f pa-pedia pa-pedia.exe coverage.out
 
 # ============================================================================
 # Shortcuts / Aliases
@@ -161,10 +168,55 @@ clean:
 # Alias: Run web dev server
 dev: web-dev
 
-# Run web dev server with live production faction data
+# Run web dev server with live production faction data (Windows)
+[windows]
 [working-directory: 'web']
 dev-live:
     $env:VITE_USE_LIVE_DATA='true'; npm run dev
 
+# Run web dev server with live production faction data (Unix/Container)
+[unix]
+[working-directory: 'web']
+dev-live:
+    VITE_USE_LIVE_DATA=true npm run dev
+
 # Alias: Build CLI
 build-cli: cli-build
+
+# ============================================================================
+# Docker / Container Commands
+# ============================================================================
+
+# Build the development container
+docker-build:
+    docker compose build
+
+# Start the development container
+docker-up:
+    docker compose up -d
+
+# Stop the development container
+docker-down:
+    docker compose down
+
+# Open a shell in the running container
+docker-shell:
+    docker compose exec dev bash
+
+# Run a command in the container (e.g., just docker-run "just test")
+docker-run cmd:
+    docker compose exec dev {{cmd}}
+
+# View container logs
+docker-logs:
+    docker compose logs -f dev
+
+# Full container rebuild (no cache)
+docker-rebuild:
+    docker compose build --no-cache
+
+# Start fresh: stop, remove volumes, rebuild
+docker-reset:
+    docker compose down -v
+    docker compose build
+    docker compose up -d

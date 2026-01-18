@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# Node modules (will be mounted as volumes)
+web/node_modules
+
+# Build outputs
+web/dist
+cli/pa-pedia
+cli/pa-pedia.exe
+factions/dist
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test outputs
+coverage
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# Claude settings (may contain API keys)
+.claude/settings.local.json
