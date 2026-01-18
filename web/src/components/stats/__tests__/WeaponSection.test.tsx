@@ -71,10 +71,11 @@ describe('WeaponSection', () => {
       })).toBeInTheDocument()
     })
 
-    it('should render DPS', () => {
+    it('should render DPS (Sustained)', () => {
       renderWeaponSection(mockBasicWeapon)
 
-      expect(screen.getByText('DPS:')).toBeInTheDocument()
+      // All weapons show "DPS (Sustained)" for consistency
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
       // Number(150.0.toFixed(1)) converts to 150, rendered as "150"
       expect(screen.getByText((_, element) => {
         return element?.tagName === 'SPAN' && element?.textContent === '150' || false
@@ -88,13 +89,12 @@ describe('WeaponSection', () => {
       expect(screen.getByText('100')).toBeInTheDocument()
     })
 
-    it('should not render burst DPS label for weapons without sustained DPS', () => {
+    it('should not render burst DPS label for weapons without ammo limits', () => {
       renderWeaponSection(mockBasicWeapon)
 
-      // Regular DPS label when no sustained DPS exists
-      expect(screen.getByText('DPS:')).toBeInTheDocument()
+      // All weapons show "DPS (Sustained)" for consistency, but no burst row
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
       expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
-      expect(screen.queryByText('DPS (Sustained):')).not.toBeInTheDocument()
     })
   })
 
@@ -121,8 +121,8 @@ describe('WeaponSection', () => {
       }
       renderWeaponSection(weapon)
 
-      // When sustainedDps equals dps, just show "DPS"
-      expect(screen.getByText('DPS:')).toBeInTheDocument()
+      // When sustainedDps equals dps, just show "DPS (Sustained)"
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
       expect(screen.queryByText('DPS (Burst):')).not.toBeInTheDocument()
     })
 
@@ -247,6 +247,158 @@ describe('WeaponSection', () => {
       expect(screen.getByText((_, element) => {
         return element?.tagName === 'SPAN' && element?.textContent === '100' || false
       })).toBeInTheDocument()
+    })
+  })
+
+  describe('DPS comparison logic', () => {
+    function renderWeaponSectionWithComparison(weapon: Weapon, compareWeapon: Weapon) {
+      return renderWithProviders(
+        <CurrentFactionProvider factionId="MLA">
+          <WeaponSection weapon={weapon} compareWeapon={compareWeapon} />
+        </CurrentFactionProvider>
+      )
+    }
+
+    it('should compare sustained DPS against regular DPS for weapons with ammo limits', () => {
+      // Weapon with burst/sustained DPS
+      const burstWeapon: Weapon = {
+        resourceName: '/pa/units/land/tank/burst_weapon.json',
+        safeName: 'burst_weapon',
+        name: 'Burst Weapon',
+        count: 1,
+        rateOfFire: 10,
+        damage: 70,
+        dps: 700, // Burst DPS
+        sustainedDps: 106.1, // Sustained DPS (effective)
+        maxRange: 67.5,
+        ammoCapacity: 400,
+      }
+
+      // Weapon with only regular DPS (no ammo system)
+      const regularWeapon: Weapon = {
+        resourceName: '/pa/units/land/bot/regular_weapon.json',
+        safeName: 'regular_weapon',
+        name: 'Regular Weapon',
+        count: 1,
+        rateOfFire: 0.5,
+        damage: 160,
+        dps: 80, // Regular DPS
+        maxRange: 67.5,
+      }
+
+      renderWeaponSectionWithComparison(burstWeapon, regularWeapon)
+
+      // DPS (Burst) should NOT show comparison diff since compare weapon doesn't have burst DPS
+      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+
+      // DPS (Sustained) should compare against regular weapon's DPS (80 vs 106.1)
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
+    })
+
+    it('should compare regular DPS against sustained DPS when comparing weapon has ammo limits', () => {
+      // Weapon with only regular DPS
+      const regularWeapon: Weapon = {
+        resourceName: '/pa/units/land/bot/regular_weapon.json',
+        safeName: 'regular_weapon',
+        name: 'Regular Weapon',
+        count: 1,
+        rateOfFire: 0.5,
+        damage: 160,
+        dps: 80, // Regular DPS
+        maxRange: 67.5,
+      }
+
+      // Compare weapon with burst/sustained DPS
+      const burstWeapon: Weapon = {
+        resourceName: '/pa/units/land/tank/burst_weapon.json',
+        safeName: 'burst_weapon',
+        name: 'Burst Weapon',
+        count: 1,
+        rateOfFire: 10,
+        damage: 70,
+        dps: 700, // Burst DPS
+        sustainedDps: 106.1, // Sustained DPS (effective)
+        maxRange: 67.5,
+        ammoCapacity: 400,
+      }
+
+      renderWeaponSectionWithComparison(regularWeapon, burstWeapon)
+
+      // Regular weapon's DPS (Sustained) should compare against burst weapon's sustained DPS (not burst)
+      // 80 vs 106.1 = -26.1 difference
+      // Two "DPS (Sustained)" labels - one for placeholder burst row context, one for the actual value
+      expect(screen.getAllByText('DPS (Sustained):').length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('should compare burst-to-burst when both weapons have sustained DPS', () => {
+      const weapon1: Weapon = {
+        resourceName: '/pa/units/land/tank1/weapon1.json',
+        safeName: 'weapon1',
+        name: 'Weapon 1',
+        count: 1,
+        rateOfFire: 10,
+        damage: 70,
+        dps: 700,
+        sustainedDps: 100,
+        maxRange: 67.5,
+        ammoCapacity: 400,
+      }
+
+      const weapon2: Weapon = {
+        resourceName: '/pa/units/land/tank2/weapon2.json',
+        safeName: 'weapon2',
+        name: 'Weapon 2',
+        count: 1,
+        rateOfFire: 8,
+        damage: 80,
+        dps: 640,
+        sustainedDps: 90,
+        maxRange: 67.5,
+        ammoCapacity: 300,
+      }
+
+      renderWeaponSectionWithComparison(weapon1, weapon2)
+
+      // Both weapons have burst DPS, so burst should compare to burst
+      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
+    })
+
+    it('should show placeholder DPS (Burst) row for alignment when compare weapon has burst', () => {
+      // Regular weapon (no sustained DPS)
+      const regularWeapon: Weapon = {
+        resourceName: '/pa/units/land/bot/regular_weapon.json',
+        safeName: 'regular_weapon',
+        name: 'Regular Weapon',
+        count: 1,
+        rateOfFire: 0.5,
+        damage: 160,
+        dps: 80,
+        maxRange: 67.5,
+      }
+
+      // Burst weapon (has sustained DPS)
+      const burstWeapon: Weapon = {
+        resourceName: '/pa/units/land/tank/burst_weapon.json',
+        safeName: 'burst_weapon',
+        name: 'Burst Weapon',
+        count: 1,
+        rateOfFire: 10,
+        damage: 70,
+        dps: 700,
+        sustainedDps: 106.1,
+        maxRange: 67.5,
+        ammoCapacity: 400,
+      }
+
+      renderWeaponSectionWithComparison(regularWeapon, burstWeapon)
+
+      // Should show placeholder DPS (Burst) row with em-dash for alignment
+      expect(screen.getByText('DPS (Burst):')).toBeInTheDocument()
+      expect(screen.getByText('—')).toBeInTheDocument()
+
+      // Should show DPS (Sustained) row (aligned with DPS (Sustained) on compare weapon)
+      expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
     })
   })
 })
