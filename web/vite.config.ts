@@ -50,6 +50,8 @@ export default defineConfig({
     },
   },
   server: {
+    // Bind to all addresses (required for Docker container access)
+    host: true,
     fs: {
       // Allow serving files from the factions folder at repo root
       allow: ['..'],
