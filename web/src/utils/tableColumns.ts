@@ -98,7 +98,8 @@ function getEnergyPerMetal(entry: UnitIndexEntry): number | undefined {
   const totalMetal = buildArms.reduce((sum, arm) => sum + (arm.metalConsumption * arm.count), 0)
   const totalEnergy = buildArms.reduce((sum, arm) => sum + (arm.energyConsumption * arm.count), 0)
 
-  if (totalMetal === 0) return undefined
+  // Guard against division by zero (including floating point near-zero)
+  if (totalMetal === 0 || Math.abs(totalMetal) < 0.0001) return undefined
   return totalEnergy / totalMetal
 }
 
@@ -406,6 +407,14 @@ const RECON_FILTERS = ['recon', 'radar', 'radarjammer', 'scout']
 /**
  * Detect which column preset to use based on active type filters.
  * Only triggers a preset when exactly one filter is active.
+ *
+ * @param typeFilters - Array of active unit type filter values
+ * @returns The preset ID to use for column configuration
+ *
+ * @remarks
+ * Preset precedence (checked in order): builders > factories > commanders > economy > recon > combat.
+ * Combat is checked last as it's the most generic category.
+ * Filter matching is case-insensitive.
  */
 export function detectPresetFromFilters(typeFilters: string[]): PresetId {
   // Multiple filters or no filters = default preset
@@ -413,7 +422,7 @@ export function detectPresetFromFilters(typeFilters: string[]): PresetId {
 
   const filter = typeFilters[0].toLowerCase()
 
-  // Check each preset category
+  // Check presets in priority order (most specific first, combat last as most generic)
   if (BUILDER_FILTERS.includes(filter)) return 'builders'
   if (FACTORY_FILTERS.includes(filter)) return 'factories'
   if (COMMANDER_FILTERS.includes(filter)) return 'commanders'
@@ -427,6 +436,10 @@ export function detectPresetFromFilters(typeFilters: string[]): PresetId {
 
 /**
  * Get column definitions for a preset, optionally including faction column.
+ *
+ * @param presetId - The preset to get columns for
+ * @param includeFactionColumn - Whether to include the faction column (for "All factions" view)
+ * @returns Array of column definitions in display order
  */
 export function getColumnsForPreset(presetId: PresetId, includeFactionColumn: boolean): ColumnDef[] {
   const columnIds = PRESET_COLUMNS[presetId]
