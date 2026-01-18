@@ -30,6 +30,12 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
 
   // Check if weapon has sustained DPS (ammo-limited weapons)
   const hasSustainedDps = weapon.sustainedDps !== undefined && weapon.sustainedDps !== weapon.dps;
+  const compareHasSustainedDps = compareWeapon?.sustainedDps !== undefined && compareWeapon?.sustainedDps !== compareWeapon?.dps;
+
+  // Effective DPS is sustained if available, otherwise burst/regular DPS
+  // This gives a fair comparison between ammo-limited and non-ammo-limited weapons
+  const effectiveDps = weapon.sustainedDps ?? weapon.dps;
+  const compareEffectiveDps = compareWeapon?.sustainedDps ?? compareWeapon?.dps;
 
   // Format target layers
   const formatTargetLayers = (layers?: string[]) => {
@@ -48,10 +54,14 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const projDiff = isDifferent(weapon.projectilesPerFire, compareWeapon?.projectilesPerFire);
   const damageDiff = isDifferent(weapon.damage, compareWeapon?.damage);
   const rofDiff = isDifferent(weapon.rateOfFire, compareWeapon?.rateOfFire);
-  const dpsDiff = isDifferent(weapon.dps ? weapon.dps * count : undefined, compareWeapon?.dps ? compareWeapon.dps * compareCount : undefined);
+  // DPS diff: compare burst-to-burst if both have sustained, otherwise compare effective DPS
+  const dpsDiff = hasSustainedDps
+    ? isDifferent(weapon.dps ? weapon.dps * count : undefined, compareHasSustainedDps && compareWeapon?.dps ? compareWeapon.dps * compareCount : undefined)
+    : isDifferent(weapon.dps ? weapon.dps * count : undefined, compareEffectiveDps ? compareEffectiveDps * compareCount : undefined);
+  // Sustained DPS diff: compare against effective DPS (sustained if available, otherwise regular DPS)
   const sustainedDpsDiff = isDifferent(
-    weapon.sustainedDps ? weapon.sustainedDps * count : undefined,
-    compareWeapon?.sustainedDps ? compareWeapon.sustainedDps * compareCount : undefined
+    effectiveDps ? effectiveDps * count : undefined,
+    compareEffectiveDps ? compareEffectiveDps * compareCount : undefined
   );
   const yawDiff = isDifferent(weapon.yawRange, compareWeapon?.yawRange) || isDifferent(weapon.yawRate, compareWeapon?.yawRate);
   const pitchDiff = isDifferent(weapon.pitchRange, compareWeapon?.pitchRange) || isDifferent(weapon.pitchRate, compareWeapon?.pitchRate);
@@ -122,33 +132,65 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
           }
         />
       )}
-      {weapon.dps !== undefined && weapon.dps > 0 && showRow(dpsDiff) && (
-        <StatRow
-          label={hasSustainedDps ? "DPS (Burst)" : "DPS"}
-          tooltip={hasSustainedDps ? "Maximum damage per second at full fire rate, before ammo depletes" : undefined}
-          value={
-            <ComparisonValue
-              value={Number((weapon.dps * count).toFixed(1))}
-              compareValue={compareWeapon?.dps ? Number((compareWeapon.dps * compareCount).toFixed(1)) : undefined}
-              comparisonType="higher-better"
-              hideDiff={hideDiff}
+      {/* DPS rows - handle alignment between burst/sustained and regular DPS weapons */}
+      {hasSustainedDps ? (
+        // Weapon has burst + sustained DPS
+        <>
+          {weapon.dps !== undefined && weapon.dps > 0 && showRow(dpsDiff) && (
+            <StatRow
+              label="DPS (Burst)"
+              tooltip="Maximum damage per second at full fire rate, before ammo depletes"
+              value={
+                <ComparisonValue
+                  value={Number((weapon.dps * count).toFixed(1))}
+                  compareValue={compareHasSustainedDps && compareWeapon?.dps ? Number((compareWeapon.dps * compareCount).toFixed(1)) : undefined}
+                  comparisonType="higher-better"
+                  hideDiff={hideDiff}
+                />
+              }
             />
-          }
-        />
-      )}
-      {hasSustainedDps && showRow(sustainedDpsDiff) && (
-        <StatRow
-          label="DPS (Sustained)"
-          tooltip="Continuous damage per second when limited by ammo recovery rate"
-          value={
-            <ComparisonValue
-              value={Number((weapon.sustainedDps! * count).toFixed(1))}
-              compareValue={compareWeapon?.sustainedDps ? Number((compareWeapon.sustainedDps * compareCount).toFixed(1)) : undefined}
-              comparisonType="higher-better"
-              hideDiff={hideDiff}
+          )}
+          {showRow(sustainedDpsDiff) && (
+            <StatRow
+              label="DPS (Sustained)"
+              tooltip="Continuous damage per second when limited by ammo recovery rate"
+              value={
+                <ComparisonValue
+                  value={Number((weapon.sustainedDps! * count).toFixed(1))}
+                  compareValue={compareEffectiveDps ? Number((compareEffectiveDps * compareCount).toFixed(1)) : undefined}
+                  comparisonType="higher-better"
+                  hideDiff={hideDiff}
+                />
+              }
             />
-          }
-        />
+          )}
+        </>
+      ) : (
+        // Weapon has only regular DPS
+        <>
+          {/* Show placeholder row if compare weapon has burst DPS, to maintain alignment */}
+          {compareHasSustainedDps && compareWeapon?.dps !== undefined && compareWeapon.dps > 0 && showRow(dpsDiff) && (
+            <StatRow
+              label="DPS (Burst)"
+              tooltip="Maximum damage per second at full fire rate, before ammo depletes"
+              value={<span className="text-gray-400 dark:text-gray-500">—</span>}
+            />
+          )}
+          {weapon.dps !== undefined && weapon.dps > 0 && showRow(sustainedDpsDiff) && (
+            <StatRow
+              label="DPS (Sustained)"
+              tooltip="Continuous damage per second (no ammo limitations)"
+              value={
+                <ComparisonValue
+                  value={Number((weapon.dps * count).toFixed(1))}
+                  compareValue={compareEffectiveDps ? Number((compareEffectiveDps * compareCount).toFixed(1)) : undefined}
+                  comparisonType="higher-better"
+                  hideDiff={hideDiff}
+                />
+              }
+            />
+          )}
+        </>
       )}
       {weapon.yawRange !== undefined && showRow(yawDiff) && (
         <StatRow label="Yaw" value={`${weapon.yawRange}° at ${weapon.yawRate}° per second`} />
