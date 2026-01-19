@@ -714,8 +714,11 @@ func shouldSkipSpecFileForAddon(isAddon bool, resourcePath, unitResourceName str
 // with profile values taking precedence when specified. This allows mod metadata from
 // modinfo.json to be used as defaults while still allowing profile overrides.
 //
-// Priority: Profile values > Primary mod values > Defaults
-func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*loader.ModInfo) models.FactionMetadata {
+// Priority: Profile values > Primary mod values > Error (no default)
+//
+// Returns an error if no version can be determined from the profile or primary mod.
+// Use the --version flag to specify a version manually when auto-detection fails.
+func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*loader.ModInfo) (models.FactionMetadata, error) {
 	metadata := models.FactionMetadata{
 		Identifier:  profile.ID,
 		DisplayName: profile.DisplayName,
@@ -727,13 +730,13 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		primaryMod = resolvedMods[0]
 	}
 
-	// Version: profile > primary mod > default "1.0.0"
+	// Version: profile > primary mod > error (no default)
 	if profile.Version != "" {
 		metadata.Version = profile.Version
 	} else if primaryMod != nil && primaryMod.Version != "" {
 		metadata.Version = primaryMod.Version
 	} else {
-		metadata.Version = "1.0.0"
+		return models.FactionMetadata{}, fmt.Errorf("no version found for faction '%s'\n\nVersion could not be auto-detected from the mod's modinfo.json.\nPlease specify a version using one of these methods:\n  1. Add \"version\" field to the faction profile\n  2. Use --version flag: pa-pedia describe-faction --version \"1.2.3\" ...", profile.DisplayName)
 	}
 
 	// Author: profile > primary mod > empty
@@ -779,5 +782,5 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		metadata.BackgroundImage = "assets/" + normalizedPath
 	}
 
-	return metadata
+	return metadata, nil
 }
