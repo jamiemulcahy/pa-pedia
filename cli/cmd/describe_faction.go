@@ -26,10 +26,11 @@ var (
 	modIDs              []string
 
 	// Common flags
-	paRoot     string
-	paDataRoot string
-	outputDir  string
-	allowEmpty bool
+	paRoot      string
+	paDataRoot  string
+	outputDir   string
+	allowEmpty  bool
+	versionFlag string
 )
 
 // describeFactionCmd represents the describe-faction command
@@ -95,6 +96,7 @@ func init() {
 	describeFactionCmd.Flags().StringVar(&paDataRoot, "data-root", "", "Path to PA data directory (required when mods are involved)")
 	describeFactionCmd.Flags().StringVar(&outputDir, "output", "./factions", "Output directory for faction folders")
 	describeFactionCmd.Flags().BoolVar(&allowEmpty, "allow-empty", false, "Allow exporting factions with 0 units (normally an error)")
+	describeFactionCmd.Flags().StringVar(&versionFlag, "version", "", "Faction version (required if not auto-detected from mod)")
 }
 
 func runDescribeFaction(cmd *cobra.Command, args []string) error {
@@ -150,6 +152,11 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		logVerbose("Using manual mode: %s with unit type %s", factionNameFlag, factionUnitTypeFlag)
 	} else {
 		return fmt.Errorf("either --profile or --name is required\n\nUse --profile for profile-based extraction (recommended)\nUse --name with --faction-unit-type for manual mode\nUse --list-profiles to see available profiles")
+	}
+
+	// Apply --version flag override (takes priority over profile/mod version)
+	if versionFlag != "" {
+		profile.Version = versionFlag
 	}
 
 	// Validate --pa-root
@@ -426,7 +433,10 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 	}
 
 	// Create metadata from profile
-	metadata := exporter.CreateMetadataFromProfile(profile, resolvedMods)
+	metadata, err := exporter.CreateMetadataFromProfile(profile, resolvedMods)
+	if err != nil {
+		return err
+	}
 
 	// Set addon flag and detect base factions if this is an addon
 	if profile.IsAddon {
