@@ -325,7 +325,7 @@ export function UnitDetail() {
   const backText = fromAll ? 'Back to all' : 'Back to faction'
 
   // Load primary unit
-  const { unit, loading, error } = useUnit(factionId || '', unitId || '')
+  const { unit, loading, error } = useUnit(factionId || '', unitId || '', version)
 
   // Load all comparison units in parallel (across all comparison groups)
   const { units: comparisonUnits } = useComparisonUnits(allComparisonRefs)
