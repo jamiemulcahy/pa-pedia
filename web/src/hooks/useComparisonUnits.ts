@@ -5,6 +5,7 @@ import type { Unit } from '@/types/faction'
 export interface ComparisonRef {
   factionId: string
   unitId: string
+  version?: string | null
 }
 
 export interface ComparisonRefWithQuantity extends ComparisonRef {
@@ -71,7 +72,12 @@ export function useComparisonUnits(refs: ComparisonRef[]) {
   // Create a stable key string from refs to avoid infinite loops
   // (refs array is created fresh each render, but this string is stable)
   // Normalize factionId to lowercase for consistent cache lookup
-  const refsKey = refs.map(r => `${r.factionId.toLowerCase()}:${r.unitId}`).join(',')
+  // Include version in cache key for version-aware comparisons
+  const refsKey = refs.map(r => {
+    const normalizedFactionId = r.factionId.toLowerCase()
+    const factionCacheKey = r.version ? `${normalizedFactionId}@${r.version}` : normalizedFactionId
+    return `${factionCacheKey}:${r.unitId}`
+  }).join(',')
 
   // Generate cache keys for all refs - memoized on the stable string key
   const cacheKeys = useMemo(
@@ -109,7 +115,7 @@ export function useComparisonUnits(refs: ComparisonRef[]) {
       loadingSet.add(key)
       dispatch({ type: 'LOAD_START', key })
 
-      loadUnit(ref.factionId, ref.unitId)
+      loadUnit(ref.factionId, ref.unitId, ref.version)
         .then(() => {
           if (!mounted) return
           loadingSet.delete(key)
