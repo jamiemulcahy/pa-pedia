@@ -132,6 +132,39 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -246,39 +279,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -722,77 +722,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -869,6 +798,77 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -1205,6 +1205,77 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -1281,77 +1352,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -2227,6 +2227,50 @@
                 }
               },
               {
+                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
+                "safeName": "uber_cannon",
+                "name": "uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 700,
+                "dps": 175,
+                "sustainedDps": 175,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 100,
+                "splashDamage": 700,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 10000,
+                "ammoCapacity": 10000,
+                "ammoRechargeTime": 4,
+                "energyRate": -2500,
+                "energyPerShot": 10000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
+                  "safeName": "cannon_uber",
+                  "name": "cannon_uber",
+                  "damage": 700,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 700,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.2
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -2330,50 +2374,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 1.25
-                }
-              },
-              {
-                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
-                "safeName": "uber_cannon",
-                "name": "uber_cannon",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 700,
-                "dps": 175,
-                "sustainedDps": 175,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 100,
-                "maxRange": 100,
-                "splashDamage": 700,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "energy",
-                "ammoDemand": 2500,
-                "ammoPerShot": 10000,
-                "ammoCapacity": 10000,
-                "ammoRechargeTime": 4,
-                "energyRate": -2500,
-                "energyPerShot": 10000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 90,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
-                  "safeName": "cannon_uber",
-                  "name": "cannon_uber",
-                  "damage": 700,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 700,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 100,
-                  "maxVelocity": 100,
-                  "lifetime": 1.2
                 }
               }
             ]
@@ -3499,41 +3499,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -3646,6 +3611,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -4384,6 +4384,39 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -4498,39 +4531,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -5130,77 +5130,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -5277,6 +5206,77 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -5425,41 +5425,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -5572,6 +5537,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -5741,41 +5741,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
-                "safeName": "base_commander_tool_missile_weapon",
-                "name": "base_commander_tool_missile_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -5888,6 +5853,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
+                "safeName": "base_commander_tool_missile_weapon",
+                "name": "base_commander_tool_missile_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               }
             ]
@@ -6015,39 +6015,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -6162,6 +6129,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -6626,74 +6626,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -6773,6 +6705,74 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               }
             ]
@@ -7055,7 +7055,7 @@
             ]
           },
           "economy": {
-            "buildCost": 225,
+            "buildCost": 210,
             "production": {},
             "consumption": {},
             "storage": {},
@@ -7154,39 +7154,6 @@
                   "damage": 3000,
                   "fullDamageRadius": 30,
                   "splashRadius": 130
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -7304,6 +7271,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -8624,6 +8624,41 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
+                "safeName": "base_commander_tool_missile_weapon",
+                "name": "base_commander_tool_missile_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -8736,41 +8771,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
-                "safeName": "base_commander_tool_missile_weapon",
-                "name": "base_commander_tool_missile_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               }
             ]
@@ -8898,77 +8898,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -9045,6 +8974,77 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -9420,39 +9420,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -9567,6 +9534,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -10716,6 +10716,39 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -10830,39 +10863,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -11438,39 +11438,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -11585,6 +11552,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -12069,41 +12069,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -12216,6 +12181,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -12486,77 +12486,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -12633,6 +12562,77 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -15291,77 +15291,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -15438,6 +15367,77 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               },
               {
@@ -16358,6 +16358,77 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -16434,77 +16505,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -17571,6 +17571,50 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
+                "safeName": "uber_cannon",
+                "name": "uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 700,
+                "dps": 175,
+                "sustainedDps": 175,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 100,
+                "splashDamage": 700,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 10000,
+                "ammoCapacity": 10000,
+                "ammoRechargeTime": 4,
+                "energyRate": -2500,
+                "energyPerShot": 10000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
+                  "safeName": "cannon_uber",
+                  "name": "cannon_uber",
+                  "damage": 700,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 700,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.2
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -17674,50 +17718,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 1.25
-                }
-              },
-              {
-                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
-                "safeName": "uber_cannon",
-                "name": "uber_cannon",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 700,
-                "dps": 175,
-                "sustainedDps": 175,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 100,
-                "maxRange": 100,
-                "splashDamage": 700,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "energy",
-                "ammoDemand": 2500,
-                "ammoPerShot": 10000,
-                "ammoCapacity": 10000,
-                "ammoRechargeTime": 4,
-                "energyRate": -2500,
-                "energyPerShot": 10000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 90,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
-                  "safeName": "cannon_uber",
-                  "name": "cannon_uber",
-                  "damage": 700,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 700,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 100,
-                  "maxVelocity": 100,
-                  "lifetime": 1.2
                 }
               },
               {
@@ -18245,6 +18245,39 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -18359,39 +18392,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -18830,50 +18830,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
-                "safeName": "uber_cannon",
-                "name": "uber_cannon",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 700,
-                "dps": 175,
-                "sustainedDps": 175,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 100,
-                "maxRange": 100,
-                "splashDamage": 700,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "ammoSource": "energy",
-                "ammoDemand": 2500,
-                "ammoPerShot": 10000,
-                "ammoCapacity": 10000,
-                "ammoRechargeTime": 4,
-                "energyRate": -2500,
-                "energyPerShot": 10000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 90,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
-                  "safeName": "cannon_uber",
-                  "name": "cannon_uber",
-                  "damage": 700,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 700,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 100,
-                  "maxVelocity": 100,
-                  "lifetime": 1.2
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
                 "safeName": "base_commander_tool_aa_weapon",
                 "name": "base_commander_tool_aa_weapon",
@@ -18977,6 +18933,50 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 1.25
+                }
+              },
+              {
+                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
+                "safeName": "uber_cannon",
+                "name": "uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 700,
+                "dps": 175,
+                "sustainedDps": 175,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 100,
+                "splashDamage": 700,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 10000,
+                "ammoCapacity": 10000,
+                "ammoRechargeTime": 4,
+                "energyRate": -2500,
+                "energyPerShot": 10000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
+                  "safeName": "cannon_uber",
+                  "name": "cannon_uber",
+                  "damage": 700,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 700,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.2
                 }
               },
               {
@@ -20723,6 +20723,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
                 "safeName": "base_commander_tool_laser_weapon",
                 "name": "base_commander_tool_laser_weapon",
@@ -20837,39 +20870,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -21313,6 +21313,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -21427,39 +21460,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -22534,9 +22534,9 @@
             "weaponConsumption": {}
           },
           "mobility": {
-            "moveSpeed": 80,
+            "moveSpeed": 40,
             "turnSpeed": 240,
-            "acceleration": 80,
+            "acceleration": 40,
             "brake": 30
           },
           "recon": {
@@ -22603,6 +22603,41 @@
             "dps": 985,
             "salvoDamage": 4230,
             "weapons": [
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
               {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
@@ -22716,41 +22751,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               },
               {
@@ -23523,41 +23523,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -23670,6 +23635,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -24006,39 +24006,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
                 "safeName": "base_commander_tool_laser_weapon",
                 "name": "base_commander_tool_laser_weapon",
@@ -24153,6 +24120,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -24596,6 +24596,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -24710,39 +24743,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -24891,6 +24891,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -25005,39 +25038,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -25186,6 +25186,77 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -25262,77 +25333,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -25662,74 +25662,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -25809,6 +25741,74 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -25957,41 +25957,6 @@
             "salvoDamage": 4230,
             "weapons": [
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
-                }
-              },
-              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -26104,6 +26069,41 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
                 }
               },
               {
@@ -26502,6 +26502,39 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -26616,39 +26649,6 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               }
             ]
@@ -27262,6 +27262,41 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
+                "safeName": "base_commander_tool_bullet_weapon",
+                "name": "base_commander_tool_bullet_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
+                  "safeName": "base_commander_ammo_bullet",
+                  "name": "base_commander_ammo_bullet",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -27374,41 +27409,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
-                "safeName": "base_commander_tool_bullet_weapon",
-                "name": "base_commander_tool_bullet_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_bullet.json",
-                  "safeName": "base_commander_ammo_bullet",
-                  "name": "base_commander_ammo_bullet",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               },
               {
@@ -28012,6 +28012,77 @@
             "salvoDamage": 4230,
             "weapons": [
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
+                "safeName": "base_commander_tool_aa_weapon",
+                "name": "base_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_bullet_weapon.json",
                 "safeName": "base_commander_tool_bullet_weapon",
                 "name": "base_commander_tool_bullet_weapon",
@@ -28088,77 +28159,6 @@
                   "muzzleVelocity": 100,
                   "maxVelocity": 100,
                   "lifetime": 1.2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_aa_weapon.json",
-                "safeName": "base_commander_tool_aa_weapon",
-                "name": "base_commander_tool_aa_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 200,
-                "dps": 400,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 150,
-                "splashDamage": 10,
-                "splashRadius": 0.75,
-                "fullDamageRadius": 0.75,
-                "targetLayers": [
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
-                  "Mobile \u0026 Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 89,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
-                  "safeName": "base_commander_aa_ammo",
-                  "name": "base_commander_aa_ammo",
-                  "damage": 200,
-                  "fullDamageRadius": 0.75,
-                  "splashDamage": 10,
-                  "splashRadius": 0.75,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 2
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
                 }
               },
               {
@@ -28918,6 +28918,41 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
+                "safeName": "base_commander_tool_laser_weapon",
+                "name": "base_commander_tool_laser_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
+                  "safeName": "base_commander_ammo_laser",
+                  "name": "base_commander_ammo_laser",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
                 "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
                 "safeName": "uber_cannon",
                 "name": "uber_cannon",
@@ -29030,41 +29065,6 @@
                   "muzzleVelocity": 75,
                   "maxVelocity": 75,
                   "lifetime": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_laser_weapon.json",
-                "safeName": "base_commander_tool_laser_weapon",
-                "name": "base_commander_tool_laser_weapon",
-                "count": 1,
-                "rateOfFire": 2,
-                "damage": 80,
-                "dps": 160,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_ammo_laser.json",
-                  "safeName": "base_commander_ammo_laser",
-                  "name": "base_commander_ammo_laser",
-                  "damage": 80,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25
                 }
               }
             ]
@@ -29508,39 +29508,6 @@
                 }
               },
               {
-                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
-                "safeName": "base_commander_tool_torpedo_weapon",
-                "name": "base_commander_tool_torpedo_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 250,
-                "dps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 75,
-                "maxRange": 160,
-                "targetLayers": [
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Mobile"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
-                  "safeName": "base_commander_torpedo_ammo_water",
-                  "name": "base_commander_torpedo_ammo_water",
-                  "damage": 250,
-                  "muzzleVelocity": 75,
-                  "maxVelocity": 75,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_missile_weapon.json",
                 "safeName": "base_commander_tool_missile_weapon",
                 "name": "base_commander_tool_missile_weapon",
@@ -29655,6 +29622,39 @@
                   "muzzleVelocity": 125,
                   "maxVelocity": 125,
                   "lifetime": 2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
                 }
               }
             ]
@@ -30280,18 +30280,18 @@
         "accessible": true,
         "specs": {
           "combat": {
-            "health": 5000
+            "health": 3000
           },
           "economy": {
-            "buildCost": 2000,
+            "buildCost": 2800,
             "production": {
-              "energy": 3750
+              "energy": 6000
             },
             "consumption": {},
             "storage": {},
             "toolConsumption": {},
             "weaponConsumption": {},
-            "energyRate": 3750
+            "energyRate": 6000
           },
           "mobility": {},
           "recon": {
@@ -30430,10 +30430,10 @@
             "teleporter",
             "artillery_unit_launcher",
             "metal_extractor_adv",
-            "energy_plant_adv",
             "tactical_missile_launcher",
             "radar_jammer",
             "radar_adv",
+            "energy_plant_adv",
             "air_factory_adv",
             "unit_cannon",
             "artillery_long",
@@ -30568,10 +30568,10 @@
             "teleporter",
             "artillery_unit_launcher",
             "metal_extractor_adv",
-            "energy_plant_adv",
             "tactical_missile_launcher",
             "radar_jammer",
             "radar_adv",
+            "energy_plant_adv",
             "bot_factory_adv",
             "unit_cannon",
             "artillery_long",
@@ -30703,10 +30703,10 @@
             "teleporter",
             "artillery_unit_launcher",
             "metal_extractor_adv",
-            "energy_plant_adv",
             "tactical_missile_launcher",
             "radar_jammer",
             "radar_adv",
+            "energy_plant_adv",
             "naval_factory_adv",
             "unit_cannon",
             "artillery_long",
@@ -30838,10 +30838,10 @@
             "teleporter",
             "artillery_unit_launcher",
             "metal_extractor_adv",
-            "energy_plant_adv",
             "tactical_missile_launcher",
             "radar_jammer",
             "radar_adv",
+            "energy_plant_adv",
             "vehicle_factory_adv",
             "unit_cannon",
             "artillery_long",
@@ -31905,7 +31905,20 @@
                   "maxVelocity": 1500,
                   "lifetime": 5,
                   "metalCost": 5000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/anti_nuke_launcher/anti_nuke_launcher_ammo.json",
+                    "safeName": "anti_nuke_launcher_ammo",
+                    "name": "anti_nuke_launcher_ammo",
+                    "damage": 1,
+                    "splashDamage": 1,
+                    "muzzleVelocity": 1500,
+                    "maxVelocity": 1500,
+                    "lifetime": 5,
+                    "metalCost": 5000
+                  }
+                ]
               }
             ]
           },
@@ -32137,6 +32150,37 @@
             "salvoDamage": 1450,
             "weapons": [
               {
+                "resourceName": "/pa/units/land/bot_tactical_missile/bot_tactical_missile_tool_antidrop.json",
+                "safeName": "bot_tactical_missile_tool_antidrop",
+                "name": "bot_tactical_missile_tool_antidrop",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 400,
+                "dps": 100,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 160,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/bot_tactical_missile/bot_tactical_missile_antidrop_ammo.json",
+                  "safeName": "bot_tactical_missile_antidrop_ammo",
+                  "name": "bot_tactical_missile_antidrop_ammo",
+                  "damage": 400,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 400,
+                  "lifetime": 3
+                }
+              },
+              {
                 "resourceName": "/pa/units/land/bot_tactical_missile/bot_tactical_missile_tool_weapon.json",
                 "safeName": "bot_tactical_missile_tool_weapon",
                 "name": "bot_tactical_missile_tool_weapon",
@@ -32146,7 +32190,7 @@
                 "dps": 90,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 80,
-                "maxRange": 180,
+                "maxRange": 160,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
@@ -32199,37 +32243,6 @@
                   "muzzleVelocity": 160,
                   "maxVelocity": 160,
                   "lifetime": 15
-                }
-              },
-              {
-                "resourceName": "/pa/units/land/bot_tactical_missile/bot_tactical_missile_tool_antidrop.json",
-                "safeName": "bot_tactical_missile_tool_antidrop",
-                "name": "bot_tactical_missile_tool_antidrop",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 400,
-                "dps": 100,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 10,
-                "maxRange": 160,
-                "targetLayers": [
-                  "Orbital",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Orbital",
-                  "Structure - Wall",
-                  "Mobile",
-                  "Wall"
-                ],
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/bot_tactical_missile/bot_tactical_missile_antidrop_ammo.json",
-                  "safeName": "bot_tactical_missile_antidrop_ammo",
-                  "name": "bot_tactical_missile_antidrop_ammo",
-                  "damage": 400,
-                  "muzzleVelocity": 10,
-                  "maxVelocity": 400,
-                  "lifetime": 3
                 }
               }
             ]
@@ -32651,10 +32664,10 @@
             "teleporter",
             "artillery_unit_launcher",
             "metal_extractor_adv",
-            "energy_plant_adv",
             "tactical_missile_launcher",
             "radar_jammer",
             "radar_adv",
+            "energy_plant_adv",
             "bot_factory_adv",
             "unit_cannon",
             "artillery_long",
@@ -32911,6 +32924,38 @@
             "salvoDamage": 1000,
             "weapons": [
               {
+                "resourceName": "/pa/units/land/bot_sniper/bot_sniper_beam_tool_weapon.json",
+                "safeName": "bot_sniper_beam_tool_weapon",
+                "name": "bot_sniper_beam_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 400,
+                "dps": 100,
+                "projectilesPerFire": 1,
+                "maxRange": 140,
+                "targetLayers": [
+                  "Air",
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 3600,
+                "pitchRange": 89,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/bot_sniper/bot_sniper_beam_ammo.json",
+                  "safeName": "bot_sniper_beam_ammo",
+                  "name": "bot_sniper_beam_ammo",
+                  "damage": 400
+                }
+              },
+              {
                 "resourceName": "/pa/units/land/bot_sniper/bot_sniper_tool_weapon.json",
                 "safeName": "bot_sniper_tool_weapon",
                 "name": "bot_sniper_tool_weapon",
@@ -32946,38 +32991,6 @@
                   "maxVelocity": 1000,
                   "lifetime": 0.25
                 }
-              },
-              {
-                "resourceName": "/pa/units/land/bot_sniper/bot_sniper_beam_tool_weapon.json",
-                "safeName": "bot_sniper_beam_tool_weapon",
-                "name": "bot_sniper_beam_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.25,
-                "damage": 400,
-                "dps": 100,
-                "projectilesPerFire": 1,
-                "maxRange": 140,
-                "targetLayers": [
-                  "Air",
-                  "Orbital"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall",
-                  "Air"
-                ],
-                "yawRange": 180,
-                "yawRate": 3600,
-                "pitchRange": 89,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/bot_sniper/bot_sniper_beam_ammo.json",
-                  "safeName": "bot_sniper_beam_ammo",
-                  "name": "bot_sniper_beam_ammo",
-                  "damage": 400
-                }
               }
             ]
           },
@@ -32991,8 +33004,8 @@
           },
           "mobility": {
             "moveSpeed": 12,
-            "turnSpeed": 720,
-            "acceleration": 120,
+            "turnSpeed": 360,
+            "acceleration": 60,
             "brake": -1
           },
           "recon": {
@@ -34048,7 +34061,9 @@
                 "projectilesPerFire": 2,
                 "muzzleVelocity": 160,
                 "maxRange": 120,
-                "splashRadius": 1,
+                "splashDamage": 300,
+                "splashRadius": 3,
+                "fullDamageRadius": 1,
                 "targetLayers": [
                   "LandHorizontal",
                   "WaterSurface"
@@ -34069,7 +34084,9 @@
                   "safeName": "tank_laser_adv_ammo",
                   "name": "tank_laser_adv_ammo",
                   "damage": 300,
-                  "splashRadius": 1,
+                  "fullDamageRadius": 1,
+                  "splashDamage": 300,
+                  "splashRadius": 3,
                   "muzzleVelocity": 160,
                   "maxVelocity": 160,
                   "lifetime": 1
@@ -34322,7 +34339,7 @@
             "weaponConsumption": {}
           },
           "mobility": {
-            "moveSpeed": 35,
+            "moveSpeed": 30,
             "turnSpeed": 1080,
             "acceleration": 400,
             "brake": 400
@@ -34480,9 +34497,7 @@
             "radarRadius": 150
           },
           "storage": {},
-          "special": {
-            "amphibious": true
-          }
+          "special": {}
         },
         "buildRelationships": {
           "builtBy": [
@@ -34694,7 +34709,21 @@
                   "muzzleVelocity": 40,
                   "maxVelocity": 75,
                   "metalCost": 30000
-                }
+                },
+                "buildableAmmo": [
+                  {
+                    "resourceName": "/pa/units/land/nuke_launcher/nuke_launcher_ammo.json",
+                    "safeName": "nuke_launcher_ammo",
+                    "name": "nuke_launcher_ammo",
+                    "damage": 33000,
+                    "fullDamageRadius": 125,
+                    "splashDamage": 33000,
+                    "splashRadius": 150,
+                    "muzzleVelocity": 40,
+                    "maxVelocity": 75,
+                    "metalCost": 30000
+                  }
+                ]
               }
             ]
           },
@@ -34883,6 +34912,42 @@
             "salvoDamage": 420,
             "weapons": [
               {
+                "resourceName": "/pa/units/orbital/orbital_battleship/orbital_battleship_tool_weapon.json",
+                "safeName": "orbital_battleship_tool_weapon",
+                "name": "orbital_battleship_tool_weapon",
+                "count": 4,
+                "rateOfFire": 2,
+                "damage": 30,
+                "dps": 120,
+                "projectilesPerFire": 2,
+                "muzzleVelocity": 500,
+                "maxRange": 130,
+                "targetLayers": [
+                  "Orbital",
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 100,
+                "yawRate": 360,
+                "pitchRange": 180,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/orbital_battleship/orbital_battleship_ammo.json",
+                  "safeName": "orbital_battleship_ammo",
+                  "name": "orbital_battleship_ammo",
+                  "damage": 30,
+                  "muzzleVelocity": 500,
+                  "maxVelocity": 500
+                }
+              },
+              {
                 "resourceName": "/pa/units/orbital/orbital_battleship/orbital_battleship_tool_weapon_ground.json",
                 "safeName": "orbital_battleship_tool_weapon_ground",
                 "name": "orbital_battleship_tool_weapon_ground",
@@ -34919,42 +34984,6 @@
                   "fullDamageRadius": 1,
                   "splashDamage": 300,
                   "splashRadius": 4
-                }
-              },
-              {
-                "resourceName": "/pa/units/orbital/orbital_battleship/orbital_battleship_tool_weapon.json",
-                "safeName": "orbital_battleship_tool_weapon",
-                "name": "orbital_battleship_tool_weapon",
-                "count": 4,
-                "rateOfFire": 2,
-                "damage": 30,
-                "dps": 120,
-                "projectilesPerFire": 2,
-                "muzzleVelocity": 500,
-                "maxRange": 130,
-                "targetLayers": [
-                  "Orbital",
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Air"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Naval",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "yawRange": 100,
-                "yawRate": 360,
-                "pitchRange": 180,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/orbital/orbital_battleship/orbital_battleship_ammo.json",
-                  "safeName": "orbital_battleship_ammo",
-                  "name": "orbital_battleship_ammo",
-                  "damage": 30,
-                  "muzzleVelocity": 500,
-                  "maxVelocity": 500
                 }
               }
             ]
@@ -35218,7 +35247,6 @@
         "Land",
         "Structure",
         "Advanced",
-        "Recon",
         "FabAdvBuild",
         "RadarJammer",
         "Custom58"
@@ -35245,7 +35273,6 @@
           "Land",
           "Structure",
           "Advanced",
-          "Recon",
           "FabAdvBuild",
           "RadarJammer",
           "Custom58"
@@ -35269,8 +35296,7 @@
           "mobility": {},
           "recon": {
             "visionRadius": 100,
-            "underwaterVisionRadius": 100,
-            "radarRadius": 200
+            "underwaterVisionRadius": 100
           },
           "storage": {},
           "special": {
@@ -35750,13 +35776,13 @@
           "economy": {
             "buildCost": 1600,
             "production": {
-              "energy": 3200
+              "energy": 2800
             },
             "consumption": {},
             "storage": {},
             "toolConsumption": {},
             "weaponConsumption": {},
-            "energyRate": 3200
+            "energyRate": 2800
           },
           "mobility": {
             "moveSpeed": 10,
@@ -36170,7 +36196,7 @@
                   "name": "carrier_ammo",
                   "muzzleVelocity": 110,
                   "maxVelocity": 110,
-                  "lifetime": 3,
+                  "lifetime": 5,
                   "spawnUnitOnDeath": "/pa/units/sea/drone_carrier/drone/drone.json",
                   "spawnUnitOnDeathWithVelocity": true
                 }
@@ -36413,7 +36439,7 @@
         "specs": {
           "combat": {
             "health": 5000,
-            "dps": 750,
+            "dps": 1000,
             "salvoDamage": 1000,
             "weapons": [
               {
@@ -36421,9 +36447,9 @@
                 "safeName": "tank_heavy_armor_tool_weapon",
                 "name": "tank_heavy_armor_tool_weapon",
                 "count": 1,
-                "rateOfFire": 0.75,
+                "rateOfFire": 1,
                 "damage": 1000,
-                "dps": 750,
+                "dps": 1000,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 100,
                 "maxRange": 50,
@@ -36814,47 +36840,6 @@
             "salvoDamage": 6100,
             "weapons": [
               {
-                "resourceName": "/pa/units/land/titan_vehicle/titan_vehicle_tool_weapon_main.json",
-                "safeName": "titan_vehicle_tool_weapon_main",
-                "name": "titan_vehicle_tool_weapon_main",
-                "count": 1,
-                "rateOfFire": 0.3,
-                "damage": 800,
-                "dps": 960,
-                "projectilesPerFire": 4,
-                "muzzleVelocity": 200,
-                "maxRange": 400,
-                "splashDamage": 800,
-                "splashRadius": 15,
-                "fullDamageRadius": 5,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "Seafloor",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "Titan \u0026 ( Land | Naval )",
-                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
-                  "Nuke | NukeDefense"
-                ],
-                "yawRange": 180,
-                "yawRate": 60,
-                "pitchRange": 20,
-                "pitchRate": 90,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/titan_vehicle/titan_vehicle_ammo_main.json",
-                  "safeName": "titan_vehicle_ammo_main",
-                  "name": "titan_vehicle_ammo_main",
-                  "damage": 800,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 800,
-                  "splashRadius": 15,
-                  "muzzleVelocity": 200,
-                  "lifetime": 4
-                }
-              },
-              {
                 "resourceName": "/pa/units/land/titan_vehicle/titan_vehicle_tool_weapon_side.json",
                 "safeName": "titan_vehicle_tool_weapon_side",
                 "name": "titan_vehicle_tool_weapon_side",
@@ -36895,6 +36880,47 @@
                   "muzzleVelocity": 140,
                   "maxVelocity": 140,
                   "lifetime": 3
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/titan_vehicle/titan_vehicle_tool_weapon_main.json",
+                "safeName": "titan_vehicle_tool_weapon_main",
+                "name": "titan_vehicle_tool_weapon_main",
+                "count": 1,
+                "rateOfFire": 0.3,
+                "damage": 800,
+                "dps": 960,
+                "projectilesPerFire": 4,
+                "muzzleVelocity": 200,
+                "maxRange": 400,
+                "splashDamage": 800,
+                "splashRadius": 15,
+                "fullDamageRadius": 5,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense"
+                ],
+                "yawRange": 180,
+                "yawRate": 60,
+                "pitchRange": 20,
+                "pitchRate": 90,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/titan_vehicle/titan_vehicle_ammo_main.json",
+                  "safeName": "titan_vehicle_ammo_main",
+                  "name": "titan_vehicle_ammo_main",
+                  "damage": 800,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 800,
+                  "splashRadius": 15,
+                  "muzzleVelocity": 200,
+                  "lifetime": 4
                 }
               },
               {
