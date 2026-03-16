@@ -295,6 +295,14 @@ export function UnitDetail() {
     updateUrlParams({ [getCompareParamName(groupIndex)]: newRefs.map(serializeRef).join(',') })
   }, [comparisonGroups, updateUrlParams])
 
+  const updateComparisonVersion = useCallback((groupIndex: number, unitIndex: number, newVersion: string | null) => {
+    const group = comparisonGroups[groupIndex]
+    if (!group) return
+    const newRefs = [...group]
+    newRefs[unitIndex] = { ...newRefs[unitIndex], version: newVersion }
+    updateUrlParams({ [getCompareParamName(groupIndex)]: newRefs.map(serializeRef).join(',') })
+  }, [comparisonGroups, updateUrlParams])
+
   // ===== Mode Toggle =====
 
   const toggleComparisonMode = useCallback((mode: ComparisonMode) => {
@@ -654,6 +662,7 @@ export function UnitDetail() {
                           unitId={_ref.unitId || undefined}
                           version={_ref.version}
                           onUnitChange={(newFactionId, newUnitId) => updateComparisonUnit(0, index, newFactionId, newUnitId)}
+                          onVersionChange={(newVersion) => updateComparisonVersion(0, index, newVersion)}
                           sourceUnitTypes={unit.unitTypes}
                         />
                       </div>
