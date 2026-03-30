@@ -25,7 +25,7 @@ function discoverFactions(): string[] {
       const metadataPath = path.join(FACTIONS_DIR, entry.name, 'metadata.json')
       return fs.existsSync(metadataPath)
     })
-    .map(entry => entry.name)
+    .map(entry => entry.name.toLowerCase())
 }
 
 const STATIC_FACTIONS = discoverFactions()

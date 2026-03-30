@@ -41,7 +41,9 @@ export async function getAssetUrl(
     return `${basePath}/${factionId}/${assetPath}`
   }
 
-  const cacheKey = `${factionId}/${assetPath}`
+  // Normalize faction ID to lowercase for consistent IndexedDB key lookups
+  const normalizedFactionId = factionId.toLowerCase()
+  const cacheKey = `${normalizedFactionId}/${assetPath}`
 
   // Check if we already have a URL for this asset
   const cached = urlCache.get(cacheKey)
@@ -53,9 +55,9 @@ export async function getAssetUrl(
   // Load from appropriate cache
   let blob: Blob | null = null
   if (isLocal) {
-    blob = (await getLocalAsset(factionId, assetPath)) ?? null
+    blob = (await getLocalAsset(normalizedFactionId, assetPath)) ?? null
   } else {
-    blob = await getStaticAsset(factionId, assetPath)
+    blob = await getStaticAsset(normalizedFactionId, assetPath)
   }
 
   if (!blob) {
@@ -76,7 +78,7 @@ export async function getAssetUrl(
  * @param assetPath - Path to the asset
  */
 export function releaseAssetUrl(factionId: string, assetPath: string): void {
-  const cacheKey = `${factionId}/${assetPath}`
+  const cacheKey = `${factionId.toLowerCase()}/${assetPath}`
   const cached = urlCache.get(cacheKey)
 
   if (!cached) return
@@ -94,7 +96,7 @@ export function releaseAssetUrl(factionId: string, assetPath: string): void {
  * Call this when a faction is unloaded
  */
 export function clearFactionAssetUrls(factionId: string): void {
-  const prefix = `${factionId}/`
+  const prefix = `${factionId.toLowerCase()}/`
   const keysToDelete: string[] = []
 
   for (const [key, cached] of urlCache) {
