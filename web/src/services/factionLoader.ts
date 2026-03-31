@@ -96,8 +96,16 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
       }
 
       // Prune stale cached factions not in manifest
-      const manifestIds = manifest.factions.map((f) => f.id)
-      await pruneStaleStaticFactions(manifestIds)
+      // Include both plain IDs (latest) and versioned keys (factionId@version)
+      // so that versioned cache entries are not incorrectly pruned
+      const validCacheKeys: string[] = []
+      for (const faction of manifest.factions) {
+        validCacheKeys.push(faction.id)
+        for (const v of faction.versions) {
+          validCacheKeys.push(`${faction.id}@${v.version}`)
+        }
+      }
+      await pruneStaleStaticFactions(validCacheKeys)
     } catch (error) {
       console.error('Failed to load manifest:', error)
       // Fall back to empty list - user can still use local factions
