@@ -23,17 +23,33 @@ interface CachedUrl {
 const urlCache = new Map<string, CachedUrl>()
 
 /**
+ * Build a cache key for the in-memory Blob URL cache.
+ * Includes version when provided so that different versions of the same
+ * faction don't collide in the cache.
+ */
+function buildAssetCacheKey(
+  normalizedFactionId: string,
+  assetPath: string,
+  version?: string | null
+): string {
+  const prefix = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
+  return `${prefix}/${assetPath}`
+}
+
+/**
  * Get or create a Blob URL for an asset
  *
  * @param factionId - The faction ID
  * @param assetPath - Path to the asset within the faction (e.g., "assets/pa/units/land/tank/tank_icon_buildbar.png")
  * @param isLocal - Whether this is a local (user-uploaded) faction
+ * @param version - Optional version string for versioned faction lookups
  * @returns The Blob URL or undefined if asset not found
  */
 export async function getAssetUrl(
   factionId: string,
   assetPath: string,
-  isLocal: boolean
+  isLocal: boolean,
+  version?: string | null
 ): Promise<string | undefined> {
   // In development mode for static factions, use direct file URLs
   if (!isLocal && isDevelopmentMode()) {
@@ -43,7 +59,7 @@ export async function getAssetUrl(
 
   // Normalize faction ID to lowercase for consistent IndexedDB key lookups
   const normalizedFactionId = factionId.toLowerCase()
-  const cacheKey = `${normalizedFactionId}/${assetPath}`
+  const cacheKey = buildAssetCacheKey(normalizedFactionId, assetPath, version)
 
   // Check if we already have a URL for this asset
   const cached = urlCache.get(cacheKey)
@@ -57,7 +73,7 @@ export async function getAssetUrl(
   if (isLocal) {
     blob = (await getLocalAsset(normalizedFactionId, assetPath)) ?? null
   } else {
-    blob = await getStaticAsset(normalizedFactionId, assetPath)
+    blob = await getStaticAsset(normalizedFactionId, assetPath, version)
   }
 
   if (!blob) {
@@ -76,9 +92,10 @@ export async function getAssetUrl(
  *
  * @param factionId - The faction ID
  * @param assetPath - Path to the asset
+ * @param version - Optional version string (must match the version used in getAssetUrl)
  */
-export function releaseAssetUrl(factionId: string, assetPath: string): void {
-  const cacheKey = `${factionId.toLowerCase()}/${assetPath}`
+export function releaseAssetUrl(factionId: string, assetPath: string, version?: string | null): void {
+  const cacheKey = buildAssetCacheKey(factionId.toLowerCase(), assetPath, version)
   const cached = urlCache.get(cacheKey)
 
   if (!cached) return

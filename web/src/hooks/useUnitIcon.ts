@@ -7,7 +7,7 @@ import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
  * Handles both static factions (in dev: URL path, in prod: blob from cache)
  * and local factions (blob URL from IndexedDB)
  */
-export function useUnitIcon(factionId: string, imagePath: string | undefined) {
+export function useUnitIcon(factionId: string, imagePath: string | undefined, version?: string | null) {
   const { isLocalFaction } = useFactionContext()
   // Combined state with request key to track which request the result is for
   const [state, setState] = useState<{
@@ -18,7 +18,7 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
   const isLocal = isLocalFaction(factionId)
   // Create a unique key for the current request to track loading state
-  const currentKey = imagePath ? `${factionId}:${imagePath}:${isLocal}` : null
+  const currentKey = imagePath ? `${factionId}:${imagePath}:${isLocal}:${version ?? ''}` : null
 
   useEffect(() => {
     // Early return if no image path - no state updates needed
@@ -28,7 +28,7 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
 
     let isMounted = true
 
-    getAssetUrl(factionId, imagePath, isLocal)
+    getAssetUrl(factionId, imagePath, isLocal, version)
       .then((url: string | undefined) => {
         if (isMounted) {
           setState({ key: currentKey, iconUrl: url, error: null })
@@ -43,11 +43,11 @@ export function useUnitIcon(factionId: string, imagePath: string | undefined) {
     // Cleanup: release asset URL when component unmounts or deps change
     return () => {
       isMounted = false
-      releaseAssetUrl(factionId, imagePath)
+      releaseAssetUrl(factionId, imagePath, version)
     }
-  // currentKey is derived from factionId/imagePath/isLocal, so excluding it is intentional
+  // currentKey is derived from factionId/imagePath/isLocal/version, so excluding it is intentional
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [factionId, imagePath, isLocal])
+  }, [factionId, imagePath, isLocal, version])
 
   // Compute loading: we have a request but state doesn't match current key yet
   const loading = currentKey !== null && state.key !== currentKey
