@@ -175,7 +175,8 @@ async function downloadAndExtractFaction(
  */
 export async function loadFactionMetadata(
   factionId: string,
-  isLocal: boolean = false
+  isLocal: boolean = false,
+  version?: string | null
 ): Promise<FactionMetadata> {
   // Local factions always come from IndexedDB
   if (isLocal) {
@@ -187,32 +188,44 @@ export async function loadFactionMetadata(
   }
 
   // Development mode: fetch from local file
+  // In dev mode, version is ignored (only one version available locally)
   if (isDevelopmentMode()) {
-    const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
-    if (!response.ok) {
-      throw new Error(`Failed to load faction metadata for ${factionId}: ${response.statusText}`)
+    const useLiveData = import.meta.env.VITE_USE_LIVE_DATA === 'true'
+    if (!useLiveData) {
+      const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
+      if (!response.ok) {
+        throw new Error(`Failed to load faction metadata for ${factionId}: ${response.statusText}`)
+      }
+      return await response.json()
     }
-    return await response.json()
+    // Fall through to production code path when VITE_USE_LIVE_DATA=true
   }
 
-  // Production mode: check cache or download
-  const manifestEntry = await getManifestEntry(factionId)
+  // Production mode (or dev-live mode): check cache or download
+  // Get manifest entry for specific version, or latest if no version specified
+  const manifestEntry = version
+    ? await getManifestVersion(factionId, version)
+    : await getManifestEntry(factionId)
+
   if (!manifestEntry) {
-    throw new Error(`Faction '${factionId}' not found in manifest`)
+    const versionStr = version ? ` version '${version}'` : ''
+    throw new Error(`Faction '${factionId}'${versionStr} not found in manifest`)
   }
 
+  // Build cache key that includes version
   // Normalize factionId to lowercase for consistent cache keys
   const normalizedFactionId = factionId.toLowerCase()
+  const cacheKey = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
 
   // Check if cached and up-to-date
   const isCached = await isStaticFactionCached(
-    normalizedFactionId,
+    cacheKey,
     manifestEntry.version,
     manifestEntry.timestamp
   )
 
   if (isCached) {
-    const cached = await getStaticFactionCache(normalizedFactionId)
+    const cached = await getStaticFactionCache(cacheKey)
     if (cached) {
       return cached.metadata
     }
@@ -221,9 +234,13 @@ export async function loadFactionMetadata(
   }
 
   // Cache miss or stale - download fresh copy
-  const { metadata, index, assets } = await downloadAndExtractFaction(manifestEntry)
+  // In dev-live mode, prepend production URL to root-relative download paths
+  const downloadUrl = getSiteBaseUrl() + manifestEntry.downloadUrl
+  const entryWithUrl = { ...manifestEntry, downloadUrl }
+
+  const { metadata, index, assets } = await downloadAndExtractFaction(entryWithUrl)
   await cacheStaticFaction(
-    normalizedFactionId,
+    cacheKey,
     manifestEntry.version,
     manifestEntry.timestamp,
     metadata,

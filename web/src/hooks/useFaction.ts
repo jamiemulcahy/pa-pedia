@@ -61,7 +61,7 @@ export function useFaction(factionId: string, version?: string | null) {
   // the effect could trigger multiple fetches since `index` is still undefined
   const loadingRef = useRef(false)
 
-  const metadata: FactionMetadataWithLocal | undefined = getFaction(factionId)
+  const metadata: FactionMetadataWithLocal | undefined = getFaction(factionId, version)
   const index: FactionIndex | undefined = getFactionIndex(factionId, version)
 
   useEffect(() => {
