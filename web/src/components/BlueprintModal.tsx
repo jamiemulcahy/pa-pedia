@@ -24,7 +24,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   title,
   resolvedData
 }) => {
-  const { factionId, isLocal } = useCurrentFaction();
+  const { factionId, isLocal, version } = useCurrentFaction();
   const [blueprintContent, setBlueprintContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,7 +141,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
           json = JSON.parse(text);
         } else if (!isDevelopmentMode() && factionId) {
           // Production mode: Load from IndexedDB for static factions
-          const blob = await getStaticAsset(factionId, assetPath);
+          const blob = await getStaticAsset(factionId, assetPath, version);
 
           if (!blob) {
             throw new Error('Blueprint file not found. This unit may not have an exported blueprint file.');
@@ -198,7 +198,7 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
     loadBlueprint();
 
     return () => controller.abort();
-  }, [isOpen, currentPath, isLocal, factionId, viewMode]);
+  }, [isOpen, currentPath, isLocal, factionId, viewMode, version]);
 
   // Get the content to display based on current view mode
   const getDisplayContent = useCallback(() => {

@@ -8,6 +8,8 @@ export { CurrentFactionContext } from './CurrentFactionContextValue'
 interface CurrentFactionProviderProps {
   factionId: string
   children: React.ReactNode
+  /** The specific version being viewed, or undefined/null for latest */
+  version?: string | null
 }
 
 /**
@@ -17,13 +19,13 @@ interface CurrentFactionProviderProps {
  * Use this when displaying faction content - each faction gets its own provider,
  * enabling multiple factions on screen simultaneously (e.g., comparison views).
  */
-export function CurrentFactionProvider({ factionId, children }: CurrentFactionProviderProps) {
+export function CurrentFactionProvider({ factionId, children, version }: CurrentFactionProviderProps) {
   const { getFaction, isLocalFaction } = useFactionContext()
-  const metadata = getFaction(factionId)
+  const metadata = getFaction(factionId, version)
   const isLocal = isLocalFaction(factionId)
 
   return (
-    <CurrentFactionContext.Provider value={{ factionId, isLocal, metadata }}>
+    <CurrentFactionContext.Provider value={{ factionId, isLocal, metadata, version }}>
       {children}
     </CurrentFactionContext.Provider>
   )

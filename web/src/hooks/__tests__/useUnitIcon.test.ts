@@ -63,7 +63,8 @@ describe('useUnitIcon', () => {
     expect(mockGetAssetUrl).toHaveBeenCalledWith(
       'MLA',
       'assets/pa/units/tank/tank_icon.png',
-      false
+      false,
+      undefined
     )
   })
 
@@ -86,7 +87,8 @@ describe('useUnitIcon', () => {
     expect(mockGetAssetUrl).toHaveBeenCalledWith(
       'LocalFaction',
       'assets/pa/units/tank/tank_icon.png',
-      true
+      true,
+      undefined
     )
   })
 
@@ -179,6 +181,6 @@ describe('useUnitIcon', () => {
 
     unmount()
 
-    expect(mockReleaseAssetUrl).toHaveBeenCalledWith('MLA', 'assets/icon.png')
+    expect(mockReleaseAssetUrl).toHaveBeenCalledWith('MLA', 'assets/icon.png', undefined)
   })
 })

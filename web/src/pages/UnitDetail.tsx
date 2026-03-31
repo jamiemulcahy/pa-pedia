@@ -461,7 +461,7 @@ export function UnitDetail() {
   const seoPath = `/faction/${factionId}/unit/${unitId}`
 
   return (
-    <CurrentFactionProvider factionId={factionId || ''}>
+    <CurrentFactionProvider factionId={factionId || ''} version={version}>
       <SEO
         title={`${unit.displayName} - ${factionId}`}
         description={unitDescription}

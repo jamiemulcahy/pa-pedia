@@ -134,10 +134,21 @@ export async function cacheStaticFaction(
 
 /**
  * Get a cached asset blob
+ *
+ * @param factionId - The base faction ID (e.g., "mla")
+ * @param assetPath - Path within the faction (e.g., "assets/pa/units/...")
+ * @param version - Optional version string. When provided, looks up assets
+ *   stored under the versioned key (e.g., "mla@0.9.0/assets/...").
+ *   When omitted, uses the unversioned key (e.g., "mla/assets/...").
  */
-export async function getStaticAsset(factionId: string, assetPath: string): Promise<Blob | null> {
+export async function getStaticAsset(
+  factionId: string,
+  assetPath: string,
+  version?: string | null
+): Promise<Blob | null> {
   const db = await getDB()
-  const key = `${factionId}/${assetPath}`
+  const prefix = version ? `${factionId}@${version}` : factionId
+  const key = `${prefix}/${assetPath}`
   const blob = await db.get('assets', key)
   return blob ?? null
 }

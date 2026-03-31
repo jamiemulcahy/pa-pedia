@@ -353,10 +353,11 @@ export async function loadFactionIndex(
 export async function getUnitIconUrl(
   factionId: string,
   imagePath: string | undefined,
-  isLocal: boolean
+  isLocal: boolean,
+  version?: string | null
 ): Promise<string | undefined> {
   if (!imagePath) return undefined
-  return getAssetUrl(factionId, imagePath, isLocal)
+  return getAssetUrl(factionId, imagePath, isLocal, version)
 }
 
 /**
@@ -376,10 +377,11 @@ export function getUnitIconPathFromImage(factionId: string, imagePath: string): 
 export async function getFactionBackgroundUrl(
   factionId: string,
   backgroundPath: string | undefined,
-  isLocal: boolean
+  isLocal: boolean,
+  version?: string | null
 ): Promise<string | undefined> {
   if (!backgroundPath) return undefined
-  return getAssetUrl(factionId, backgroundPath, isLocal)
+  return getAssetUrl(factionId, backgroundPath, isLocal, version)
 }
 
 /**

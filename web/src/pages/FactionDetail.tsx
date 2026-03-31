@@ -594,7 +594,7 @@ export function FactionDetail() {
   }
 
   return (
-    <CurrentFactionProvider factionId={factionId}>
+    <CurrentFactionProvider factionId={factionId} version={version}>
       {content}
     </CurrentFactionProvider>
   )

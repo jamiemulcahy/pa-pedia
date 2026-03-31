@@ -15,7 +15,8 @@ export function UnitIcon({ imagePath, alt, className, onError, factionId: propFa
   // Use context directly to avoid throwing when outside provider
   const context = useContext(CurrentFactionContext)
   const factionId = propFactionId || context?.factionId || ''
-  const { iconUrl, loading, error } = useUnitIcon(factionId, imagePath)
+  const version = context?.version
+  const { iconUrl, loading, error } = useUnitIcon(factionId, imagePath, version)
 
   if (loading) {
     return (
