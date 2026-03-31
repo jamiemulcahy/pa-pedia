@@ -52,6 +52,16 @@ web-test-ui:
 web-test-coverage:
     npm run test:coverage
 
+# Run Playwright E2E tests
+[working-directory: 'web']
+web-test-e2e:
+    npx playwright test
+
+# Run Playwright E2E tests with UI mode
+[working-directory: 'web']
+web-test-e2e-ui:
+    npx playwright test --ui
+
 # Install web dependencies
 [working-directory: 'web']
 web-install:
