@@ -3,6 +3,7 @@ import type { FactionIndex, Unit } from '@/types/faction'
 import {
   loadAllFactionMetadata,
   loadFactionIndex,
+  loadFactionMetadata,
   type FactionMetadataWithLocal
 } from '@/services/factionLoader'
 import {
@@ -33,7 +34,7 @@ interface FactionContextState {
   // Actions
   loadFaction: (factionId: string, version?: string | null) => Promise<void>
   loadUnit: (factionId: string, unitId: string, version?: string | null) => Promise<Unit>
-  getFaction: (factionId: string) => FactionMetadataWithLocal | undefined
+  getFaction: (factionId: string, version?: string | null) => FactionMetadataWithLocal | undefined
   getFactionIndex: (factionId: string, version?: string | null) => FactionIndex | undefined
   getUnit: (cacheKey: string) => Unit | undefined
   getFactionError: (factionId: string) => Error | undefined
@@ -64,6 +65,8 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   const [factionErrors, setFactionErrors] = useState<Map<string, Error>>(new Map())
   const [unitsCache, setUnitsCache] = useState<Map<string, Unit>>(new Map())
   const [unitErrors, setUnitErrors] = useState<Map<string, Error>>(new Map())
+  // Versioned metadata (loaded alongside faction indexes for non-latest versions)
+  const [versionedMetadata, setVersionedMetadata] = useState<Map<string, FactionMetadataWithLocal>>(new Map())
 
   // Track which factions are currently being loaded to prevent race conditions
   const loadingFactionsRef = useRef<Set<string>>(new Set())
@@ -71,6 +74,7 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   // Use refs to avoid dependency issues in useCallback
   const factionIndexesRef = useRef(factionIndexes)
   const unitsCacheRef = useRef(unitsCache)
+  const versionedMetadataRef = useRef(versionedMetadata)
 
   // Keep refs in sync with state
   useEffect(() => {
@@ -80,6 +84,10 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     unitsCacheRef.current = unitsCache
   }, [unitsCache])
+
+  useEffect(() => {
+    versionedMetadataRef.current = versionedMetadata
+  }, [versionedMetadata])
 
   // Ref for factions to use in callbacks
   const factionsRef = useRef(factions)
@@ -134,6 +142,18 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
       const factionMeta = factionsRef.current.get(normalizedId) || factionsRef.current.get(factionId)
       const isLocal = factionMeta?.isLocal ?? factionId.endsWith('--local')
       const index = await loadFactionIndex(normalizedId, isLocal, version)
+
+      // Load version-specific metadata when viewing a non-latest version
+      if (version) {
+        const versionMeta = await loadFactionMetadata(normalizedId, isLocal, version)
+        const versionMetaWithLocal: FactionMetadataWithLocal = {
+          ...versionMeta,
+          isLocal,
+          folderName: normalizedId,
+        }
+        versionedMetadataRef.current.set(cacheKey, versionMetaWithLocal)
+        setVersionedMetadata(prev => new Map(prev).set(cacheKey, versionMetaWithLocal))
+      }
 
       // Update refs immediately to prevent race conditions
       factionIndexesRef.current.set(cacheKey, index)
@@ -205,11 +225,17 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     throw err
   }, [loadFaction])
 
-  const getFaction = useCallback((factionId: string) => {
+  const getFaction = useCallback((factionId: string, version?: string | null) => {
+    // If a specific version is requested, check versioned metadata first
+    if (version) {
+      const cacheKey = buildFactionCacheKey(factionId.toLowerCase(), version)
+      const versioned = versionedMetadata.get(cacheKey)
+      if (versioned) return versioned
+    }
     // Try exact match first, then case-insensitive match
     // This handles URL case differences (e.g., /faction/MLA vs manifest's 'mla')
     return factions.get(factionId) || factions.get(factionId.toLowerCase())
-  }, [factions])
+  }, [factions, versionedMetadata])
 
   const getFactionIndex = useCallback((factionId: string, version?: string | null) => {
     // Normalize to lowercase for consistent cache key lookup
