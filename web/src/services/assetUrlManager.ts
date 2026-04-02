@@ -54,6 +54,10 @@ export async function getAssetUrl(
   // In development mode for static factions, use direct file URLs
   if (!isLocal && isDevelopmentMode()) {
     const basePath = `${import.meta.env.BASE_URL}factions`
+    // When VITE_FACTIONS_DIR is set (versioned layout), include version in path
+    if (import.meta.env.VITE_FACTIONS_DIR && version) {
+      return `${basePath}/${factionId}/${version}/${assetPath}`
+    }
     return `${basePath}/${factionId}/${assetPath}`
   }
 

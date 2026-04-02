@@ -225,21 +225,22 @@ export async function loadFactionMetadata(
   }
 
   // Development mode: fetch from local file
-  // In dev mode, version is ignored (only one version available locally)
+  // When VITE_FACTIONS_DIR is set, fall through to manifest-based path for version support
   if (isDevelopmentMode()) {
     const useLiveData = import.meta.env.VITE_USE_LIVE_DATA === 'true'
-    if (!useLiveData) {
+    const hasCustomDir = !!import.meta.env.VITE_FACTIONS_DIR
+    if (!useLiveData && !hasCustomDir) {
       const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/metadata.json`)
       if (!response.ok) {
         throw new Error(`Failed to load faction metadata for ${factionId}: ${response.statusText}`)
       }
       return await response.json()
     }
-    // Fall through to production code path when VITE_USE_LIVE_DATA=true
+    // Fall through to manifest-based code path for version support
   }
 
-  // Production mode (or dev-live mode): check cache or download
-  // Get manifest entry for specific version, or latest if no version specified
+  // Production mode, dev-live mode, or dev with VITE_FACTIONS_DIR:
+  // Use manifest for version resolution
   const manifestEntry = version
     ? await getManifestVersion(factionId, version)
     : await getManifestEntry(factionId)
@@ -247,6 +248,16 @@ export async function loadFactionMetadata(
   if (!manifestEntry) {
     const versionStr = version ? ` version '${version}'` : ''
     throw new Error(`Faction '${factionId}'${versionStr} not found in manifest`)
+  }
+
+  // In dev mode with VITE_FACTIONS_DIR, fetch directly from versioned path
+  // (no zip download or IndexedDB caching needed)
+  if (isDevelopmentMode() && import.meta.env.VITE_FACTIONS_DIR) {
+    const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/${manifestEntry.version}/metadata.json`)
+    if (!response.ok) {
+      throw new Error(`Failed to load faction metadata for ${factionId} v${manifestEntry.version}: ${response.statusText}`)
+    }
+    return await response.json()
   }
 
   // Build cache key that includes version
@@ -309,22 +320,22 @@ export async function loadFactionIndex(
   }
 
   // Development mode: fetch from local file
-  // In dev mode, version is ignored (only one version available locally)
+  // When VITE_FACTIONS_DIR is set, fall through to manifest-based path for version support
   if (isDevelopmentMode()) {
-    // Check if we should use live data instead (for testing version selection)
     const useLiveData = import.meta.env.VITE_USE_LIVE_DATA === 'true'
-    if (!useLiveData) {
+    const hasCustomDir = !!import.meta.env.VITE_FACTIONS_DIR
+    if (!useLiveData && !hasCustomDir) {
       const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/units.json`)
       if (!response.ok) {
         throw new Error(`Failed to load faction index for ${factionId}: ${response.statusText}`)
       }
       return await response.json()
     }
-    // Fall through to production code path when VITE_USE_LIVE_DATA=true
+    // Fall through to manifest-based code path for version support
   }
 
-  // Production mode (or dev-live mode): check cache or download
-  // Get manifest entry for specific version, or latest if no version specified
+  // Production mode, dev-live mode, or dev with VITE_FACTIONS_DIR:
+  // Use manifest for version resolution
   const manifestEntry = version
     ? await getManifestVersion(factionId, version)
     : await getManifestEntry(factionId)
@@ -332,6 +343,15 @@ export async function loadFactionIndex(
   if (!manifestEntry) {
     const versionStr = version ? ` version '${version}'` : ''
     throw new Error(`Faction '${factionId}'${versionStr} not found in manifest`)
+  }
+
+  // In dev mode with VITE_FACTIONS_DIR, fetch directly from versioned path
+  if (isDevelopmentMode() && import.meta.env.VITE_FACTIONS_DIR) {
+    const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/${manifestEntry.version}/units.json`)
+    if (!response.ok) {
+      throw new Error(`Failed to load faction index for ${factionId} v${manifestEntry.version}: ${response.statusText}`)
+    }
+    return await response.json()
   }
 
   // Build cache key that includes version
