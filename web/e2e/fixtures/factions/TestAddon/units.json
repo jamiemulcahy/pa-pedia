@@ -1,0 +1,215 @@
+{
+  "units": [
+    {
+      "identifier": "addon_assault_bot",
+      "displayName": "Addon Assault Bot",
+      "unitTypes": [
+        "TestBase",
+        "Bot",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/land/addon_assault_bot/addon_assault_bot.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "addon_assault_bot",
+        "resourceName": "/pa/units/land/addon_assault_bot/addon_assault_bot.json",
+        "displayName": "Addon Assault Bot",
+        "description": "Assault Bot - Fast raider unit added by the addon mod.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Bot",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 150,
+            "dps": 55,
+            "salvoDamage": 55,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/addon_assault_bot/addon_assault_bot_tool_weapon.json",
+                "safeName": "addon_assault_bot_tool_weapon",
+                "name": "addon_assault_bot_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 55,
+                "dps": 55,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 90,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure"
+                ],
+                "yawRange": 180,
+                "yawRate": 300,
+                "pitchRange": 45,
+                "pitchRate": 300,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/addon_assault_bot/addon_assault_bot_ammo.json",
+                  "safeName": "addon_assault_bot_ammo",
+                  "name": "addon_assault_bot_ammo",
+                  "damage": 55,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 120,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 15,
+            "turnSpeed": 360,
+            "acceleration": 120,
+            "brake": 60
+          },
+          "recon": {
+            "visionRadius": 110,
+            "underwaterVisionRadius": 110
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
+      "identifier": "addon_heavy_bomber",
+      "displayName": "Addon Heavy Bomber",
+      "unitTypes": [
+        "TestBase",
+        "Bomber",
+        "Air",
+        "Mobile",
+        "Offense",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/air/addon_heavy_bomber/addon_heavy_bomber.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "addon_heavy_bomber",
+        "resourceName": "/pa/units/air/addon_heavy_bomber/addon_heavy_bomber.json",
+        "displayName": "Addon Heavy Bomber",
+        "description": "Heavy Bomber - Slow but devastating ground attack aircraft.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Bomber",
+          "Air",
+          "Mobile",
+          "Offense",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 200,
+            "dps": 150,
+            "salvoDamage": 300,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/air/addon_heavy_bomber/addon_heavy_bomber_tool_weapon.json",
+                "safeName": "addon_heavy_bomber_tool_weapon",
+                "name": "addon_heavy_bomber_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 300,
+                "dps": 150,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 60,
+                "maxRange": 80,
+                "splashDamage": 300,
+                "splashRadius": 15,
+                "fullDamageRadius": 5,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure & Defense",
+                  "Structure",
+                  "Mobile - Air"
+                ],
+                "yawRange": 10,
+                "yawRate": 30,
+                "pitchRange": 10,
+                "pitchRate": 30,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/addon_heavy_bomber/addon_heavy_bomber_ammo.json",
+                  "safeName": "addon_heavy_bomber_ammo",
+                  "name": "addon_heavy_bomber_ammo",
+                  "damage": 300,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 300,
+                  "splashRadius": 15,
+                  "muzzleVelocity": 60,
+                  "maxVelocity": 60,
+                  "lifetime": 3
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 350,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 50,
+            "turnSpeed": 180,
+            "acceleration": 50,
+            "brake": 20
+          },
+          "recon": {
+            "visionRadius": 120,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    }
+  ]
+}

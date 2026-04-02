@@ -42,7 +42,9 @@ export interface FactionDiscoveryEntry {
  * This is resolved at build time and returns all faction folders with metadata.json.
  * Factions are located at repo root /factions/ folder (../factions from web/).
  *
- * In test environments where glob may not work, falls back to a known list.
+ * When VITE_FACTIONS_DIR is set (e.g. for E2E tests), the glob may not find the
+ * overridden directory since it's resolved at compile time. In that case we fall
+ * back to a runtime fetch of the /factions/ endpoint to discover available factions.
  */
 function discoverDevFactions(): string[] {
   // Use Vite's glob import to find all faction metadata files
@@ -69,6 +71,28 @@ function discoverDevFactions(): string[] {
 }
 
 /**
+ * Runtime discovery of factions by fetching metadata.json from known faction IDs.
+ * Used when VITE_FACTIONS_DIR overrides the default faction directory (e.g. E2E tests),
+ * since Vite's compile-time glob won't find factions in the overridden directory.
+ */
+async function discoverDevFactionsRuntime(): Promise<string[]> {
+  // Fetch the factions directory listing by trying to load a manifest
+  // If no manifest exists, there's no runtime discovery available
+  try {
+    const response = await fetch(`${FACTIONS_BASE_PATH}/manifest.json`)
+    if (response.ok) {
+      const manifest = await response.json()
+      if (manifest.factions && Array.isArray(manifest.factions)) {
+        return manifest.factions.map((f: { id: string }) => f.id)
+      }
+    }
+  } catch {
+    // No manifest available, fall through
+  }
+  return []
+}
+
+/**
  * Discovers available factions
  * - In dev mode: Auto-discovers factions from /factions/ folder using Vite glob
  * - In dev-live mode: Loads manifest from production (for testing versioning)
@@ -82,8 +106,13 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
   const useDevLocalFiles = isDevelopmentMode() && import.meta.env.VITE_USE_LIVE_DATA !== 'true'
 
   if (useDevLocalFiles) {
-    // In dev mode (without live data), auto-discover factions from /factions/ folder
-    const staticFactionIds = discoverDevFactions()
+    // In dev mode (without live data), auto-discover factions from /factions/ folder.
+    // When VITE_FACTIONS_DIR is set (e.g. E2E tests), the compile-time glob won't
+    // find factions in the overridden directory, so use runtime manifest-based discovery.
+    const staticFactionIds = import.meta.env.VITE_FACTIONS_DIR
+      ? await discoverDevFactionsRuntime()
+      : discoverDevFactions()
+
     for (const id of staticFactionIds) {
       entries.push({ id, isLocal: false })
     }

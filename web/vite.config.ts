@@ -4,11 +4,12 @@ import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 /**
- * Custom plugin to serve /factions from the repo root factions folder
- * This allows the dev server to serve faction data from ../factions/
+ * Custom plugin to serve /factions from the configured factions folder.
+ * Defaults to ../factions (repo root) but can be overridden via the
+ * VITE_FACTIONS_DIR env var (e.g. for E2E tests that use fixture data).
  */
 function serveFactions(): Plugin {
-  const factionsDir = path.resolve(__dirname, '../factions')
+  const factionsDir = path.resolve(__dirname, process.env.VITE_FACTIONS_DIR || '../factions')
 
   return {
     name: 'serve-factions',
