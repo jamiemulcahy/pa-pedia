@@ -176,9 +176,9 @@ async function doLoadManifest(): Promise<FactionManifest> {
  */
 export async function getManifestEntry(factionId: string): Promise<ManifestEntry | null> {
   const manifest = await loadManifest()
-  // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
+  // Case-insensitive lookup (manifest may have mixed-case IDs like "TestFaction")
   const normalizedId = factionId.toLowerCase()
-  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id.toLowerCase() === normalizedId)
   if (!faction) return null
 
   // Flatten faction info with latest version for backwards compatibility
@@ -201,7 +201,7 @@ export async function getManifestVersion(
   const manifest = await loadManifest()
   // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
   const normalizedId = factionId.toLowerCase()
-  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id.toLowerCase() === normalizedId)
   if (!faction) return null
 
   const versionEntry = faction.versions.find((v) => v.version === version)
@@ -223,7 +223,7 @@ export async function getFactionVersions(factionId: string): Promise<VersionEntr
   const manifest = await loadManifest()
   // Case-insensitive lookup (manifest has lowercase IDs but URLs may have uppercase)
   const normalizedId = factionId.toLowerCase()
-  const faction = manifest.factions.find((f) => f.id === factionId || f.id === normalizedId)
+  const faction = manifest.factions.find((f) => f.id === factionId || f.id.toLowerCase() === normalizedId)
   return faction?.versions ?? []
 }
 
