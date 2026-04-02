@@ -252,8 +252,9 @@ export async function loadFactionMetadata(
 
   // In dev mode with VITE_FACTIONS_DIR, fetch directly from versioned path
   // (no zip download or IndexedDB caching needed)
+  // Use manifestEntry.id for the path (preserves original case for filesystem)
   if (isDevelopmentMode() && import.meta.env.VITE_FACTIONS_DIR) {
-    const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/${manifestEntry.version}/metadata.json`)
+    const response = await fetch(`${FACTIONS_BASE_PATH}/${manifestEntry.id}/${manifestEntry.version}/metadata.json`)
     if (!response.ok) {
       throw new Error(`Failed to load faction metadata for ${factionId} v${manifestEntry.version}: ${response.statusText}`)
     }
@@ -346,8 +347,9 @@ export async function loadFactionIndex(
   }
 
   // In dev mode with VITE_FACTIONS_DIR, fetch directly from versioned path
+  // Use manifestEntry.id for the path (preserves original case for filesystem)
   if (isDevelopmentMode() && import.meta.env.VITE_FACTIONS_DIR) {
-    const response = await fetch(`${FACTIONS_BASE_PATH}/${factionId}/${manifestEntry.version}/units.json`)
+    const response = await fetch(`${FACTIONS_BASE_PATH}/${manifestEntry.id}/${manifestEntry.version}/units.json`)
     if (!response.ok) {
       throw new Error(`Failed to load faction index for ${factionId} v${manifestEntry.version}: ${response.statusText}`)
     }

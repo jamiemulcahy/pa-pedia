@@ -69,16 +69,16 @@ test.describe('Unit Comparison', () => {
     })
   })
 
-  test.describe('Same-faction comparison', () => {
-    test('can compare two units from same faction', async ({ page }) => {
+  test.describe('Cross-faction comparison', () => {
+    test('can compare units from different factions', async ({ page }) => {
       await page.goto(
-        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank?compare=${FACTIONS.BASE_GAME.id}/test_bot`
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank?compare=${FACTIONS.FACTION.id}/tf_heavy_tank`
       )
       await waitForUnitLoad(page)
 
-      // Both units should show their headings
+      // Both units from different factions should load
       await expect(page.getByRole('heading', { name: 'Test Tank' })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Test Bot' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Test Faction Heavy Tank' })).toBeVisible({ timeout: 15_000 })
     })
   })
 
