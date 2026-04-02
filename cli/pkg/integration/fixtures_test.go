@@ -70,7 +70,7 @@ func TestFixturesExist(t *testing.T) {
 		"profiles/test-base.json",
 		"profiles/test-mod.json",
 		"profiles/test-addon.json",
-		"profiles/invalid-no-name.json",
+		"profiles-invalid/invalid-no-name.json",
 	}
 
 	allFiles := make([]string, 0)
@@ -117,7 +117,7 @@ func TestFixturesValidJSON(t *testing.T) {
 		"profiles/test-base.json",
 		"profiles/test-mod.json",
 		"profiles/test-addon.json",
-		"profiles/invalid-no-name.json",
+		"profiles-invalid/invalid-no-name.json",
 	}
 
 	for _, file := range jsonFiles {
