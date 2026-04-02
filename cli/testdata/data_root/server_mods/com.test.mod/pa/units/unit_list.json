@@ -1,0 +1,8 @@
+{
+  "units": [
+    "/pa/units/commanders/mod_commander/mod_commander.json",
+    "/pa/units/land/mod_tank/mod_tank.json",
+    "/pa/units/land/mod_factory/mod_factory.json",
+    "/pa/units/land/test_tank/test_tank.json"
+  ]
+}

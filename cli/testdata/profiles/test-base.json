@@ -1,0 +1,7 @@
+{
+  "displayName": "Test Base Game",
+  "factionUnitType": "TestBase",
+  "author": "Test Author",
+  "description": "Base game test faction",
+  "version": "1.0.0"
+}

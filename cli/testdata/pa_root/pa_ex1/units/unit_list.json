@@ -1,0 +1,9 @@
+{
+  "units": [
+    "/pa/units/commanders/test_commander/test_commander.json",
+    "/pa/units/land/test_tank/test_tank.json",
+    "/pa/units/land/test_factory/test_factory.json",
+    "/pa/units/land/test_mex/test_mex.json",
+    "/pa/units/air/test_fighter/test_fighter.json"
+  ]
+}

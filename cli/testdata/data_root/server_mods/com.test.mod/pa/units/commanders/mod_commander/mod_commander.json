@@ -1,0 +1,41 @@
+{
+  "display_name": "Mod Commander",
+  "unit_name": "Commander",
+  "description": "The mod faction command unit.",
+  "max_health": 15000,
+  "build_metal_cost": 0,
+  "unit_types": [
+    "UNITTYPE_TestMod",
+    "UNITTYPE_Commander",
+    "UNITTYPE_Construction",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Land"
+  ],
+  "buildable_types": "Mobile | Structure",
+  "tools": [
+    {
+      "spec_id": "/pa/units/commanders/mod_commander/mod_commander_tool_weapon.json"
+    },
+    {
+      "spec_id": "/pa/units/commanders/mod_commander/mod_commander_build_arm.json"
+    }
+  ],
+  "navigation": {
+    "move_speed": 18,
+    "turn_speed": 130,
+    "acceleration": 55,
+    "brake": 55,
+    "type": "amphibious"
+  },
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 220
+        }
+      ]
+    }
+  }
+}

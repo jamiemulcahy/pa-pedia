@@ -1,0 +1,7 @@
+{
+  "tool_type": "TOOL_Weapon",
+  "rate_of_fire": 2.5,
+  "max_range": 110,
+  "ammo_id": "/pa/units/commanders/mod_commander/mod_commander_ammo.json",
+  "target_layers": ["WL_LandHorizontal", "WL_WaterSurface"]
+}

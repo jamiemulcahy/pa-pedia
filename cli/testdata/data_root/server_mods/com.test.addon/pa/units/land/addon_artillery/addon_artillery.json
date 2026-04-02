@@ -1,0 +1,30 @@
+{
+  "display_name": "Addon Artillery",
+  "unit_name": "Artillery",
+  "description": "A new artillery unit from the addon.",
+  "max_health": 400,
+  "build_metal_cost": 500,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Structure",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic",
+    "UNITTYPE_Offense"
+  ],
+  "tools": [
+    {
+      "spec_id": "/pa/units/land/addon_artillery/addon_artillery_tool_weapon.json"
+    }
+  ],
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 80
+        }
+      ]
+    }
+  }
+}

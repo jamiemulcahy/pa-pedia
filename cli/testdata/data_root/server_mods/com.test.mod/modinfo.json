@@ -1,0 +1,10 @@
+{
+  "identifier": "com.test.mod",
+  "display_name": "Test Mod Faction",
+  "description": "A test mod that adds a new faction.",
+  "version": "2.5.0",
+  "author": "Test Mod Author",
+  "date": "2025-06-15",
+  "build": "124615",
+  "category": ["unit"]
+}

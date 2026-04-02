@@ -1,0 +1,8 @@
+{
+  "units": [
+    "/pa/units/commanders/test_commander/test_commander.json",
+    "/pa/units/land/test_tank/test_tank.json",
+    "/pa/units/land/addon_artillery/addon_artillery.json",
+    "/pa/units/land/addon_turret/addon_turret.json"
+  ]
+}
