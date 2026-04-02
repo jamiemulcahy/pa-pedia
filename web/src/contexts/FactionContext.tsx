@@ -141,11 +141,14 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
       // Use metadata if available, fall back to ID suffix check for direct navigation
       const factionMeta = factionsRef.current.get(normalizedId) || factionsRef.current.get(factionId)
       const isLocal = factionMeta?.isLocal ?? factionId.endsWith('--local')
-      const index = await loadFactionIndex(normalizedId, isLocal, version)
+      // Use original-case folderName for fetches (case-sensitive filesystems in dev mode)
+      // but keep normalizedId for cache keys
+      const fetchId = factionMeta?.folderName ?? normalizedId
+      const index = await loadFactionIndex(fetchId, isLocal, version)
 
       // Load version-specific metadata when viewing a non-latest version
       if (version) {
-        const versionMeta = await loadFactionMetadata(normalizedId, isLocal, version)
+        const versionMeta = await loadFactionMetadata(fetchId, isLocal, version)
         const versionMetaWithLocal: FactionMetadataWithLocal = {
           ...versionMeta,
           isLocal,

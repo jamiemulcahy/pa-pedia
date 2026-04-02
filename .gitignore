@@ -43,5 +43,9 @@ web/.env.local
 # Scripts
 scripts/node_modules/
 
+# Playwright
+web/test-results/
+web/playwright-report/
+
 # Logs
 *.log
