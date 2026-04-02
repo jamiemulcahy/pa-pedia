@@ -91,8 +91,8 @@ export const KNOWN_UNITS = {
     factionId: FACTIONS.BASE_GAME.id,
     id: 'test_tank',
     name: 'Test Tank',
-    health: 250,
-    dps: 46.2,
+    healthV1: 250,
+    healthV2: 300,
     buildCost: 150,
   },
   bot: {
