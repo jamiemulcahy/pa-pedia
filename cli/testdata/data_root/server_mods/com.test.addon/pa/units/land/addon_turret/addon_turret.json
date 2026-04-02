@@ -1,0 +1,25 @@
+{
+  "display_name": "Addon Defense Turret",
+  "unit_name": "Defense Turret",
+  "description": "A new defense turret from the addon.",
+  "max_health": 2000,
+  "build_metal_cost": 350,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Structure",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic",
+    "UNITTYPE_Defense"
+  ],
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 120
+        }
+      ]
+    }
+  }
+}

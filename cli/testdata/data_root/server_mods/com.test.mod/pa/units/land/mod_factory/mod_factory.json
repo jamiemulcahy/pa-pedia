@@ -1,0 +1,21 @@
+{
+  "display_name": "Mod Factory",
+  "unit_name": "Bot Factory",
+  "description": "Mod faction bot factory.",
+  "max_health": 6000,
+  "build_metal_cost": 700,
+  "unit_types": [
+    "UNITTYPE_TestMod",
+    "UNITTYPE_Structure",
+    "UNITTYPE_Factory",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic",
+    "UNITTYPE_Construction"
+  ],
+  "buildable_types": "Mobile & Basic & Land",
+  "tools": [
+    {
+      "spec_id": "/pa/units/land/mod_factory/mod_factory_build_arm.json"
+    }
+  ]
+}

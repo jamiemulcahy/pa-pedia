@@ -1,0 +1,6 @@
+{
+  "displayName": "Test Addon",
+  "isAddon": true,
+  "mods": ["com.test.addon"],
+  "description": "Addon mod adding new units to the base faction"
+}

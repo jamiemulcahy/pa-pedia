@@ -1,0 +1,25 @@
+{
+  "display_name": "Mod Tank",
+  "unit_name": "Heavy Tank",
+  "description": "A powerful mod faction tank.",
+  "max_health": 350,
+  "build_metal_cost": 250,
+  "unit_types": [
+    "UNITTYPE_TestMod",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Tank",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic"
+  ],
+  "tools": [
+    {
+      "spec_id": "/pa/units/land/mod_tank/mod_tank_tool_weapon.json"
+    }
+  ],
+  "navigation": {
+    "move_speed": 15,
+    "turn_speed": 150,
+    "acceleration": 25,
+    "brake": 25
+  }
+}

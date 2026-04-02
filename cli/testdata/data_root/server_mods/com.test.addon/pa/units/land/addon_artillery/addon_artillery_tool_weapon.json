@@ -1,0 +1,7 @@
+{
+  "tool_type": "TOOL_Weapon",
+  "rate_of_fire": 0.5,
+  "max_range": 200,
+  "ammo_id": "/pa/units/land/addon_artillery/addon_artillery_ammo.json",
+  "target_layers": ["WL_LandHorizontal"]
+}

@@ -1,0 +1,8 @@
+{
+  "ammo_type": "UNITTYPE_Ammo",
+  "damage": 100,
+  "splash_damage": 100,
+  "splash_radius": 8,
+  "initial_velocity": 160,
+  "lifetime": 2.0
+}

@@ -1,0 +1,46 @@
+{
+  "display_name": "Test Commander",
+  "unit_name": "Commander",
+  "description": "The primary command unit.",
+  "max_health": 12500,
+  "build_metal_cost": 0,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Commander",
+    "UNITTYPE_Construction",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Land"
+  ],
+  "buildable_types": "Mobile | Structure",
+  "tools": [
+    {
+      "spec_id": "/pa/units/commanders/test_commander/test_commander_tool_weapon.json"
+    },
+    {
+      "spec_id": "/pa/units/commanders/test_commander/test_commander_build_arm.json"
+    }
+  ],
+  "navigation": {
+    "move_speed": 15,
+    "turn_speed": 120,
+    "acceleration": 50,
+    "brake": 50,
+    "type": "amphibious"
+  },
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 200
+        },
+        {
+          "channel": "radar",
+          "layer": "surface_and_air",
+          "radius": 300
+        }
+      ]
+    }
+  }
+}

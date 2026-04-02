@@ -1,0 +1,17 @@
+{
+  "display_name": "Base Bot",
+  "max_health": 100,
+  "build_metal_cost": 50,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic"
+  ],
+  "navigation": {
+    "move_speed": 20,
+    "turn_speed": 180,
+    "acceleration": 30,
+    "brake": 30
+  }
+}

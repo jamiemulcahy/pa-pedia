@@ -1,0 +1,20 @@
+{
+  "base_spec": "/pa/units/land/base_bot/base_bot.json",
+  "display_name": "Test Tank",
+  "unit_name": "Tank",
+  "description": "A basic land tank (expansion version).",
+  "max_health": 250,
+  "build_metal_cost": 160,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Tank",
+    "UNITTYPE_Land",
+    "UNITTYPE_Basic"
+  ],
+  "tools": [
+    {
+      "spec_id": "/pa/units/land/test_tank/test_tank_tool_weapon.json"
+    }
+  ]
+}

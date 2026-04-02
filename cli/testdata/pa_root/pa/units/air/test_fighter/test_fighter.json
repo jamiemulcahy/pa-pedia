@@ -1,0 +1,35 @@
+{
+  "display_name": "Test Fighter",
+  "unit_name": "Fighter",
+  "description": "A basic air fighter.",
+  "max_health": 150,
+  "build_metal_cost": 180,
+  "unit_types": [
+    "UNITTYPE_TestBase",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Air",
+    "UNITTYPE_Basic"
+  ],
+  "tools": [
+    {
+      "spec_id": "/pa/units/air/test_fighter/test_fighter_tool_weapon.json"
+    }
+  ],
+  "navigation": {
+    "move_speed": 50,
+    "turn_speed": 200,
+    "acceleration": 80,
+    "brake": 20
+  },
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "channel": "sight",
+          "layer": "surface_and_air",
+          "radius": 150
+        }
+      ]
+    }
+  }
+}

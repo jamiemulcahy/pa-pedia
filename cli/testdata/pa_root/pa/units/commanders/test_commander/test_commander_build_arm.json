@@ -1,0 +1,8 @@
+{
+  "tool_type": "TOOL_BuildArm",
+  "construction_demand": {
+    "metal": 15,
+    "energy": 22.5
+  },
+  "max_range": 60
+}
