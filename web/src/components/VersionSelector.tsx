@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
 import { selectStyles, type SelectOption } from './selectStyles'
-import { getFactionVersions, type VersionEntry } from '@/services/manifestLoader'
+import { getFactionVersions, isDevelopmentMode, type VersionEntry } from '@/services/manifestLoader'
 
 interface VersionSelectorProps {
   factionId: string
@@ -40,6 +40,17 @@ export function VersionSelector({
     setVersions([])
     setLoading(true)
     setError(null)
+
+    // In standard dev mode (no live data, no custom factions dir),
+    // there's only one version available locally — skip manifest fetch
+    const hasManifest =
+      !isDevelopmentMode() ||
+      import.meta.env.VITE_USE_LIVE_DATA === 'true' ||
+      !!import.meta.env.VITE_FACTIONS_DIR
+    if (!hasManifest) {
+      setLoading(false)
+      return
+    }
 
     async function loadVersions() {
       try {

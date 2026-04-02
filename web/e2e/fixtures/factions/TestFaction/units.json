@@ -1,0 +1,430 @@
+{
+  "units": [
+    {
+      "identifier": "tf_commander",
+      "displayName": "Test Faction Commander",
+      "unitTypes": [
+        "TestFaction",
+        "Commander",
+        "Construction",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Amphibious",
+        "NoBuild",
+        "Economy"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/commanders/tf_commander/tf_commander.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "tf_commander",
+        "resourceName": "/pa/units/commanders/tf_commander/tf_commander.json",
+        "displayName": "Test Faction Commander",
+        "description": "Test Faction Commander - Leader of the test faction.",
+        "tier": 1,
+        "unitTypes": [
+          "TestFaction",
+          "Commander",
+          "Construction",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Amphibious",
+          "NoBuild",
+          "Economy"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 15000,
+            "dps": 750,
+            "salvoDamage": 3000,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/commanders/tf_commander/tf_commander_tool_weapon.json",
+                "safeName": "tf_commander_tool_weapon",
+                "name": "tf_commander_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.5,
+                "damage": 500,
+                "dps": 750,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 120,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 45,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/tf_commander/tf_commander_ammo.json",
+                  "safeName": "tf_commander_ammo",
+                  "name": "tf_commander_ammo",
+                  "damage": 500,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 30000,
+            "production": {
+              "metal": 25,
+              "energy": 2500
+            },
+            "consumption": {},
+            "storage": {
+              "metal": 2000,
+              "energy": 50000
+            },
+            "toolConsumption": {
+              "metal": 35,
+              "energy": 2000
+            },
+            "weaponConsumption": {},
+            "buildRate": 35,
+            "buildInefficiency": 57.14,
+            "metalRate": -10,
+            "energyRate": -2000,
+            "buildArms": [
+              {
+                "resourceName": "/pa/tools/tf_commander_build_arm/tf_commander_build_arm.json",
+                "safeName": "tf_commander_build_arm",
+                "name": "tf_commander_build_arm",
+                "count": 1,
+                "metalConsumption": 35,
+                "energyConsumption": 2000,
+                "range": 50
+              }
+            ],
+            "buildRange": 50
+          },
+          "mobility": {
+            "moveSpeed": 9,
+            "turnSpeed": 200,
+            "acceleration": 70,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 160,
+            "underwaterVisionRadius": 160
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "tf_tank_factory"
+          ]
+        },
+        "buildableTypes": "CmdBuild & TestFaction"
+      }
+    },
+    {
+      "identifier": "tf_tank_factory",
+      "displayName": "Test Faction Tank Factory",
+      "unitTypes": [
+        "TestFaction",
+        "Factory",
+        "Construction",
+        "Land",
+        "Structure",
+        "Basic",
+        "CmdBuild",
+        "FabBuild",
+        "Important"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/land/tf_tank_factory/tf_tank_factory.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "tf_tank_factory",
+        "resourceName": "/pa/units/land/tf_tank_factory/tf_tank_factory.json",
+        "displayName": "Test Faction Tank Factory",
+        "description": "Tank Factory - Produces ground assault units.",
+        "tier": 1,
+        "unitTypes": [
+          "TestFaction",
+          "Factory",
+          "Construction",
+          "Land",
+          "Structure",
+          "Basic",
+          "CmdBuild",
+          "FabBuild",
+          "Important"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 7500
+          },
+          "economy": {
+            "buildCost": 700,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 18,
+              "energy": 800
+            },
+            "weaponConsumption": {},
+            "buildRate": 18,
+            "buildInefficiency": 44.44,
+            "metalRate": -18,
+            "energyRate": -800,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/land/tf_tank_factory/tf_tank_factory_build_arm.json",
+                "safeName": "tf_tank_factory_build_arm",
+                "name": "tf_tank_factory_build_arm",
+                "count": 1,
+                "metalConsumption": 18,
+                "energyConsumption": 800
+              }
+            ]
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builds": [
+            "tf_heavy_tank"
+          ],
+          "builtBy": [
+            "tf_commander"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "tf_heavy_tank",
+      "displayName": "Test Faction Heavy Tank",
+      "unitTypes": [
+        "TestFaction",
+        "Tank",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/land/tf_heavy_tank/tf_heavy_tank.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "tf_heavy_tank",
+        "resourceName": "/pa/units/land/tf_heavy_tank/tf_heavy_tank.json",
+        "displayName": "Test Faction Heavy Tank",
+        "description": "Heavy Tank - Slow but heavily armored. Deals massive damage.",
+        "tier": 1,
+        "unitTypes": [
+          "TestFaction",
+          "Tank",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 500,
+            "dps": 90,
+            "salvoDamage": 180,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/tf_heavy_tank/tf_heavy_tank_tool_weapon.json",
+                "safeName": "tf_heavy_tank_tool_weapon",
+                "name": "tf_heavy_tank_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.5,
+                "damage": 180,
+                "dps": 90,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 120,
+                "maxRange": 110,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure"
+                ],
+                "yawRange": 180,
+                "yawRate": 150,
+                "pitchRange": 30,
+                "pitchRate": 45,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/tf_heavy_tank/tf_heavy_tank_ammo.json",
+                  "safeName": "tf_heavy_tank_ammo",
+                  "name": "tf_heavy_tank_ammo",
+                  "damage": 180,
+                  "muzzleVelocity": 120,
+                  "maxVelocity": 120,
+                  "lifetime": 2
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 350,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 6,
+            "turnSpeed": 80,
+            "acceleration": 50,
+            "brake": 50
+          },
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "tf_tank_factory"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "tf_defense_tower",
+      "displayName": "Test Faction Defense Tower",
+      "unitTypes": [
+        "TestFaction",
+        "Structure",
+        "Defense",
+        "Land",
+        "Basic",
+        "CmdBuild",
+        "FabBuild"
+      ],
+      "source": "mod",
+      "files": [
+        {
+          "path": "pa/units/land/tf_defense_tower/tf_defense_tower.json",
+          "source": "mod"
+        }
+      ],
+      "unit": {
+        "id": "tf_defense_tower",
+        "resourceName": "/pa/units/land/tf_defense_tower/tf_defense_tower.json",
+        "displayName": "Test Faction Defense Tower",
+        "description": "Defense Tower - Static defense. Attacks ground targets.",
+        "tier": 1,
+        "unitTypes": [
+          "TestFaction",
+          "Structure",
+          "Defense",
+          "Land",
+          "Basic",
+          "CmdBuild",
+          "FabBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 2000,
+            "dps": 120,
+            "salvoDamage": 120,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/tf_defense_tower/tf_defense_tower_tool_weapon.json",
+                "safeName": "tf_defense_tower_tool_weapon",
+                "name": "tf_defense_tower_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 120,
+                "dps": 120,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 200,
+                "maxRange": 130,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 240,
+                "pitchRange": 60,
+                "pitchRate": 180,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/tf_defense_tower/tf_defense_tower_ammo.json",
+                  "safeName": "tf_defense_tower_ammo",
+                  "name": "tf_defense_tower_ammo",
+                  "damage": 120,
+                  "muzzleVelocity": 200,
+                  "maxVelocity": 200,
+                  "lifetime": 1
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 450,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 130,
+            "underwaterVisionRadius": 130
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "tf_commander"
+          ]
+        }
+      }
+    }
+  ]
+}

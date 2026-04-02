@@ -1,0 +1,17 @@
+{
+  "identifier": "testaddon",
+  "displayName": "Test Addon",
+  "version": "1.0.0",
+  "author": "Test Addon Author",
+  "description": "A test addon faction extending Test Base Game and Test Faction",
+  "type": "mod",
+  "build": "100000",
+  "mods": [
+    "com.test.addon-mod"
+  ],
+  "isAddon": true,
+  "baseFactions": [
+    "Test Base Game",
+    "Test Faction"
+  ]
+}
