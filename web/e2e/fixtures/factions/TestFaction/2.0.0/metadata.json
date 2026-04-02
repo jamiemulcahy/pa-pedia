@@ -1,0 +1,12 @@
+{
+  "identifier": "testfaction",
+  "displayName": "Test Faction",
+  "version": "2.0.0",
+  "author": "Test Mod Author",
+  "description": "A test mod faction for E2E testing - updated",
+  "type": "mod",
+  "build": "100001",
+  "mods": [
+    "com.test.faction-mod"
+  ]
+}

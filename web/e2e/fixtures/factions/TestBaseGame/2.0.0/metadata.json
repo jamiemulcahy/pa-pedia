@@ -1,0 +1,9 @@
+{
+  "identifier": "testbasegame",
+  "displayName": "Test Base Game",
+  "version": "2.0.0",
+  "author": "Test Author",
+  "description": "A test base game faction for E2E testing - updated",
+  "type": "base-game",
+  "build": "100001"
+}

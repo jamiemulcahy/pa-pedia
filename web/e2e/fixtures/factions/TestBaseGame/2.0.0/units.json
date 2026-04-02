@@ -1,0 +1,816 @@
+{
+  "units": [
+    {
+      "identifier": "test_commander",
+      "displayName": "Test Commander",
+      "unitTypes": [
+        "TestBase",
+        "Commander",
+        "Construction",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Amphibious",
+        "NoBuild",
+        "Economy"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/commanders/test_commander/test_commander.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_commander",
+        "resourceName": "/pa/units/commanders/test_commander/test_commander.json",
+        "displayName": "Test Commander",
+        "description": "Test Commander - The primary command unit.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Commander",
+          "Construction",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Amphibious",
+          "NoBuild",
+          "Economy"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 12500,
+            "dps": 985,
+            "salvoDamage": 4230,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/commanders/test_commander/test_commander_tool_weapon.json",
+                "safeName": "test_commander_tool_weapon",
+                "name": "test_commander_tool_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 80,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/test_commander/test_commander_ammo.json",
+                  "safeName": "test_commander_ammo",
+                  "name": "test_commander_ammo",
+                  "damage": 80,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25
+                }
+              },
+              {
+                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
+                "safeName": "uber_cannon",
+                "name": "uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 700,
+                "dps": 175,
+                "sustainedDps": 175,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 100,
+                "splashDamage": 700,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 10000,
+                "ammoCapacity": 10000,
+                "ammoRechargeTime": 4,
+                "energyRate": -2500,
+                "energyPerShot": 10000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
+                  "safeName": "cannon_uber",
+                  "name": "cannon_uber",
+                  "damage": 700,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 700,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.2
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/test_commander/test_commander_tool_aa_weapon.json",
+                "safeName": "test_commander_tool_aa_weapon",
+                "name": "test_commander_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 200,
+                "dps": 400,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Mobile & Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/test_commander/test_commander_aa_ammo.json",
+                  "safeName": "test_commander_aa_ammo",
+                  "name": "test_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 25000,
+            "production": {
+              "metal": 20,
+              "energy": 2000
+            },
+            "consumption": {},
+            "storage": {
+              "metal": 1500,
+              "energy": 45000
+            },
+            "toolConsumption": {
+              "metal": 30,
+              "energy": 1750
+            },
+            "weaponConsumption": {
+              "energy": 2500
+            },
+            "buildRate": 30,
+            "buildInefficiency": 58.33,
+            "metalRate": -10,
+            "energyRate": -2250,
+            "buildArms": [
+              {
+                "resourceName": "/pa/tools/commander_build_arm/commander_build_arm.json",
+                "safeName": "commander_build_arm",
+                "name": "commander_build_arm",
+                "count": 1,
+                "metalConsumption": 30,
+                "energyConsumption": 1750,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
+          },
+          "mobility": {
+            "moveSpeed": 8,
+            "turnSpeed": 180,
+            "acceleration": 60,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "test_air_factory",
+            "test_metal_extractor",
+            "test_energy_plant"
+          ]
+        },
+        "buildableTypes": "CmdBuild & TestBase"
+      }
+    },
+    {
+      "identifier": "test_air_factory",
+      "displayName": "Test Air Factory",
+      "unitTypes": [
+        "TestBase",
+        "Factory",
+        "Construction",
+        "Air",
+        "Structure",
+        "Basic",
+        "CmdBuild",
+        "FabBuild",
+        "Important"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/air/test_air_factory/test_air_factory.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_air_factory",
+        "resourceName": "/pa/units/air/test_air_factory/test_air_factory.json",
+        "displayName": "Test Air Factory",
+        "description": "Basic Air Factory - Builds basic air units.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Factory",
+          "Construction",
+          "Air",
+          "Structure",
+          "Basic",
+          "CmdBuild",
+          "FabBuild",
+          "Important"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 6000
+          },
+          "economy": {
+            "buildCost": 600,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 15,
+              "energy": 675
+            },
+            "weaponConsumption": {},
+            "buildRate": 15,
+            "buildInefficiency": 45,
+            "metalRate": -15,
+            "energyRate": -675,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/air/test_air_factory/test_air_factory_build_arm.json",
+                "safeName": "test_air_factory_build_arm",
+                "name": "test_air_factory_build_arm",
+                "count": 1,
+                "metalConsumption": 15,
+                "energyConsumption": 675
+              }
+            ]
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "test_fighter",
+            "test_tank",
+            "test_bot",
+            "test_artillery"
+          ],
+          "builtBy": [
+            "test_commander"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "test_tank",
+      "displayName": "Test Tank",
+      "unitTypes": [
+        "TestBase",
+        "Tank",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/test_tank/test_tank.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_tank",
+        "resourceName": "/pa/units/land/test_tank/test_tank.json",
+        "displayName": "Test Tank",
+        "description": "Light Tank - Well-rounded. Reliable. Attacks land and sea targets.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Tank",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 300,
+            "dps": 55,
+            "salvoDamage": 84,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/test_tank/test_tank_tool_weapon.json",
+                "safeName": "test_tank_tool_weapon",
+                "name": "test_tank_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.55,
+                "damage": 84,
+                "dps": 55,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 100,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 180,
+                "pitchRange": 40,
+                "pitchRate": 60,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/test_tank/test_tank_ammo.json",
+                  "safeName": "test_tank_ammo",
+                  "name": "test_tank_ammo",
+                  "damage": 84,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 150,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 10,
+            "turnSpeed": 120,
+            "acceleration": 100,
+            "brake": 100
+          },
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "test_air_factory"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "test_bot",
+      "displayName": "Test Bot",
+      "unitTypes": [
+        "TestBase",
+        "Bot",
+        "Mobile",
+        "Offense",
+        "Artillery",
+        "Land",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/test_bot/test_bot.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_bot",
+        "resourceName": "/pa/units/land/test_bot/test_bot.json",
+        "displayName": "Test Bot",
+        "description": "Fire Support - Medium range. Attacks land and sea targets.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Bot",
+          "Mobile",
+          "Offense",
+          "Artillery",
+          "Land",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 80,
+            "dps": 60,
+            "salvoDamage": 120,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/test_bot/test_bot_tool_weapon.json",
+                "safeName": "test_bot_tool_weapon",
+                "name": "test_bot_tool_weapon",
+                "count": 2,
+                "rateOfFire": 0.5,
+                "damage": 60,
+                "dps": 30,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 80,
+                "maxRange": 140,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure & SurfaceDefense",
+                  "Structure & Defense",
+                  "Commander",
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 135,
+                "yawRate": 120,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/test_bot/test_bot_ammo.json",
+                  "safeName": "test_bot_ammo",
+                  "name": "test_bot_ammo",
+                  "damage": 60,
+                  "muzzleVelocity": 80,
+                  "maxVelocity": 90,
+                  "lifetime": 5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 100,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 12,
+            "turnSpeed": 720,
+            "acceleration": 100,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "test_air_factory"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "test_fighter",
+      "displayName": "Test Fighter",
+      "unitTypes": [
+        "TestBase",
+        "Fighter",
+        "Air",
+        "Mobile",
+        "Offense",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/air/test_fighter/test_fighter.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_fighter",
+        "resourceName": "/pa/units/air/test_fighter/test_fighter.json",
+        "displayName": "Test Fighter",
+        "description": "Fighter - Fast. High damage. Only attacks air targets.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Fighter",
+          "Air",
+          "Mobile",
+          "Offense",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 120,
+            "dps": 80,
+            "salvoDamage": 80,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/air/test_fighter/test_fighter_tool_weapon.json",
+                "safeName": "test_fighter_tool_weapon",
+                "name": "test_fighter_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 80,
+                "dps": 80,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 100,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "targetLayers": [
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 1000,
+                "pitchRange": 180,
+                "pitchRate": 1000,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/test_fighter/test_fighter_ammo.json",
+                  "safeName": "test_fighter_ammo",
+                  "name": "test_fighter_ammo",
+                  "damage": 80,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 220,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 90,
+            "turnSpeed": 270,
+            "acceleration": 90,
+            "brake": 30
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "test_air_factory"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "test_mine",
+      "displayName": "Test Mine",
+      "unitTypes": [
+        "TestBase",
+        "Structure",
+        "Naval",
+        "Defense",
+        "Basic"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/sea/test_mine/test_mine.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_mine",
+        "resourceName": "/pa/units/sea/test_mine/test_mine.json",
+        "displayName": "Test Mine",
+        "description": "Sea Mine - Detonates when ships are in proximity.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Structure",
+          "Naval",
+          "Defense",
+          "Basic"
+        ],
+        "accessible": false,
+        "specs": {
+          "combat": {
+            "health": 50
+          },
+          "economy": {
+            "buildCost": 300,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 1,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {}
+      }
+    },
+    {
+      "identifier": "test_artillery",
+      "displayName": "Test Artillery",
+      "unitTypes": [
+        "TestBase",
+        "Artillery",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Basic",
+        "FactoryBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/test_artillery/test_artillery.json",
+          "source": "pa"
+        }
+      ],
+      "unit": {
+        "id": "test_artillery",
+        "resourceName": "/pa/units/land/test_artillery/test_artillery.json",
+        "displayName": "Test Artillery",
+        "description": "Artillery - Long range. Slow fire rate. Splash damage.",
+        "tier": 1,
+        "unitTypes": [
+          "TestBase",
+          "Artillery",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Basic",
+          "FactoryBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 100,
+            "dps": 40,
+            "salvoDamage": 200,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/test_artillery/test_artillery_tool_weapon.json",
+                "safeName": "test_artillery_tool_weapon",
+                "name": "test_artillery_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.2,
+                "damage": 200,
+                "dps": 40,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 60,
+                "maxRange": 200,
+                "splashDamage": 200,
+                "splashRadius": 10,
+                "fullDamageRadius": 3,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Structure",
+                  "Mobile - Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 60,
+                "pitchRange": 60,
+                "pitchRate": 30,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/test_artillery/test_artillery_ammo.json",
+                  "safeName": "test_artillery_ammo",
+                  "name": "test_artillery_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 3,
+                  "splashDamage": 200,
+                  "splashRadius": 10,
+                  "muzzleVelocity": 60,
+                  "maxVelocity": 60,
+                  "lifetime": 5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 300,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 4,
+            "turnSpeed": 60,
+            "acceleration": 30,
+            "brake": 30
+          },
+          "recon": {
+            "visionRadius": 80,
+            "underwaterVisionRadius": 80
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "test_air_factory"
+          ]
+        }
+      }
+    }
+  ]
+}
