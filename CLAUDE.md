@@ -350,6 +350,43 @@ Triggers on:
 - Factions removed from manifest → pruned from IndexedDB cache
 - Manifest cached in IndexedDB for offline mode
 
+### Automated Faction Updates
+
+**GitHub Actions Workflow** (`.github/workflows/update-factions.yml`):
+
+Automatically detects upstream mod changes and creates PRs with updated faction data.
+
+**Triggers**:
+- Daily cron at 6am UTC
+- Manual `workflow_dispatch` (with optional profile filter)
+
+**How it works**:
+1. Downloads encrypted PA base game data from `pa-base-data` GitHub Release
+2. Decrypts using `PA_BASE_DATA_KEY` secret
+3. Builds CLI from source
+4. Runs MLA golden test (compares generated MLA data against committed version)
+5. Regenerates all faction data using embedded profiles
+6. Creates a PR if any faction data changed
+
+**MLA Golden Test**: Before processing mod factions, the workflow regenerates MLA (base game only) and compares against the committed version. If they differ, the base data cache is stale and the workflow fails with instructions to update.
+
+**Required GitHub Secrets**:
+- `PA_BASE_DATA_KEY`: Symmetric encryption key for the base data archive
+
+**Updating the base data cache** (when PA Titans patches or golden test fails):
+```bash
+# 1. Set encryption key (same as the GitHub secret)
+export PA_BASE_DATA_KEY="your-key-here"
+
+# 2. Extract and encrypt base data from local PA install
+just extract-base-data
+
+# 3. Upload to GitHub Release
+just upload-base-data
+```
+
+The base data is stored as an encrypted release asset on the `pa-base-data` tag. Only the CI pipeline can decrypt it.
+
 ## Common Development Tasks
 
 ### Add New Unit Field
