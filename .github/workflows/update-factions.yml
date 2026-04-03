@@ -1,0 +1,208 @@
+name: Update Factions
+
+on:
+  schedule:
+    # Daily at 6am UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: 'Comma-separated profile IDs to update (empty = all)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Only one update at a time
+concurrency:
+  group: update-factions
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Download and decrypt base game data
+      - name: Download base data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Downloading base data from pa-base-data release..."
+          mkdir -p /tmp/base-data-download
+          gh release download pa-base-data \
+            --pattern "pa-base-data-*.tar.gz.enc" \
+            --pattern "pa-base-data-meta.json" \
+            --dir /tmp/base-data-download
+
+          echo "Downloaded:"
+          ls -la /tmp/base-data-download/
+
+      - name: Decrypt base data
+        env:
+          PA_BASE_DATA_KEY: ${{ secrets.PA_BASE_DATA_KEY }}
+        run: |
+          ENC_FILE=$(ls /tmp/base-data-download/pa-base-data-*.tar.gz.enc)
+          echo "Decrypting: $(basename $ENC_FILE)"
+
+          # Decrypt using Node.js (matches extract-base-data.ts encryption)
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const data = fs.readFileSync('$ENC_FILE');
+            const iv = data.subarray(0, 16);
+            const encrypted = data.subarray(16);
+            const key = crypto.scryptSync(process.env.PA_BASE_DATA_KEY, 'pa-pedia-base-data', 32);
+            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            fs.writeFileSync('/tmp/pa-base-data.tar.gz', decrypted);
+          "
+
+          # Extract
+          mkdir -p /tmp/pa-media
+          tar -xzf /tmp/pa-base-data.tar.gz -C /tmp/pa-media
+
+          echo "Base data extracted to /tmp/pa-media"
+          echo "Contents:"
+          ls /tmp/pa-media/
+
+      # Build CLI
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Build CLI
+        working-directory: cli
+        run: go build -o /tmp/pa-pedia .
+
+      # MLA Golden Test - validates base data is correct
+      - name: Validate base data (MLA golden test)
+        run: |
+          echo "Running MLA golden test..."
+          /tmp/pa-pedia describe-faction \
+            --profile mla \
+            --pa-root /tmp/pa-media \
+            --output /tmp/golden-test
+
+          # Compare units.json (sorted for stable comparison)
+          echo "Comparing MLA units.json..."
+          jq -S . factions/MLA/units.json > /tmp/mla-committed.json
+          jq -S . /tmp/golden-test/MLA/units.json > /tmp/mla-generated.json
+
+          if ! diff /tmp/mla-committed.json /tmp/mla-generated.json > /tmp/mla-diff.txt 2>&1; then
+            echo "::error::MLA golden test FAILED - base data is stale or corrupted"
+            echo ""
+            echo "The generated MLA faction data does not match what is committed."
+            echo "This means the cached base game data is out of sync."
+            echo ""
+            echo "To fix:"
+            echo "  1. Run: just extract-base-data PA_ROOT=\"C:/PA/media\""
+            echo "  2. Run: just upload-base-data"
+            echo ""
+            echo "Diff (first 50 lines):"
+            head -50 /tmp/mla-diff.txt
+            exit 1
+          fi
+
+          echo "MLA golden test passed - base data is valid"
+
+      # Regenerate faction data
+      - name: Determine profiles to update
+        id: profiles
+        run: |
+          INPUT_PROFILES="${{ github.event.inputs.profiles }}"
+          if [ -z "$INPUT_PROFILES" ]; then
+            echo "profiles=mla legion exiles bugs second-wave" >> "$GITHUB_OUTPUT"
+            echo "Updating all profiles"
+          else
+            # Convert comma-separated to space-separated
+            PROFILES=$(echo "$INPUT_PROFILES" | tr ',' ' ')
+            echo "profiles=$PROFILES" >> "$GITHUB_OUTPUT"
+            echo "Updating profiles: $PROFILES"
+          fi
+
+      - name: Regenerate faction data
+        run: |
+          for profile in ${{ steps.profiles.outputs.profiles }}; do
+            echo "========================================="
+            echo "Processing: $profile"
+            echo "========================================="
+            /tmp/pa-pedia describe-faction \
+              --profile "$profile" \
+              --pa-root /tmp/pa-media \
+              --output ./factions
+            echo ""
+          done
+
+      # Create PR if changes detected
+      - name: Check for changes
+        id: changes
+        run: |
+          # Check for any changes in factions/ (excluding dist/)
+          git add factions/
+          if git diff --cached --quiet -- 'factions/' ':!factions/dist/'; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No faction data changes detected"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected in faction data:"
+            git diff --cached --stat -- 'factions/' ':!factions/dist/'
+          fi
+
+      - name: Create pull request
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DATE=$(date +%Y%m%d)
+          BRANCH="auto/update-factions-${DATE}"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Check if branch already exists (multiple runs same day)
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            # Branch exists, force-update it
+            git checkout -B "$BRANCH"
+          else
+            git checkout -b "$BRANCH"
+          fi
+
+          # Stage only faction data changes (not dist/)
+          git reset HEAD
+          git add 'factions/' ':!factions/dist/'
+          git commit -m "chore: update faction data (automated)
+
+          Updated by the daily faction update workflow.
+          Profiles: ${{ steps.profiles.outputs.profiles }}"
+
+          git push -u origin "$BRANCH" --force
+
+          # Create PR if one doesn't already exist for this branch
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists for branch $BRANCH, updated with latest changes"
+          else
+            gh pr create \
+              --title "chore: update faction data ($DATE)" \
+              --body "$(cat <<'EOF'
+          ## Summary
+          Automated faction data update from upstream mod repositories.
+
+          **Profiles updated**: ${{ steps.profiles.outputs.profiles }}
+
+          ## Review checklist
+          - [ ] Diff looks reasonable (no unexpected unit additions/removals)
+          - [ ] Version numbers updated appropriately
+
+          ---
+          *Generated by the [Update Factions](../actions/workflows/update-factions.yml) workflow*
+          EOF
+          )" \
+              --base main
+          fi

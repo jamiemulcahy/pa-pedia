@@ -194,6 +194,20 @@ dev-live:
 build-cli: cli-build
 
 # ============================================================================
+# Base Data Management (for automated faction updates)
+# ============================================================================
+
+# Extract PA base game data for CI (requires local PA install)
+[working-directory: 'scripts']
+extract-base-data pa_root='C:\Program Files (x86)\Steam\steamapps\common\Planetary Annihilation Titans\media':
+    npm run extract:base-data -- --pa-root "{{pa_root}}" --verify
+
+# Upload encrypted base data to GitHub Release
+[working-directory: 'scripts']
+upload-base-data:
+    npm run upload:base-data
+
+# ============================================================================
 # Docker / Container Commands
 # ============================================================================
 

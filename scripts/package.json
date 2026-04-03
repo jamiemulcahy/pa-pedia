@@ -7,7 +7,9 @@
     "build:zips": "tsx build-faction-zips.ts",
     "upload:releases": "tsx upload-to-releases.ts",
     "generate:manifest": "tsx generate-manifest.ts",
-    "release": "npm run build:zips && npm run upload:releases && npm run generate:manifest"
+    "release": "npm run build:zips && npm run upload:releases && npm run generate:manifest",
+    "extract:base-data": "tsx extract-base-data.ts",
+    "upload:base-data": "tsx upload-base-data.ts"
   },
   "dependencies": {
     "archiver": "^7.0.1",
