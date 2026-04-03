@@ -13,7 +13,7 @@ require (
 	github.com/42wim/httpsig v1.2.3 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
-	github.com/buger/jsonparser v1.1.1 // indirect
+	github.com/buger/jsonparser v1.1.2 // indirect
 	github.com/davidmz/go-pageant v1.0.2 // indirect
 	github.com/go-fed/httpsig v1.1.0 // indirect
 	github.com/google/go-github/v30 v30.1.0 // indirect
