@@ -42,6 +42,7 @@ jobs:
           ls -la /tmp/base-data-download/
 
       - name: Decrypt base data
+        id: base-data
         env:
           PA_BASE_DATA_KEY: ${{ secrets.PA_BASE_DATA_KEY }}
         run: |
@@ -69,6 +70,11 @@ jobs:
           echo "Contents:"
           ls /tmp/pa-media/
 
+          # Extract PA build number from metadata (used as MLA version)
+          BUILD=$(jq -r '.build' /tmp/base-data-download/pa-base-data-meta.json)
+          echo "PA Build: $BUILD"
+          echo "pa_build=$BUILD" >> "$GITHUB_OUTPUT"
+
       # Build CLI
       - uses: actions/setup-go@v5
         with:
@@ -83,9 +89,11 @@ jobs:
       - name: Validate base data (MLA golden test)
         run: |
           echo "Running MLA golden test..."
+          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           /tmp/pa-pedia describe-faction \
             --profile mla \
             --pa-root /tmp/pa-media \
+            --version "$PA_BUILD" \
             --output /tmp/golden-test
 
           # Compare units.json (sorted for stable comparison)
@@ -127,14 +135,23 @@ jobs:
 
       - name: Regenerate faction data
         run: |
+          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           for profile in ${{ steps.profiles.outputs.profiles }}; do
             echo "========================================="
             echo "Processing: $profile"
             echo "========================================="
+
+            # MLA needs explicit version (base game has no modinfo.json)
+            VERSION_FLAG=""
+            if [ "$profile" = "mla" ]; then
+              VERSION_FLAG="--version $PA_BUILD"
+            fi
+
             /tmp/pa-pedia describe-faction \
               --profile "$profile" \
               --pa-root /tmp/pa-media \
-              --output ./factions
+              --output ./factions \
+              $VERSION_FLAG
             echo ""
           done
 
