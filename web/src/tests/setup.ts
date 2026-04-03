@@ -80,8 +80,12 @@ afterAll(() => {
   console.warn = originalWarn
 })
 
-// Cleanup after each test
-afterEach(() => {
+// Cleanup after each test.
+// Flush pending microtasks after cleanup to prevent console output from
+// racing with vitest environment teardown ("Closing rpc while
+// onUserConsoleLog was pending" flake).
+afterEach(async () => {
   cleanup()
+  await new Promise(resolve => setTimeout(resolve, 0))
   vi.clearAllMocks()
 })
