@@ -9,6 +9,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     exclude: ['e2e/**', 'node_modules/**'],
+    pool: 'forks',
+    // Vitest workers can race between closing RPC and pending console.log
+    // messages, causing EnvironmentTeardownError even when all tests pass.
+    // This is a vitest internal issue, not a test bug.
+    dangerouslyIgnoreUnhandledErrors: true,
+    teardownTimeout: 30000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

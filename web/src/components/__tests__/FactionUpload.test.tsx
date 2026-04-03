@@ -290,8 +290,11 @@ describe('FactionUpload', () => {
 
   describe('loading state', () => {
     it('should show loading indicator while uploading', async () => {
-      // Make uploadFaction never resolve to keep loading state
-      mockUploadFaction.mockImplementation(() => new Promise(() => {}))
+      // Use a controllable promise so we can resolve it before teardown
+      let resolveUpload!: (value: { factionId: string }) => void
+      mockUploadFaction.mockImplementation(
+        () => new Promise((resolve) => { resolveUpload = resolve })
+      )
       renderFactionUpload()
 
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
@@ -302,10 +305,16 @@ describe('FactionUpload', () => {
       await waitFor(() => {
         expect(screen.getByText('Uploading...')).toBeInTheDocument()
       })
+
+      // Resolve the pending promise to prevent teardown race condition
+      resolveUpload({ factionId: 'test' })
     })
 
     it('should disable close button while uploading', async () => {
-      mockUploadFaction.mockImplementation(() => new Promise(() => {}))
+      let resolveUpload!: (value: { factionId: string }) => void
+      mockUploadFaction.mockImplementation(
+        () => new Promise((resolve) => { resolveUpload = resolve })
+      )
       renderFactionUpload()
 
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
@@ -317,6 +326,9 @@ describe('FactionUpload', () => {
         expect(screen.getByLabelText('Close')).toBeDisabled()
         expect(screen.getByText('Cancel')).toBeDisabled()
       })
+
+      // Resolve the pending promise to prevent teardown race condition
+      resolveUpload({ factionId: 'test' })
     })
   })
 })

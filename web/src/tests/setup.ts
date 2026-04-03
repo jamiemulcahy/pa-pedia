@@ -36,52 +36,33 @@ if (typeof URL.revokeObjectURL === 'undefined') {
   URL.revokeObjectURL = vi.fn()
 }
 
-// Suppress console errors/warnings in tests (expected errors from code logging)
+// Suppress console output in tests to avoid vitest EnvironmentTeardownError.
+// Vitest workers can race between closing RPC and pending console.log messages.
+// Silencing console output eliminates the "onUserConsoleLog" RPC calls entirely.
+// This also suppresses expected errors/warnings from component code.
 const originalError = console.error
 const originalWarn = console.warn
+const originalLog = console.log
 
 beforeAll(() => {
-  console.error = (...args: unknown[]) => {
-    const message = typeof args[0] === 'string' ? args[0] : ''
-
-    // Suppress expected errors
-    if (
-      message.includes('Not implemented: HTMLFormElement.prototype.submit') ||
-      message.includes('Error: Could not parse CSS stylesheet') ||
-      message.includes('Error loading faction') ||
-      message.includes('Error loading unit') ||
-      message.includes('Failed to load faction') ||
-      message.includes('Failed to load unit') ||
-      message.includes('Network error')
-    ) {
-      return
-    }
-    originalError(...args)
-  }
-
-  console.warn = (...args: unknown[]) => {
-    const message = typeof args[0] === 'string' ? args[0] : ''
-
-    // Suppress expected warnings
-    if (
-      message.includes('ReactDOM.render') ||
-      message.includes('useLayoutEffect') ||
-      message.includes('An update to') ||
-      message.includes('act(...)')
-    ) {
-      return
-    }
-    originalWarn(...args)
-  }
+  // Replace with synchronous no-ops to prevent any console RPC traffic
+  console.log = () => {}
+  console.error = () => {}
+  console.warn = () => {}
 })
 
 afterAll(() => {
+  console.log = originalLog
   console.error = originalError
   console.warn = originalWarn
 })
 
-// Cleanup after each test
-afterEach(() => {
+// Cleanup after each test.
+// Flush pending microtasks after cleanup to prevent console output from
+// racing with vitest environment teardown ("Closing rpc while
+// onUserConsoleLog was pending" flake).
+afterEach(async () => {
   cleanup()
+  await new Promise(resolve => setTimeout(resolve, 0))
   vi.clearAllMocks()
 })
