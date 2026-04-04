@@ -39,6 +39,7 @@ interface FactionContextState {
   getUnit: (cacheKey: string) => Unit | undefined
   getFactionError: (factionId: string) => Error | undefined
   getUnitError: (cacheKey: string) => Error | undefined
+  clearFactionError: (factionId: string, version?: string | null) => void
 
   // Local faction actions
   uploadFaction: (file: File) => Promise<{ factionId: string; wasOverwrite: boolean }>
@@ -258,6 +259,16 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     return unitErrors.get(cacheKey)
   }, [unitErrors])
 
+  // Clear a faction error to allow retry
+  const clearFactionError = useCallback((factionId: string, version?: string | null) => {
+    const cacheKey = buildFactionCacheKey(factionId.toLowerCase(), version)
+    setFactionErrors(prev => {
+      const next = new Map(prev)
+      next.delete(cacheKey)
+      return next
+    })
+  }, [])
+
   // Upload a local faction from a zip file
   const uploadFaction = useCallback(async (file: File): Promise<{ factionId: string; wasOverwrite: boolean }> => {
     // Parse and validate the zip file
@@ -366,6 +377,7 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
     getUnit,
     getFactionError,
     getUnitError,
+    clearFactionError,
     uploadFaction,
     deleteFaction,
     isLocalFaction,

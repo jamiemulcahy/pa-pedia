@@ -95,6 +95,7 @@ describe('BuildsSection', () => {
       error: null,
       exists: true,
       factionsLoading: false,
+      retry: vi.fn(),
     })
   })
 
