@@ -61,6 +61,7 @@ export function FactionDetail() {
   const units: (UnitIndexEntry | UnitIndexEntryWithFaction)[] = isAllMode ? allFactions.units : singleFaction.units
   const loading = isAllMode ? allFactions.loading : singleFaction.loading
   const error = isAllMode ? allFactions.error : singleFaction.error
+  const retry = isAllMode ? null : singleFaction.retry
   const exists = isAllMode ? true : singleFaction.exists
   const factionsLoading = isAllMode ? allFactions.factionsLoading : singleFaction.factionsLoading
 
@@ -275,7 +276,21 @@ export function FactionDetail() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="text-3xl font-display font-bold text-destructive mb-4">ERROR LOADING UNITS</div>
-          <div className="text-muted-foreground font-mono">{error.message}</div>
+          <div className="text-muted-foreground font-mono mb-6">{error.message}</div>
+          <div className="flex gap-4 justify-center">
+            {retry && (
+              <button
+                type="button"
+                onClick={retry}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
+              >
+                Retry
+              </button>
+            )}
+            <Link to="/" className="px-4 py-2 border rounded-md font-medium hover:bg-muted transition-colors">
+              Back to factions
+            </Link>
+          </div>
         </div>
       </div>
     )

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef } from 'react'
+import { useReducer, useEffect, useRef, useCallback } from 'react'
 import { useFactionContext } from '@/contexts/FactionContext'
 import type { FactionIndex } from '@/types/faction'
 import type { FactionMetadataWithLocal } from '@/services/factionLoader'
@@ -50,7 +50,7 @@ function factionLoadReducer(state: FactionLoadState, action: FactionLoadAction):
  * @param version - Optional version to load (null = latest)
  */
 export function useFaction(factionId: string, version?: string | null) {
-  const { getFaction, getFactionIndex, loadFaction, factionsLoading } = useFactionContext()
+  const { getFaction, getFactionIndex, loadFaction, clearFactionError, factionsLoading } = useFactionContext()
   const [{ loading, error }, dispatch] = useReducer(factionLoadReducer, {
     loading: false,
     error: null
@@ -90,6 +90,13 @@ export function useFaction(factionId: string, version?: string | null) {
     }
   }, [factionId, version, index, metadata, loadFaction])
 
+  // Retry: clear the error and reset local state so the effect re-triggers
+  const retry = useCallback(() => {
+    clearFactionError(factionId, version)
+    loadingRef.current = false
+    dispatch({ type: 'RESET' })
+  }, [factionId, version, clearFactionError])
+
   return {
     metadata,
     index,
@@ -97,6 +104,7 @@ export function useFaction(factionId: string, version?: string | null) {
     loading,
     error,
     exists: !!metadata,
-    factionsLoading
+    factionsLoading,
+    retry
   }
 }

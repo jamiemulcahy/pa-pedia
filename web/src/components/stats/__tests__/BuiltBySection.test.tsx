@@ -127,6 +127,7 @@ describe('BuiltBySection', () => {
       error: null,
       exists: true,
       factionsLoading: false,
+      retry: vi.fn(),
     })
   })
 
