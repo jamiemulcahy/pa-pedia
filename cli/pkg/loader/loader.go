@@ -813,6 +813,11 @@ func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[s
 
 	// Search zip entries
 	for _, file := range src.ZipReader.File {
+		// Skip entries with path traversal sequences (Zip Slip defense-in-depth)
+		if strings.Contains(file.Name, "..") {
+			continue
+		}
+
 		// Normalize the zip path by stripping any prefix (e.g., "Exiles-Faction-main/" for GitHub archives)
 		normalizedPath := file.Name
 		if src.zipPathPrefix != "" {
