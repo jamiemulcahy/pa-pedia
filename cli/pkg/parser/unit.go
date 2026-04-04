@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
@@ -221,8 +222,15 @@ func parseTools(l *loader.Loader, data map[string]interface{}, unit *models.Unit
 		}
 	}
 
-	// Parse each unique tool
-	for specID, tool := range toolData {
+	// Parse each unique tool (sorted for deterministic output across platforms)
+	sortedSpecIDs := make([]string, 0, len(toolData))
+	for specID := range toolData {
+		sortedSpecIDs = append(sortedSpecIDs, specID)
+	}
+	sort.Strings(sortedSpecIDs)
+
+	for _, specID := range sortedSpecIDs {
+		tool := toolData[specID]
 		count := toolCounts[specID]
 		name := extractToolName(specID)
 

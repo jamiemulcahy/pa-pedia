@@ -86,6 +86,8 @@ jobs:
         run: go build -o /tmp/pa-pedia .
 
       # MLA Golden Test - validates base data is correct
+      # Generates MLA from cached base data and compares against committed version.
+      # If they differ, the base data cache is stale or corrupted.
       - name: Validate base data (MLA golden test)
         run: |
           echo "Running MLA golden test..."
@@ -96,7 +98,7 @@ jobs:
             --version "$PA_BUILD" \
             --output /tmp/golden-test
 
-          # Compare units.json (sorted for stable comparison)
+          # Compare units.json (sorted keys for stable comparison)
           echo "Comparing MLA units.json..."
           jq -S . factions/MLA/units.json > /tmp/mla-committed.json
           jq -S . /tmp/golden-test/MLA/units.json > /tmp/mla-generated.json
