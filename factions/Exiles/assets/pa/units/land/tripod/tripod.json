@@ -3,7 +3,7 @@
   "display_name": "Cyclops",
   "description": "Anti-Heavy Bot. Long Range. High damage continuous laser. Durable. Amphibious.",
   "max_health": 4000,
-  "build_metal_cost": 4000,
+  "build_metal_cost": 3000,
   "attachable": {
     "offsets": {
       "root": [
@@ -82,8 +82,7 @@
       "death01": "/pa/units/land/assault_bot_adv/assault_bot_adv_anim_death01.papa",
       "walk": "/pa/units/land/tripod/tripod_anim_walk.papa",
       "idle": "/pa/units/land/tripod/tripod_anim_idle.papa",
-      "death": "/pa/units/land/tripod/tripod_anim_death.papa",
-      "dead": "/pa/units/land/tripod/tripod_anim_dead.papa"
+      "death": "/pa/units/land/tripod/tripod_anim_death.papa"
     },
     "animtree": "/pa/units/land/tripod/tripod_anim_tree.json",
     "walk_speed": 5
@@ -105,7 +104,7 @@
     },
     "fired0": {
       "audio_cue": "/SE/Weapons/bot/sniper_fire",
-      "effect_spec": "/pa/units/land/tripod/tripod_laser.pfx socket_muzzle"
+      "effect_spec": "/pa/units/land/tripod/tripod_laser_dark.pfx socket_muzzle"
     },
     "died": {
       "audio_cue": "/SE/Death/Bot",
@@ -159,21 +158,6 @@
       "type": "idle",
       "filename": "/pa/units/land/tripod/tripod_effect_1.pfx",
       "bone": "bone_reactor_right"
-    },
-    {
-      "type": "idle",
-      "filename": "/pa/units/land/tripod/tripod_door_still.pfx",
-      "bone": "bone_door_left"
-    },
-    {
-      "type": "idle",
-      "filename": "/pa/units/land/tripod/tripod_door_still.pfx",
-      "bone": "bone_door_right"
-    },
-    {
-      "type": "idle",
-      "filename": "/pa/units/land/tripod/cubes.pfx",
-      "bone": "socket_tactical"
     }
   ],
   "audio": {
