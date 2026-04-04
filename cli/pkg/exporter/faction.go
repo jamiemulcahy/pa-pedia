@@ -191,7 +191,7 @@ func (e *FactionExporter) exportUnitsToAssets(assetsDir string, units []models.U
 			}
 
 			// Determine asset path for icon - use same directory as unit JSON
-			unitDir := strings.TrimPrefix(filepath.Dir(unit.ResourceName), "/")
+			unitDir := strings.TrimPrefix(filepath.ToSlash(filepath.Dir(unit.ResourceName)), "/")
 			assetPath := filepath.ToSlash(filepath.Join(unitDir, filename))
 
 			// Skip if already copied
