@@ -4,8 +4,8 @@
   "version": "0.14.5",
   "author": "Anonemous2, billthebluebot, Taiga, Quitch, Quildtide, Ferretmaster, Tatarstan, DrWondertainment",
   "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions",
-  "dateCreated": "2025-08-07",
-  "build": "124616",
+  "dateCreated": "2026-01-15",
+  "build": "124627",
   "type": "mod",
   "mods": [
     "github.com/Anonemous2/pa.mla.unit.addon/tree/master",
