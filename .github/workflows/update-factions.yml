@@ -157,102 +157,97 @@ jobs:
             echo ""
           done
 
-      # Create PR if changes detected
-      - name: Check for changes
-        id: changes
-        run: |
-          # Check for any changes in factions/ (excluding dist/)
-          git add factions/
-          if git diff --cached --quiet -- 'factions/' ':!factions/dist/'; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-            echo "No faction data changes detected"
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "Changes detected in faction data:"
-            git diff --cached --stat -- 'factions/' ':!factions/dist/'
-
-            # Detect which factions changed (folder names under factions/)
-            CHANGED=$(git diff --cached --name-only -- 'factions/' ':!factions/dist/' \
-              | sed 's|^factions/||' | cut -d/ -f1 | sort -u | tr '\n' ', ' | sed 's/,$//')
-            echo "changed_factions=$CHANGED" >> "$GITHUB_OUTPUT"
-            echo "Changed factions: $CHANGED"
-          fi
-
-      - name: Create pull request
-        if: steps.changes.outputs.has_changes == 'true'
+      # Create one PR per changed faction
+      - name: Create pull requests
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          CHANGED="${{ steps.changes.outputs.changed_factions }}"
-
-          # Build version fingerprint from changed factions' metadata
-          # e.g. "legion-1.32.1_bugs-1.36" — used in branch name to deduplicate PRs
-          VERSION_PARTS=""
-          for faction_dir in $(git diff --cached --name-only -- 'factions/' ':!factions/dist/' \
-            | sed 's|^factions/||' | cut -d/ -f1 | sort -u); do
-            META="factions/$faction_dir/metadata.json"
-            if [ -f "$META" ]; then
-              ID=$(jq -r '.identifier' "$META")
-              VER=$(jq -r '.version' "$META")
-              if [ -n "$VERSION_PARTS" ]; then
-                VERSION_PARTS="${VERSION_PARTS}_${ID}-${VER}"
-              else
-                VERSION_PARTS="${ID}-${VER}"
-              fi
-            fi
-          done
-
-          # Short hash of version fingerprint for branch name (avoids overly long names)
-          FINGERPRINT=$(echo "$VERSION_PARTS" | sha256sum | cut -c1-12)
-          BRANCH="auto/update-factions-${FINGERPRINT}"
-          echo "Version fingerprint: $VERSION_PARTS"
-          echo "Branch: $BRANCH"
-
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Check for existing open PR with same version fingerprint
-          EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
-          if [ -n "$EXISTING_PR" ]; then
-            echo "PR #$EXISTING_PR already exists for these versions — skipping"
-            echo "Versions: $VERSION_PARTS"
+          # Find which faction folders have changes
+          git add factions/
+          CHANGED_FACTIONS=$(git diff --cached --name-only -- 'factions/' ':!factions/dist/' \
+            | sed 's|^factions/||' | cut -d/ -f1 | sort -u)
+
+          if [ -z "$CHANGED_FACTIONS" ]; then
+            echo "No faction data changes detected"
             exit 0
           fi
 
-          # Create branch and PR
-          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            git checkout -B "$BRANCH"
-          else
-            git checkout -b "$BRANCH"
-          fi
+          echo "Changed factions: $CHANGED_FACTIONS"
 
-          # Stage only faction data changes (not dist/)
+          # Reset staging area — we'll selectively stage per faction
           git reset HEAD
-          git add 'factions/' ':!factions/dist/'
-          git commit -m "chore: update faction data — $CHANGED
 
-          Updated by the automated faction update workflow.
-          Changed factions: $CHANGED
-          Versions: $VERSION_PARTS"
+          for FACTION_DIR in $CHANGED_FACTIONS; do
+            echo ""
+            echo "========================================="
+            echo "Processing PR for: $FACTION_DIR"
+            echo "========================================="
 
-          git push -u origin "$BRANCH" --force
+            META="factions/$FACTION_DIR/metadata.json"
+            if [ ! -f "$META" ]; then
+              echo "Warning: No metadata.json for $FACTION_DIR, skipping"
+              continue
+            fi
 
-          gh pr create \
-            --title "chore: update faction data — $CHANGED" \
-            --body "$(cat <<EOF
+            ID=$(jq -r '.identifier' "$META")
+            VER=$(jq -r '.version' "$META")
+            DISPLAY_NAME=$(jq -r '.displayName' "$META")
+            BRANCH="auto/update-faction-${ID}-${VER}"
+
+            echo "Faction: $DISPLAY_NAME ($ID) v$VER"
+            echo "Branch: $BRANCH"
+
+            # Check for existing open PR for this faction+version
+            EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+            if [ -n "$EXISTING_PR" ]; then
+              echo "PR #$EXISTING_PR already exists for $DISPLAY_NAME v$VER — skipping"
+              continue
+            fi
+
+            # Create branch from main for this faction
+            git checkout -B "$BRANCH" origin/main
+
+            # Copy regenerated faction data onto this branch
+            git checkout - -- "factions/$FACTION_DIR/"
+            git add "factions/$FACTION_DIR/"
+
+            # Check there are actually staged changes
+            if git diff --cached --quiet -- "factions/$FACTION_DIR/"; then
+              echo "No actual changes for $FACTION_DIR after checkout, skipping"
+              git checkout -
+              continue
+            fi
+
+            git commit -m "chore: update $DISPLAY_NAME faction data to v$VER
+
+          Automated update from upstream mod repository."
+
+            git push -u origin "$BRANCH" --force
+
+            gh pr create \
+              --title "chore: update $DISPLAY_NAME to v$VER" \
+              --body "$(cat <<EOF
           ## Summary
-          Automated faction data update from upstream mod repositories.
+          Automated faction data update for **$DISPLAY_NAME** from upstream mod repository.
 
-          **Changed factions**: $CHANGED
-          **Versions**: $VERSION_PARTS
+          **Version**: $VER
 
           ## Review checklist
           - [ ] Diff looks reasonable (no unexpected unit additions/removals)
-          - [ ] Version numbers updated appropriately
+          - [ ] Version number updated appropriately
 
           ---
           *Generated by the [Update Factions](../actions/workflows/update-factions.yml) workflow*
           EOF
           )" \
-            --base main
+              --base main
+
+            echo "Created PR for $DISPLAY_NAME v$VER"
+
+            # Return to the working branch with all regenerated data
+            git checkout -
+          done
