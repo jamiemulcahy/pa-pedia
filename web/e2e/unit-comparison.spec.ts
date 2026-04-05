@@ -82,6 +82,46 @@ test.describe('Unit Comparison', () => {
     })
   })
 
+  test.describe('Per-layer DPS in comparison', () => {
+    test('commander vs tank shows per-layer breakdown with diffs', async ({ page }) => {
+      // Commander has multi-layer weapons; tank has single weapon targeting Land+Sea
+      await page.goto(
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_commander?compare=${FACTIONS.BASE_GAME.id}/test_tank`
+      )
+      await waitForUnitLoad(page)
+
+      // Primary side (commander) should show per-layer breakdown
+      // because commander has different DPS across layers
+      await expect(page.getByText('vs Land:').first()).toBeVisible()
+      await expect(page.getByText('vs Air:').first()).toBeVisible()
+      await expect(page.getByText('vs Seafloor:').first()).toBeVisible()
+    })
+
+    test('commander vs fighter shows layers where fighter has no coverage', async ({ page }) => {
+      // Commander targets Land/Sea/Seafloor/Air; Fighter targets only Air
+      await page.goto(
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_commander?compare=${FACTIONS.BASE_GAME.id}/test_fighter`
+      )
+      await waitForUnitLoad(page)
+
+      // Should show per-layer breakdown (different layer sets triggers it)
+      await expect(page.getByText('vs Land:').first()).toBeVisible()
+      await expect(page.getByText('vs Air:').first()).toBeVisible()
+    })
+
+    test('tank vs fighter shows all layers from both units', async ({ page }) => {
+      // Tank targets Land+Sea; Fighter targets Air
+      await page.goto(
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank?compare=${FACTIONS.BASE_GAME.id}/test_fighter`
+      )
+      await waitForUnitLoad(page)
+
+      // Both units' layers are shown
+      await expect(page.getByText('vs Land:').first()).toBeVisible()
+      await expect(page.getByText('vs Air:').first()).toBeVisible()
+    })
+  })
+
   test.describe('Group mode', () => {
     test('group mode activates via URL parameter', async ({ page }) => {
       await page.goto(

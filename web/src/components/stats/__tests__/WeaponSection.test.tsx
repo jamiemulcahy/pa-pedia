@@ -401,4 +401,33 @@ describe('WeaponSection', () => {
       expect(screen.getByText('DPS (Sustained):')).toBeInTheDocument()
     })
   })
+
+  describe('target layers display', () => {
+    it('should display formatted target layer names', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        targetLayers: ['LandHorizontal', 'WaterSurface', 'Air'],
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('Targets:')).toBeInTheDocument()
+      expect(screen.getByText('Land, Sea, Air')).toBeInTheDocument()
+    })
+
+    it('should not show targets row when no target layers', () => {
+      renderWeaponSection(mockBasicWeapon)
+
+      expect(screen.queryByText('Targets:')).not.toBeInTheDocument()
+    })
+
+    it('should handle unknown layer names gracefully', () => {
+      const weapon: Weapon = {
+        ...mockBasicWeapon,
+        targetLayers: ['CustomLayer'],
+      }
+      renderWeaponSection(weapon)
+
+      expect(screen.getByText('CustomLayer')).toBeInTheDocument()
+    })
+  })
 })
