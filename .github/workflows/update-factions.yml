@@ -91,11 +91,9 @@ jobs:
       - name: Validate base data (MLA golden test)
         run: |
           echo "Running MLA golden test..."
-          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           /tmp/pa-pedia describe-faction \
             --profile mla \
             --pa-root /tmp/pa-media \
-            --version "$PA_BUILD" \
             --output /tmp/golden-test
 
           # Compare units.json (sorted keys for stable comparison)
@@ -137,23 +135,15 @@ jobs:
 
       - name: Regenerate faction data
         run: |
-          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           for profile in ${{ steps.profiles.outputs.profiles }}; do
             echo "========================================="
             echo "Processing: $profile"
             echo "========================================="
 
-            # MLA needs explicit version (base game has no modinfo.json)
-            VERSION_FLAG=""
-            if [ "$profile" = "mla" ]; then
-              VERSION_FLAG="--version $PA_BUILD"
-            fi
-
             /tmp/pa-pedia describe-faction \
               --profile "$profile" \
               --pa-root /tmp/pa-media \
-              --output ./factions \
-              $VERSION_FLAG
+              --output ./factions
             echo ""
           done
 

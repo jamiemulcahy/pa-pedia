@@ -125,7 +125,12 @@ function toPosixPath(p: string): string {
 /**
  * Create tar.gz archive of selected files
  */
-function createArchive(paRoot: string, files: string[], outputPath: string): void {
+function createArchive(
+  paRoot: string,
+  files: string[],
+  outputPath: string,
+  extraFiles?: Array<{ src: string; archivePath: string }>,
+): void {
   // Create a temporary directory with the file structure
   const tempDir = fs.mkdtempSync(path.join(path.dirname(outputPath), 'pa-base-data-'))
 
@@ -138,6 +143,15 @@ function createArchive(paRoot: string, files: string[], outputPath: string): voi
 
       fs.mkdirSync(destDir, { recursive: true })
       fs.copyFileSync(srcPath, destPath)
+    }
+
+    // Copy extra files (e.g., version.txt from parent directory)
+    if (extraFiles) {
+      for (const { src, archivePath } of extraFiles) {
+        const destPath = path.join(tempDir, archivePath)
+        fs.mkdirSync(path.dirname(destPath), { recursive: true })
+        fs.copyFileSync(src, destPath)
+      }
     }
 
     // Create tar.gz using system tar (use POSIX paths on Windows)
@@ -277,6 +291,20 @@ async function main() {
   const buildNumber = detectBuildNumber(paRoot)
   console.log(`PA Build: ${buildNumber || 'unknown'}`)
 
+  // Find version/build files to include in archive (so CLI can auto-detect version)
+  const parentDir = path.dirname(paRoot)
+  const extraFiles: Array<{ src: string; archivePath: string }> = []
+  for (const name of ['version.txt', 'build.txt']) {
+    for (const dir of [parentDir, paRoot]) {
+      const src = path.join(dir, name)
+      if (fs.existsSync(src)) {
+        extraFiles.push({ src, archivePath: name })
+        console.log(`Including ${name} from ${dir}`)
+        break // only need the first found for each name
+      }
+    }
+  }
+
   // Create output directory
   fs.mkdirSync(outputDir, { recursive: true })
 
@@ -298,7 +326,7 @@ async function main() {
   // Create archive
   console.log()
   console.log('Creating archive...')
-  createArchive(paRoot, files, tarPath)
+  createArchive(paRoot, files, tarPath, extraFiles)
 
   const tarSize = fs.statSync(tarPath).size
   console.log(`  Archive: ${tarPath} (${(tarSize / 1024 / 1024).toFixed(2)} MB)`)
