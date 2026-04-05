@@ -1,11 +1,11 @@
 {
   "identifier": "exiles",
   "displayName": "Exiles",
-  "version": "0.7.1",
+  "version": "0.7.3.4",
   "author": "NikolaMX, BOIYOUSAYWHAT",
   "description": "Adds a high-tech Energy-based Faction. Development Ongoing",
-  "dateCreated": "2026-01-10",
-  "build": "124610",
+  "dateCreated": "2026-03-23",
+  "build": "124632",
   "type": "mod",
   "mods": [
     "github.com/NikolaMX/Exiles-Faction"
