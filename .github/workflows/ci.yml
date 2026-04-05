@@ -98,20 +98,3 @@ jobs:
           path: web/playwright-report/
           retention-days: 7
 
-  ci-success:
-    name: CI Success
-    if: always()
-    needs: [cli, web, e2e]
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    steps:
-      - name: Check all jobs passed
-        run: |
-          if [[ "${{ needs.cli.result }}" != "success" || "${{ needs.web.result }}" != "success" || "${{ needs.e2e.result }}" != "success" ]]; then
-            echo "One or more CI jobs failed:"
-            echo "  cli: ${{ needs.cli.result }}"
-            echo "  web: ${{ needs.web.result }}"
-            echo "  e2e: ${{ needs.e2e.result }}"
-            exit 1
-          fi
-          echo "All CI jobs passed!"
