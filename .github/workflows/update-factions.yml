@@ -147,14 +147,23 @@ jobs:
             echo ""
           done
 
+      # Generate app token so PRs trigger CI workflows
+      # (GITHUB_TOKEN events don't trigger other workflows)
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       # Create one PR per changed faction
       - name: Create pull requests
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          # Configure git
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Configure git for the app
+          git config user.name "pa-pedia-bot[bot]"
+          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
           # Find which faction folders have changes
           git add factions/
