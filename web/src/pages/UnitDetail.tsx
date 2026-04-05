@@ -375,8 +375,9 @@ export function UnitDetail() {
   const { getUnit: getUnitByKey } = useFactionContext()
 
   // Wrapper to convert (factionId, unitId) to cache key format
+  // Must normalize factionId to lowercase to match FactionContext cache keys
   const getUnit = useCallback((factionId: string, unitId: string) => {
-    return getUnitByKey(`${factionId}:${unitId}`)
+    return getUnitByKey(`${factionId.toLowerCase()}:${unitId}`)
   }, [getUnitByKey])
 
   // Build complete member lists for each group
