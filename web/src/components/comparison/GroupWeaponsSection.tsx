@@ -3,6 +3,7 @@ import { StatRow } from '../StatRow'
 import { ComparisonValue } from '../ComparisonValue'
 import type { AggregatedWeapon } from '@/types/group'
 import { formatNumber } from '@/utils/groupAggregation'
+import { formatTargetLayers } from '@/utils/targetLayers'
 
 interface GroupWeaponsSectionProps {
   weapons: AggregatedWeapon[]
@@ -108,7 +109,7 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
 
       {weapon.targetLayers && weapon.targetLayers.length > 0 && (
         <div className="text-xs text-gray-500 dark:text-gray-400">
-          Targets: {weapon.targetLayers.join(', ')}
+          Targets: {formatTargetLayers(weapon.targetLayers)}
         </div>
       )}
 

@@ -32,6 +32,8 @@ export interface AggregatedWeapon {
   totalDps: number
   /** Total sustained DPS from all instances (effective DPS with ammo limitations) */
   totalSustainedDps?: number
+  /** Total burn DPS from all instances */
+  totalBurnDps?: number
   /** Total damage per volley from all instances */
   totalDamage: number
   /** Maximum range (MAX across all instances) */
@@ -123,6 +125,10 @@ export interface AggregatedGroupStats {
   allBuilds: string[]
   /** Effective build rate for each buildable unit (only units that can build it contribute) */
   buildRateByUnit: Record<string, number>
+
+  // ===== PER-LAYER DPS =====
+  /** DPS breakdown by target layer */
+  dpsByLayer?: Record<string, { burst: number; sustained: number; burn: number }>
 
   // ===== GROUP metadata =====
   /** Total number of units (sum of quantities) */

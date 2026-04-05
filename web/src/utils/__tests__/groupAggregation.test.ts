@@ -636,4 +636,111 @@ describe('groupAggregation', () => {
       expect(formatBooleanAggregation(false, false)).toBe('None')
     })
   })
+
+  describe('dpsByLayer', () => {
+    it('should compute dpsByLayer from aggregated weapons', () => {
+      const unit = createMockUnit({
+        id: 'commander',
+        specs: {
+          combat: {
+            health: 10000,
+            dps: 230,
+            weapons: [
+              createMockWeapon('uber_cannon', ['LandHorizontal', 'WaterSurface', 'Air'], {
+                dps: 150,
+                count: 1,
+              }),
+              createMockWeapon('aa_gun', ['Air'], {
+                dps: 80,
+                count: 1,
+              }),
+            ],
+          },
+          economy: { buildCost: 0 },
+        },
+      })
+
+      const members: GroupMember[] = [{ factionId: 'MLA', unitId: 'commander', quantity: 1 }]
+      const getUnit = () => unit
+      const result = aggregateGroupStats(members, getUnit)!
+
+      expect(result.dpsByLayer).toBeDefined()
+      expect(result.dpsByLayer!['LandHorizontal'].burst).toBe(150)
+      expect(result.dpsByLayer!['WaterSurface'].burst).toBe(150)
+      expect(result.dpsByLayer!['Air'].burst).toBe(230) // 150 + 80
+    })
+
+    it('should scale dpsByLayer by unit quantity', () => {
+      const unit = createMockUnit({
+        id: 'tank',
+        specs: {
+          combat: {
+            health: 1000,
+            dps: 50,
+            weapons: [
+              createMockWeapon('tank_weapon', ['LandHorizontal'], {
+                dps: 50,
+                count: 1,
+              }),
+            ],
+          },
+          economy: { buildCost: 100 },
+        },
+      })
+
+      const members: GroupMember[] = [{ factionId: 'MLA', unitId: 'tank', quantity: 3 }]
+      const getUnit = () => unit
+      const result = aggregateGroupStats(members, getUnit)!
+
+      expect(result.dpsByLayer!['LandHorizontal'].burst).toBe(150) // 50 * 3
+    })
+
+    it('should be undefined when no weapons have target layers', () => {
+      const unit = createMockUnit({
+        id: 'noweapons',
+        specs: {
+          combat: { health: 100, weapons: [] },
+          economy: { buildCost: 50 },
+        },
+      })
+
+      const members: GroupMember[] = [{ factionId: 'MLA', unitId: 'noweapons', quantity: 1 }]
+      const getUnit = () => unit
+      const result = aggregateGroupStats(members, getUnit)!
+
+      expect(result.dpsByLayer).toBeUndefined()
+    })
+
+    it('should track burn DPS per layer in aggregated weapons', () => {
+      const unit = createMockUnit({
+        id: 'flametank',
+        specs: {
+          combat: {
+            health: 500,
+            dps: 40,
+            weapons: [
+              createMockWeapon('flame_weapon', ['LandHorizontal'], {
+                dps: 40,
+                burnDps: 15,
+                count: 1,
+              }),
+            ],
+          },
+          economy: { buildCost: 200 },
+        },
+      })
+
+      const members: GroupMember[] = [{ factionId: 'MLA', unitId: 'flametank', quantity: 2 }]
+      const getUnit = () => unit
+      const result = aggregateGroupStats(members, getUnit)!
+
+      // Check that the aggregated weapon has totalBurnDps
+      const flameWeapon = result.weapons.find(w => w.safeName === 'flame_weapon')
+      expect(flameWeapon).toBeDefined()
+      expect(flameWeapon!.totalBurnDps).toBe(30) // 15 * 2
+
+      // Check dpsByLayer includes burn
+      expect(result.dpsByLayer!['LandHorizontal'].burn).toBe(30) // 15 * 2
+    })
+  })
 })
