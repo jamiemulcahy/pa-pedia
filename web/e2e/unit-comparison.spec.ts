@@ -93,5 +93,32 @@ test.describe('Unit Comparison', () => {
       await expect(page).toHaveURL(/mode=group/)
       await expect(page).toHaveURL(/qty=3/)
     })
+
+    test('primary group stats display without comparison group', async ({ page }) => {
+      // Navigate directly to group mode with just the primary unit (no comparison group selected)
+      await page.goto(
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank?compare=&mode=group&qty=1`
+      )
+
+      // Wait for group mode stats to render (uses "Total HP:" label instead of "HP:")
+      await expect(page.getByText('Total HP:')).toBeVisible()
+
+      // Verify all group overview stats are visible
+      await expect(page.getByText('Total build cost:')).toBeVisible()
+      await expect(page.getByText('Total DPS:').first()).toBeVisible()
+      await expect(page.getByText('Total salvo damage:').first()).toBeVisible()
+    })
+
+    test('primary group stats scale with quantity', async ({ page }) => {
+      // 2x test_tank: HP should be 600 (2 * 300), build cost 300 (2 * 150)
+      await page.goto(
+        `/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank?compare=&mode=group&qty=2`
+      )
+
+      // Wait for group stats to render with scaled values
+      await expect(page.getByText('Total HP:')).toBeVisible()
+      await expect(page.getByText('600')).toBeVisible()
+      await expect(page.getByText('300 metal')).toBeVisible()
+    })
   })
 })
