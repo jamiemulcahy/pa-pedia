@@ -56,6 +56,18 @@
         "spawnUnitOnDeathWithVelocity": {
           "type": "boolean",
           "description": "Whether spawned unit inherits projectile velocity"
+        },
+        "burnDamage": {
+          "type": "number",
+          "description": "Total burn damage dealt over burn duration"
+        },
+        "burnRadius": {
+          "type": "number",
+          "description": "Radius of burn damage area"
+        },
+        "burnDuration": {
+          "type": "number",
+          "description": "Duration of burn effect in seconds"
         }
       },
       "additionalProperties": false,
@@ -483,6 +495,18 @@
         "fullDamageRadius": {
           "type": "number",
           "description": "Radius where full splash damage applies"
+        },
+        "burnDamage": {
+          "type": "number",
+          "description": "Total burn damage dealt over burn duration"
+        },
+        "burnRadius": {
+          "type": "number",
+          "description": "Radius of burn damage area"
+        },
+        "burnDps": {
+          "type": "number",
+          "description": "Burn damage per second (burnDamage / burnDuration)"
         },
         "selfDestruct": {
           "type": "boolean",
