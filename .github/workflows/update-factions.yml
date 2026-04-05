@@ -209,7 +209,8 @@ jobs:
             git checkout -B "$BRANCH" origin/main
 
             # Copy regenerated faction data onto this branch
-            cp -r "$REGEN_DIR/$FACTION_DIR/" "factions/$FACTION_DIR/"
+            # Use cp -rT to copy contents (not the directory itself) into the target
+            cp -rT "$REGEN_DIR/$FACTION_DIR" "factions/$FACTION_DIR"
             git add "factions/$FACTION_DIR/"
 
             # Check there are actually staged changes
