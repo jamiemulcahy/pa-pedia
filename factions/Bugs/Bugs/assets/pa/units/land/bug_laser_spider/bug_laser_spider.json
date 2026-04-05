@@ -1,0 +1,128 @@
+{
+    "base_spec": "/pa/units/land/base_vehicle/base_vehicle.json",
+    "si_name": "bug_laser_spider",
+    "display_name": "!LOC:Rak",
+    "description": "!LOC:Demi Titan - long range beam weapon.",
+    "max_health": 30000,
+    "build_metal_cost": 15000,
+    "influence_radius": 400,
+    "attachable": {
+        "offsets": {
+            "root": [
+                0,
+                0,
+                0
+            ],
+            "head": [
+                0,
+                0,
+                3.1
+            ]
+        }
+    },
+    "unit_types": [
+        "UNITTYPE_Tank",
+        "UNITTYPE_Mobile",
+        "UNITTYPE_Offense",
+        "UNITTYPE_Land",
+        "UNITTYPE_Advanced",
+        "UNITTYPE_Titan",
+        "UNITTYPE_Important",
+        "UNITTYPE_FabOrbBuild",
+        "UNITTYPE_FabAdvBuild",
+        "UNITTYPE_Custom2"
+    ],
+    "transportable": {
+        "size": 1
+    },
+    "guard_layer": "WL_LandHorizontal",
+    "navigation": {
+        "type": "amphibious-large",
+        "allow_pushing": false,
+        "push_sideways": false,
+        "acceleration": 120,
+        "brake": 120,
+        "move_speed": 11,
+        "turn_speed": 50,
+        "group_preference": "back"
+    },
+    "physics": {
+        "radius": 4,
+        "collision_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+        "air_friction": 10.0,
+        "allow_pushing": false,
+        "push_sideways": false
+    },
+    "recon": {
+        "observer": {
+            "items": [
+                {
+                    "layer": "surface_and_air",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 300
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 300
+                }
+            ]
+        }
+    },
+    "model": {
+        "filename": "/pa/units/land/bug_laser_spider/bug_laser_spider.papa",
+        "animations": {
+        
+            "idle": "/pa/units/land/bug_laser_spider/bug_laser_spider_idle.papa",
+            "walk": "/pa/units/land/bug_laser_spider/bug_laser_spider_walk.papa"
+          },
+          "animtree": "/pa/anim/anim_trees/bipedal_mech_anim_tree.json",
+          "walk_speed": 20
+        
+    },
+    "tools": [
+        {
+            "spec_id": "/pa/units/land/bug_laser_spider/bug_laser_spider_weapon.json",
+            "aim_bone": "bone_turret",
+            "muzzle_bone": "socket_muzzle"
+        }
+    ],
+    "events": {
+        "build_complete": {
+            "audio_cue": "/SE/Build_Complete/veh"
+        },
+        "died": {
+            "audio_cue": "/SE/Death/Bot",
+            "effect_spec": "/pa/units/land/bug_crusher/bug_explosion_large.pfx",
+            "effect_scale": 4
+        },
+        "fired": {
+            "audio_cue": "/SE/Weapons/bot/swarm",
+            "effect_spec": "/pa/units/land/bug_laser_spider/rak_muzzle_flash.pfx socket_muzzle"
+        }
+    
+    },
+    "audio": {
+        "loops": {
+            "move": {
+                "cue": "/SE/Movement/veh/tank_heavy_mortar_loop_sheller_T2",
+                "flag": "vel_changed",
+                "should_start_func": "is_moving",
+                "should_stop_func": "is_not_moving"
+            }
+        }
+    },
+    "selection_icon": {
+        "diameter": 50
+    },
+    "TEMP_texelinfo": 9.31488,
+    "mesh_bounds": [
+        40,
+        40,
+        40
+    ],
+    "headlights": [],
+    "lamps": []
+}

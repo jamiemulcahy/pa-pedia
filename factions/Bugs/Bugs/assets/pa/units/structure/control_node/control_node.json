@@ -1,0 +1,123 @@
+{
+    "display_name": "!LOC:Pariah Control Node",
+    "description": "!LOC:Launches portal rings.",
+    "TEMP_texelinfo": 19.5004,
+    "alt_area_build_type": "Sphere",
+    "alt_area_max_radius": 100.0,
+    "atrophy_cool_down": 15.0,
+    "si_name":"control_node",
+    "atrophy_rate": 240.0,
+    "audio": {
+      "loops": {
+        "build": {
+          "cue": "/SE/Construction/Factory_contruction_loop_nuke",
+          "flag": "build_target_changed",
+          "should_start_func": "has_build_target",
+          "should_stop_func": "no_build_target"
+        }
+      },
+      "selection_response": {
+        "cue": "/SE/Selection/structure/nuke"
+      }
+    },
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "build_metal_cost": 6000,
+    "buildable_projectiles": [
+      "/pa/units/structure/control_node/portal/portal_ammo.json"
+    ],
+    "command_caps": [
+      "ORDER_FactoryBuild",
+      "ORDER_Attack"
+    ],
+    "events": {
+      "build_complete": {
+        "audio_cue": "/SE/Build_Complete/factory"
+      },
+      "fired": {
+        "audio_cue": "/SE/Weapons/structure/nuke_launcher_fire",
+        "effect_spec": "/pa/units/land/nuke_launcher/nuke_launcher_launch.pfx"
+      },
+      "died": {
+        "audio_cue": "/SE/Death/Factory"
+      }
+    },
+    "factory": {
+      "store_units": true,
+      "spawn_points": [
+        "bone_load"
+      ],
+      "initial_build_spec": "/pa/units/structure/control_node/portal/portal_ammo.json",
+      "default_build_stance": "Continuous"
+    },
+   
+    "max_health": 18000,
+    "mesh_bounds": [
+      50,
+      50,
+      30
+    ],
+    "model": [
+      {
+        "layer": "WL_LandHorizontal",
+        "filename": "/pa/units/structure/control_node/bug_launcher_adv.papa"
+      },
+      {
+        "layer": "WL_WaterSurface",
+        "filename": "/pa/units/structure/control_node/bug_launcher_adv.papa"
+      }
+    ],
+    "placement_size": [
+      65,
+      65
+    ],
+    "recon": {
+      "observer": {
+        "items": [
+          {
+            "layer": "surface_and_air",
+            "channel": "sight",
+            "shape": "capsule",
+            "radius": 100
+          },
+          {
+            "layer": "underwater",
+            "channel": "sight",
+            "shape": "capsule",
+            "radius": 100
+          }
+        ]
+      }
+    },
+    "selection_icon": {
+      "diameter": 25.0
+    },
+    "spawn_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+    "tools": [
+      {
+        "spec_id": "/pa/units/land/nuke_launcher/nuke_launcher_tool_weapon.json",
+        "aim_bone": "bone_root"
+      },
+      {
+        "spec_id": "/pa/units/structure/control_node/control_node_build_arm.json",
+        "aim_bone": "bone_root"
+      }
+    ],
+    "unit_name": "Nuclear Missile Launcher",
+    "unit_types": [
+      "UNITTYPE_Custom2",
+      "UNITTYPE_Land",
+      "UNITTYPE_Structure",
+      "UNITTYPE_Offense",
+      "UNITTYPE_Advanced",
+      "UNITTYPE_Nuke",
+      "UNITTYPE_Factory",
+      "UNITTYPE_FabAdvBuild",
+      "UNITTYPE_Important",
+      "UNITTYPE_Interplanetary"
+    ],
+    "wreckage_mesh_bounds": [
+      14,
+      14,
+      22.5
+    ]
+  }

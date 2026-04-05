@@ -1,0 +1,101 @@
+{
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "unit_name": "Bug Energy Plant",
+    "si_name":"energy_plant",
+    "display_name": "!LOC:Bug Energy Plant",
+    "description": "!LOC:Basic Economy - Produces energy.",
+    "max_health": 1000,
+    "build_metal_cost": 400,
+    "atrophy_rate": 7.5,
+    "atrophy_cool_down": 15.0,
+    "spawn_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+    "area_build_type": "Line",
+    "production": {
+        "energy": 600
+    },
+    "unit_types": [
+        "UNITTYPE_Structure",
+        "UNITTYPE_EnergyProduction",
+        "UNITTYPE_Basic",
+        "UNITTYPE_CmdBuild",
+        "UNITTYPE_FabBuild",
+        "UNITTYPE_Economy",
+        "UNITTYPE_Custom2"
+    ],
+    "recon": {
+        "observer": {
+            "items": [
+                {
+                    "layer": "surface_and_air",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 100
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 100
+                }
+            ]
+        }
+    },
+    "model": [
+        {
+      
+            "filename": "/pa/units/structure/bug_basic_energy/bug_energy_plant.papa"
+            
+        }
+    ],
+    "fx_offsets": [
+        {
+          "type": "idle",
+          "filename": "/pa/units/structure/bug_basic_energy/sphere_arcs.pfx",
+          "bone": "bone_socket",
+          "offset": [
+            0.0,
+            0.0,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ]
+        }
+
+      ],
+    "events": {
+        "build_complete": {
+            "audio_cue": "/SE/Build_Complete/energy"
+        },
+        "died": {
+            "effect_spec": "/pa/effects/specs/bug_building_explosion.pfx",
+            "audio_cue": "/SE/Death/Factory",
+            "effect_scale": 0.5
+        }
+    },
+    "audio": {
+        "selection_response": {
+            "cue": "/SE/Selection/structure/energy"
+        }
+    },
+    "selection_icon": {
+        "diameter": 21.5
+    },
+    "mesh_bounds": [
+        10,
+        10,
+        11.3
+    ],
+    "placement_size": [
+        15,
+        15
+    ],
+    "TEMP_texelinfo": 15.8224,
+    "death": {
+        "decals": [
+          "/pa/decals/decal_bug_splat_big.json"
+        ]
+      }
+}

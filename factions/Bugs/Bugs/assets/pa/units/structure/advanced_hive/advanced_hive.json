@@ -1,0 +1,259 @@
+{
+    "display_name": "!LOC:Advanced Hive",
+    "description": "!LOC:Builds advanced bug units.",
+    "TEMP_texelinfo": 62.1789,
+    "area_build_separation": 3,
+    "atrophy_cool_down": 15.0,
+    "atrophy_rate": 80.0,
+    "audio": {
+      "loops": {
+        "build": {
+          "cue": "/SE/Construction/Factory_contruction_loop_veh",
+          "flag": "build_target_changed",
+          "should_start_func": "has_build_target",
+          "should_stop_func": "no_build_target"
+        }
+      }
+    },
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "build_metal_cost": 4800,
+    "buildable_types": "(Mobile & Land & FactoryBuild & Custom2)  - FabOrbBuild",
+    "command_caps": [
+      "ORDER_Move",
+      "ORDER_Patrol",
+      "ORDER_FactoryBuild",
+      "ORDER_Reclaim",
+      "ORDER_Repair",
+      "ORDER_Attack",
+      "ORDER_Assist",
+      "ORDER_Use"
+    ],
+    "events": {
+      "died": {
+        "effect_scale": 2.0,
+        "effect_spec": "/pa/effects/specs/bug_building_explosion.pfx"
+      }
+    },
+    "factory_cooldown_time": 3,
+    "fx_offsets": [
+      {
+        "bone": "bone_root",
+        "filename": "/pa/units/structure/advanced_hive/adv_tentacles.pfx",
+        "offset": [
+          0,
+          0,
+          0.2
+        ],
+        "orientation": [
+          0,
+          0,
+          0
+        ],
+        "type": "energy"
+      },
+      {
+        "bone": "bone_root",
+        "filename": "/pa/units/structure/advanced_hive/advanced_hive_pool.pfx",
+        "offset": [
+          0,
+          0,
+          7.6
+        ],
+        "orientation": [
+          0,
+          0,
+         0
+        ],
+        "type": "energy"
+      }
+    ],
+    "headlights": [
+      {
+        "color": [
+          1.5,
+          1.52,
+          1.6
+        ],
+        "debug": false,
+        "far_distance": 30.0,
+        "gobo": "/pa/effects/textures/gobo/spotlight_gobo.papa",
+        "near_distance": 15.0,
+        "near_height": 30.0,
+        "near_width": 30.0,
+        "offset": [
+          0.0,
+          0.0,
+          30.0
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "lamps": [
+      {
+        "color": [
+          0.1,
+          1.0,
+          0.1
+        ],
+        "intensity": 2.0,
+        "offset": [
+          18.671,
+          -17.929,
+          15.64
+        ],
+        "radius": 8.0
+      },
+      {
+        "color": [
+          0.1,
+          1.0,
+          0.1
+        ],
+        "intensity": 2.0,
+        "offset": [
+          22.812,
+          -17.929,
+          11.32
+        ],
+        "radius": 8.0
+      },
+      {
+        "color": [
+          0.1,
+          1.0,
+          0.1
+        ],
+        "intensity": 2.0,
+        "offset": [
+          18.671,
+          17.929,
+          15.64
+        ],
+        "radius": 8.0
+      },
+      {
+        "color": [
+          0.1,
+          1.0,
+          0.1
+        ],
+        "intensity": 2.0,
+        "offset": [
+          22.812,
+          17.929,
+          11.32
+        ],
+        "radius": 8.0
+      },
+      {
+        "color": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "intensity": 2.0,
+        "offset": [
+          -17.05,
+          25.28,
+          5.68
+        ],
+        "radius": 4.0
+      },
+      {
+        "color": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "intensity": 2.0,
+        "offset": [
+          -17.05,
+          -25.28,
+          5.68
+        ],
+        "radius": 4.0
+      }
+    ],
+    "max_health": 30000,
+    "mesh_bounds": [
+      60,
+      60,
+      25
+    ],
+    "model": [
+        {
+          "layer": "WL_LandHorizontal",
+          "filename": "/pa/units/structure/advanced_hive/advanced_hive.papa"
+         
+        },
+        {
+          "layer": "WL_WaterSurface",
+          "filename": "/pa/units/structure/advanced_hive/advanced_hive.papa"
+        
+        }
+      ],
+    "physics": {
+      "collision_layers": "WL_AnyHorizontalGroundOrWaterSurface"
+    },
+    "placement_size": [
+      70,
+      70
+    ],
+    "recon": {
+      "observer": {
+        "items": [
+          {
+            "channel": "sight",
+            "layer": "surface_and_air",
+            "radius": 100,
+            "shape": "capsule"
+          },
+          {
+            "channel": "sight",
+            "layer": "underwater",
+            "radius": 100,
+            "shape": "capsule"
+          }
+        ]
+      }
+    },
+    "rolloff_dirs": [
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        -1,
+        0
+      ]
+    ],
+    "selection_icon": {
+      "diameter": 74.0
+    },
+    "tools": [
+      {
+        "aim_bone": "Bone",
+        "spec_id": "/pa/units/land/vehicle_factory_adv/vehicle_factory_adv_build_arm.json"
+      }
+    ],
+  
+    "unit_types": [
+      "UNITTYPE_Factory",
+      "UNITTYPE_Construction",
+      "UNITTYPE_Land",
+      "UNITTYPE_Bot",
+      "UNITTYPE_Tank",
+      "UNITTYPE_Structure",
+      "UNITTYPE_Advanced",
+      "UNITTYPE_Important",
+      "UNITTYPE_FabBuild",
+      "UNITTYPE_Custom2"
+    ],
+    "wait_to_rolloff_time": 0
+  }

@@ -1,0 +1,114 @@
+{
+    "display_name": "!LOC:Tempest",
+    "description": "!LOC:Flak Bug - Damage over a wide area. Only attacks air targets.",
+    "si_name":"bug_adv_aa",
+    "TEMP_texelinfo": 9.31488,
+    "attachable": {
+      "offsets": {
+        "root": [
+          0,
+          0,
+          0
+        ],
+        "head": [
+          0,
+          0,
+          3.1
+        ]
+      }
+    },
+    "audio": {
+      "loops": {
+        "move": {
+          "cue": "/SE/Movement/veh/tank_heavy_mortar_loop_sheller_T2",
+          "flag": "vel_changed",
+          "should_start_func": "is_moving",
+          "should_stop_func": "is_not_moving"
+        }
+      }
+    },
+    "base_spec": "/pa/units/land/base_vehicle/base_vehicle.json",
+    "build_metal_cost": 750,
+    "events": {
+      "build_complete": {
+        "audio_cue": "/SE/Build_Complete/veh"
+      },
+      "died": {
+          "audio_cue": "/SE/Death/Bot",
+          "effect_spec": "/pa/units/land/bug_crusher/bug_explosion_large.pfx",
+          "effect_scale": 1.0
+      }
+    },
+    "guard_layer": "WL_AnySurface",
+    "max_health": 400,
+    "mesh_bounds": [
+      7,
+      7.5,
+      7
+    ],
+    "model": {
+      "filename": "/pa/units/land/bug_aa_big/bug_aa_big.papa",
+      "animtree": "/pa/anim/anim_trees/bipedal_mech_anim_tree.json",
+      "animations": {
+        "walk": "/pa/units/land/bug_aa_big/bug_aa_big_walk.papa",
+        "idle":"/pa/units/land/bug_aa_big/bug_aa_big_idle.papa"
+      },
+      "walk_speed": 7,
+      "arrows": 5
+    },
+    "navigation": {
+      "type": "land-small",
+      "acceleration": 100,
+      "brake": 100,
+      "move_speed": 12,
+      "turn_speed": 60,
+      "group_preference": "back"
+    },
+    "nearby_target_tick_update_interval": 15,
+    "physics": {
+      "radius": 6
+    },
+    "recon": {
+      "observer": {
+        "items": [
+          {
+            "layer": "surface_and_air",
+            "channel": "sight",
+            "shape": "capsule",
+            "radius": 140
+          }
+        ]
+      }
+    },
+    "selection_icon": {
+      "diameter": 14.0
+    },
+    "tools": [
+      {
+        "spec_id": "/pa/units/land/bug_aa_big/bug_aa_big_weapon.json",
+        "aim_bone": "bone_butt",
+        "projectiles_per_fire": 1,
+        "muzzle_bone": [
+          "socket_muzzle"
+        ]
+      }
+    ],
+    "transportable": {
+      "size": 1
+    },
+    "unit_types": [
+      "UNITTYPE_Tank",
+      "UNITTYPE_Mobile",
+      "UNITTYPE_Offense",
+      "UNITTYPE_AirDefense",
+      "UNITTYPE_Land",
+      "UNITTYPE_Advanced",
+      "UNITTYPE_FactoryBuild",
+      "UNITTYPE_Custom2"
+    ],
+    "death": {
+      "decals": [
+        "/pa/decals/decal_bug_splat_big.json"
+      ]
+    }
+  }

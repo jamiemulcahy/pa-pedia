@@ -1,0 +1,148 @@
+{
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "unit_name": "Advanced Radar",
+    "display_name": "!LOC:Bug Advanced Radar",
+    "si_name":"bug_radar_adv",
+    "description": "!LOC:Advanced Radar - Detects nearby enemy land, sea, and air units, has a stealth field",
+    "max_health": 1500,
+    "build_metal_cost": 2400,
+    "consumption": {
+        "energy": 6000
+    },
+    "energy_efficiency_requirement": 0.9,
+    "atrophy_rate": 80.0,
+    "atrophy_cool_down": 15.0,
+    "spawn_layers": "WL_AnySurface",
+    "area_build_type": "Sphere",
+    "area_build_separation": 200,
+    "unit_types": [
+        "UNITTYPE_Land",
+        "UNITTYPE_Structure",
+        "UNITTYPE_Advanced",
+        "UNITTYPE_Recon",
+        "UNITTYPE_FabAdvBuild",
+        "UNITTYPE_Radar",
+        "UNITTYPE_Custom2"
+    ],
+    "physics": {
+        "collision_layers": "WL_AnySurface"
+    },
+    "recon": {
+        "observer": {
+            "items": [
+                {
+                    "layer": "surface_and_air",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 300,
+                    "uses_energy": true
+                },
+                {
+                    "layer": "surface_and_air",
+                    "channel": "radar",
+                    "shape": "capsule",
+                    "radius": 900,
+                    "uses_energy": true
+                },
+                {
+                    "layer": "orbital",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 1200,
+                    "uses_energy": true
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 300,
+                    "uses_energy": true
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "radar",
+                    "shape": "capsule",
+                    "radius": 900,
+                    "uses_energy": true
+                },
+                {
+                    "layer": "surface_and_air",
+                    "channel": "radar_jammer",
+                    "shape": "capsule",
+                    "radius": 250,
+                    "uses_energy": true
+                  },
+                  {
+                    "layer": "underwater",
+                    "channel": "radar_jammer",
+                    "shape": "capsule",
+                    "radius": 250,
+                    "uses_energy": true
+                  }
+            ]
+        }
+    },
+    "model": [
+        {
+            "layer": "WL_LandHorizontal",
+            "filename": "/pa/units/structure/bug_radar_advanced/bugdar_adv.papa"
+        
+        },
+        {
+            "layer": "WL_WaterSurface",
+            "filename": "/pa/units/structure/bug_radar_advanced/bugdar_adv.papa"
+          
+        }
+    ],
+    "tools": [
+        {
+          "spec_id": "/pa/units/structure/bug_radar_advanced/bug_radar_advanced_dummy_weapon.json",
+          "aim_bone": "bone_root",
+          "muzzle_bone": [
+            "bone_root"
+          ]
+        }
+      ],
+    "events": {
+        "build_complete": {
+            "audio_cue": "/SE/Build_Complete/radar"
+        },
+        "died": {
+            "effect_spec": "/pa/effects/specs/bug_building_explosion.pfx",
+            "audio_cue": "/SE/Death/radar",
+            "effect_scale": 0.9
+        }
+    },
+    
+    "audio": {
+        "selection_response": {
+            "cue": "/SE/Selection/structure/radar"
+        }
+    },
+    "fx_offsets": [
+        {
+          "type": "energy",
+          "filename": "/pa/units/structure/bug_radar_advanced/bug_radar_large.pfx",
+          "bone": "bone_root",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "orientation": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+    "selection_icon": {
+        "diameter": 22.0
+    },
+    "mesh_bounds": [
+        8.58559,
+        7.71255,
+        29
+    ],
+    "TEMP_texelinfo": 16.9774
+}

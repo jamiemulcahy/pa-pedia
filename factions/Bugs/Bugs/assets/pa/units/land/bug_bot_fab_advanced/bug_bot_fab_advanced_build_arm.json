@@ -1,0 +1,15 @@
+{
+    "base_spec": "/pa/tools/engineer_build_arm/engineer_build_arm.json",
+    "assist_layers": [
+      "WL_Orbital",
+      "WL_AnyHorizontalGroundOrWaterSurface",
+      "WL_Air",
+      "WL_Underwater"
+    ],
+    "construction_demand": {
+      "energy": 1900,
+      "metal": 50
+    },
+    "pitch_rate": 180,
+    "yaw_rate": 180
+  }
