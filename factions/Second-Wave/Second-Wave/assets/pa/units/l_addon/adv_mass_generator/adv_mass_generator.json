@@ -1,0 +1,341 @@
+{
+    "base_spec": "/pa/units/land/base_structure/base_structure.json",
+    "unit_name": "Advanced Mass Generator",
+    "si_name": "l_adv_mass_generator",
+    "display_name": "!LOC:Advanced Mass Generator",
+    "description": "!LOC:Advanced Mass Generator - Produces metal, but takes much longer than mass extractors to pay for itself.",
+    "strategic_icon_priority": 5,
+    "max_health": 5000,
+    "build_metal_cost": 5000,
+    "atrophy_rate": 55.0,
+    "atrophy_cool_down": 15.0,
+    "spawn_layers": "WL_AnyHorizontalGroundOrWaterSurface",
+    "production": {
+        "metal": 20
+    },
+    "unit_types": [
+        "UNITTYPE_Structure",
+        "UNITTYPE_Advanced",
+        "UNITTYPE_MetalProduction",
+        "UNITTYPE_FabAdvBuild",
+        "UNITTYPE_Economy",
+        "UNITTYPE_Custom1"
+    ],
+    "recon": {
+        "observer": {
+            "items": [
+                {
+                    "layer": "surface_and_air",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 100
+                },
+                {
+                    "layer": "underwater",
+                    "channel": "sight",
+                    "shape": "capsule",
+                    "radius": 100
+                }
+            ]
+        }
+    },
+    "model": [
+        {
+            "filename": "/pa/units/l_addon/adv_mass_generator/adv_mass_generator.papa",
+            "animations": {
+                "start": "/pa/units/l_addon/adv_mass_generator/adv_mass_generator.papa",
+                "loop": "/pa/units/l_addon/adv_mass_generator/adv_mass_generator_anim_loop.papa",
+                "end": "/pa/units/l_addon/adv_mass_generator/adv_mass_generator.papa"
+            },
+            "animtree": "/pa/anim/anim_trees/powered_loop_anim_tree.json",
+            "skirt_decal": "/pa/units/l_addon/adv_mass_generator/skirt/skirt_adv_mass_generator.json"
+        }
+    ],
+    "death_weapon": {
+        "ground_ammo_spec": "/pa/units/addon/adv_metal_generator/adv_metal_generator_boom_ammo.json"
+    },
+    "tools": [
+        {
+            "spec_id": "/pa/units/addon/adv_metal_generator/death_range.json",
+            "aim_bone": "bone_root",
+            "muzzle_bone": "bone_root"
+        }
+    ],
+    "events": {
+        "build_complete": {
+            "audio_cue": "/SE/Build_Complete/metal"
+        },
+        "died": {
+            "audio_cue": "/SE/Death/Factory",
+            "effect_scale": 0.8
+        }
+    },
+    "audio": {
+        "selection_response": {
+            "cue": "/SE/Selection/structure/metal"
+        }
+    },
+    "lamps": [],
+	"headlights": [
+        {
+            "gobo": "/pa/effects/textures/gobo/spotlight_gobo.papa",
+            "offset": [
+                11.8,
+                11.8,
+                2.6
+            ],
+            "orientation": [
+                26.33,
+                -23.93,
+                -50.68
+            ],
+            "near_width": 8,
+            "near_height": 8,
+            "near_distance": 2.5,
+            "far_distance": 50.0,
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "intensity": 3
+        },
+        {
+            "gobo": "/pa/effects/textures/gobo/spotlight_gobo.papa",
+            "offset": [
+                -11.8,
+                11.8,
+                2.6
+            ],
+            "orientation": [
+                -26.34,
+                -23.93,
+                50.67
+            ],
+            "near_width": 8,
+            "near_height": 8,
+            "near_distance": 2.5,
+            "far_distance": 50.0,
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "intensity": 3
+        },
+        {
+            "gobo": "/pa/effects/textures/gobo/spotlight_gobo.papa",
+            "offset": [
+                11.8,
+                -11.8,
+                2.6
+            ],
+            "orientation": [
+                26.33,
+                23.92,
+                -129.32
+            ],
+            "near_width": 8,
+            "near_height": 8,
+            "near_distance": 2.5,
+            "far_distance": 50.0,
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "intensity": 3
+        },
+        {
+            "gobo": "/pa/effects/textures/gobo/spotlight_gobo.papa",
+            "offset": [
+                -11.8,
+                -11.8,
+                2.6
+            ],
+            "orientation": [
+                -26.34,
+                23.92,
+                129.31
+            ],
+            "near_width": 8,
+            "near_height": 8,
+            "near_distance": 2.5,
+            "far_distance": 50.0,
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "intensity": 3
+        }
+    ],
+    "fx_offsets": [
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_smoke.json",
+			"bone": "bone_root",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				0,
+				0
+			]
+        },
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_main_laser.json",
+			"bone": "bone_root",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				0,
+				0
+			]
+        },
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_laser.json",
+			"bone": "socket_beam_1",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				90,
+				0
+			]
+        },
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_laser.json",
+			"bone": "socket_beam_2",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				90,
+				0
+			]
+        },
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_laser.json",
+			"bone": "socket_beam_3",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				90,
+				0
+			]
+        },
+		{
+			"type": "energy",
+			"filename": "/pa/units/l_addon/adv_mass_generator/pfx_laser.json",
+			"bone": "socket_beam_4",
+			"offset": [
+				0,
+				0,
+				0
+			],
+			"orientation": [
+				0,
+				90,
+				0
+			]
+        }
+	],
+    "selection_icon": {
+        "diameter": -45.0
+    },
+    "mesh_bounds": [
+        20,
+        35,
+        26
+    ],
+    "placement_size": [
+        38,
+        38
+    ],
+    "area_build_separation": 12.0,
+    "alt_area_build_type": "Sphere",
+    "alt_area_build_separation": 2,
+    "alt_area_build_pattern": [
+        [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        ]
+    ],
+    "TEMP_texelinfo": 15.0
+}
