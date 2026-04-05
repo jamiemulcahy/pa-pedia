@@ -159,6 +159,15 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		profile.Version = versionFlag
 	}
 
+	// Auto-detect version from version.txt for base game factions (no mods)
+	// Priority: --version flag > profile.Version > version.txt > mod version > error
+	if profile.Version == "" && len(profile.Mods) == 0 && paRoot != "" {
+		if detected := detectPAVersion(paRoot); detected != "" {
+			logVerbose("Auto-detected PA version from game files: %s", detected)
+			profile.Version = detected
+		}
+	}
+
 	// Validate --pa-root
 	if paRoot == "" {
 		return fmt.Errorf("--pa-root is required")
@@ -497,4 +506,27 @@ func copyBackgroundImage(profile *models.FactionProfile, factionDir string, exp 
 
 	logVerbose("Copied background image: %s -> %s", profile.BackgroundImage, dstPath)
 	return nil
+}
+
+// detectPAVersion tries to read the PA build version from version.txt or build.txt.
+// PA stores these files in the install root (parent of the media/ directory).
+// When using extracted base data, the file may be at paRoot directly.
+func detectPAVersion(paRoot string) string {
+	parentDir := filepath.Dir(paRoot)
+	candidates := []string{
+		filepath.Join(parentDir, "version.txt"),
+		filepath.Join(parentDir, "build.txt"),
+		filepath.Join(paRoot, "version.txt"),
+		filepath.Join(paRoot, "build.txt"),
+	}
+	for _, candidate := range candidates {
+		data, err := os.ReadFile(candidate)
+		if err == nil {
+			version := strings.TrimSpace(string(data))
+			if version != "" {
+				return version
+			}
+		}
+	}
+	return ""
 }
