@@ -4,6 +4,7 @@ import { StatRow } from '../StatRow';
 import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { isDifferent } from '@/utils/comparison';
+import { formatTargetLayers } from '@/utils/targetLayers';
 import type { Weapon } from '@/types/faction';
 
 interface WeaponSectionProps {
@@ -37,11 +38,7 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const effectiveDps = weapon.sustainedDps ?? weapon.dps;
   const compareEffectiveDps = compareWeapon?.sustainedDps ?? compareWeapon?.dps;
 
-  // Format target layers
-  const formatTargetLayers = (layers?: string[]) => {
-    if (!layers || layers.length === 0) return undefined;
-    return layers.join(', ');
-  };
+
 
   // Extract weapon ID from resource name (last part after last slash)
   const weaponId = weapon.resourceName.split('/').pop() || weapon.resourceName;

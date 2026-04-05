@@ -237,4 +237,194 @@ describe('OverviewSection', () => {
       expect(screen.getByText('(+10)')).toBeInTheDocument()
     })
   })
+
+  describe('per-layer DPS breakdown', () => {
+    const multiLayerUnit: Unit = {
+      id: 'commander',
+      resourceName: '/pa/units/commanders/commander.json',
+      displayName: 'Commander',
+      description: 'Commander unit',
+      unitTypes: ['Commander'],
+      tier: 1,
+      accessible: true,
+      specs: {
+        combat: {
+          health: 10000,
+          dps: 230,
+          weapons: [
+            {
+              resourceName: '/pa/units/commanders/commander_weapon.json',
+              safeName: 'commander_weapon',
+              name: 'Uber Cannon',
+              count: 1,
+              rateOfFire: 1,
+              damage: 150,
+              maxRange: 100,
+              dps: 150,
+              targetLayers: ['LandHorizontal', 'WaterSurface', 'Air'],
+            },
+            {
+              resourceName: '/pa/units/commanders/commander_aa.json',
+              safeName: 'commander_aa',
+              name: 'AA Gun',
+              count: 1,
+              rateOfFire: 2,
+              damage: 40,
+              maxRange: 80,
+              dps: 80,
+              targetLayers: ['Air'],
+            },
+          ],
+        },
+        economy: {
+          buildCost: 0,
+        },
+      },
+    }
+
+    const singleLayerUnit: Unit = {
+      id: 'fighter',
+      resourceName: '/pa/units/air/fighter/fighter.json',
+      displayName: 'Fighter',
+      description: 'Air fighter',
+      unitTypes: ['Mobile', 'Air', 'Basic'],
+      tier: 1,
+      accessible: true,
+      specs: {
+        combat: {
+          health: 200,
+          dps: 60,
+          weapons: [
+            {
+              resourceName: '/pa/units/air/fighter/fighter_weapon.json',
+              safeName: 'fighter_weapon',
+              name: 'Air Laser',
+              count: 1,
+              rateOfFire: 2,
+              damage: 30,
+              maxRange: 80,
+              dps: 60,
+              targetLayers: ['Air'],
+            },
+          ],
+        },
+        economy: {
+          buildCost: 300,
+        },
+      },
+    }
+
+    it('should show per-layer DPS when unit has weapons targeting multiple layers', () => {
+      renderOverviewSection(multiLayerUnit)
+
+      // Commander: 150 DPS vs Land/Sea/Air + 80 DPS vs Air
+      expect(screen.getByText('vs Land:')).toBeInTheDocument()
+      expect(screen.getByText('vs Sea:')).toBeInTheDocument()
+      expect(screen.getByText('vs Air:')).toBeInTheDocument()
+    })
+
+    it('should show per-layer DPS even when all weapons target the same single layer', () => {
+      renderOverviewSection(singleLayerUnit)
+
+      // Even with one layer, it tells the user what domain this unit can hit
+      expect(screen.getByText('vs Air:')).toBeInTheDocument()
+    })
+
+    it('should show per-layer DPS even when all layers have the same DPS', () => {
+      // Unit with one weapon targeting Land and Sea — same DPS for both layers
+      const sameLayerDpsUnit: Unit = {
+        id: 'ant',
+        resourceName: '/pa/units/land/tank/tank.json',
+        displayName: 'Ant',
+        description: 'Basic tank',
+        unitTypes: ['Mobile', 'Land', 'Basic'],
+        tier: 1,
+        accessible: true,
+        specs: {
+          combat: {
+            health: 250,
+            dps: 46.2,
+            weapons: [
+              {
+                resourceName: '/pa/units/land/tank/weapon.json',
+                safeName: 'tank_weapon',
+                name: 'Tank Laser',
+                count: 1,
+                rateOfFire: 0.6,
+                damage: 77,
+                maxRange: 100,
+                dps: 46.2,
+                targetLayers: ['LandHorizontal', 'WaterSurface'],
+              },
+            ],
+          },
+          economy: { buildCost: 150 },
+        },
+      }
+      renderOverviewSection(sameLayerDpsUnit)
+
+      // Shows which domains the unit can hit, even when DPS is the same
+      expect(screen.getByText('vs Land:')).toBeInTheDocument()
+      expect(screen.getByText('vs Sea:')).toBeInTheDocument()
+    })
+
+    it('should calculate correct per-layer DPS values', () => {
+      renderOverviewSection(multiLayerUnit)
+
+      // Find the vs Land row (the StatRow div with justify-between) and check value
+      const landLabel = screen.getByText('vs Land:')
+      const landRow = landLabel.closest('[class*="justify-between"]')!
+      expect(landRow.textContent).toContain('150')
+
+      // Find the vs Air row and check it shows 230 (150 + 80)
+      const airLabel = screen.getByText('vs Air:')
+      const airRow = airLabel.closest('[class*="justify-between"]')!
+      expect(airRow.textContent).toContain('230')
+    })
+
+    it('should show per-layer comparison diffs', () => {
+      const compareMultiLayer: Unit = {
+        ...multiLayerUnit,
+        id: 'commander2',
+        specs: {
+          ...multiLayerUnit.specs,
+          combat: {
+            health: 10000,
+            dps: 300,
+            weapons: [
+              {
+                ...multiLayerUnit.specs.combat.weapons![0],
+                dps: 200,
+              },
+              {
+                ...multiLayerUnit.specs.combat.weapons![1],
+                dps: 100,
+              },
+            ],
+          },
+        },
+      }
+
+      renderOverviewSection(multiLayerUnit, compareMultiLayer)
+
+      // vs Land: 150 vs 200 = -50
+      const landLabel = screen.getByText('vs Land:')
+      const landRow = landLabel.closest('[class*="justify-between"]')!
+      expect(landRow.textContent).toContain('(-50)')
+
+      // vs Air: 230 vs 300 = -70
+      const airLabel = screen.getByText('vs Air:')
+      const airRow = airLabel.closest('[class*="justify-between"]')!
+      expect(airRow.textContent).toContain('(-70)')
+    })
+
+    it('should show per-layer breakdown when comparison has different layers', () => {
+      // Compare multi-layer (Land, Sea, Air) vs single-layer (Air only)
+      // Should show breakdown because combined layers > 1
+      renderOverviewSection(multiLayerUnit, singleLayerUnit)
+
+      expect(screen.getByText('vs Land:')).toBeInTheDocument()
+      expect(screen.getByText('vs Air:')).toBeInTheDocument()
+    })
+  })
 })

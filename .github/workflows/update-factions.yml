@@ -91,11 +91,9 @@ jobs:
       - name: Validate base data (MLA golden test)
         run: |
           echo "Running MLA golden test..."
-          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           /tmp/pa-pedia describe-faction \
             --profile mla \
             --pa-root /tmp/pa-media \
-            --version "$PA_BUILD" \
             --output /tmp/golden-test
 
           # Compare units.json (sorted keys for stable comparison)
@@ -137,23 +135,15 @@ jobs:
 
       - name: Regenerate faction data
         run: |
-          PA_BUILD="${{ steps.base-data.outputs.pa_build }}"
           for profile in ${{ steps.profiles.outputs.profiles }}; do
             echo "========================================="
             echo "Processing: $profile"
             echo "========================================="
 
-            # MLA needs explicit version (base game has no modinfo.json)
-            VERSION_FLAG=""
-            if [ "$profile" = "mla" ]; then
-              VERSION_FLAG="--version $PA_BUILD"
-            fi
-
             /tmp/pa-pedia describe-faction \
               --profile "$profile" \
               --pa-root /tmp/pa-media \
-              --output ./factions \
-              $VERSION_FLAG
+              --output ./factions
             echo ""
           done
 
@@ -181,13 +171,20 @@ jobs:
           # Reset staging area — we'll selectively stage per faction
           git reset HEAD
 
+          # Save regenerated faction data to temp dir (working tree changes are
+          # lost when switching branches, so we need to preserve them)
+          REGEN_DIR=$(mktemp -d)
+          for FACTION_DIR in $CHANGED_FACTIONS; do
+            cp -r "factions/$FACTION_DIR" "$REGEN_DIR/$FACTION_DIR"
+          done
+
           for FACTION_DIR in $CHANGED_FACTIONS; do
             echo ""
             echo "========================================="
             echo "Processing PR for: $FACTION_DIR"
             echo "========================================="
 
-            META="factions/$FACTION_DIR/metadata.json"
+            META="$REGEN_DIR/$FACTION_DIR/metadata.json"
             if [ ! -f "$META" ]; then
               echo "Warning: No metadata.json for $FACTION_DIR, skipping"
               continue
@@ -212,7 +209,7 @@ jobs:
             git checkout -B "$BRANCH" origin/main
 
             # Copy regenerated faction data onto this branch
-            git checkout - -- "factions/$FACTION_DIR/"
+            cp -r "$REGEN_DIR/$FACTION_DIR/" "factions/$FACTION_DIR/"
             git add "factions/$FACTION_DIR/"
 
             # Check there are actually staged changes

@@ -10,6 +10,7 @@ import type {
   AggregatedWeapon,
   WeaponSource,
 } from '@/types/group'
+import { calculateGroupDpsByLayer } from '@/utils/targetLayers'
 
 /**
  * Generate a key for grouping "same" weapons.
@@ -43,6 +44,9 @@ function aggregateWeapons(
     const weaponSustainedDps = weapon.sustainedDps !== undefined
       ? weapon.sustainedDps * (weapon.count ?? 1) * quantity
       : undefined
+    const weaponBurnDps = weapon.burnDps !== undefined && weapon.burnDps > 0
+      ? weapon.burnDps * (weapon.count ?? 1) * quantity
+      : undefined
     const weaponDamage = (weapon.damage ?? 0) * (weapon.count ?? 1) * quantity
 
     const source: WeaponSource = {
@@ -57,6 +61,9 @@ function aggregateWeapons(
       existing.totalDps += weaponDps
       if (weaponSustainedDps !== undefined) {
         existing.totalSustainedDps = (existing.totalSustainedDps ?? 0) + weaponSustainedDps
+      }
+      if (weaponBurnDps !== undefined) {
+        existing.totalBurnDps = (existing.totalBurnDps ?? 0) + weaponBurnDps
       }
       existing.totalDamage += weaponDamage
 
@@ -85,6 +92,7 @@ function aggregateWeapons(
         totalCount: weaponCount,
         totalDps: weaponDps,
         totalSustainedDps: weaponSustainedDps,
+        totalBurnDps: weaponBurnDps,
         totalDamage: weaponDamage,
         maxRange: weapon.maxRange,
         rateOfFire: weapon.rateOfFire,
@@ -282,6 +290,9 @@ export function aggregateGroupStats(
     )
   }
 
+  // Calculate per-layer DPS from aggregated weapons
+  const dpsByLayer = calculateGroupDpsByLayer(weapons)
+
   return {
     totalHp,
     totalBuildCost,
@@ -313,6 +324,7 @@ export function aggregateGroupStats(
     anyHover,
     allHover,
     weapons,
+    dpsByLayer: Object.keys(dpsByLayer).length > 0 ? dpsByLayer : undefined,
     allTargetLayers: Array.from(targetLayerSet).sort(),
     allBuilds: Array.from(buildsSet).sort(),
     buildRateByUnit,

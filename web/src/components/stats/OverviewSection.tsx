@@ -5,6 +5,8 @@ import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { SpawnUnitLink } from './SpawnUnitLink';
 import { isDifferent } from '@/utils/comparison';
+import { calculateDpsByLayer, getSortedLayers, formatLayerName } from '@/utils/targetLayers';
+import type { DpsByLayer } from '@/utils/targetLayers';
 import type { Unit } from '@/types/faction';
 import type { AggregatedGroupStats } from '@/types/group';
 
@@ -110,6 +112,24 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
     if (compareUnit.specs.special?.amphibious) compareBuildLocations.push('water');
   }
 
+  // Per-layer DPS breakdown
+  const dpsByLayer: DpsByLayer = isGroupMode
+    ? (groupStats?.dpsByLayer ?? {})
+    : calculateDpsByLayer(unit?.specs.combat.weapons);
+  const compareDpsByLayer: DpsByLayer = isGroupMode
+    ? (compareGroupStats?.dpsByLayer ?? {})
+    : calculateDpsByLayer(compareUnit?.specs.combat.weapons);
+
+  // Show layer breakdown whenever any target layers exist — tells the user
+  // which domains the unit can damage, even if all layers have the same DPS
+  const sortedLayers = getSortedLayers(dpsByLayer);
+  const compareSortedLayers = getSortedLayers(compareDpsByLayer);
+  const allLayers = [...new Set([...sortedLayers, ...compareSortedLayers])];
+  const sortedAllLayers = getSortedLayers(
+    Object.fromEntries(allLayers.map(l => [l, { burst: 0, sustained: 0, burn: 0 }]))
+  );
+  const showLayerBreakdown = sortedLayers.length > 0 || compareSortedLayers.length > 0;
+
   const hasCompare = !!compareUnit || !!compareGroupStats;
 
   // Check which rows have differences
@@ -214,6 +234,48 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
           }
         />
       )}
+
+      {/* Per-layer DPS breakdown */}
+      {showLayerBreakdown && dps !== undefined && dps > 0 && sortedAllLayers.map(layer => {
+        const layerData = dpsByLayer[layer];
+        const compareLayerData = compareDpsByLayer[layer];
+        if (!layerData && !compareLayerData) return null;
+
+        // Use sustained if this layer has it, otherwise burst
+        const layerHasSustained = layerData
+          ? layerData.sustained !== layerData.burst
+          : false;
+        const effectiveLayerDps = layerData
+          ? (layerHasSustained ? layerData.sustained : layerData.burst)
+          : 0;
+
+        const compareLayerHasSustained = compareLayerData
+          ? compareLayerData.sustained !== compareLayerData.burst
+          : false;
+        const compareEffectiveLayerDps = compareLayerData
+          ? (compareLayerHasSustained ? compareLayerData.sustained : compareLayerData.burst)
+          : undefined;
+
+        const layerDiff = isDifferent(effectiveLayerDps, compareEffectiveLayerDps);
+        if (!showRow(layerDiff)) return null;
+
+        return (
+          <StatRow
+            key={`dps-layer-${layer}`}
+            label={`vs ${formatLayerName(layer)}`}
+            tooltip={`Effective DPS against ${formatLayerName(layer).toLowerCase()} targets`}
+            className="pl-4 text-sm"
+            value={
+              <ComparisonValue
+                value={Number(effectiveLayerDps.toFixed(1))}
+                compareValue={compareEffectiveLayerDps !== undefined ? Number(compareEffectiveLayerDps.toFixed(1)) : undefined}
+                comparisonType="higher-better"
+                hideDiff={hideDiff}
+              />
+            }
+          />
+        );
+      })}
 
       {salvoDamage !== undefined && salvoDamage > 0 && showRow(salvoDiff) && (
         <StatRow

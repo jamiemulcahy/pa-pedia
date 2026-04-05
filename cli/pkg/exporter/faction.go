@@ -736,7 +736,7 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 	} else if primaryMod != nil && primaryMod.Version != "" {
 		metadata.Version = primaryMod.Version
 	} else {
-		return models.FactionMetadata{}, fmt.Errorf("no version found for faction '%s'\n\nVersion could not be auto-detected from the mod's modinfo.json.\nPlease specify a version using one of these methods:\n  1. Add \"version\" field to the faction profile\n  2. Use --version flag: pa-pedia describe-faction --version \"1.2.3\" ...", profile.DisplayName)
+		return models.FactionMetadata{}, fmt.Errorf("no version found for faction '%s'\n\nVersion could not be auto-detected from modinfo.json or version.txt.\nPlease specify a version using one of these methods:\n  1. Add \"version\" field to the faction profile\n  2. Use --version flag: pa-pedia describe-faction --version \"1.2.3\" ...\n  3. Ensure version.txt exists in or near the --pa-root directory", profile.DisplayName)
 	}
 
 	// Author: profile > primary mod > empty

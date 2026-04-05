@@ -97,6 +97,50 @@ test.describe('Unit Detail page', () => {
     })
   })
 
+  test.describe('Per-layer DPS breakdown', () => {
+    test('commander shows per-layer DPS when weapons target different layers', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.BASE_GAME.id}/unit/test_commander`)
+      await waitForUnitLoad(page)
+
+      // Commander has weapons targeting Land, Sea, Seafloor, and Air with different DPS per layer
+      // Should show per-layer breakdown
+      await expect(page.getByText('vs Land:')).toBeVisible()
+      await expect(page.getByText('vs Air:')).toBeVisible()
+      await expect(page.getByText('vs Seafloor:')).toBeVisible()
+    })
+
+    test('single-layer unit shows its target layer', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.BASE_GAME.id}/unit/test_fighter`)
+      await waitForUnitLoad(page)
+
+      // Fighter only targets Air — still shows layer so user knows what it can hit
+      await expect(page.getByText('DPS:')).toBeVisible()
+      await expect(page.getByText('vs Air:')).toBeVisible()
+    })
+
+    test('same-DPS-across-layers unit still shows per-layer breakdown', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank`)
+      await waitForUnitLoad(page)
+
+      // Tank targets Land and Sea — shows both layers
+      await expect(page.getByText('DPS:')).toBeVisible()
+      await expect(page.getByText('vs Land:')).toBeVisible()
+      await expect(page.getByText('vs Sea:')).toBeVisible()
+    })
+
+    test('weapon sections show human-readable target layer names', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.BASE_GAME.id}/unit/test_commander`)
+      await waitForUnitLoad(page)
+
+      // Scroll to see weapon sections
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+      await page.waitForTimeout(500)
+
+      // Weapon should show "Targets: Land, Sea, Seafloor" instead of raw names
+      await expect(page.getByText('Land, Sea, Seafloor').first()).toBeVisible()
+    })
+  })
+
   test.describe('Breadcrumb navigation', () => {
     test('breadcrumb shows navigation area', async ({ page }) => {
       await page.goto(`/faction/${FACTIONS.BASE_GAME.id}/unit/test_tank`)
