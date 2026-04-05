@@ -74,6 +74,11 @@ func ParseWeapon(l *loader.Loader, resourceName string, baseWeapon *models.Weapo
 			weapon.SplashDamage = ammo.SplashDamage
 			weapon.SplashRadius = ammo.SplashRadius
 			weapon.FullDamageRadius = ammo.FullDamageRadius
+			weapon.BurnDamage = ammo.BurnDamage
+			weapon.BurnRadius = ammo.BurnRadius
+			if ammo.BurnDamage > 0 && ammo.BurnDuration > 0 {
+				weapon.BurnDPS = math.Round(ammo.BurnDamage/ammo.BurnDuration*100) / 100
+			}
 		}
 	}
 
@@ -248,6 +253,11 @@ func ParseAmmo(l *loader.Loader, resourceName string, baseAmmo *models.Ammo) (*m
 	// Parse spawn unit on death (ammo-level)
 	ammo.SpawnUnitOnDeath = loader.GetString(data, "spawn_unit_on_death", ammo.SpawnUnitOnDeath)
 	ammo.SpawnUnitOnDeathWithVelocity = loader.GetBool(data, "spawn_unit_on_death_with_velocity", ammo.SpawnUnitOnDeathWithVelocity)
+
+	// Parse burn damage fields
+	ammo.BurnDamage = loader.GetFloat(data, "burn_damage", ammo.BurnDamage)
+	ammo.BurnRadius = loader.GetFloat(data, "burn_radius", ammo.BurnRadius)
+	ammo.BurnDuration = loader.GetFloat(data, "burn_duration", ammo.BurnDuration)
 
 	return ammo, nil
 }

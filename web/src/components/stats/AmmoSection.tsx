@@ -76,10 +76,14 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const muzzleVelDiff = isDifferent(ammo.muzzleVelocity, compareAmmo?.muzzleVelocity);
   const maxVelDiff = isDifferent(ammo.maxVelocity, compareAmmo?.maxVelocity);
   const spawnDiff = isDifferent(ammo.spawnUnitOnDeath, compareAmmo?.spawnUnitOnDeath);
+  const burnDamageDiff = isDifferent(ammo.burnDamage, compareAmmo?.burnDamage);
+  const burnRadiusDiff = isDifferent(ammo.burnRadius, compareAmmo?.burnRadius);
+  const burnDurationDiff = isDifferent(ammo.burnDuration, compareAmmo?.burnDuration);
 
   // In diff mode with compare ammo, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !compareAmmo ||
-    damageDiff || splashDamageDiff || splashRadiusDiff || fullDamageRadiusDiff || muzzleVelDiff || maxVelDiff || spawnDiff;
+    damageDiff || splashDamageDiff || splashRadiusDiff || fullDamageRadiusDiff || muzzleVelDiff || maxVelDiff || spawnDiff ||
+    burnDamageDiff || burnRadiusDiff || burnDurationDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -164,6 +168,49 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
             ))}
           </div>
         </div>
+      )}
+      {ammo.burnDamage !== undefined && ammo.burnDamage > 0 && showRow(burnDamageDiff) && (
+        <StatRow
+          label="Burn damage"
+          tooltip="Total damage dealt over time in the burn area"
+          value={
+            <ComparisonValue
+              value={ammo.burnDamage}
+              compareValue={compareAmmo?.burnDamage}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {ammo.burnRadius !== undefined && ammo.burnRadius > 0 && showRow(burnRadiusDiff) && (
+        <StatRow
+          label="Burn radius"
+          tooltip="Radius of the burn damage area"
+          value={
+            <ComparisonValue
+              value={ammo.burnRadius}
+              compareValue={compareAmmo?.burnRadius}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {ammo.burnDuration !== undefined && ammo.burnDuration > 0 && showRow(burnDurationDiff) && (
+        <StatRow
+          label="Burn duration"
+          tooltip="How long the burn effect lasts"
+          value={
+            <ComparisonValue
+              value={Number(ammo.burnDuration.toFixed(1))}
+              compareValue={compareAmmo?.burnDuration ? Number(compareAmmo.burnDuration.toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              suffix="s"
+              hideDiff={hideDiff}
+            />
+          }
+        />
       )}
       {ammo.muzzleVelocity !== undefined && showRow(muzzleVelDiff) && (
         <StatRow

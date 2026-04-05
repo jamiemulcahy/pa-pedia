@@ -73,10 +73,14 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
   const ammoRechargeDiff = isDifferent(weapon.ammoRechargeTime, compareWeapon?.ammoRechargeTime);
   const metalShotDiff = isDifferent(weapon.metalPerShot, compareWeapon?.metalPerShot);
   const energyShotDiff = isDifferent(weapon.energyPerShot, compareWeapon?.energyPerShot);
+  const burnDpsDiff = isDifferent(
+    weapon.burnDps ? weapon.burnDps * count : undefined,
+    compareWeapon?.burnDps ? compareWeapon.burnDps * compareCount : undefined
+  );
 
   // In diff mode with compare weapon, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !compareWeapon ||
-    rangeDiff || projDiff || damageDiff || rofDiff || dpsDiff || sustainedDpsDiff ||
+    rangeDiff || projDiff || damageDiff || rofDiff || dpsDiff || sustainedDpsDiff || burnDpsDiff ||
     yawDiff || pitchDiff || targetsDiff || ammoSourceDiff || ammoCapDiff ||
     storedShotsDiff || ammoDrainDiff || ammoRechargeDiff || metalShotDiff || energyShotDiff;
 
@@ -191,6 +195,20 @@ export const WeaponSection: React.FC<WeaponSectionProps> = ({ weapon, compareWea
             />
           )}
         </>
+      )}
+      {weapon.burnDps !== undefined && weapon.burnDps > 0 && showRow(burnDpsDiff) && (
+        <StatRow
+          label="DPS (Burn)"
+          tooltip="Burn damage per second — applied as damage over time in the burn radius"
+          value={
+            <ComparisonValue
+              value={Number((weapon.burnDps * count).toFixed(1))}
+              compareValue={compareWeapon?.burnDps ? Number((compareWeapon.burnDps * compareCount).toFixed(1)) : undefined}
+              comparisonType="higher-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
       )}
       {weapon.yawRange !== undefined && showRow(yawDiff) && (
         <StatRow label="Yaw" value={`${weapon.yawRange}° at ${weapon.yawRate}° per second`} />

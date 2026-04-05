@@ -288,6 +288,7 @@ func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]i
 	if weapon.AmmoSource == "factory" && len(buildableProjectiles) > 0 {
 		var parsedAmmos []models.Ammo
 		var maxDamage, maxSplashDamage, maxSplashRadius, maxFullDamageRadius, maxMuzzleVelocity float64
+		var maxBurnDamage, maxBurnRadius, maxBurnDuration float64
 
 		for _, projectilePath := range buildableProjectiles {
 			ammo, err := ParseAmmo(l, projectilePath, nil)
@@ -310,6 +311,13 @@ func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]i
 				if ammo.MuzzleVelocity > maxMuzzleVelocity {
 					maxMuzzleVelocity = ammo.MuzzleVelocity
 				}
+				if ammo.BurnDamage > maxBurnDamage {
+					maxBurnDamage = ammo.BurnDamage
+					maxBurnDuration = ammo.BurnDuration
+				}
+				if ammo.BurnRadius > maxBurnRadius {
+					maxBurnRadius = ammo.BurnRadius
+				}
 			}
 		}
 
@@ -326,6 +334,11 @@ func parseWeaponWithOverrides(l *loader.Loader, specID string, tool map[string]i
 			weapon.SplashDamage = maxSplashDamage
 			weapon.SplashRadius = maxSplashRadius
 			weapon.FullDamageRadius = maxFullDamageRadius
+			weapon.BurnDamage = maxBurnDamage
+			weapon.BurnRadius = maxBurnRadius
+			if maxBurnDamage > 0 && maxBurnDuration > 0 {
+				weapon.BurnDPS = math.Round(maxBurnDamage/maxBurnDuration*100) / 100
+			}
 
 			// Recalculate DPS with max damage values
 			weapon.DPS = math.Round(weapon.ROF*maxDamage*float64(weapon.ProjectilesPerFire)*100) / 100

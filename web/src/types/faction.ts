@@ -57,6 +57,12 @@ export interface Ammo {
   metalCost?: number;
   spawnUnitOnDeath?: string;
   spawnUnitOnDeathWithVelocity?: boolean;
+  /** Total burn damage dealt over burn duration */
+  burnDamage?: number;
+  /** Radius of burn damage area */
+  burnRadius?: number;
+  /** Duration of burn effect in seconds */
+  burnDuration?: number;
 }
 
 export interface Weapon {
@@ -75,6 +81,12 @@ export interface Weapon {
   splashDamage?: number;
   splashRadius?: number;
   fullDamageRadius?: number;
+  /** Total burn damage dealt over burn duration */
+  burnDamage?: number;
+  /** Radius of burn damage area */
+  burnRadius?: number;
+  /** Burn damage per second (burnDamage / burnDuration) */
+  burnDps?: number;
   /** Weapon triggers on unit self-destruct command (e.g., boom bot) */
   selfDestruct?: boolean;
   /** Weapon triggers on unit death (e.g., commander nuke, titan explosions) */

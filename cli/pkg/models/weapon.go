@@ -24,6 +24,11 @@ type Weapon struct {
 	SplashRadius     float64 `json:"splashRadius,omitempty" jsonschema:"description=Splash damage radius"`
 	FullDamageRadius float64 `json:"fullDamageRadius,omitempty" jsonschema:"description=Radius where full splash damage applies"`
 
+	// Burn Damage (damage over time)
+	BurnDamage float64 `json:"burnDamage,omitempty" jsonschema:"description=Total burn damage dealt over burn duration"`
+	BurnRadius float64 `json:"burnRadius,omitempty" jsonschema:"description=Radius of burn damage area"`
+	BurnDPS    float64 `json:"burnDps,omitempty" jsonschema:"description=Burn damage per second (burnDamage / burnDuration)"`
+
 	// Special Flags
 	SelfDestruct   bool `json:"selfDestruct,omitempty" jsonschema:"description=Weapon triggers on unit self-destruct"`
 	DeathExplosion bool `json:"deathExplosion,omitempty" jsonschema:"description=Weapon triggers on unit death"`
@@ -73,6 +78,11 @@ type Ammo struct {
 	MetalCost                    float64 `json:"metalCost,omitempty" jsonschema:"description=Metal cost per projectile"`
 	SpawnUnitOnDeath             string  `json:"spawnUnitOnDeath,omitempty" jsonschema:"description=PA resource path of unit spawned when projectile ends"`
 	SpawnUnitOnDeathWithVelocity bool    `json:"spawnUnitOnDeathWithVelocity,omitempty" jsonschema:"description=Whether spawned unit inherits projectile velocity"`
+
+	// Burn Damage (damage over time)
+	BurnDamage   float64 `json:"burnDamage,omitempty" jsonschema:"description=Total burn damage dealt over burn duration"`
+	BurnRadius   float64 `json:"burnRadius,omitempty" jsonschema:"description=Radius of burn damage area"`
+	BurnDuration float64 `json:"burnDuration,omitempty" jsonschema:"description=Duration of burn effect in seconds"`
 }
 
 // BuildArm represents a construction tool
