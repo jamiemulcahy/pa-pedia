@@ -5,7 +5,7 @@ import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { SpawnUnitLink } from './SpawnUnitLink';
 import { isDifferent } from '@/utils/comparison';
-import { calculateDpsByLayer, calculateGroupDpsByLayer, getSortedLayers, formatLayerName } from '@/utils/targetLayers';
+import { calculateDpsByLayer, getSortedLayers, formatLayerName } from '@/utils/targetLayers';
 import type { DpsByLayer } from '@/utils/targetLayers';
 import type { Unit } from '@/types/faction';
 import type { AggregatedGroupStats } from '@/types/group';
