@@ -76,7 +76,7 @@ jobs:
           echo "pa_build=$BUILD" >> "$GITHUB_OUTPUT"
 
       # Build CLI
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: cli/go.mod
           cache-dependency-path: cli/go.sum
