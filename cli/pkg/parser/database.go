@@ -493,12 +493,19 @@ func (db *Database) GetUnitsArray() []models.Unit {
 		units = append(units, *unit)
 	}
 
-	// Sort by tier, then by display name
+	// Sort by tier, then by display name, then by ID for deterministic output.
+	// The ID tiebreaker is needed because sort.Slice is not stable and the input
+	// comes from map iteration (random order). Without it, units sharing the same
+	// tier and display name (e.g. bug_boomer/bug_boomer_r) swap between runs,
+	// causing spurious diffs in the update-factions workflow.
 	sort.Slice(units, func(i, j int) bool {
 		if units[i].Tier != units[j].Tier {
 			return units[i].Tier < units[j].Tier
 		}
-		return units[i].DisplayName < units[j].DisplayName
+		if units[i].DisplayName != units[j].DisplayName {
+			return units[i].DisplayName < units[j].DisplayName
+		}
+		return units[i].ID < units[j].ID
 	})
 
 	return units
