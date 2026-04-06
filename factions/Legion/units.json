@@ -8136,6 +8136,122 @@
       }
     },
     {
+      "identifier": "l_land_mine",
+      "displayName": "Spoiler",
+      "unitTypes": [
+        "Structure",
+        "Land",
+        "Defense",
+        "CombatFabBuild",
+        "Custom1"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/l_land_mine/l_land_mine.json",
+          "source": "com.pa.legion-expansion-server"
+        },
+        {
+          "path": "pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
+          "source": "com.pa.legion-expansion-server"
+        }
+      ],
+      "unit": {
+        "id": "l_land_mine",
+        "resourceName": "/pa/units/land/l_land_mine/l_land_mine.json",
+        "displayName": "Spoiler",
+        "description": "Land Mine - Sprays shrapnel then explodes after four seconds. Can be detonated manually using alt fire. Invisible to most units.",
+        "image": "assets/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Structure",
+          "Land",
+          "Defense",
+          "CombatFabBuild",
+          "Custom1"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_tool_weapon.json",
+                "safeName": "l_land_mine_trigger_tool_weapon",
+                "name": "l_land_mine_trigger_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 0,
+                "dps": 0,
+                "sustainedDps": 450,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 1,
+                "maxRange": 5,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "selfDestruct": true,
+                "ammoSource": "energy",
+                "ammoDemand": 100000,
+                "ammoPerShot": 100000,
+                "ammoCapacity": 100000,
+                "ammoRechargeTime": 1,
+                "energyRate": -100000,
+                "energyPerShot": 100000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "yawRange": 360,
+                "yawRate": 3600,
+                "pitchRange": 360,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_ammo.json",
+                  "safeName": "l_land_mine_trigger_ammo",
+                  "name": "l_land_mine_trigger_ammo",
+                  "muzzleVelocity": 1,
+                  "maxVelocity": 1,
+                  "lifetime": 5,
+                  "spawnUnitOnDeath": "/pa/units/land/l_land_mine/triggered/l_land_mine.json",
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 20,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {
+              "energy": 100000
+            },
+            "energyRate": -100000
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 2,
+            "radarRadius": 5
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "l_fabrication_vehicle_combat"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "triggered_4",
       "displayName": "Spoiler",
       "unitTypes": [
@@ -8260,122 +8376,6 @@
           }
         },
         "buildRelationships": {}
-      }
-    },
-    {
-      "identifier": "l_land_mine",
-      "displayName": "Spoiler",
-      "unitTypes": [
-        "Structure",
-        "Land",
-        "Defense",
-        "CombatFabBuild",
-        "Custom1"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/l_land_mine/l_land_mine.json",
-          "source": "com.pa.legion-expansion-server"
-        },
-        {
-          "path": "pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
-        }
-      ],
-      "unit": {
-        "id": "l_land_mine",
-        "resourceName": "/pa/units/land/l_land_mine/l_land_mine.json",
-        "displayName": "Spoiler",
-        "description": "Land Mine - Sprays shrapnel then explodes after four seconds. Can be detonated manually using alt fire. Invisible to most units.",
-        "image": "assets/pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Structure",
-          "Land",
-          "Defense",
-          "CombatFabBuild",
-          "Custom1"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 5,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_tool_weapon.json",
-                "safeName": "l_land_mine_trigger_tool_weapon",
-                "name": "l_land_mine_trigger_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 0,
-                "dps": 0,
-                "sustainedDps": 450,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 1,
-                "maxRange": 5,
-                "burnDamage": 15,
-                "burnRadius": 2,
-                "burnDps": 6,
-                "selfDestruct": true,
-                "ammoSource": "energy",
-                "ammoDemand": 100000,
-                "ammoPerShot": 100000,
-                "ammoCapacity": 100000,
-                "ammoRechargeTime": 1,
-                "energyRate": -100000,
-                "energyPerShot": 100000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "yawRange": 360,
-                "yawRate": 3600,
-                "pitchRange": 360,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/l_land_mine/l_land_mine_trigger_ammo.json",
-                  "safeName": "l_land_mine_trigger_ammo",
-                  "name": "l_land_mine_trigger_ammo",
-                  "muzzleVelocity": 1,
-                  "maxVelocity": 1,
-                  "lifetime": 5,
-                  "spawnUnitOnDeath": "/pa/units/land/l_land_mine/triggered/l_land_mine.json",
-                  "burnDamage": 15,
-                  "burnRadius": 2,
-                  "burnDuration": 2.5
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 20,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {
-              "energy": 100000
-            },
-            "energyRate": -100000
-          },
-          "mobility": {},
-          "recon": {
-            "visionRadius": 2,
-            "radarRadius": 5
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "l_fabrication_vehicle_combat"
-          ]
-        }
       }
     },
     {
