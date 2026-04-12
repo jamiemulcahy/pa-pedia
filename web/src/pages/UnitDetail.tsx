@@ -23,6 +23,7 @@ import { EconomySection } from '@/components/stats/EconomySection'
 import { StorageSection } from '@/components/stats/StorageSection'
 import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
 import { aggregateGroupStats, matchAggregatedWeapons } from '@/utils/groupAggregation'
+import { getEffectiveUnitDps } from '@/utils/effectiveDps'
 import {
   GroupModeToggle,
   GroupWeaponCard,
@@ -458,7 +459,8 @@ export function UnitDetail() {
   const anyComparisonHasDeathExplosion = comparisonUnits.some(u => u?.specs.combat.weapons?.some(w => w.deathExplosion))
 
   // SEO data for unit page
-  const unitDescription = `${unit.displayName} - ${unit.unitTypes.join(', ')} unit in Planetary Annihilation: Titans. Health: ${specs.combat.health}${specs.economy.buildCost ? `, Build Cost: ${specs.economy.buildCost}` : ''}${specs.combat.dps ? `, DPS: ${specs.combat.dps.toFixed(1)}` : ''}.`
+  const effectiveDps = getEffectiveUnitDps(unit)
+  const unitDescription = `${unit.displayName} - ${unit.unitTypes.join(', ')} unit in Planetary Annihilation: Titans. Health: ${specs.combat.health}${specs.economy.buildCost ? `, Build Cost: ${specs.economy.buildCost}` : ''}${effectiveDps ? `, DPS: ${effectiveDps.toFixed(1)}` : ''}.`
   const seoPath = `/faction/${factionId}/unit/${unitId}`
 
   return (
