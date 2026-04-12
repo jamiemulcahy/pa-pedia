@@ -1,4 +1,5 @@
 import type { UnitIndexEntry } from '@/types/faction'
+import { getEffectiveUnitDps } from '@/utils/effectiveDps'
 
 // All available column IDs
 export type ColumnId =
@@ -164,7 +165,7 @@ export const COLUMN_DEFS: Record<ColumnId, ColumnDef> = {
     id: 'dps',
     label: 'DPS',
     align: 'right',
-    getValue: (entry) => entry.unit.specs.combat.dps,
+    getValue: (entry) => getEffectiveUnitDps(entry.unit),
     format: formatDecimal,
     responsive: 'hidden sm:table-cell',
   },

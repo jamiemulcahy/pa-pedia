@@ -5,6 +5,7 @@ import { BlueprintLink } from '../BlueprintLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { SpawnUnitLink } from './SpawnUnitLink';
 import { isDifferent } from '@/utils/comparison';
+import { getEffectiveUnitDps } from '@/utils/effectiveDps';
 import { calculateDpsByLayer, getSortedLayers, formatLayerName } from '@/utils/targetLayers';
 import type { DpsByLayer } from '@/utils/targetLayers';
 import type { Unit } from '@/types/faction';
@@ -16,21 +17,12 @@ import type { AggregatedGroupStats } from '@/types/group';
  * This ensures consistent behavior with group mode calculation.
  */
 function calculateUnitSustainedDps(unit: Unit | undefined): number | undefined {
-  if (!unit?.specs.combat.weapons) return undefined;
-
-  // Check if any weapon has sustained DPS that differs from burst
-  const hasSustainedWeapons = unit.specs.combat.weapons.some(
-    w => !w.selfDestruct && !w.deathExplosion &&
-         w.sustainedDps !== undefined && w.sustainedDps !== w.dps
-  );
-
-  if (!hasSustainedWeapons) return undefined;
-
-  // Sum sustained DPS: use sustainedDps if available, otherwise use dps
-  return unit.specs.combat.weapons.reduce((sum, w) => {
-    if (w.selfDestruct || w.deathExplosion) return sum;
-    return sum + (w.sustainedDps ?? w.dps ?? 0) * (w.count ?? 1);
-  }, 0);
+  if (!unit) return undefined;
+  const effective = getEffectiveUnitDps(unit);
+  const burst = unit.specs.combat.dps;
+  // Only return if sustained differs from burst
+  if (effective === burst) return undefined;
+  return effective;
 }
 
 interface OverviewSectionProps {
