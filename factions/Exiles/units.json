@@ -134,7 +134,7 @@
         "Mobile",
         "Land",
         "Basic",
-        "FactoryBuild",
+        "NoBuild",
         "Hover"
       ],
       "source": "pa",
@@ -164,10 +164,10 @@
           "Mobile",
           "Land",
           "Basic",
-          "FactoryBuild",
+          "NoBuild",
           "Hover"
         ],
-        "accessible": true,
+        "accessible": false,
         "specs": {
           "combat": {
             "health": 400
@@ -259,10 +259,6 @@
             "t_control_module",
             "t_delta_v_engine",
             "mass_tele_titan"
-          ],
-          "builtBy": [
-            "t_tank_fac",
-            "t_tank_fac_adv"
           ]
         },
         "buildableTypes": "(Land \u0026 Structure \u0026 Advanced | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabAdvBuild | FabBuild | Titan \u0026 Bot) \u0026 Custom6"
@@ -370,7 +366,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -503,7 +498,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -663,8 +657,7 @@
             "t_bot_fab",
             "t_tank_fab",
             "t_naval_fab",
-            "t_air_fab",
-            "battle_fab"
+            "t_air_fab"
           ]
         }
       }
@@ -783,7 +776,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -800,15 +792,15 @@
       "identifier": "battle_fab",
       "displayName": "Battle Fabricator",
       "unitTypes": [
+        "NoBuild",
         "Custom6",
         "Tank",
         "Vehicle",
-        "Fabber",
+        "Offense",
         "Construction",
         "Mobile",
         "Land",
         "Basic",
-        "FactoryBuild",
         "Hover"
       ],
       "source": "pa",
@@ -830,18 +822,18 @@
         "image": "assets/pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
+          "NoBuild",
           "Custom6",
           "Tank",
           "Vehicle",
-          "Fabber",
+          "Offense",
           "Construction",
           "Mobile",
           "Land",
           "Basic",
-          "FactoryBuild",
           "Hover"
         ],
-        "accessible": true,
+        "accessible": false,
         "specs": {
           "combat": {
             "health": 250
@@ -890,39 +882,10 @@
         },
         "buildRelationships": {
           "builds": [
-            "t_wall",
-            "t_metal_extractor_0",
-            "pylon_overcharged",
-            "r_radar",
-            "ambush_twr_hid",
-            "ambush_twr",
-            "t_aa_twr",
-            "t_torp_launcher",
-            "pylon",
-            "adv_fab_turret",
-            "bug_gas_turret",
-            "t_air_fac",
-            "t_bot_fac",
-            "t_power_storage",
-            "t_orbital_launcher",
-            "t_tank_fac",
-            "t_naval_fac",
-            "r_teleporter",
-            "t_storage",
-            "t_arta",
-            "reactor",
-            "r_umbrella",
-            "t_air_fac_adv",
-            "t_bot_fac_adv",
-            "t_tank_fac_adv",
-            "t_naval_fac_adv"
-          ],
-          "builtBy": [
-            "t_tank_fac",
-            "t_tank_fac_adv"
+            "r_teleporter"
           ]
         },
-        "buildableTypes": "(Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabBuild) \u0026 Custom6"
+        "buildableTypes": "CombatFabBuild \u0026 Custom6 - Custom7"
       }
     },
     {
@@ -1459,7 +1422,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -2610,7 +2572,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -2696,7 +2657,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -2812,7 +2772,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -3043,7 +3002,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -3692,7 +3650,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -4005,7 +3962,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -5529,7 +5485,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -5678,7 +5633,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -5770,7 +5724,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -5887,7 +5840,6 @@
         },
         "buildRelationships": {
           "builtBy": [
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -6725,16 +6677,13 @@
             "t_tank_fab",
             "t_tank_flak",
             "lightning",
-            "roamer",
-            "battle_fab",
-            "battle_fab_adv"
+            "roamer"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -6940,7 +6889,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -7301,7 +7249,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -7430,7 +7377,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -7703,7 +7649,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -7786,7 +7731,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -8353,7 +8297,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -8469,7 +8412,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -8904,21 +8846,18 @@
             "t_tank_flak",
             "lightning",
             "roamer",
-            "battle_fab",
             "tank_gattling",
             "stalker",
             "adv_tank_hover",
             "hail",
             "shah",
-            "t_tank_fab_adv",
-            "battle_fab_adv"
+            "t_tank_fab_adv"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
@@ -11118,7 +11057,6 @@
             "t_tank_fab",
             "t_naval_fab",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
             "t_tank_fab_adv",
