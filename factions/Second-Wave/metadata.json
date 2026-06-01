@@ -1,11 +1,11 @@
 {
   "identifier": "second-wave",
   "displayName": "Second Wave",
-  "version": "0.14.5",
+  "version": "0.15.0",
   "author": "Anonemous2, billthebluebot, Taiga, Quitch, Quildtide, Ferretmaster, Tatarstan, DrWondertainment",
   "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions",
-  "dateCreated": "2026-01-15",
-  "build": "124627",
+  "dateCreated": "2026-05-31",
+  "build": "124644",
   "type": "mod",
   "mods": [
     "github.com/Anonemous2/pa.mla.unit.addon/tree/master",

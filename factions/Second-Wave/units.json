@@ -5070,6 +5070,85 @@
       }
     },
     {
+      "identifier": "shield_gen",
+      "displayName": "Shield Generator",
+      "unitTypes": [
+        "Custom58",
+        "Land",
+        "Structure",
+        "Defense",
+        "Shield",
+        "Advanced",
+        "FabAdvBuild",
+        "Important"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/shield_gen/shield_gen.json",
+          "source": "pa.mla.unit.addon"
+        },
+        {
+          "path": "pa/units/addon/shield_gen/shield_gen_icon_buildbar.png",
+          "source": "pa.mla.unit.addon"
+        }
+      ],
+      "unit": {
+        "id": "shield_gen",
+        "resourceName": "/pa/units/addon/shield_gen/shield_gen.json",
+        "displayName": "Shield Generator",
+        "description": "Aegis - Shield Generator - Provides protective shielding for nearby units.",
+        "image": "assets/pa/units/addon/shield_gen/shield_gen_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Custom58",
+          "Land",
+          "Structure",
+          "Defense",
+          "Shield",
+          "Advanced",
+          "FabAdvBuild",
+          "Important"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 2000
+          },
+          "economy": {
+            "buildCost": 1800,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 120,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "avatar",
+            "fabrication_bot_adv",
+            "fabrication_vehicle_adv",
+            "fabrication_aircraft_adv",
+            "fabrication_ship_adv",
+            "bot_support_commander"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "stalker",
       "displayName": "Stalker",
       "unitTypes": [
