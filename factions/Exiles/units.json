@@ -4329,7 +4329,7 @@
             "weaponConsumption": {}
           },
           "mobility": {
-            "moveSpeed": 65,
+            "moveSpeed": 70,
             "turnSpeed": 120,
             "acceleration": 130,
             "brake": 130
@@ -10775,7 +10775,7 @@
         "id": "t_transport_adv",
         "resourceName": "/pa/units/air/t_transport_adv/t_transport_adv.json",
         "displayName": "Heron",
-        "description": "Advanced Interplanetary Carrier - Can load up to 24 land units and fly to other planets.",
+        "description": "Advanced Interplanetary Carrier - Can load up to 20 land units and fly to other planets.",
         "image": "assets/pa/units/air/t_transport_adv/t_transport_adv_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
@@ -10920,7 +10920,7 @@
                   "splashRadius": 3,
                   "muzzleVelocity": 180,
                   "maxVelocity": 180,
-                  "lifetime": 2,
+                  "lifetime": 1.25,
                   "burnDamage": 15,
                   "burnRadius": 2,
                   "burnDuration": 2.5
