@@ -272,6 +272,15 @@ jobs:
               echo "Created PR for $DISPLAY_NAME v$VER"
             fi
 
+            # Enable auto-merge: the PR merges itself once the required status
+            # checks pass (main requires checks but no reviews). This runs under
+            # the app token, so the eventual merge commit is app-authored and
+            # triggers the Faction Data Release + deploy workflows — a merge made
+            # with GITHUB_TOKEN would not trigger them, stranding the deploy.
+            gh pr merge "$BRANCH" --squash --auto \
+              && echo "Auto-merge enabled for $DISPLAY_NAME v$VER" \
+              || echo "Could not enable auto-merge for $DISPLAY_NAME v$VER (continuing)"
+
             # Return to the working branch with all regenerated data
             git checkout -
           done
