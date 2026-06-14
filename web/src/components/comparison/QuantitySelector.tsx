@@ -19,6 +19,8 @@ export function QuantitySelector({
 
   // Sync local value when prop changes
   useEffect(() => {
+    // Intentional sync of debounced local input state with the controlled prop
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalValue(value.toString())
   }, [value])
 

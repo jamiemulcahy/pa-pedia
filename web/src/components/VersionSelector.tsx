@@ -37,6 +37,7 @@ export function VersionSelector({
 
     // Clear versions immediately when factionId changes to prevent
     // showing stale versions from the previous faction
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVersions([])
     setLoading(true)
     setError(null)

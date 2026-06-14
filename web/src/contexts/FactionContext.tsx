@@ -114,6 +114,9 @@ export function FactionProvider({ children }: { children: React.ReactNode }) {
 
   // Load all faction metadata on mount
   useEffect(() => {
+    // Kicks off the initial async data load; the synchronous loading-state
+    // update inside is intentional
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadFactionsData()
   }, [loadFactionsData])
 

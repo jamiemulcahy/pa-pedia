@@ -64,6 +64,8 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
   // Reset state when modal opens with new path
   useEffect(() => {
     if (isOpen) {
+      // Intentional state reset keyed on prop changes (isOpen/blueprintPath)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentPath(blueprintPath);
       setPathHistory([]);
       setViewingBaseSpec(false);
@@ -103,6 +105,8 @@ export const BlueprintModal: React.FC<BlueprintModalProps> = ({
 
   useEffect(() => {
     if (!isOpen || !currentPath) {
+      // Intentional state reset when the modal is closed or has no path
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBlueprintContent('');
       setError(null);
       setBaseSpec(null);
