@@ -167,7 +167,7 @@ async function doLoadManifest(): Promise<FactionManifest> {
       }
     }
 
-    throw new Error('No manifest available (network error and no cache)')
+    throw new Error('No manifest available (network error and no cache)', { cause: error })
   }
 }
 
