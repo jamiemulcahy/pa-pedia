@@ -1464,7 +1464,7 @@
         "id": "exiles_brainiac",
         "resourceName": "/pa/units/commanders/exiles_brainiac/exiles_brainiac.json",
         "displayName": "Brainiac Commander",
-        "description": "Hover Exile Commander. Slow, Low HP but armed with devastating long-range laser.",
+        "description": "Hover Exiles Commander. Slow. Fragile. Can teleport at medium range. Armed with devastating long-range laser.",
         "image": "assets/pa/units/commanders/exiles_brainiac/exiles_brainiac_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
@@ -2156,31 +2156,25 @@
         "specs": {
           "combat": {
             "health": 110,
-            "dps": 200,
-            "salvoDamage": 20,
+            "dps": 16,
+            "salvoDamage": 40,
             "weapons": [
               {
                 "resourceName": "/pa/units/land/can/can_tool_weapon.json",
                 "safeName": "can_tool_weapon",
                 "name": "can_tool_weapon",
-                "count": 2,
-                "rateOfFire": 10,
-                "damage": 10,
-                "dps": 100,
-                "sustainedDps": 13.33,
+                "count": 1,
+                "rateOfFire": 0.4,
+                "damage": 40,
+                "dps": 16,
                 "projectilesPerFire": 1,
-                "muzzleVelocity": 100,
-                "maxRange": 72.5,
+                "muzzleVelocity": 140,
+                "maxRange": 75,
+                "splashDamage": 40,
+                "splashRadius": 3,
                 "burnDamage": 15,
                 "burnRadius": 2,
                 "burnDps": 6,
-                "ammoSource": "time",
-                "ammoDemand": 1,
-                "ammoPerShot": 0.75,
-                "ammoCapacity": 2.25,
-                "ammoDrainTime": 0.2,
-                "ammoRechargeTime": 2.25,
-                "ammoShotsToDrain": 3,
                 "targetLayers": [
                   "LandHorizontal",
                   "Seafloor",
@@ -2200,9 +2194,11 @@
                   "resourceName": "/pa/units/land/can/can_ammo.json",
                   "safeName": "can_ammo",
                   "name": "can_ammo",
-                  "damage": 10,
-                  "muzzleVelocity": 100,
-                  "maxVelocity": 200,
+                  "damage": 40,
+                  "splashDamage": 40,
+                  "splashRadius": 3,
+                  "muzzleVelocity": 140,
+                  "maxVelocity": 140,
                   "lifetime": 1.5,
                   "burnDamage": 15,
                   "burnRadius": 2,
@@ -4285,15 +4281,15 @@
           "combat": {
             "health": 200,
             "dps": 90,
-            "salvoDamage": 10,
+            "salvoDamage": 45,
             "weapons": [
               {
                 "resourceName": "/pa/units/air/fighter_stealth/fighter_stealth_tool_weapon.json",
                 "safeName": "fighter_stealth_tool_weapon",
                 "name": "fighter_stealth_tool_weapon",
                 "count": 1,
-                "rateOfFire": 9,
-                "damage": 10,
+                "rateOfFire": 2,
+                "damage": 45,
                 "dps": 90,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 500,
@@ -4313,7 +4309,7 @@
                   "resourceName": "/pa/units/air/fighter_stealth/fighter_stealth_ammo.json",
                   "safeName": "fighter_stealth_ammo",
                   "name": "fighter_stealth_ammo",
-                  "damage": 10,
+                  "damage": 45,
                   "muzzleVelocity": 500,
                   "maxVelocity": 500
                 }
@@ -8848,7 +8844,7 @@
             "roamer",
             "tank_gattling",
             "stalker",
-            "adv_tank_hover",
+            "tank_heavy_adv",
             "hail",
             "shah",
             "t_tank_fab_adv"
@@ -10266,6 +10262,151 @@
       }
     },
     {
+      "identifier": "strat_bomber",
+      "displayName": "Eagle-Owl",
+      "unitTypes": [
+        "Custom6",
+        "Bomber",
+        "Mobile",
+        "Offense",
+        "Air",
+        "Heavy",
+        "Advanced",
+        "FactoryBuild",
+        "Important"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/air/strat_bomber/strat_bomber.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "pa/units/air/strat_bomber/strat_bomber_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "strat_bomber",
+        "resourceName": "/pa/units/air/strat_bomber/strat_bomber.json",
+        "displayName": "Eagle-Owl",
+        "description": "Strategic Bomber - Extremly fast and radar stealth with high damage. Attacks land, sea and undersea targets.",
+        "image": "assets/pa/units/air/strat_bomber/strat_bomber_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Custom6",
+          "Bomber",
+          "Mobile",
+          "Offense",
+          "Air",
+          "Heavy",
+          "Advanced",
+          "FactoryBuild",
+          "Important"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1500,
+            "dps": 250,
+            "salvoDamage": 2000,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/air/strat_bomber/strat_bomber_tool_weapon.json",
+                "safeName": "strat_bomber_tool_weapon",
+                "name": "strat_bomber_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.125,
+                "damage": 2000,
+                "dps": 250,
+                "sustainedDps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 80,
+                "maxRange": 40,
+                "splashDamage": 2000,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "ammoSource": "energy",
+                "ammoDemand": 500,
+                "ammoPerShot": 4000,
+                "ammoCapacity": 4000,
+                "ammoRechargeTime": 8,
+                "energyRate": -500,
+                "energyPerShot": 4000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "AirDefense \u0026 ( Land | Naval )",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense"
+                ],
+                "yawRange": 90,
+                "yawRate": 3600,
+                "pitchRange": 180,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/air/strat_bomber/strat_bomber_ammo.json",
+                  "safeName": "strat_bomber_ammo",
+                  "name": "strat_bomber_ammo",
+                  "damage": 2000,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 2000,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 80,
+                  "maxVelocity": 80,
+                  "lifetime": 5,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 2400,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {
+              "energy": 500
+            },
+            "energyRate": -500
+          },
+          "mobility": {
+            "moveSpeed": 100,
+            "turnSpeed": 70,
+            "acceleration": 100,
+            "brake": 50
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "t_air_fac_adv"
+          ]
+        }
+      }
+    },
+    {
       "identifier": "t_air_fab_adv",
       "displayName": "Fabrication Flyer",
       "unitTypes": [
@@ -10833,132 +10974,6 @@
       }
     },
     {
-      "identifier": "adv_tank_hover",
-      "displayName": "Hippo",
-      "unitTypes": [
-        "Tank",
-        "Mobile",
-        "Offense",
-        "Land",
-        "Advanced",
-        "Hover",
-        "FactoryBuild",
-        "Custom6"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/land/adv_tank_hover/adv_tank_hover.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "pa/units/land/adv_tank_hover/adv_tank_hover_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "adv_tank_hover",
-        "resourceName": "/pa/units/land/adv_tank_hover/adv_tank_hover.json",
-        "displayName": "Hippo",
-        "description": "Adv Hover Tank - Slow. Excels at sinking ships. Vulnerable to flanking. Can cross water and lava. Attacks land and sea targets.",
-        "image": "assets/pa/units/land/adv_tank_hover/adv_tank_hover_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Tank",
-          "Mobile",
-          "Offense",
-          "Land",
-          "Advanced",
-          "Hover",
-          "FactoryBuild",
-          "Custom6"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1700,
-            "dps": 640,
-            "salvoDamage": 800,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/land/adv_tank_hover/adv_tank_hover_tool_weapon.json",
-                "safeName": "adv_tank_hover_tool_weapon",
-                "name": "adv_tank_hover_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.8,
-                "damage": 800,
-                "dps": 640,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 180,
-                "maxRange": 120,
-                "splashDamage": 400,
-                "splashRadius": 3,
-                "burnDamage": 15,
-                "burnRadius": 2,
-                "burnDps": 6,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface"
-                ],
-                "targetPriorities": [
-                  "Mobile \u0026 Advanced",
-                  "Commander",
-                  "Mobile - Air",
-                  "Structure - Wall",
-                  "Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 40,
-                "pitchRange": 120,
-                "pitchRate": 20,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/land/adv_tank_hover/adv_tank_hover_ammo.json",
-                  "safeName": "adv_tank_hover_ammo",
-                  "name": "adv_tank_hover_ammo",
-                  "damage": 800,
-                  "splashDamage": 400,
-                  "splashRadius": 3,
-                  "muzzleVelocity": 180,
-                  "maxVelocity": 180,
-                  "lifetime": 1.25,
-                  "burnDamage": 15,
-                  "burnRadius": 2,
-                  "burnDuration": 2.5
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 1000,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {}
-          },
-          "mobility": {
-            "moveSpeed": 10,
-            "turnSpeed": 45,
-            "acceleration": 80,
-            "brake": 80
-          },
-          "recon": {
-            "visionRadius": 120,
-            "underwaterVisionRadius": 120
-          },
-          "storage": {},
-          "special": {
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "t_tank_fac_adv"
-          ]
-        }
-      }
-    },
-    {
       "identifier": "t_naval_fac_adv",
       "displayName": "Hyper Tide Assembly",
       "unitTypes": [
@@ -11065,6 +11080,175 @@
           ]
         },
         "buildableTypes": "Custom6 \u0026 ((Naval \u0026 Mobile) \u0026 FactoryBuild)"
+      }
+    },
+    {
+      "identifier": "tank_heavy_adv",
+      "displayName": "Jaguar",
+      "unitTypes": [
+        "Tank",
+        "Mobile",
+        "Offense",
+        "Land",
+        "Advanced",
+        "FactoryBuild",
+        "Custom6"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/land/tank_heavy_adv/tank_heavy_adv.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "pa/units/land/tank_heavy_adv/tank_heavy_adv_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "tank_heavy_adv",
+        "resourceName": "/pa/units/land/tank_heavy_adv/tank_heavy_adv.json",
+        "displayName": "Jaguar",
+        "description": "Adv Heavy Tank - Slow. Armed with a heavy cannon and anti-ship missiles. Vulnerable to flanking. Attacks land and sea targets.",
+        "image": "assets/pa/units/land/tank_heavy_adv/tank_heavy_adv_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Tank",
+          "Mobile",
+          "Offense",
+          "Land",
+          "Advanced",
+          "FactoryBuild",
+          "Custom6"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1700,
+            "dps": 740,
+            "salvoDamage": 1800,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/tank_heavy_adv/tank_heavy_adv_tool_missile.json",
+                "safeName": "tank_heavy_adv_tool_missile",
+                "name": "tank_heavy_adv_tool_missile",
+                "count": 1,
+                "rateOfFire": 0.1,
+                "damage": 1000,
+                "dps": 100,
+                "sustainedDps": 100,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 80,
+                "maxRange": 200,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "ammoSource": "time",
+                "ammoDemand": 1,
+                "ammoPerShot": 10,
+                "ammoCapacity": 10,
+                "ammoRechargeTime": 10,
+                "targetLayers": [
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile \u0026 Advanced",
+                  "Commander",
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 40,
+                "pitchRange": 120,
+                "pitchRate": 45,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/tank_heavy_adv/tank_heavy_adv_ammo_missile.json",
+                  "safeName": "tank_heavy_adv_ammo_missile",
+                  "name": "tank_heavy_adv_ammo_missile",
+                  "damage": 1000,
+                  "muzzleVelocity": 80,
+                  "maxVelocity": 80,
+                  "lifetime": 15,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/tank_heavy_adv/tank_heavy_adv_tool_weapon.json",
+                "safeName": "tank_heavy_adv_tool_weapon",
+                "name": "tank_heavy_adv_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.8,
+                "damage": 800,
+                "dps": 640,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 180,
+                "maxRange": 120,
+                "splashDamage": 400,
+                "splashRadius": 3,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal"
+                ],
+                "targetPriorities": [
+                  "Mobile \u0026 Advanced",
+                  "Commander",
+                  "Mobile - Air",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 40,
+                "pitchRange": 120,
+                "pitchRate": 20,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/tank_heavy_adv/tank_heavy_adv_ammo.json",
+                  "safeName": "tank_heavy_adv_ammo",
+                  "name": "tank_heavy_adv_ammo",
+                  "damage": 800,
+                  "splashDamage": 400,
+                  "splashRadius": 3,
+                  "muzzleVelocity": 180,
+                  "maxVelocity": 180,
+                  "lifetime": 1.25,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 1000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {
+            "moveSpeed": 10,
+            "turnSpeed": 45,
+            "acceleration": 80,
+            "brake": 80
+          },
+          "recon": {
+            "visionRadius": 120,
+            "underwaterVisionRadius": 120,
+            "sonarRadius": 200
+          },
+          "storage": {},
+          "special": {}
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "t_tank_fac_adv"
+          ]
+        }
       }
     },
     {
@@ -13275,151 +13459,6 @@
         "buildRelationships": {
           "builtBy": [
             "t_naval_fac_adv"
-          ]
-        }
-      }
-    },
-    {
-      "identifier": "strat_bomber",
-      "displayName": "Vulture",
-      "unitTypes": [
-        "Custom6",
-        "Bomber",
-        "Mobile",
-        "Offense",
-        "Air",
-        "Heavy",
-        "Advanced",
-        "FactoryBuild",
-        "Important"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/air/strat_bomber/strat_bomber.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "pa/units/air/strat_bomber/strat_bomber_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "strat_bomber",
-        "resourceName": "/pa/units/air/strat_bomber/strat_bomber.json",
-        "displayName": "Vulture",
-        "description": "Strategic Bomber - Extremly fast and radar stealth with high damage. Attacks land, sea and undersea targets.",
-        "image": "assets/pa/units/air/strat_bomber/strat_bomber_icon_buildbar.png",
-        "tier": 2,
-        "unitTypes": [
-          "Custom6",
-          "Bomber",
-          "Mobile",
-          "Offense",
-          "Air",
-          "Heavy",
-          "Advanced",
-          "FactoryBuild",
-          "Important"
-        ],
-        "accessible": true,
-        "specs": {
-          "combat": {
-            "health": 1500,
-            "dps": 250,
-            "salvoDamage": 2000,
-            "weapons": [
-              {
-                "resourceName": "/pa/units/air/strat_bomber/strat_bomber_tool_weapon.json",
-                "safeName": "strat_bomber_tool_weapon",
-                "name": "strat_bomber_tool_weapon",
-                "count": 1,
-                "rateOfFire": 0.125,
-                "damage": 2000,
-                "dps": 250,
-                "sustainedDps": 250,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 80,
-                "maxRange": 40,
-                "splashDamage": 2000,
-                "splashRadius": 20,
-                "fullDamageRadius": 5,
-                "burnDamage": 15,
-                "burnRadius": 2,
-                "burnDps": 6,
-                "ammoSource": "energy",
-                "ammoDemand": 500,
-                "ammoPerShot": 4000,
-                "ammoCapacity": 4000,
-                "ammoRechargeTime": 8,
-                "energyRate": -500,
-                "energyPerShot": 4000,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor",
-                  "Underwater"
-                ],
-                "targetPriorities": [
-                  "Commander",
-                  "AirDefense \u0026 ( Land | Naval )",
-                  "Titan \u0026 ( Land | Naval )",
-                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
-                  "Nuke | NukeDefense"
-                ],
-                "yawRange": 90,
-                "yawRate": 3600,
-                "pitchRange": 180,
-                "pitchRate": 3600,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/air/strat_bomber/strat_bomber_ammo.json",
-                  "safeName": "strat_bomber_ammo",
-                  "name": "strat_bomber_ammo",
-                  "damage": 2000,
-                  "fullDamageRadius": 5,
-                  "splashDamage": 2000,
-                  "splashRadius": 20,
-                  "muzzleVelocity": 80,
-                  "maxVelocity": 80,
-                  "lifetime": 5,
-                  "burnDamage": 15,
-                  "burnRadius": 2,
-                  "burnDuration": 2.5
-                }
-              }
-            ]
-          },
-          "economy": {
-            "buildCost": 2400,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {},
-            "weaponConsumption": {
-              "energy": 500
-            },
-            "energyRate": -500
-          },
-          "mobility": {
-            "moveSpeed": 100,
-            "turnSpeed": 70,
-            "acceleration": 100,
-            "brake": 50
-          },
-          "recon": {
-            "visionRadius": 150,
-            "underwaterVisionRadius": 150
-          },
-          "storage": {},
-          "special": {
-            "spawnLayers": [
-              "land"
-            ]
-          }
-        },
-        "buildRelationships": {
-          "builtBy": [
-            "t_air_fac_adv"
           ]
         }
       }
