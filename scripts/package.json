@@ -4,6 +4,7 @@
   "description": "Build scripts for PA-Pedia faction data management",
   "type": "module",
   "scripts": {
+    "test": "node --import tsx --test version-compare.test.ts",
     "build:zips": "tsx build-faction-zips.ts",
     "upload:releases": "tsx upload-to-releases.ts",
     "generate:manifest": "tsx generate-manifest.ts",

@@ -14,6 +14,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import JSZip from 'jszip'
+import { byVersionDesc } from './version-compare'
 
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
@@ -192,12 +193,11 @@ async function main() {
     string,
     {
       versions: Array<{ zip: (typeof zipAssets)[0]; metadata: FactionMetadata | null }>
-      latestTimestamp: number
     }
   >()
 
   for (const [key, zip] of versionMap) {
-    const { factionId, version, timestamp } = zip.parsed!
+    const { factionId, version } = zip.parsed!
     const ghDownloadUrl = zip.asset.url
 
     console.log(`Processing ${factionId} v${version}...`)
@@ -208,24 +208,26 @@ async function main() {
     // Get or create faction entry
     let factionData = factionVersions.get(factionId)
     if (!factionData) {
-      factionData = { versions: [], latestTimestamp: 0 }
+      factionData = { versions: [] }
       factionVersions.set(factionId, factionData)
     }
 
     factionData.versions.push({ zip, metadata })
-
-    // Track latest timestamp for determining the "latest" version
-    if (timestamp > factionData.latestTimestamp) {
-      factionData.latestTimestamp = timestamp
-    }
   }
 
   // Step 3: Build faction entries with version arrays
   const factionEntries: FactionEntry[] = []
 
   for (const [factionId, factionData] of factionVersions) {
-    // Sort versions by timestamp (newest first)
-    factionData.versions.sort((a, b) => b.zip.parsed!.timestamp - a.zip.parsed!.timestamp)
+    // Sort by version number (newest first), NOT by build timestamp. Timestamp
+    // ordering breaks when versions are published out of order (e.g. an older
+    // version's PR merged after a newer one); version ordering is stable.
+    factionData.versions.sort((a, b) =>
+      byVersionDesc(
+        { version: a.zip.parsed!.version, timestamp: a.zip.parsed!.timestamp },
+        { version: b.zip.parsed!.version, timestamp: b.zip.parsed!.timestamp }
+      )
+    )
 
     // Build version entries
     const versions: VersionEntry[] = factionData.versions.map(({ zip, metadata }) => ({
@@ -237,7 +239,7 @@ async function main() {
       build: metadata?.build,
     }))
 
-    // Latest is the first one (highest timestamp)
+    // Latest is the first one (highest version number)
     const latestVersion = factionData.versions[0]
     const latestMetadata = latestVersion.metadata
 
