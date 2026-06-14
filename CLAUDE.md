@@ -334,10 +334,10 @@ Triggers on:
 ```
 
 **Version History**:
-- `latest`: Points to the most recent version (highest timestamp)
-- `versions`: Array of all available versions (newest first)
+- `latest`: Points to the highest **version number** (not build timestamp — so out-of-order publishing can't make an older version look newest). See `scripts/version-compare.ts`.
+- `versions`: Array of all available versions, ordered by version number (newest first); the UI treats `versions[0]` as latest
 - Historical versions are preserved when a faction's version number changes
-- Same-version rebuilds (different timestamp, same version) replace older timestamps
+- Same-version rebuilds (different timestamp, same version) replace older timestamps (timestamp is the tie-breaker only within an identical version)
 
 **Version Tracking**:
 - `version`: Extracted from faction `metadata.json` (CLI-generated)
