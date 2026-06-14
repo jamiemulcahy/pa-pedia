@@ -73,12 +73,9 @@ export async function getAssetUrl(
   }
 
   // Load from appropriate cache
-  let blob: Blob | null = null
-  if (isLocal) {
-    blob = (await getLocalAsset(normalizedFactionId, assetPath)) ?? null
-  } else {
-    blob = await getStaticAsset(normalizedFactionId, assetPath, version)
-  }
+  const blob: Blob | null = isLocal
+    ? ((await getLocalAsset(normalizedFactionId, assetPath)) ?? null)
+    : await getStaticAsset(normalizedFactionId, assetPath, version)
 
   if (!blob) {
     return undefined
