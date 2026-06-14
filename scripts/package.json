@@ -12,7 +12,7 @@
     "upload:base-data": "tsx upload-base-data.ts"
   },
   "dependencies": {
-    "archiver": "^8.0.0",
+    "archiver": "^7.0.1",
     "jszip": "^3.10.1"
   },
   "devDependencies": {
