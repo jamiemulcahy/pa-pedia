@@ -1,6 +1,87 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Fonts */
+  --font-display: "Orbitron", sans-serif;
+  --font-sans: "Rajdhani", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* MLA theme colors (blue/cyan) */
+  --color-mla-50: #eff6ff;
+  --color-mla-100: #dbeafe;
+  --color-mla-200: #bfdbfe;
+  --color-mla-300: #93c5fd;
+  --color-mla-400: #60a5fa;
+  --color-mla-500: #3b82f6;
+  --color-mla-600: #2563eb;
+  --color-mla-700: #1d4ed8;
+  --color-mla-800: #1e40af;
+  --color-mla-900: #1e3a8a;
+  --color-mla-950: #172554;
+
+  /* Legion theme colors (orange/red) */
+  --color-legion-50: #fff7ed;
+  --color-legion-100: #ffedd5;
+  --color-legion-200: #fed7aa;
+  --color-legion-300: #fdba74;
+  --color-legion-400: #fb923c;
+  --color-legion-500: #f97316;
+  --color-legion-600: #ea580c;
+  --color-legion-700: #c2410c;
+  --color-legion-800: #9a3412;
+  --color-legion-900: #7c2d12;
+  --color-legion-950: #431407;
+
+  /* Semantic colors (reference CSS variables defined in :root / .dark) */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Border radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Animations */
+  --animate-shimmer: shimmer 3.5s infinite;
+  --animate-border-glow: border-glow 3.5s infinite;
+  --animate-shimmer-delay: shimmer 3.5s infinite 1s;
+  --animate-border-glow-delay: border-glow 3.5s infinite 1s;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes border-glow {
+  0%, 100% {
+    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  50% {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 8px 2px hsl(var(--primary) / 0.3);
+  }
+}
 
 @layer base {
   :root {

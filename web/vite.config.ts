@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 /**
  * Check if a directory name looks like a semver version (e.g. "1.0.0", "2.1.3").
@@ -164,7 +165,7 @@ function serveFactions(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), serveFactions()],
+  plugins: [tailwindcss(), react(), serveFactions()],
   base: '/',
   resolve: {
     alias: {
