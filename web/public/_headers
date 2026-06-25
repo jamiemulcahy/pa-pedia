@@ -1,0 +1,22 @@
+# Cloudflare Pages response headers.
+#
+# Why: each deploy fingerprints the JS/CSS bundles with a new hash and removes
+# the previous ones. If index.html is cached, a stale copy keeps pointing at a
+# bundle the latest deploy deleted -> Pages serves the SPA fallback HTML for the
+# missing .js -> the browser tries to parse HTML as a module -> blank page.
+#
+# So: never cache the HTML entry (always revalidate), and cache the
+# content-hashed assets forever (their URL changes when content changes).
+#
+# NOTE: For these to reach the browser on the custom domain, the Cloudflare
+# zone's Browser Cache TTL must be set to "Respect Existing Headers". Otherwise
+# the zone rewrites Cache-Control on every response (currently forcing
+# max-age=14400), which is what caused the outage.
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
