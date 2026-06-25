@@ -100,14 +100,63 @@ describe('diffFactionVersions', () => {
     expect(accessibleChange?.display).toBe('Accessible: No → Yes')
   })
 
-  it('skips fields absent on either version', () => {
+  it('reports a field that newly appears in the new version', () => {
     const previous = makeIndex([makeEntry('tank', makeUnit({ specs: { combat: { health: 200 }, economy: { buildCost: 150 } } }))])
     const current = makeIndex([makeEntry('tank', makeUnit({ specs: { combat: { health: 200, dps: 99 }, economy: { buildCost: 150 } } }))])
 
     const diff = diffFactionVersions(previous, current, '1.0.0', '1.1.0')
 
-    // dps was undefined in the previous version, so it must not be reported as a change
-    expect(diff.changed).toHaveLength(0)
+    const dpsChange = diff.changed[0].fields.find((f) => f.label === 'DPS')
+    expect(dpsChange?.display).toBe('DPS: – → 99')
+  })
+
+  it('diffs nested weapon stats labelled by weapon name', () => {
+    const weapon = (damage: number, rateOfFire: number) => ({
+      resourceName: '/w.json',
+      safeName: 'main',
+      name: 'Main Cannon',
+      count: 1,
+      rateOfFire,
+      damage,
+      dps: damage * rateOfFire,
+    })
+    const previous = makeIndex([makeEntry('tank', makeUnit({ specs: { combat: { health: 200, weapons: [weapon(10, 9)] }, economy: { buildCost: 150 } } }))])
+    const current = makeIndex([makeEntry('tank', makeUnit({ specs: { combat: { health: 200, weapons: [weapon(45, 2)] }, economy: { buildCost: 150 } } }))])
+
+    const diff = diffFactionVersions(previous, current, '1.0.0', '1.1.0')
+
+    const displays = diff.changed[0].fields.map((f) => f.display)
+    expect(displays).toContain('Main Cannon damage: 10 → 45 (+350%)')
+    expect(displays).toContain('Main Cannon rate of fire: 9 → 2 (-78%)')
+  })
+
+  it('reports unit type additions and removals as a set change', () => {
+    const previous = makeIndex([makeEntry('tank', makeUnit({ unitTypes: ['Mobile', 'Land', 'Tank'] }))])
+    const current = makeIndex([makeEntry('tank', makeUnit({ unitTypes: ['Mobile', 'Land', 'Stealth'] }))])
+
+    const diff = diffFactionVersions(previous, current, '1.0.0', '1.1.0')
+
+    const typeChange = diff.changed[0].fields.find((f) => f.label === 'Unit types')
+    expect(typeChange?.display).toBe('Unit types: +Stealth  −Tank')
+  })
+
+  it('summarises build-relationship changes using display names', () => {
+    const previous = makeIndex([
+      makeEntry('tank', makeUnit({ buildRelationships: { builtBy: ['vehicle_factory'] } })),
+      makeEntry('vehicle_factory', makeUnit({ displayName: 'Vehicle Factory' }), 'Vehicle Factory'),
+      makeEntry('adv_factory', makeUnit({ displayName: 'Advanced Factory' }), 'Advanced Factory'),
+    ])
+    const current = makeIndex([
+      makeEntry('tank', makeUnit({ buildRelationships: { builtBy: ['adv_factory'] } })),
+      makeEntry('vehicle_factory', makeUnit({ displayName: 'Vehicle Factory' }), 'Vehicle Factory'),
+      makeEntry('adv_factory', makeUnit({ displayName: 'Advanced Factory' }), 'Advanced Factory'),
+    ])
+
+    const diff = diffFactionVersions(previous, current, '1.0.0', '1.1.0')
+
+    const tank = diff.changed.find((u) => u.identifier === 'tank')!
+    const builtBy = tank.fields.find((f) => f.label === 'Built by')
+    expect(builtBy?.display).toBe('Built by: +Advanced Factory  −Vehicle Factory')
   })
 
   it('returns an empty diff when nothing changed', () => {
