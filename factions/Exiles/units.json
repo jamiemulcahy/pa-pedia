@@ -373,7 +373,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         },
         "buildableTypes": "Air \u0026 Basic \u0026 FactoryBuild \u0026 Custom6"
@@ -505,7 +506,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -783,7 +785,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -1429,7 +1432,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         },
         "buildableTypes": "(Bot \u0026 Mobile \u0026 Basic | Bot \u0026 Fabber \u0026 Basic \u0026 Mobile) \u0026 FactoryBuild \u0026 Custom6 - Custom7"
@@ -1482,8 +1486,8 @@
         "specs": {
           "combat": {
             "health": 10500,
-            "dps": 140,
-            "salvoDamage": 3350,
+            "dps": 40,
+            "salvoDamage": 3100,
             "weapons": [
               {
                 "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
@@ -1516,14 +1520,17 @@
                 "name": "exiles_brainiac_tool_weapon",
                 "count": 1,
                 "rateOfFire": 0.4,
-                "damage": 350,
-                "dps": 140,
-                "sustainedDps": 140,
+                "damage": 100,
+                "dps": 40,
+                "sustainedDps": 40,
                 "projectilesPerFire": 1,
-                "muzzleVelocity": 500,
+                "muzzleVelocity": 130,
                 "maxRange": 140,
-                "splashDamage": 350,
-                "splashRadius": 10,
+                "splashDamage": 100,
+                "splashRadius": 5,
+                "fullDamageRadius": 5,
+                "burnDamage": 200,
+                "burnRadius": 15,
                 "burnDps": 6,
                 "ammoSource": "time",
                 "ammoDemand": 1,
@@ -1550,15 +1557,18 @@
                 "pitchRange": 90,
                 "pitchRate": 360,
                 "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/exiles_brainiac/exiles_brainiac_ammo.json",
-                  "safeName": "exiles_brainiac_ammo",
-                  "name": "exiles_brainiac_ammo",
-                  "damage": 350,
-                  "splashDamage": 350,
-                  "splashRadius": 10,
-                  "muzzleVelocity": 500,
-                  "maxVelocity": 500,
-                  "lifetime": 1.25
+                  "resourceName": "/pa/units/commanders/exiles_brainiac/exiles_brainiac_ammo2.json",
+                  "safeName": "exiles_brainiac_ammo2",
+                  "name": "exiles_brainiac_ammo2",
+                  "damage": 100,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 100,
+                  "splashRadius": 5,
+                  "muzzleVelocity": 130,
+                  "maxVelocity": 130,
+                  "lifetime": 6,
+                  "burnDamage": 200,
+                  "burnRadius": 15
                 }
               },
               {
@@ -2575,7 +2585,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -2660,7 +2671,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -2775,7 +2787,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -3005,7 +3018,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -3965,7 +3979,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -5488,7 +5503,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         },
         "buildableTypes": "Orbital \u0026 FactoryBuild \u0026 Basic \u0026 Custom58"
@@ -5636,7 +5652,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -5843,7 +5860,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -6687,10 +6705,328 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         },
         "buildableTypes": "(Land \u0026 Mobile \u0026 Tank \u0026 Basic | Tank \u0026 Fabber \u0026 Basic \u0026 Mobile) \u0026 FactoryBuild \u0026 Custom6"
+      }
+    },
+    {
+      "identifier": "exiles_taurus",
+      "displayName": "Taurus Commander",
+      "unitTypes": [
+        "Commander",
+        "Construction",
+        "Mobile",
+        "Offense",
+        "Land",
+        "NoBuild",
+        "Custom6",
+        "Economy"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/commanders/exiles_taurus/exiles_taurus.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "pa/units/commanders/exiles_taurus/exiles_taurus_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "exiles_taurus",
+        "resourceName": "/pa/units/commanders/exiles_taurus/exiles_taurus.json",
+        "displayName": "Taurus Commander",
+        "description": "Shielded Exile Commander. Significantly less HP but half of it in a rechargable shield. Armed with a gauss rifle.",
+        "image": "assets/pa/units/commanders/exiles_taurus/exiles_taurus_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Commander",
+          "Construction",
+          "Mobile",
+          "Offense",
+          "Land",
+          "NoBuild",
+          "Custom6",
+          "Economy"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5000,
+            "dps": 1630,
+            "salvoDamage": 3730,
+            "weapons": [
+              {
+                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                "safeName": "nuke_pbaoe",
+                "name": "nuke_pbaoe",
+                "count": 1,
+                "rateOfFire": 0,
+                "damage": 3000,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "splashRadius": 130,
+                "fullDamageRadius": 30,
+                "burnDamage": 200,
+                "burnRadius": 137,
+                "deathExplosion": true,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                  "safeName": "nuke_pbaoe",
+                  "name": "nuke_pbaoe",
+                  "damage": 3000,
+                  "fullDamageRadius": 30,
+                  "splashRadius": 130,
+                  "burnDamage": 200,
+                  "burnRadius": 137
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/base_commander/base_commander_tool_torpedo_weapon.json",
+                "safeName": "base_commander_tool_torpedo_weapon",
+                "name": "base_commander_tool_torpedo_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 250,
+                "dps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 75,
+                "maxRange": 160,
+                "burnDps": 6,
+                "targetLayers": [
+                  "WaterSurface",
+                  "Seafloor",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_torpedo_ammo_water.json",
+                  "safeName": "base_commander_torpedo_ammo_water",
+                  "name": "base_commander_torpedo_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 75,
+                  "maxVelocity": 75,
+                  "lifetime": 4
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/exiles_taurus/exiles_taurus_tool_aa_weapon.json",
+                "safeName": "exiles_taurus_tool_aa_weapon",
+                "name": "exiles_taurus_tool_aa_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 200,
+                "dps": 200,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 140,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/base_commander/base_commander_aa_ammo.json",
+                  "safeName": "base_commander_aa_ammo",
+                  "name": "base_commander_aa_ammo",
+                  "damage": 200,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 2,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/exiles_taurus/exiles_taurus_tool_weapon.json",
+                "safeName": "exiles_taurus_tool_weapon",
+                "name": "exiles_taurus_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 180,
+                "dps": 180,
+                "projectilesPerFire": 1,
+                "maxRange": 95,
+                "burnDamage": 24,
+                "burnRadius": 1,
+                "burnDps": 24,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile \u0026 Bot - Heavy",
+                  "Mobile \u0026 Tank - Heavy",
+                  "Mobile \u0026 Naval - Heavy",
+                  "Mobile \u0026 Heavy",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 120,
+                "pitchRange": 89.9,
+                "pitchRate": 120,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/exiles_taurus/exiles_taurus_ammo.json",
+                  "safeName": "exiles_taurus_ammo",
+                  "name": "exiles_taurus_ammo",
+                  "damage": 180,
+                  "burnDamage": 24,
+                  "burnRadius": 1,
+                  "burnDuration": 1
+                }
+              },
+              {
+                "resourceName": "/pa/units/commanders/exiles_taurus/uber_cannon.json",
+                "safeName": "exiles_taurus_2",
+                "name": "exiles_taurus_2",
+                "count": 1,
+                "rateOfFire": 10,
+                "damage": 100,
+                "dps": 1000,
+                "sustainedDps": 250,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 240,
+                "maxRange": 75,
+                "splashDamage": 100,
+                "splashRadius": 10,
+                "fullDamageRadius": 5,
+                "burnDamage": 200,
+                "burnRadius": 15,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 1000,
+                "ammoCapacity": 10000,
+                "ammoDrainTime": 1.2,
+                "ammoRechargeTime": 4,
+                "ammoShotsToDrain": 13,
+                "energyRate": -2500,
+                "energyPerShot": 1000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/exiles_taurus/uber_shot.json",
+                  "safeName": "exiles_taurus_3",
+                  "name": "uber_shot",
+                  "damage": 100,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 100,
+                  "splashRadius": 10,
+                  "muzzleVelocity": 240,
+                  "maxVelocity": 240,
+                  "lifetime": 6,
+                  "burnDamage": 200,
+                  "burnRadius": 15
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 8000,
+            "production": {
+              "metal": 20,
+              "energy": 2000
+            },
+            "consumption": {},
+            "storage": {
+              "metal": 1750,
+              "energy": 45000
+            },
+            "toolConsumption": {
+              "metal": 30,
+              "energy": 1750
+            },
+            "weaponConsumption": {
+              "energy": 2500
+            },
+            "buildRate": 30,
+            "buildInefficiency": 58.333333333333336,
+            "metalRate": -10,
+            "energyRate": -2250,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/commanders/exiles_taurus/exiles_taurus_build_arm.json",
+                "safeName": "exiles_taurus_build_arm",
+                "name": "exiles_taurus_build_arm",
+                "count": 1,
+                "metalConsumption": 30,
+                "energyConsumption": 1750,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
+          },
+          "mobility": {
+            "moveSpeed": 9,
+            "turnSpeed": 180,
+            "acceleration": 60,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "t_wall",
+            "t_metal_extractor_0",
+            "pylon_overcharged",
+            "ambush_twr_hid",
+            "t_aa_twr",
+            "t_torp_launcher",
+            "pylon",
+            "adv_fab_turret",
+            "t_air_fac",
+            "t_bot_fac",
+            "t_power_storage",
+            "t_orbital_launcher",
+            "t_tank_fac",
+            "t_naval_fac",
+            "r_teleporter",
+            "t_storage",
+            "reactor",
+            "r_umbrella"
+          ]
+        },
+        "buildableTypes": "CmdBuild \u0026 Custom6"
       }
     },
     {
@@ -6779,7 +7115,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -6892,7 +7229,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         },
         "buildableTypes": "Custom6 \u0026 ((Naval \u0026 Mobile \u0026 Basic) \u0026 FactoryBuild)"
@@ -7252,7 +7590,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -7652,7 +7991,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
@@ -7734,7 +8074,8 @@
             "battle_fab_adv",
             "union_formidable",
             "exiles_brainiac",
-            "exiles_maxim"
+            "exiles_maxim",
+            "exiles_taurus"
           ]
         }
       }
