@@ -10,10 +10,12 @@ import { UnitListView } from '@/components/UnitListView'
 import { UnitIcon } from '@/components/UnitIcon'
 import { FactionSelector } from '@/components/FactionSelector'
 import { VersionSelector } from '@/components/VersionSelector'
+import { VersionDiffModal } from '@/components/VersionDiffModal'
+import { getFactionVersions, isDevelopmentMode, type VersionEntry } from '@/services/manifestLoader'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
 import { createWebPageSchema } from '@/components/seoSchemas'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { parseFactionRef } from '@/utils/versionedFactionId'
 import { groupUnitsByCategory, type UnitCategory } from '@/utils/unitCategories'
 import { groupCommanderVariants } from '@/utils/commanderDedup'
@@ -78,6 +80,50 @@ export function FactionDetail() {
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState<UnitCategory | null>(null)
   const [dragAnnouncement, setDragAnnouncement] = useState('')
+
+  // Version diff: load the version list so we can offer a "What changed?" comparison
+  // against the immediately-previous version. Mirrors VersionSelector's manifest guard.
+  const [versionList, setVersionList] = useState<VersionEntry[]>([])
+  const [diffOpen, setDiffOpen] = useState(false)
+  useEffect(() => {
+    let cancelled = false
+    // Clear immediately when factionId changes to avoid showing a stale comparison.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVersionList([])
+    const hasManifest =
+      !isDevelopmentMode() ||
+      import.meta.env.VITE_USE_LIVE_DATA === 'true' ||
+      !!import.meta.env.VITE_FACTIONS_DIR
+    if (isAllMode || !factionId || isLocalFaction(factionId) || !hasManifest) {
+      return
+    }
+    getFactionVersions(factionId)
+      .then((list) => {
+        if (!cancelled) setVersionList(list)
+      })
+      .catch(() => {
+        if (!cancelled) setVersionList([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [factionId, isAllMode, isLocalFaction])
+
+  // Resolve the version currently being viewed (null = latest = versions[0]) and the
+  // immediately-older version to diff against, if one exists.
+  const { currentVersionLabel, previousVersion } = useMemo(() => {
+    if (versionList.length <= 1) {
+      return { currentVersionLabel: null as string | null, previousVersion: null as string | null }
+    }
+    const currentIdx = version ? versionList.findIndex((v) => v.version === version) : 0
+    if (currentIdx === -1) {
+      return { currentVersionLabel: null as string | null, previousVersion: null as string | null }
+    }
+    return {
+      currentVersionLabel: versionList[currentIdx].version,
+      previousVersion: versionList[currentIdx + 1]?.version ?? null,
+    }
+  }, [versionList, version])
 
   // Convert saved collapsed categories array to Set for efficient lookups
   const collapsedCategories = useMemo(
@@ -368,12 +414,24 @@ export function FactionDetail() {
         </div>
         {/* Version selector - only show for non-local factions with multiple versions */}
         {!isAllMode && !isLocalFaction(factionId) && (
-          <div className="w-full sm:w-auto sm:flex-none">
+          <div className="w-full sm:w-auto sm:flex-none flex items-center gap-2">
             <VersionSelector
               factionId={factionId}
               currentVersion={version}
               onVersionChange={handleVersionChange}
             />
+            {/* "What changed?" - only when an older version exists and the current
+                index is loaded (needed to compute the diff). */}
+            {previousVersion && currentVersionLabel && singleFaction.index && (
+              <button
+                type="button"
+                onClick={() => setDiffOpen(true)}
+                className="px-3 py-2 border rounded-md bg-background hover:bg-muted transition-colors text-sm font-medium whitespace-nowrap"
+                title={`Compare v${currentVersionLabel} against v${previousVersion}`}
+              >
+                What changed?
+              </button>
+            )}
           </div>
         )}
         {/* Row 2 on mobile: Search (full width) */}
@@ -533,6 +591,17 @@ export function FactionDetail() {
           </button>
         </div>
       </div>
+
+      {previousVersion && currentVersionLabel && singleFaction.index && (
+        <VersionDiffModal
+          isOpen={diffOpen}
+          onClose={() => setDiffOpen(false)}
+          factionId={factionId}
+          previousVersion={previousVersion}
+          currentVersion={currentVersionLabel}
+          currentIndex={singleFaction.index}
+        />
+      )}
 
       {viewMode === 'table' ? (
           <UnitTable
