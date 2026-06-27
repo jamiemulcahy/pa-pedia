@@ -334,10 +334,10 @@ Triggers on:
 ```
 
 **Version History**:
-- `latest`: Points to the highest **version number** (not build timestamp — so out-of-order publishing can't make an older version look newest). See `scripts/version-compare.ts`.
-- `versions`: Array of all available versions, ordered by version number (newest first); the UI treats `versions[0]` as latest
+- `latest`: Points to the **most recently extracted** version (newest build timestamp), NOT the highest version number. Upstream mod versions are not guaranteed monotonic (e.g. Exiles went 0.7.10 → 0.7.20 → 0.7.3 → 0.7.4.3), so version-number ordering would crown an old, numerically-largest build. The newest extraction always reflects current upstream. See `scripts/manifest-ordering.ts`.
+- `versions`: Array of all available versions, ordered by extraction timestamp (newest first); the UI treats `versions[0]` as latest
 - Historical versions are preserved when a faction's version number changes
-- Same-version rebuilds (different timestamp, same version) replace older timestamps (timestamp is the tie-breaker only within an identical version)
+- Same-version rebuilds (different timestamp, same version) replace older timestamps (dedup keeps the newest timestamp per faction+version); version number is only a tie-breaker for identical timestamps
 
 **Version Tracking**:
 - `version`: Extracted from faction `metadata.json` (CLI-generated)

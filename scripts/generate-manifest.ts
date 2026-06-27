@@ -14,7 +14,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import JSZip from 'jszip'
-import { byVersionDesc } from './version-compare'
+import { byTimestampDesc } from './manifest-ordering'
 
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
@@ -219,11 +219,13 @@ async function main() {
   const factionEntries: FactionEntry[] = []
 
   for (const [factionId, factionData] of factionVersions) {
-    // Sort by version number (newest first), NOT by build timestamp. Timestamp
-    // ordering breaks when versions are published out of order (e.g. an older
-    // version's PR merged after a newer one); version ordering is stable.
+    // Sort by extraction timestamp (newest first), NOT by version number.
+    // Upstream mod versions are not guaranteed monotonic (e.g. Exiles went
+    // 0.7.10 -> 0.7.20 -> 0.7.3 -> 0.7.4.3), so version-number ordering crowns
+    // an old, numerically-largest build. The newest extraction always reflects
+    // current upstream. See manifest-ordering.ts.
     factionData.versions.sort((a, b) =>
-      byVersionDesc(
+      byTimestampDesc(
         { version: a.zip.parsed!.version, timestamp: a.zip.parsed!.timestamp },
         { version: b.zip.parsed!.version, timestamp: b.zip.parsed!.timestamp }
       )
@@ -239,7 +241,7 @@ async function main() {
       build: metadata?.build,
     }))
 
-    // Latest is the first one (highest version number)
+    // Latest is the first one (most recently extracted)
     const latestVersion = factionData.versions[0]
     const latestMetadata = latestVersion.metadata
 
