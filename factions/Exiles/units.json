@@ -371,7 +371,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -504,7 +504,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -783,7 +783,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -892,7 +892,7 @@
       }
     },
     {
-      "identifier": "union_formidable",
+      "identifier": "exiles_blueberry",
       "displayName": "Blueberry Commander",
       "unitTypes": [
         "Commander",
@@ -907,20 +907,20 @@
       "source": "pa",
       "files": [
         {
-          "path": "pa/units/commanders/exiles_blueberry/union_formidable.json",
+          "path": "pa/units/commanders/exiles_blueberry/exiles_blueberry.json",
           "source": "com.pa.nik.exiles"
         },
         {
-          "path": "pa/units/commanders/exiles_blueberry/union_formidable_icon_buildbar.png",
+          "path": "pa/units/commanders/exiles_blueberry/exiles_blueberry_icon_buildbar.png",
           "source": "com.pa.nik.exiles"
         }
       ],
       "unit": {
-        "id": "union_formidable",
-        "resourceName": "/pa/units/commanders/exiles_blueberry/union_formidable.json",
+        "id": "exiles_blueberry",
+        "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry.json",
         "displayName": "Blueberry Commander",
         "description": "Basic Tiha Commander.",
-        "image": "assets/pa/units/commanders/exiles_blueberry/union_formidable_icon_buildbar.png",
+        "image": "assets/pa/units/commanders/exiles_blueberry/exiles_blueberry_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
           "Commander",
@@ -1043,6 +1043,51 @@
                 }
               },
               {
+                "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_tool_weapon.json",
+                "safeName": "exiles_blueberry_tool_weapon",
+                "name": "exiles_blueberry_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 120,
+                "dps": 120,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 125,
+                "maxRange": 100,
+                "splashDamage": 120,
+                "splashRadius": 3,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Seafloor"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Mobile",
+                  "Structure - Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 40,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_ammo.json",
+                  "safeName": "exiles_blueberry_ammo",
+                  "name": "exiles_blueberry_ammo",
+                  "damage": 120,
+                  "splashDamage": 120,
+                  "splashRadius": 3,
+                  "muzzleVelocity": 125,
+                  "maxVelocity": 125,
+                  "lifetime": 1.25,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              },
+              {
                 "resourceName": "/pa/units/commanders/exiles_blueberry/exiles_blueberry_uber_cannon.json",
                 "safeName": "exiles_blueberry_uber_cannon",
                 "name": "exiles_blueberry_uber_cannon",
@@ -1084,51 +1129,6 @@
                   "splashRadius": 95,
                   "burnDamage": 200,
                   "burnRadius": 70
-                }
-              },
-              {
-                "resourceName": "/pa/units/commanders/exiles_blueberry/union_formidable_tool_weapon.json",
-                "safeName": "union_formidable_tool_weapon",
-                "name": "union_formidable_tool_weapon",
-                "count": 1,
-                "rateOfFire": 1,
-                "damage": 120,
-                "dps": 120,
-                "projectilesPerFire": 1,
-                "muzzleVelocity": 125,
-                "maxRange": 100,
-                "splashDamage": 120,
-                "splashRadius": 3,
-                "burnDamage": 15,
-                "burnRadius": 2,
-                "burnDps": 6,
-                "targetLayers": [
-                  "LandHorizontal",
-                  "WaterSurface",
-                  "Seafloor"
-                ],
-                "targetPriorities": [
-                  "Mobile - Air",
-                  "Mobile",
-                  "Structure - Wall"
-                ],
-                "yawRange": 180,
-                "yawRate": 360,
-                "pitchRange": 40,
-                "pitchRate": 360,
-                "ammoDetails": {
-                  "resourceName": "/pa/units/commanders/exiles_blueberry/union_formidable_ammo.json",
-                  "safeName": "union_formidable_ammo",
-                  "name": "union_formidable_ammo",
-                  "damage": 120,
-                  "splashDamage": 120,
-                  "splashRadius": 3,
-                  "muzzleVelocity": 125,
-                  "maxVelocity": 125,
-                  "lifetime": 1.25,
-                  "burnDamage": 15,
-                  "burnRadius": 2,
-                  "burnDuration": 2.5
                 }
               }
             ]
@@ -1430,7 +1430,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -2583,7 +2583,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -2669,7 +2669,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -2785,7 +2785,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -3016,7 +3016,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -3977,7 +3977,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -5501,7 +5501,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -5650,7 +5650,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -5858,7 +5858,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -6703,7 +6703,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -7113,7 +7113,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -7227,7 +7227,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -7588,7 +7588,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -7989,7 +7989,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
@@ -8072,7 +8072,7 @@
             "t_tank_fab_adv",
             "t_naval_fab_adv",
             "battle_fab_adv",
-            "union_formidable",
+            "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
