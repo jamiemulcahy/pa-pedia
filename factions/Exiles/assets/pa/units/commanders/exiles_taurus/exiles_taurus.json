@@ -1,5 +1,9 @@
 {
     "base_spec": "/pa/units/commanders/base_commander/base_commander.json",
+    "ai_metal_extractor_names": {
+        "basic": "ExilesBasicMetalExtractor",
+        "advanced": "ExilesAdvancedMetalExtractor"
+    },
     "display_name": "Taurus Commander",
     "si_name": "exiles_taurus",
     "description": "Shielded Exile Commander. Significantly less HP but half of it in a rechargable shield. Armed with a gauss rifle.",
@@ -131,8 +135,8 @@
     "tools": [
         {
             "spec_id": "/pa/units/commanders/exiles_taurus/exiles_taurus_build_arm.json",
-            "aim_bone": "socket_leftMuzzle",
-            "record_index": 2,
+            "aim_bone": "bone_turret",
+            "record_index": 0,
             "primary_weapon": false
         },
         {
@@ -248,9 +252,9 @@
     "catalog_object_name": "TankAeson",
     "client": {
         "ui": {
-            "image": "/pa/units/commanders/exiles_taurus/exiles_taurus_image.png",
-            "thumb_image": "/pa/units/commanders/exiles_taurus/exiles_taurus_image.png",
-            "profile_image": "/pa/units/commanders/exiles_taurus/profile_exiles_maxim1.png"
+            "image": "/pa/units/commanders/exiles_taurus/img_exiles_taurus.png",
+            "thumb_image": "/pa/units/commanders/exiles_taurus/img_exiles_taurus_thumb.png",
+            "profile_image": "/pa/units/commanders/exiles_taurus/profile_exiles_taurus.png"
         }
     }
 }
