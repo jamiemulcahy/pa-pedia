@@ -60,6 +60,12 @@ export async function onRequest(context) {
   // bundle must not be cached as broken for a day).
   if (upstream.ok || upstream.status === 206) {
     headers.set('cache-control', 'public, max-age=86400')
+    // Always advertise range support. Both this proxy and the release backend
+    // honour Range (verified 206), but GitHub's CDN omits Accept-Ranges on the
+    // 206/HEAD responses — and zip.js (the web client) treats a missing
+    // Accept-Ranges as "no range support" and refuses to do range reads, which
+    // would hide the 3D viewer. Setting it here keeps the per-unit range reads.
+    headers.set('accept-ranges', 'bytes')
   } else {
     headers.set('cache-control', 'no-store')
   }
