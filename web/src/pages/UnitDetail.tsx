@@ -5,6 +5,7 @@ import { useComparisonUnits } from '@/hooks/useComparisonUnits'
 import { useFaction } from '@/hooks/useFaction'
 import { useFactionContext } from '@/contexts/FactionContext'
 import { UnitIcon } from '@/components/UnitIcon'
+import { UnitModelSection } from '@/components/UnitModelSection'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { SEO } from '@/components/SEO'
 import { JsonLd } from '@/components/JsonLd'
@@ -346,7 +347,8 @@ export function UnitDetail() {
   const compareUnit = comparisonUnits[0]
 
   // Get primary faction units (needed for cross-faction Built By comparison)
-  const { units: primaryUnits } = useFaction(factionId || '')
+  // and metadata (for the 3D viewer's default team colours).
+  const { units: primaryUnits, metadata: factionMetadata } = useFaction(factionId || '')
 
   // Scroll container ref for auto-scroll when adding units
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -1427,6 +1429,14 @@ export function UnitDetail() {
                   </p>
                 )}
               </div>
+
+              {/* 3D model viewer — renders only when this unit has a model bundle */}
+              <UnitModelSection
+                factionId={factionId || ''}
+                unitId={unitId || ''}
+                version={version}
+                teamColors={factionMetadata?.teamColors}
+              />
 
               <UnitTypesSection unitTypes={unit.unitTypes} />
 

@@ -1,0 +1,18 @@
+{
+  "generated": "2026-07-11T00:00:00Z",
+  "unitCount": 2,
+  "units": {
+    "radar": {
+      "glb": "models/radar.glb",
+      "diffuse": "textures/radar_diffuse.png",
+      "mask": "textures/radar_mask.png",
+      "material": "textures/radar_material.png"
+    },
+    "assault_bot": {
+      "glb": "models/assault_bot.glb",
+      "diffuse": "textures/assault_bot_diffuse.png",
+      "mask": "textures/assault_bot_mask.png",
+      "material": "textures/assault_bot_material.png"
+    }
+  }
+}
