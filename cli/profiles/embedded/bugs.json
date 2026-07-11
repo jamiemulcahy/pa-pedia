@@ -5,5 +5,9 @@
     "github.com/Ferret-Master/Bug-Faction/tree/main",
     "github.com/Ferret-Master/Bug-Faction-Client/tree/main"
   ],
-  "backgroundImage": "ui/mods/bugs_faction/img/Bug_Menu.png"
+  "backgroundImage": "ui/mods/bugs_faction/img/Bug_Menu.png",
+  "teamColors": {
+    "primary": "#7bb33a",
+    "secondary": "#c9a227"
+  }
 }

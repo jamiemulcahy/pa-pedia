@@ -1,5 +1,11 @@
 /* Type definitions for PA-Pedia faction data */
 
+/** Default faction team-paint colour pair (hex) for the 3D model viewer. */
+export interface TeamColors {
+  primary: string;
+  secondary: string;
+}
+
 // Faction Metadata
 export interface FactionMetadata {
   identifier: string;
@@ -16,6 +22,8 @@ export interface FactionMetadata {
   isAddon?: boolean;
   /** Faction display names that this addon extends (e.g. MLA, Legion) */
   baseFactions?: string[];
+  /** Default team-paint colour pair for the 3D model viewer (falls back to a neutral pair if absent). */
+  teamColors?: TeamColors;
 }
 
 // Faction Index

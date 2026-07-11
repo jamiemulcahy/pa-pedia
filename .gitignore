@@ -16,6 +16,7 @@ cli/*.exe
 # Faction data - track source folders, ignore generated files
 /factions/**/*.zip
 /factions/dist/
+/models/
 
 # IDE
 .vscode/

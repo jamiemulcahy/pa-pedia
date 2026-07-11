@@ -62,6 +62,10 @@
           },
           "type": "array",
           "description": "Faction display names that this addon extends (e.g. MLA or Legion)"
+        },
+        "teamColors": {
+          "$ref": "#/$defs/TeamColors",
+          "description": "Default faction team-paint colour pair (primary/secondary hex) for the 3D model viewer"
         }
       },
       "additionalProperties": false,
@@ -71,6 +75,24 @@
         "displayName",
         "version",
         "type"
+      ]
+    },
+    "TeamColors": {
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Default main/primary team colour as a hex string (e.g. #007cff)"
+        },
+        "secondary": {
+          "type": "string",
+          "description": "Default highlight/secondary team colour as a hex string (e.g. #ff6400)"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "primary",
+        "secondary"
       ]
     }
   },

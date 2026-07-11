@@ -1,5 +1,13 @@
 package models
 
+// TeamColors holds a faction's default two-colour team-paint pair as hex strings
+// (e.g. "#007cff"). These seed the 3D unit model viewer's main/highlight colour
+// picker; the user can override them at runtime in the web app.
+type TeamColors struct {
+	Primary   string `json:"primary" jsonschema:"required,description=Default main/primary team colour as a hex string (e.g. #007cff)"`
+	Secondary string `json:"secondary" jsonschema:"required,description=Default highlight/secondary team colour as a hex string (e.g. #ff6400)"`
+}
+
 // FactionMetadata represents the metadata.json file for a faction folder
 type FactionMetadata struct {
 	Identifier  string   `json:"identifier" jsonschema:"required,description=Unique identifier for the faction (e.g. com.pa.legion-expansion)"`
@@ -21,6 +29,10 @@ type FactionMetadata struct {
 	// Auto-populated from detected faction unit types during extraction.
 	// Example: ["MLA", "Legion", "Bugs"] for Second Wave.
 	BaseFactions []string `json:"baseFactions,omitempty" jsonschema:"description=Faction display names that this addon extends (e.g. MLA or Legion)"`
+
+	// TeamColors is the faction's default team-paint colour pair for the 3D model
+	// viewer. Optional; the web app falls back to a neutral pair if absent.
+	TeamColors *TeamColors `json:"teamColors,omitempty" jsonschema:"description=Default faction team-paint colour pair (primary/secondary hex) for the 3D model viewer"`
 }
 
 // FactionDatabase represents the units.json file for a faction folder

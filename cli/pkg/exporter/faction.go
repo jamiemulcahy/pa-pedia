@@ -782,5 +782,11 @@ func CreateMetadataFromProfile(profile *models.FactionProfile, resolvedMods []*l
 		metadata.BackgroundImage = "assets/" + normalizedPath
 	}
 
+	// Carry the faction's default team-paint colours into the metadata so the
+	// web app can seed the 3D model viewer's colour picker.
+	if profile.TeamColors != nil {
+		metadata.TeamColors = profile.TeamColors
+	}
+
 	return metadata, nil
 }

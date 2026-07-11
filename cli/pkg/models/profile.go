@@ -50,4 +50,8 @@ type FactionProfile struct {
 	// Uses the same path format as other PA resources (e.g., "/ui/mods/my_mod/img/background.png").
 	// The image will be loaded from mod sources and copied to the faction output folder during export.
 	BackgroundImage string `json:"backgroundImage,omitempty" jsonschema:"description=Resource path to background image within mod sources (e.g. /ui/mods/my_mod/img/bg.png)"`
+
+	// TeamColors is the faction's default team-paint colour pair (primary/secondary
+	// hex). Copied into FactionMetadata to seed the 3D model viewer's colour picker.
+	TeamColors *TeamColors `json:"teamColors,omitempty" jsonschema:"description=Default faction team-paint colour pair (primary/secondary hex) for the 3D model viewer"`
 }

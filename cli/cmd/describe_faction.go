@@ -9,7 +9,6 @@ import (
 	"github.com/jamiemulcahy/pa-pedia/pkg/exporter"
 	"github.com/jamiemulcahy/pa-pedia/pkg/loader"
 	"github.com/jamiemulcahy/pa-pedia/pkg/models"
-	"github.com/jamiemulcahy/pa-pedia/pkg/parser"
 	"github.com/jamiemulcahy/pa-pedia/pkg/profiles"
 	"github.com/spf13/cobra"
 )
@@ -116,42 +115,10 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		return listAvailableProfiles(profileLoader)
 	}
 
-	// Validate mutually exclusive options
-	if profileFlag != "" && factionNameFlag != "" {
-		return fmt.Errorf("--profile and --name are mutually exclusive\n\nUse --profile for profile-based extraction (recommended)\nUse --name with --faction-unit-type for manual mode")
-	}
-
-	// Determine which mode we're in
-	var profile *models.FactionProfile
-
-	if profileFlag != "" {
-		// Profile-based mode
-		profile, err = profileLoader.GetProfile(profileFlag)
-		if err != nil {
-			return fmt.Errorf("profile '%s' not found\n\nUse --list-profiles to see available profiles", profileFlag)
-		}
-		logVerbose("Using profile: %s (%s)", profile.ID, profile.DisplayName)
-
-		// Append any --mod flags to the profile's mods (CLI flags take priority)
-		if len(modIDs) > 0 {
-			// CLI mods go first (highest priority)
-			profile.Mods = append(modIDs, profile.Mods...)
-		}
-	} else if factionNameFlag != "" {
-		// Args-based mode - create a temporary profile from args
-		if factionUnitTypeFlag == "" {
-			return fmt.Errorf("--faction-unit-type is required when using --name\n\nExample: --faction-unit-type Custom58 (for MLA) or Custom1 (for Legion)")
-		}
-
-		profile = &models.FactionProfile{
-			ID:              factionNameFlag,
-			DisplayName:     factionNameFlag,
-			FactionUnitType: factionUnitTypeFlag,
-			Mods:            modIDs,
-		}
-		logVerbose("Using manual mode: %s with unit type %s", factionNameFlag, factionUnitTypeFlag)
-	} else {
-		return fmt.Errorf("either --profile or --name is required\n\nUse --profile for profile-based extraction (recommended)\nUse --name with --faction-unit-type for manual mode\nUse --list-profiles to see available profiles")
+	// Determine which mode we're in (profile vs manual)
+	profile, err := resolveProfileFromFlags(profileLoader, profileFlag, factionNameFlag, factionUnitTypeFlag, modIDs)
+	if err != nil {
+		return err
 	}
 
 	// Apply --version flag override (takes priority over profile/mod version)
@@ -168,29 +135,9 @@ func runDescribeFaction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Validate --pa-root
-	if paRoot == "" {
-		return fmt.Errorf("--pa-root is required")
-	}
-
-	// Validate --data-root for factions with local mods (not needed for GitHub-only mods)
-	hasLocalMods := false
-	for _, mod := range profile.Mods {
-		if !loader.IsGitHubURL(mod) {
-			hasLocalMods = true
-			break
-		}
-	}
-	if hasLocalMods && paDataRoot == "" {
-		return fmt.Errorf("--data-root is required when local mods are involved\n\nProfile '%s' has local mods that need to be discovered\n\nCommon locations:\n  Windows: %%LOCALAPPDATA%%\\Uber Entertainment\\Planetary Annihilation\n  macOS: ~/Library/Application Support/Uber Entertainment/Planetary Annihilation\n  Linux: ~/.local/Uber Entertainment/Planetary Annihilation",
-			profile.ID)
-	}
-
-	// Validate data-root structure if provided
-	if paDataRoot != "" {
-		if err := validateDataRoot(paDataRoot); err != nil {
-			return fmt.Errorf("invalid --data-root: %w", err)
-		}
+	// Validate --pa-root / --data-root
+	if err := validateFactionInputs(profile, paRoot, paDataRoot); err != nil {
+		return err
 	}
 
 	logVerbose("PA Root: %s", paRoot)
@@ -285,161 +232,12 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 	}
 	fmt.Println()
 
-	var resolvedMods []*loader.ModInfo
-
-	// If profile has mods, discover and resolve them
-	if len(profile.Mods) > 0 {
-		// Separate GitHub mods from local mods
-		var githubModURLs []string
-		var localModIDs []string
-		for _, mod := range profile.Mods {
-			if loader.IsGitHubURL(mod) {
-				githubModURLs = append(githubModURLs, mod)
-			} else {
-				localModIDs = append(localModIDs, mod)
-			}
-		}
-
-		resolvedMods = make([]*loader.ModInfo, 0, len(profile.Mods))
-
-		// Resolve GitHub mods first (they have highest priority as they appear first in the list)
-		if len(githubModURLs) > 0 {
-			fmt.Println("Resolving GitHub mods...")
-			for _, url := range githubModURLs {
-				modInfo, err := loader.ResolveGitHubMod(url, verbose)
-				if err != nil {
-					return fmt.Errorf("failed to resolve GitHub mod: %w", err)
-				}
-				resolvedMods = append(resolvedMods, modInfo)
-				fmt.Printf("  ✓ %s (%s) [%s]\n", modInfo.Identifier, modInfo.DisplayName, modInfo.SourceType)
-				fmt.Printf("    Source: %s (zip)\n", modInfo.ZipPath)
-			}
-			fmt.Println()
-		}
-
-		// Resolve local mods (if any)
-		if len(localModIDs) > 0 {
-			fmt.Println("Discovering local mods...")
-			allMods, err := loader.FindAllMods(paDataRoot, verbose)
-			if err != nil {
-				return fmt.Errorf("failed to discover mods: %w", err)
-			}
-
-			fmt.Printf("Found %d total mods across all locations\n", len(allMods))
-			if verbose {
-				for id, mod := range allMods {
-					fmt.Printf("  - %s (%s) [%s]\n", id, mod.DisplayName, mod.SourceType)
-				}
-			}
-			fmt.Println()
-
-			fmt.Println("Resolving requested local mods...")
-			for _, modID := range localModIDs {
-				modInfo, ok := allMods[modID]
-				if !ok {
-					showAvailableMods(modID, allMods)
-					return fmt.Errorf("mod not found: %s", modID)
-				}
-
-				resolvedMods = append(resolvedMods, modInfo)
-				fmt.Printf("  ✓ %s (%s) [%s]\n", modInfo.Identifier, modInfo.DisplayName, modInfo.SourceType)
-				if modInfo.IsZipped {
-					fmt.Printf("    Source: %s (zip)\n", modInfo.ZipPath)
-				} else {
-					fmt.Printf("    Source: %s (directory)\n", modInfo.Directory)
-				}
-			}
-			fmt.Println()
-		}
-	}
-
-	// Create multi-source loader (works for both base game and modded)
-	fmt.Println("Initializing loader...")
-	l, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", resolvedMods)
+	// Resolve mods, build the overlay loader, and load units (shared with extract-models)
+	l, units, resolvedMods, baseFactions, err := loadFactionUnits(profile, paRoot, paDataRoot, allowEmpty)
 	if err != nil {
-		return fmt.Errorf("failed to create loader: %w", err)
+		return err
 	}
 	defer l.Close()
-
-	// Load merged unit list (for verbose output)
-	if len(profile.Mods) > 0 {
-		fmt.Println("Loading and merging unit lists...")
-		unitPaths, provenance, err := l.LoadMergedUnitList()
-		if err != nil {
-			return fmt.Errorf("failed to load merged unit list: %w", err)
-		}
-
-		fmt.Printf("Merged %d unique units from all sources\n", len(unitPaths))
-		if verbose {
-			sourceCounts := make(map[string]int)
-			for _, source := range provenance {
-				sourceCounts[source]++
-			}
-			fmt.Println("\nUnit distribution by source:")
-			for source, count := range sourceCounts {
-				fmt.Printf("  - %s: %d units\n", source, count)
-			}
-		}
-		fmt.Println()
-	}
-
-	// Create database parser and load units
-	fmt.Println("Loading units...")
-	db := parser.NewDatabase(l)
-
-	var units []models.Unit
-
-	if profile.IsAddon {
-		// ADDON PATH: Load all units, then filter out base game units
-		if err := db.LoadUnitsNoFilter(verbose); err != nil {
-			return fmt.Errorf("failed to load units: %w", err)
-		}
-
-		// Load base game units for comparison (MLA = Custom58)
-		// All PA addon mods shadow MLA units regardless of which factions they extend.
-		// This is a PA modding constraint - even Legion/Bugs addons must shadow MLA.
-		// If a future addon uses a different base, this would need to be configurable.
-		fmt.Println("\nLoading base game units for comparison...")
-		baseLoader, err := loader.NewMultiSourceLoader(paRoot, "pa_ex1", nil)
-		if err != nil {
-			return fmt.Errorf("failed to create base game loader: %w", err)
-		}
-		defer baseLoader.Close()
-
-		baseDB := parser.NewDatabase(baseLoader)
-		// Load ALL base game units (no faction filter) for comparison.
-		// Commanders and other faction-agnostic units don't have Custom58 type,
-		// so filtering by faction type would miss them and let them slip through.
-		if err := baseDB.LoadUnitsNoFilter(verbose); err != nil {
-			return fmt.Errorf("failed to load base game units: %w", err)
-		}
-
-		// Build set of base unit identifiers and filter addon units
-		baseUnitIDs := baseDB.GetUnitIDs()
-		fmt.Printf("Loaded %d base game units for comparison\n", len(baseUnitIDs))
-
-		filteredCount := db.FilterOutUnits(baseUnitIDs)
-		fmt.Printf("Filtered out %d base game units, keeping %d addon units\n", filteredCount, len(db.Units))
-
-		if len(db.Units) == 0 {
-			if allowEmpty {
-				fmt.Printf("\n⚠ WARNING: No new units found in addon (all units exist in base game)\n")
-				fmt.Printf("   The faction export will contain 0 units (--allow-empty is set).\n\n")
-			} else {
-				return fmt.Errorf("no new units found in addon (all units exist in base game)\n\nThe addon appears to only shadow base game units without adding new ones.\nTo allow empty exports, use the --allow-empty flag")
-			}
-		}
-
-		units = db.GetUnitsArray()
-		fmt.Printf("\nLoaded %d addon units\n", len(units))
-	} else {
-		// NORMAL PATH: Filter by faction unit type
-		if err := db.LoadUnits(verbose, profile.FactionUnitType, allowEmpty); err != nil {
-			return fmt.Errorf("failed to load units: %w", err)
-		}
-		units = db.GetUnitsArray()
-		fmt.Printf("\nLoaded %d units (filtered by UNITTYPE_%s)\n", len(units), profile.FactionUnitType)
-	}
 
 	// Create metadata from profile
 	metadata, err := exporter.CreateMetadataFromProfile(profile, resolvedMods)
@@ -450,10 +248,7 @@ func describeFaction(profile *models.FactionProfile, allowEmpty bool) error {
 	// Set addon flag and detect base factions if this is an addon
 	if profile.IsAddon {
 		metadata.IsAddon = true
-		metadata.BaseFactions = db.DetectBaseFactions()
-		if verbose && len(metadata.BaseFactions) > 0 {
-			fmt.Printf("Detected base factions: %v\n", metadata.BaseFactions)
-		}
+		metadata.BaseFactions = baseFactions
 	}
 
 	// Export faction

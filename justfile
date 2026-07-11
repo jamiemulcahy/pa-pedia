@@ -208,6 +208,30 @@ upload-base-data:
     npm run upload:base-data
 
 # ============================================================================
+# 3D Model Extraction (requires local PA install + Blender 5.1.x on PATH)
+# ============================================================================
+
+# Extract 3D models for one faction profile into ./models/{Faction}/
+# (geometry .glb + grayscale diffuse + team-colour mask + models.json).
+# Example: just extract-models mla
+[working-directory: 'cli']
+extract-models profile pa_root='C:\Program Files (x86)\Steam\steamapps\common\Planetary Annihilation Titans\media':
+    go run . extract-models --profile {{profile}} --pa-root "{{pa_root}}" --output ../models
+
+# Extract 3D models for all built-in faction profiles.
+generate-models pa_root='C:\Program Files (x86)\Steam\steamapps\common\Planetary Annihilation Titans\media':
+    just extract-models mla "{{pa_root}}"
+    just extract-models legion "{{pa_root}}"
+    just extract-models bugs "{{pa_root}}"
+    just extract-models exiles "{{pa_root}}"
+    just extract-models second-wave "{{pa_root}}"
+
+# Zip model folders under ./models into versioned bundles (./models/dist).
+[working-directory: 'scripts']
+build-model-bundles:
+    npm run build:model-bundles
+
+# ============================================================================
 # Docker / Container Commands
 # ============================================================================
 
