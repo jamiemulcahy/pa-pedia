@@ -367,8 +367,11 @@ async function main() {
     factions: factionEntries,
   }
 
-  // Write manifest to file
+  // Write manifest to file. Ensure the output dir exists — the faction-data
+  // workflow creates it via build:zips first, but the faction-models workflow
+  // calls this directly, so don't assume it's present.
   const manifestPath = path.join(OUTPUT_DIR, 'manifest.json')
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true })
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
   console.log()
   console.log(`Manifest written to ${manifestPath}`)
