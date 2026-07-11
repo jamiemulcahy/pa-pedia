@@ -6,6 +6,7 @@ on:
     paths:
       - 'web/**'
       - 'schema/**'
+      - 'functions/**'
   # Also deploy when faction data is updated by the faction workflow
   workflow_run:
     workflows: ["Faction Data Release"]
