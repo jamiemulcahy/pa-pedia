@@ -7,5 +7,9 @@
     "github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/server",
     "github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/client"
   ],
-  "backgroundImage": "ui/mods/com.pa.legion-expansion/img/splash_no_logo.png"
+  "backgroundImage": "ui/mods/com.pa.legion-expansion/img/splash_no_logo.png",
+  "teamColors": {
+    "primary": "#c40d1a",
+    "secondary": "#111111"
+  }
 }

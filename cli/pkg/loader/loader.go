@@ -800,6 +800,79 @@ func (l *Loader) findSpecSource(resourcePath string) *SpecFileInfo {
 	return nil
 }
 
+// ResolveResource returns provenance info for an arbitrary resource path
+// (JSON or binary such as a .papa model/texture) using the same first-wins
+// priority and expansion shadowing as the rest of the loader. Returns nil if
+// the resource does not exist in any source.
+func (l *Loader) ResolveResource(resourcePath string) *SpecFileInfo {
+	return l.findSpecSource(resourcePath)
+}
+
+// CopyResourceFile resolves a resource path across all sources (first-wins) and
+// copies its bytes to destPath, creating parent directories as needed. It works
+// for binary resources (e.g. .papa files) as well as JSON, and correctly handles
+// base-game/expansion path prefixes and GitHub archive prefixes.
+//
+// Unlike the exporter's copy helpers this lives on the loader so any caller can
+// stage arbitrary resources (used by the 3D model pipeline).
+func (l *Loader) CopyResourceFile(resourcePath, destPath string) error {
+	info := l.findSpecSource(resourcePath)
+	if info == nil {
+		return fmt.Errorf("resource not found in any source: %s", resourcePath)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+		return fmt.Errorf("failed to create destination directory: %w", err)
+	}
+
+	if info.IsFromZip {
+		for _, src := range l.sources {
+			if !src.IsZip || src.Identifier != info.Source {
+				continue
+			}
+			file, found := src.zipIndex[info.FullPath]
+			if !found {
+				return fmt.Errorf("file not found in zip %s: %s", src.Identifier, info.FullPath)
+			}
+			rc, err := file.Open()
+			if err != nil {
+				return fmt.Errorf("failed to open file in zip: %w", err)
+			}
+			defer rc.Close()
+
+			destFile, err := os.Create(destPath)
+			if err != nil {
+				return fmt.Errorf("failed to create destination file: %w", err)
+			}
+			defer destFile.Close()
+
+			if _, err := io.Copy(destFile, rc); err != nil {
+				return fmt.Errorf("failed to copy file data: %w", err)
+			}
+			return nil
+		}
+		return fmt.Errorf("zip source not found for %s", info.Source)
+	}
+
+	// Filesystem copy
+	srcFile, err := os.Open(info.FullPath)
+	if err != nil {
+		return fmt.Errorf("failed to open source file: %w", err)
+	}
+	defer srcFile.Close()
+
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer destFile.Close()
+
+	if _, err := io.Copy(destFile, srcFile); err != nil {
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	return nil
+}
+
 // findFilesInZip finds all files in a unit directory from a zip source
 func (l *Loader) findFilesInZip(src Source, unitDir string, unitID string) map[string]*UnitFileInfo {
 	files := make(map[string]*UnitFileInfo)

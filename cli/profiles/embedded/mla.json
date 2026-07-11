@@ -3,5 +3,9 @@
   "factionUnitType": "Custom58",
   "author": "Uber Entertainment",
   "description": "The Machine Liberation Army - base game faction from PA Titans",
-  "backgroundImage": "ui/splash/splash.png"
+  "backgroundImage": "ui/splash/splash.png",
+  "teamColors": {
+    "primary": "#007cff",
+    "secondary": "#ff6400"
+  }
 }

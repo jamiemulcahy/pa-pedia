@@ -5,5 +5,9 @@
     "github.com/Anonemous2/pa.mla.unit.addon/tree/master",
     "github.com/Anonemous2/pa.mla.unit.addon/tree/companion"
   ],
-  "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions"
+  "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions",
+  "teamColors": {
+    "primary": "#12b5a5",
+    "secondary": "#ff8a00"
+  }
 }

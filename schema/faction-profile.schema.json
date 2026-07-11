@@ -47,12 +47,34 @@
         "backgroundImage": {
           "type": "string",
           "description": "Resource path to background image within mod sources (e.g. /ui/mods/my_mod/img/bg.png)"
+        },
+        "teamColors": {
+          "$ref": "#/$defs/TeamColors",
+          "description": "Default faction team-paint colour pair (primary/secondary hex) for the 3D model viewer"
         }
       },
       "additionalProperties": false,
       "type": "object",
       "required": [
         "displayName"
+      ]
+    },
+    "TeamColors": {
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Default main/primary team colour as a hex string (e.g. #007cff)"
+        },
+        "secondary": {
+          "type": "string",
+          "description": "Default highlight/secondary team colour as a hex string (e.g. #ff6400)"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "primary",
+        "secondary"
       ]
     }
   },
