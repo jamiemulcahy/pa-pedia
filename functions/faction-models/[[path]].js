@@ -55,8 +55,14 @@ export async function onRequest(context) {
     const v = upstream.headers.get(h)
     if (v) headers.set(h, v)
   }
-  // Bundle filenames are timestamped (immutable), so cache aggressively.
-  headers.set('cache-control', 'public, max-age=86400')
+  // Cache only successful responses — bundle filenames are timestamped
+  // (immutable). Never cache errors (a transient 404/5xx or a not-yet-uploaded
+  // bundle must not be cached as broken for a day).
+  if (upstream.ok || upstream.status === 206) {
+    headers.set('cache-control', 'public, max-age=86400')
+  } else {
+    headers.set('cache-control', 'no-store')
+  }
 
   return new Response(request.method === 'HEAD' ? null : upstream.body, {
     status: upstream.status,
