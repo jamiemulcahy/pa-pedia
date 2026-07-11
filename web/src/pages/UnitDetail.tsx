@@ -1428,16 +1428,16 @@ export function UnitDetail() {
                     {unit.description}
                   </p>
                 )}
-              </div>
 
-              {/* 3D model viewer — renders only when this unit has a model bundle */}
-              <UnitModelSection
-                factionId={factionId || ''}
-                unitId={unitId || ''}
-                version={version}
-                teamColors={factionMetadata?.teamColors}
-                unitName={unit.displayName}
-              />
+                {/* 3D model button — renders only when this unit has a model bundle */}
+                <UnitModelSection
+                  factionId={factionId || ''}
+                  unitId={unitId || ''}
+                  version={version}
+                  teamColors={factionMetadata?.teamColors}
+                  unitName={unit.displayName}
+                />
+              </div>
 
               <UnitTypesSection unitTypes={unit.unitTypes} />
 
