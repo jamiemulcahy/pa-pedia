@@ -19,6 +19,12 @@ import { byTimestampDesc } from './manifest-ordering'
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
 const RELEASE_TAG = 'faction-data'
+// Model bundles live on a separate release so they never slow the spec-zip flow.
+const MODELS_RELEASE_TAG = 'faction-models'
+
+// Model bundle filename: {factionId}-{version}-pedia{timestamp}-models.zip
+const MODEL_ZIP_FILENAME_PATTERN =
+  /^([a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*)-([0-9][0-9.-]*)-pedia(\d{14})-models\.zip$/i
 
 /**
  * Check if GitHub CLI is installed and available
@@ -58,6 +64,13 @@ interface FactionMetadata {
   build?: string
 }
 
+interface ModelBundleInfo {
+  filename: string
+  downloadUrl: string
+  size: number
+  unitCount: number
+}
+
 interface VersionEntry {
   version: string
   filename: string
@@ -65,6 +78,7 @@ interface VersionEntry {
   size: number
   timestamp: number
   build?: string
+  models?: ModelBundleInfo
 }
 
 interface FactionEntry {
@@ -146,6 +160,66 @@ async function extractMetadataFromZip(downloadUrl: string): Promise<FactionMetad
 }
 
 /**
+ * Get model-bundle assets from the faction-models release.
+ * Returns [] if the release does not exist yet (feature not shipped / no models
+ * generated), so manifest generation degrades gracefully.
+ */
+function getModelReleaseAssets(): ReleaseAsset[] {
+  try {
+    const output = execSync(
+      `gh release view ${MODELS_RELEASE_TAG} --json assets -q ".assets[] | {name, size, url}"`,
+      { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+    )
+    return output
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as ReleaseAsset)
+  } catch {
+    console.log(`No ${MODELS_RELEASE_TAG} release found (or no assets) — skipping model bundles`)
+    return []
+  }
+}
+
+/**
+ * Read unitCount from a model bundle's models.json without keeping the whole zip.
+ */
+async function readModelUnitCount(downloadUrl: string): Promise<number> {
+  try {
+    const response = await fetch(downloadUrl)
+    if (!response.ok) return 0
+    const zip = await JSZip.loadAsync(await response.arrayBuffer())
+    const indexFile = zip.file('models.json')
+    if (!indexFile) return 0
+    const index = JSON.parse(await indexFile.async('string')) as { unitCount?: number }
+    return index.unitCount ?? 0
+  } catch {
+    return 0
+  }
+}
+
+/**
+ * Build a map of `${factionId}@${version}` -> newest model bundle asset.
+ * When several bundles exist for the same faction+version (rebuilds), the one
+ * with the newest timestamp wins.
+ */
+function buildModelBundleMap(assets: ReleaseAsset[]): Map<string, { asset: ReleaseAsset; timestamp: number }> {
+  const map = new Map<string, { asset: ReleaseAsset; timestamp: number }>()
+  for (const asset of assets) {
+    const match = asset.name.match(MODEL_ZIP_FILENAME_PATTERN)
+    if (!match) continue
+    const [, factionId, version, ts] = match
+    const key = `${factionId.toLowerCase()}@${version}`
+    const timestamp = parseInt(ts, 10)
+    const existing = map.get(key)
+    if (!existing || timestamp > existing.timestamp) {
+      map.set(key, { asset, timestamp })
+    }
+  }
+  return map
+}
+
+/**
  * Main entry point
  */
 async function main() {
@@ -171,6 +245,12 @@ async function main() {
     .filter((a) => a.parsed !== null)
 
   console.log(`Found ${zipAssets.length} faction zips`)
+  console.log()
+
+  // Fetch model bundles from the separate faction-models release (may be empty).
+  console.log('Fetching model bundle assets...')
+  const modelBundleMap = buildModelBundleMap(getModelReleaseAssets())
+  console.log(`Found ${modelBundleMap.size} model bundle(s)`)
   console.log()
 
   // Step 1: Dedupe same-version timestamps (keep latest timestamp per faction+version)
@@ -231,15 +311,32 @@ async function main() {
       )
     )
 
-    // Build version entries
-    const versions: VersionEntry[] = factionData.versions.map(({ zip, metadata }) => ({
-      version: zip.parsed!.version,
-      filename: zip.asset.name,
-      downloadUrl: `/factions/${zip.asset.name}`,
-      size: zip.asset.size,
-      timestamp: zip.parsed!.timestamp,
-      build: metadata?.build,
-    }))
+    // Build version entries, attaching a model bundle when one exists for this
+    // faction+version (correlated by id+version; newest bundle timestamp wins).
+    const versions: VersionEntry[] = []
+    for (const { zip, metadata } of factionData.versions) {
+      const entry: VersionEntry = {
+        version: zip.parsed!.version,
+        filename: zip.asset.name,
+        downloadUrl: `/factions/${zip.asset.name}`,
+        size: zip.asset.size,
+        timestamp: zip.parsed!.timestamp,
+        build: metadata?.build,
+      }
+
+      const bundle = modelBundleMap.get(`${factionId.toLowerCase()}@${zip.parsed!.version}`)
+      if (bundle) {
+        const unitCount = await readModelUnitCount(bundle.asset.url)
+        entry.models = {
+          filename: bundle.asset.name,
+          downloadUrl: `/${MODELS_RELEASE_TAG}/${bundle.asset.name}`,
+          size: bundle.asset.size,
+          unitCount,
+        }
+      }
+
+      versions.push(entry)
+    }
 
     // Latest is the first one (most recently extracted)
     const latestVersion = factionData.versions[0]
