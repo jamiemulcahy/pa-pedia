@@ -182,7 +182,12 @@ function getModelReleaseAssets(): ReleaseAsset[] {
 }
 
 /**
- * Read unitCount from a model bundle's models.json without keeping the whole zip.
+ * Read unitCount from a model bundle's models.json.
+ *
+ * NOTE (follow-up): this downloads the whole bundle (glb + textures, many MB)
+ * just to read one integer. Fine at current scale, but for large backfills
+ * consider a ranged read of the zip's models.json entry, or encoding the count
+ * in the asset name / a small sidecar summary asset.
  */
 async function readModelUnitCount(downloadUrl: string): Promise<number> {
   try {

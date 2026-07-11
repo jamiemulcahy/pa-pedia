@@ -1,10 +1,152 @@
 package models3d
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
 )
+
+// fakeBlender simulates Blender: it reads the jobs.json written by
+// runBlenderResilient, emits a RESULT line for each unit in order until it hits
+// one in crashOn, and returns a non-nil error if it "crashed". Units listed in
+// crashOn crash Blender natively (no RESULT for them, batch aborts there).
+func fakeBlender(t *testing.T, crashOn map[string]bool) (blenderRunner, *int) {
+	calls := 0
+	runner := func(jobsPath string) ([]string, error) {
+		calls++
+		data, err := os.ReadFile(jobsPath)
+		if err != nil {
+			t.Fatalf("fakeBlender: read jobs: %v", err)
+		}
+		var jobs []job
+		if err := json.Unmarshal(data, &jobs); err != nil {
+			t.Fatalf("fakeBlender: parse jobs: %v", err)
+		}
+		var lines []string
+		for _, j := range jobs {
+			if crashOn[j.UnitID] {
+				return lines, fmt.Errorf("simulated crash on %s", j.UnitID)
+			}
+			lines = append(lines, fmt.Sprintf(`RESULT {"unitId":%q,"ok":true,"files":{"glb":"models/%s.glb"}}`, j.UnitID, j.UnitID))
+		}
+		return lines, nil
+	}
+	return runner, &calls
+}
+
+// alwaysCrash simulates a global failure: every invocation errors with no output.
+func alwaysCrash() (blenderRunner, *int) {
+	calls := 0
+	return func(string) ([]string, error) {
+		calls++
+		return nil, fmt.Errorf("simulated global blender failure")
+	}, &calls
+}
+
+func jobsFor(ids ...string) []job {
+	js := make([]job, len(ids))
+	for i, id := range ids {
+		js[i] = job{UnitID: id, Papa: id + ".papa", OutDir: "/out"}
+	}
+	return js
+}
+
+func resultIDs(lines []string) []string {
+	ids := make([]string, 0)
+	for id := range resultUnitIDs(lines) {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	return ids
+}
+
+func TestRunBlenderResilient(t *testing.T) {
+	noop := func(string, ...interface{}) {}
+
+	t.Run("clean run converts all, no crashes, nil err", func(t *testing.T) {
+		run, calls := fakeBlender(t, nil)
+		lines, crashed, err := runBlenderResilient(t.TempDir(), jobsFor("a", "b", "c"), run, noop)
+		if err != nil {
+			t.Fatalf("err = %v, want nil", err)
+		}
+		if len(crashed) != 0 {
+			t.Fatalf("crashed = %v, want none", crashed)
+		}
+		if got := resultIDs(lines); len(got) != 3 {
+			t.Fatalf("converted = %v, want a,b,c", got)
+		}
+		if *calls != 1 {
+			t.Fatalf("blender calls = %d, want 1", *calls)
+		}
+	})
+
+	t.Run("mid-batch crash is isolated, rest converts", func(t *testing.T) {
+		run, calls := fakeBlender(t, map[string]bool{"c": true})
+		lines, crashed, err := runBlenderResilient(t.TempDir(), jobsFor("a", "b", "c", "d", "e"), run, noop)
+		if err != nil {
+			t.Fatalf("err = %v, want nil (crasher isolated, rest ok)", err)
+		}
+		if len(crashed) != 1 || crashed[0] != "c" {
+			t.Fatalf("crashed = %v, want [c]", crashed)
+		}
+		want := []string{"a", "b", "d", "e"}
+		got := resultIDs(lines)
+		if fmt.Sprint(got) != fmt.Sprint(want) {
+			t.Fatalf("converted = %v, want %v", got, want)
+		}
+		if *calls != 2 { // first run crashes on c, second run does the rest
+			t.Fatalf("blender calls = %d, want 2", *calls)
+		}
+	})
+
+	t.Run("first-unit crash is isolated", func(t *testing.T) {
+		run, _ := fakeBlender(t, map[string]bool{"a": true})
+		lines, crashed, err := runBlenderResilient(t.TempDir(), jobsFor("a", "b", "c"), run, noop)
+		if err != nil {
+			t.Fatalf("err = %v, want nil", err)
+		}
+		if len(crashed) != 1 || crashed[0] != "a" {
+			t.Fatalf("crashed = %v, want [a]", crashed)
+		}
+		if got := resultIDs(lines); fmt.Sprint(got) != fmt.Sprint([]string{"b", "c"}) {
+			t.Fatalf("converted = %v, want [b c]", got)
+		}
+	})
+
+	t.Run("two adjacent crashers both isolated", func(t *testing.T) {
+		run, _ := fakeBlender(t, map[string]bool{"b": true, "c": true})
+		lines, crashed, err := runBlenderResilient(t.TempDir(), jobsFor("a", "b", "c", "d"), run, noop)
+		if err != nil {
+			t.Fatalf("err = %v, want nil", err)
+		}
+		sort.Strings(crashed)
+		if fmt.Sprint(crashed) != fmt.Sprint([]string{"b", "c"}) {
+			t.Fatalf("crashed = %v, want [b c]", crashed)
+		}
+		if got := resultIDs(lines); fmt.Sprint(got) != fmt.Sprint([]string{"a", "d"}) {
+			t.Fatalf("converted = %v, want [a d]", got)
+		}
+	})
+
+	t.Run("global failure surfaces error, does not walk whole batch", func(t *testing.T) {
+		run, calls := alwaysCrash()
+		_, crashed, err := runBlenderResilient(t.TempDir(), jobsFor("a", "b", "c", "d", "e", "f"), run, noop)
+		if err == nil {
+			t.Fatal("err = nil, want a surfaced global failure")
+		}
+		// Aborts after the 2nd consecutive no-progress crash rather than
+		// isolating all 6 units one at a time.
+		if *calls > 2 {
+			t.Fatalf("blender calls = %d, want <= 2 (abort on global failure)", *calls)
+		}
+		if len(crashed) >= 6 {
+			t.Fatalf("crashed = %d units, should not have walked the whole batch", len(crashed))
+		}
+	})
+}
 
 func TestModelPapaPath(t *testing.T) {
 	tests := []struct {

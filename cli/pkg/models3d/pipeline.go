@@ -226,8 +226,9 @@ func buildJobs(r Resolver, units []UnitRef, stageRoot, outDir string, log logf) 
 
 		// Stage any linked texture .papa files alongside the model. Missing
 		// textures are fine (solid-material units have none / a subset).
+		texPaths := texturePapaPaths(modelPapa)
 		for _, tag := range textureTags {
-			texPath := texturePapaPaths(modelPapa)[tag]
+			texPath := texPaths[tag]
 			if r.ResolveResource(texPath) == nil {
 				continue
 			}
@@ -380,18 +381,34 @@ func resultUnitIDs(lines []string) map[string]bool {
 	return ids
 }
 
-// runBlenderResilient runs Blender over jobs, surviving native crashes. A single
-// unit can crash the whole Blender process (e.g. EXCEPTION_ACCESS_VIOLATION),
-// which Python cannot catch, aborting the batch. When Blender exits without
-// processing every remaining unit, the first unprocessed unit (Blender consumes
-// jobs in order) is the culprit: we record it as crashed and re-invoke Blender
-// for the rest. Returns all RESULT lines collected across runs, the crashed unit
-// IDs, and the last run's error (nil once a run completes cleanly).
-func runBlenderResilient(workDir string, opts Options, convertPath, addonZip string, jobs []job, log logf) ([]string, []string, error) {
+// blenderRunner runs Blender over the jobs written to jobsPath and returns its
+// stdout lines and process error. Injected so runBlenderResilient can be tested
+// without invoking Blender.
+type blenderRunner func(jobsPath string) ([]string, error)
+
+// runBlenderResilient runs Blender over jobs via run, surviving per-unit native
+// crashes. A single unit can crash the whole Blender process (e.g.
+// EXCEPTION_ACCESS_VIOLATION), which Python cannot catch, aborting the batch.
+// Blender consumes jobs in order, so on a non-clean exit the completed units
+// form a prefix and the first unprocessed unit is the culprit: we record it as
+// crashed and re-invoke Blender for the rest.
+//
+// A GLOBAL failure (wrong Blender version, addon install/enable failure, startup
+// crash) instead errors with NO results on every invocation. Isolating one unit
+// at a time would then walk the whole batch, mark every unit "crashed", and must
+// NOT be reported as success. We distinguish the two by counting consecutive
+// invocations that error with zero progress: a real single-unit crash makes
+// progress on the following run; a global failure does not. After the second
+// no-progress crash we abort and surface the real error.
+//
+// Returns all RESULT lines collected, the crashed unit IDs, and a non-nil error
+// only when work is left unfinished due to failure (nil once a run exits clean).
+func runBlenderResilient(workDir string, jobs []job, run blenderRunner, log logf) ([]string, []string, error) {
 	remaining := jobs
 	var allLines []string
 	var crashed []string
 	var lastErr error
+	consecutiveEmptyCrashes := 0
 
 	for len(remaining) > 0 {
 		jobsPath := filepath.Join(workDir, "jobs.json")
@@ -400,9 +417,8 @@ func runBlenderResilient(workDir string, opts Options, convertPath, addonZip str
 		}
 
 		log("Running Blender on %d unit(s)...", len(remaining))
-		lines, runErr := runBlender(opts.BlenderPath, convertPath, addonZip, jobsPath, opts.TextureSize, opts.Verbose)
+		lines, runErr := run(jobsPath)
 		allLines = append(allLines, lines...)
-		lastErr = runErr
 
 		done := resultUnitIDs(lines)
 		var next []job
@@ -414,19 +430,31 @@ func runBlenderResilient(workDir string, opts Options, convertPath, addonZip str
 
 		if runErr == nil {
 			// Clean exit: every remaining unit was attempted.
+			lastErr = nil
 			break
 		}
+		lastErr = runErr
+
+		if len(done) == 0 {
+			// No unit processed this run. One such run can be a real crash on the
+			// first remaining unit; repeated ones indicate a global failure.
+			consecutiveEmptyCrashes++
+			if consecutiveEmptyCrashes >= 2 {
+				lastErr = fmt.Errorf("blender failed repeatedly with no output — likely a global error (Blender version/addon), not a single unit: %w", runErr)
+				break
+			}
+		} else {
+			consecutiveEmptyCrashes = 0
+		}
+
 		if len(next) == 0 {
-			// Crashed, but all remaining units already have results — nothing
-			// left to isolate.
+			// Crashed, but all remaining units already produced results.
 			break
 		}
-		// Blender processes jobs in order, so completed units form a prefix and
-		// next[0] is the unit it died on. Skip it and retry the rest.
+		// next[0] is the unit Blender died on. Skip it and retry the rest.
 		crashed = append(crashed, next[0].UnitID)
 		log("  Blender crashed on %s — isolating and retrying %d remaining", next[0].UnitID, len(next)-1)
 		remaining = next[1:]
-		lastErr = nil // isolated the crasher; not a hard failure unless the retry fails
 	}
 
 	return allLines, crashed, lastErr
@@ -493,7 +521,10 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 		return nil, stats, fmt.Errorf("failed to write addon zip: %w", err)
 	}
 
-	lines, crashed, runErr := runBlenderResilient(workDir, opts, convertPath, addonZip, jobs, log)
+	run := func(jobsPath string) ([]string, error) {
+		return runBlender(opts.BlenderPath, convertPath, addonZip, jobsPath, opts.TextureSize, opts.Verbose)
+	}
+	lines, crashed, runErr := runBlenderResilient(workDir, jobs, run, log)
 	stats.Crashed = len(crashed)
 	for _, id := range crashed {
 		log("  crashed Blender, skipped: %s", id)
@@ -506,9 +537,14 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 		log("  convert failed: %s", id)
 	}
 
-	// A hard failure only if nothing converted at all (and Blender errored).
-	if runErr != nil && stats.Converted == 0 {
-		return idx, stats, fmt.Errorf("blender produced no models (exit: %w)", runErr)
+	// Hard-fail when nothing converted and there was any error or crash — this
+	// covers a global Blender failure that would otherwise masquerade as N
+	// per-unit "crashes" and report success with an empty models.json.
+	if stats.Converted == 0 && (runErr != nil || stats.Crashed > 0) {
+		if runErr == nil {
+			runErr = fmt.Errorf("all %d unit(s) failed to convert", stats.Crashed)
+		}
+		return idx, stats, fmt.Errorf("blender produced no models: %w", runErr)
 	}
 
 	if err := writeModelsIndex(opts.OutDir, idx); err != nil {

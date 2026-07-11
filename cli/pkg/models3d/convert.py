@@ -47,8 +47,12 @@ TEX_TAGS = ("diffuse", "mask", "material")
 
 
 def save_image(img, path, is_colour, size):
-    if max(img.size) > size:
-        img.scale(min(img.size[0], size), min(img.size[1], size))
+    w, h = img.size[0], img.size[1]
+    if max(w, h) > size:
+        # Scale down preserving aspect ratio (clamping each axis independently
+        # would squish non-square textures).
+        s = size / max(w, h)
+        img.scale(max(1, round(w * s)), max(1, round(h * s)))
     img.filepath_raw = path
     img.file_format = "PNG"
     if not is_colour:
