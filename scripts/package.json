@@ -7,6 +7,7 @@
     "test": "node --import tsx --test manifest-ordering.test.ts",
     "build:zips": "tsx build-faction-zips.ts",
     "build:model-bundles": "tsx build-model-bundles.ts",
+    "upload:model-bundles": "tsx upload-model-bundles.ts",
     "upload:releases": "tsx upload-to-releases.ts",
     "generate:manifest": "tsx generate-manifest.ts",
     "release": "npm run build:zips && npm run upload:releases && npm run generate:manifest",

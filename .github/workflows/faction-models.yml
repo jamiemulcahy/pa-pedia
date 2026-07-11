@@ -1,0 +1,177 @@
+name: Faction Models
+
+# Generates 3D model bundles (glb + textures) for factions using headless
+# Blender and publishes them to the `faction-models` release, then regenerates
+# the manifest so the web app shows the "View 3D Model" button.
+#
+# Manual-dispatch only: a full run drives Blender over ~600 units and is heavy,
+# and models change rarely — so this is not on a daily cron (unlike faction data).
+#
+# REQUIREMENTS:
+#   - The `pa-base-data` release archive must include unit .papa files. Re-run
+#     `just extract-base-data` + `just upload-base-data` (with PA_BASE_DATA_KEY)
+#     after the base-data extractor was expanded to include models.
+#   - PA_BASE_DATA_KEY secret (same as update-factions).
+
+on:
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: 'Comma-separated profile IDs (empty = all)'
+        required: false
+        default: ''
+      texture_size:
+        description: 'Max texture edge in pixels'
+        required: false
+        default: '512'
+
+permissions:
+  contents: write
+
+# Serialise with itself to avoid concurrent release-asset writes.
+concurrency:
+  group: faction-models
+  cancel-in-progress: false
+
+env:
+  BLENDER_VERSION: '5.1.2'
+
+jobs:
+  generate-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v7
+
+      # --- PA base data (now includes unit .papa) ---------------------------
+      - name: Download base data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/base-data-download
+          gh release download pa-base-data \
+            --pattern "pa-base-data-*.tar.gz.enc" \
+            --pattern "pa-base-data-meta.json" \
+            --dir /tmp/base-data-download
+          ls -la /tmp/base-data-download/
+
+      - name: Decrypt base data
+        env:
+          PA_BASE_DATA_KEY: ${{ secrets.PA_BASE_DATA_KEY }}
+        run: |
+          set -euo pipefail
+          ENC_FILE=$(ls /tmp/base-data-download/pa-base-data-*.tar.gz.enc)
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const data = fs.readFileSync('$ENC_FILE');
+            const iv = data.subarray(0, 16);
+            const encrypted = data.subarray(16);
+            const key = crypto.scryptSync(process.env.PA_BASE_DATA_KEY, 'pa-pedia-base-data', 32);
+            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            fs.writeFileSync('/tmp/pa-base-data.tar.gz', decrypted);
+          "
+          mkdir -p /tmp/pa-media
+          tar -xzf /tmp/pa-base-data.tar.gz -C /tmp/pa-media
+          echo "Unit .papa files in base data:"
+          find /tmp/pa-media -path '*/units/*' -name '*.papa' | wc -l
+
+      - name: Fail early if base data has no models
+        run: |
+          COUNT=$(find /tmp/pa-media -path '*/units/*' -name '*.papa' | wc -l)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::The pa-base-data archive contains no unit .papa files."
+            echo "Re-run 'just extract-base-data' + 'just upload-base-data' after the"
+            echo "extractor was expanded to include models, then re-run this workflow."
+            exit 1
+          fi
+
+      # --- Toolchain --------------------------------------------------------
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Build CLI
+        working-directory: cli
+        run: go build -o /tmp/pa-pedia .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install script dependencies
+        working-directory: scripts
+        run: npm ci
+
+      # --- Headless Blender (pinned; addon validated on 5.1.x) --------------
+      - name: Install Blender ${{ env.BLENDER_VERSION }}
+        run: |
+          set -euo pipefail
+          # Runtime libs Blender needs to start even in --background.
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 libegl1 libxi6 libxrender1 libxxf86vm1 libxfixes3 libsm6 \
+            libxkbcommon0 libxrandr2 libxinerama1 libxcursor1 xz-utils
+          MAJOR_MINOR=$(echo "${BLENDER_VERSION}" | cut -d. -f1,2)
+          URL="https://download.blender.org/release/Blender${MAJOR_MINOR}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
+          echo "Downloading $URL"
+          curl -fsSL "$URL" -o /tmp/blender.tar.xz
+          mkdir -p /tmp/blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/blender --strip-components=1
+          echo "BLENDER_BIN=/tmp/blender/blender" >> "$GITHUB_ENV"
+          /tmp/blender/blender --version
+
+      # --- Generate models --------------------------------------------------
+      - name: Determine profiles
+        id: profiles
+        run: |
+          INPUT="${{ github.event.inputs.profiles }}"
+          if [ -z "$INPUT" ]; then
+            echo "profiles=mla legion exiles bugs second-wave" >> "$GITHUB_OUTPUT"
+          else
+            echo "profiles=$(echo "$INPUT" | tr ',' ' ')" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract models
+        run: |
+          set -euo pipefail
+          for profile in ${{ steps.profiles.outputs.profiles }}; do
+            echo "==================== $profile ===================="
+            /tmp/pa-pedia extract-models \
+              --profile "$profile" \
+              --pa-root /tmp/pa-media \
+              --output ./models \
+              --blender "$BLENDER_BIN" \
+              --texture-size "${{ github.event.inputs.texture_size || '512' }}"
+          done
+
+      - name: Build model bundles
+        working-directory: scripts
+        run: npm run build:model-bundles
+
+      - name: Upload model bundles to release
+        working-directory: scripts
+        run: npm run upload:model-bundles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Regenerate the manifest so version entries gain their `models` field
+      # (and the web app starts showing the 3D button).
+      - name: Regenerate manifest
+        working-directory: scripts
+        run: npm run generate:manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: model-bundles
+          path: models/dist/
+          retention-days: 7
