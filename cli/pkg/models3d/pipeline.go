@@ -98,6 +98,7 @@ type Stats struct {
 	Converted int // units Blender produced a model for
 	Skipped   int // units with no resolvable model / no data
 	Failed    int // units Blender attempted but failed
+	Crashed   int // units that natively crashed Blender (isolated + skipped)
 }
 
 // job mirrors one entry of the jobs.json convert.py consumes.
@@ -361,6 +362,76 @@ func runBlender(blenderPath, convertPath, addonZip, jobsPath string, texSize int
 	return lines, runErr
 }
 
+// resultUnitIDs returns the set of unit IDs that produced a RESULT line (whether
+// the conversion succeeded or was reported as a handled failure) — i.e. units
+// Blender actually processed before exiting.
+func resultUnitIDs(lines []string) map[string]bool {
+	ids := map[string]bool{}
+	for _, ln := range lines {
+		ln = strings.TrimSpace(ln)
+		if !strings.HasPrefix(ln, "RESULT ") {
+			continue
+		}
+		var res runResult
+		if json.Unmarshal([]byte(strings.TrimPrefix(ln, "RESULT ")), &res) == nil && res.UnitID != "" {
+			ids[res.UnitID] = true
+		}
+	}
+	return ids
+}
+
+// runBlenderResilient runs Blender over jobs, surviving native crashes. A single
+// unit can crash the whole Blender process (e.g. EXCEPTION_ACCESS_VIOLATION),
+// which Python cannot catch, aborting the batch. When Blender exits without
+// processing every remaining unit, the first unprocessed unit (Blender consumes
+// jobs in order) is the culprit: we record it as crashed and re-invoke Blender
+// for the rest. Returns all RESULT lines collected across runs, the crashed unit
+// IDs, and the last run's error (nil once a run completes cleanly).
+func runBlenderResilient(workDir string, opts Options, convertPath, addonZip string, jobs []job, log logf) ([]string, []string, error) {
+	remaining := jobs
+	var allLines []string
+	var crashed []string
+	var lastErr error
+
+	for len(remaining) > 0 {
+		jobsPath := filepath.Join(workDir, "jobs.json")
+		if err := writeJSONFile(jobsPath, remaining); err != nil {
+			return allLines, crashed, fmt.Errorf("failed to write jobs.json: %w", err)
+		}
+
+		log("Running Blender on %d unit(s)...", len(remaining))
+		lines, runErr := runBlender(opts.BlenderPath, convertPath, addonZip, jobsPath, opts.TextureSize, opts.Verbose)
+		allLines = append(allLines, lines...)
+		lastErr = runErr
+
+		done := resultUnitIDs(lines)
+		var next []job
+		for _, j := range remaining {
+			if !done[j.UnitID] {
+				next = append(next, j)
+			}
+		}
+
+		if runErr == nil {
+			// Clean exit: every remaining unit was attempted.
+			break
+		}
+		if len(next) == 0 {
+			// Crashed, but all remaining units already have results — nothing
+			// left to isolate.
+			break
+		}
+		// Blender processes jobs in order, so completed units form a prefix and
+		// next[0] is the unit it died on. Skip it and retry the rest.
+		crashed = append(crashed, next[0].UnitID)
+		log("  Blender crashed on %s — isolating and retrying %d remaining", next[0].UnitID, len(next)-1)
+		remaining = next[1:]
+		lastErr = nil // isolated the crasher; not a hard failure unless the retry fails
+	}
+
+	return allLines, crashed, lastErr
+}
+
 // Generate runs the full pipeline for the given units, writing models/<id>.glb,
 // textures/<id>_*.png and models.json under opts.OutDir. It never aborts on a
 // single unit's failure; units without a resolvable model are skipped.
@@ -380,6 +451,12 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 
 	if err := os.MkdirAll(opts.OutDir, 0755); err != nil {
 		return nil, nil, fmt.Errorf("failed to create output dir: %w", err)
+	}
+	// Use an absolute output dir: Blender resolves image save paths relative to
+	// the .blend file (nonexistent here), so a relative path silently drops
+	// textures even though glb export (relative to CWD) succeeds.
+	if abs, err := filepath.Abs(opts.OutDir); err == nil {
+		opts.OutDir = abs
 	}
 
 	workDir, err := os.MkdirTemp("", "pa-pedia-models-")
@@ -405,11 +482,8 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 		return idx, stats, nil
 	}
 
-	// Write jobs.json, convert.py and the addon zip into the work dir.
-	jobsPath := filepath.Join(workDir, "jobs.json")
-	if err := writeJSONFile(jobsPath, jobs); err != nil {
-		return nil, stats, fmt.Errorf("failed to write jobs.json: %w", err)
-	}
+	// Write convert.py and the addon zip into the work dir (jobs.json is written
+	// per Blender invocation by the resilient runner below).
 	convertPath := filepath.Join(workDir, "convert.py")
 	if err := os.WriteFile(convertPath, convertPy, 0644); err != nil {
 		return nil, stats, fmt.Errorf("failed to write convert.py: %w", err)
@@ -419,8 +493,11 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 		return nil, stats, fmt.Errorf("failed to write addon zip: %w", err)
 	}
 
-	log("Running Blender on %d unit(s)...", len(jobs))
-	lines, runErr := runBlender(opts.BlenderPath, convertPath, addonZip, jobsPath, opts.TextureSize, opts.Verbose)
+	lines, crashed, runErr := runBlenderResilient(workDir, opts, convertPath, addonZip, jobs, log)
+	stats.Crashed = len(crashed)
+	for _, id := range crashed {
+		log("  crashed Blender, skipped: %s", id)
+	}
 
 	idx, failed := assembleIndex(opts.OutDir, lines, generated)
 	stats.Converted = len(idx.Units)
@@ -429,8 +506,7 @@ func Generate(r Resolver, units []UnitRef, opts Options) (*ModelsIndex, *Stats, 
 		log("  convert failed: %s", id)
 	}
 
-	// A non-zero Blender exit with no results at all is a hard failure; partial
-	// results (some units converted) are reported but not fatal.
+	// A hard failure only if nothing converted at all (and Blender errored).
 	if runErr != nil && stats.Converted == 0 {
 		return idx, stats, fmt.Errorf("blender produced no models (exit: %w)", runErr)
 	}

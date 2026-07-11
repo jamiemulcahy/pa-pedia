@@ -58,6 +58,10 @@ def save_image(img, path, is_colour, size):
 
 for job in jobs:
     unit_id, papa, out_dir = job["unitId"], job["papa"], job["outDir"]
+    # Blender resolves image save paths relative to the (here nonexistent) .blend
+    # file, not the CWD, so a relative out_dir silently drops textures. Always
+    # work with an absolute path so glb export AND texture saves land together.
+    out_dir = os.path.abspath(out_dir)
     models_dir = os.path.join(out_dir, "models")
     tex_dir = os.path.join(out_dir, "textures")
     os.makedirs(models_dir, exist_ok=True)

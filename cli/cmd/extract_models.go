@@ -144,6 +144,7 @@ func runExtractModels(cmd *cobra.Command, args []string) error {
 	fmt.Printf("  Converted:        %d\n", stats.Converted)
 	fmt.Printf("  Skipped (no model): %d\n", stats.Skipped)
 	fmt.Printf("  Failed (conversion): %d\n", stats.Failed)
+	fmt.Printf("  Crashed Blender (skipped): %d\n", stats.Crashed)
 	fmt.Printf("  models.json: %s (%d units)\n", filepath.Join(modelOutDir, "models.json"), idx.UnitCount)
 	return nil
 }
