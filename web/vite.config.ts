@@ -144,16 +144,61 @@ function serveFactions(): Plugin {
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           // Determine content type
           const ext = path.extname(filePath).toLowerCase()
-          const contentTypes: Record<string, string> = {
-            '.json': 'application/json',
-            '.png': 'image/png',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.gif': 'image/gif',
-            '.svg': 'image/svg+xml',
-          }
+          res.setHeader('Content-Type', devContentType(ext))
+          fs.createReadStream(filePath).pipe(res)
+        } else {
+          next()
+        }
+      })
+    },
+  }
+}
 
-          res.setHeader('Content-Type', contentTypes[ext] || 'application/octet-stream')
+/**
+ * Map a file extension to a content type for the dev static middlewares.
+ */
+function devContentType(ext: string): string {
+  const contentTypes: Record<string, string> = {
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.glb': 'model/gltf-binary',
+    '.gltf': 'model/gltf+json',
+    '.bin': 'application/octet-stream',
+    '.zip': 'application/zip',
+  }
+  return contentTypes[ext] || 'application/octet-stream'
+}
+
+/**
+ * Custom plugin to serve /faction-models from the repo-root faction-models/ dir.
+ *
+ * In dev we serve the per-faction model bundles UNZIPPED (mirroring how
+ * /factions serves faction data unzipped), so the 3D viewer can develop
+ * against real files without a release/zip round-trip. Layout:
+ *   faction-models/{factionId}/models.json
+ *   faction-models/{factionId}/models/{unitId}.glb
+ *   faction-models/{factionId}/textures/{unitId}_{diffuse,mask,material}.png
+ *
+ * Kept separate from /factions so the faction-data zip workflow is untouched.
+ * Can be overridden via VITE_FACTION_MODELS_DIR (e.g. for E2E fixtures).
+ */
+function serveFactionModels(): Plugin {
+  const modelsDir = path.resolve(__dirname, process.env.VITE_FACTION_MODELS_DIR || '../faction-models')
+
+  return {
+    name: 'serve-faction-models',
+    configureServer(server) {
+      server.middlewares.use('/faction-models', (req, res, next) => {
+        const reqUrl = req.url || ''
+        const filePath = path.join(modelsDir, reqUrl.split('?')[0])
+
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          const ext = path.extname(filePath).toLowerCase()
+          res.setHeader('Content-Type', devContentType(ext))
           fs.createReadStream(filePath).pipe(res)
         } else {
           next()
@@ -165,7 +210,7 @@ function serveFactions(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react(), serveFactions()],
+  plugins: [tailwindcss(), react(), serveFactions(), serveFactionModels()],
   base: '/',
   resolve: {
     alias: {

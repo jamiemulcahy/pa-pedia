@@ -22,7 +22,11 @@ export interface FactionMetadata {
   isAddon?: boolean;
   /** Faction display names that this addon extends (e.g. MLA, Legion) */
   baseFactions?: string[];
-  /** Default team-paint colour pair for the 3D model viewer (falls back to a neutral pair if absent). */
+  /**
+   * Default PA team-paint colours for this faction, used to seed the 3D
+   * model viewer's colour pickers. Populated by the CLI from profile config.
+   * Absent → the viewer falls back to a neutral pair.
+   */
   teamColors?: TeamColors;
 }
 

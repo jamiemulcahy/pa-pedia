@@ -49,6 +49,18 @@ export function getSiteBaseUrl(): string {
 // Release tag for reference (used in cached manifest fallback)
 const RELEASE_TAG = 'faction-data'
 
+/**
+ * Model bundle info attached to a VersionEntry when a 3D model bundle
+ * exists for that faction+version (uploaded to the `faction-models` release).
+ * Absent = that faction/version has no models yet (the common backfill case).
+ */
+export interface ModelBundleInfo {
+  filename: string
+  downloadUrl: string
+  size: number
+  unitCount: number
+}
+
 export interface VersionEntry {
   version: string
   filename: string
@@ -56,6 +68,8 @@ export interface VersionEntry {
   size: number
   timestamp: number
   build?: string
+  /** Optional 3D model bundle for this version; absent when none exists. */
+  models?: ModelBundleInfo
 }
 
 export interface FactionEntry {
@@ -88,6 +102,7 @@ export interface ManifestEntry {
   displayName?: string
   isAddon?: boolean
   baseFactions?: string[]
+  models?: ModelBundleInfo
 }
 
 // In-memory cache for the current session
