@@ -1436,6 +1436,7 @@ export function UnitDetail() {
                 unitId={unitId || ''}
                 version={version}
                 teamColors={factionMetadata?.teamColors}
+                unitName={unit.displayName}
               />
 
               <UnitTypesSection unitTypes={unit.unitTypes} />

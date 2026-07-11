@@ -9,7 +9,7 @@
  * persisted globally in localStorage and can be reset to the faction default.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
@@ -23,6 +23,12 @@ interface UnitModelViewerProps {
   version?: string | null
   /** Faction default team colours; falls back to a neutral pair when absent. */
   teamColors?: TeamColors
+  /**
+   * When false, render the canvas + colour controls without the bordered card
+   * and "3D Model" heading — used inside the modal, which supplies its own
+   * header/chrome. Defaults to true for standalone use.
+   */
+  showChrome?: boolean
 }
 
 /** Neutral fallback used when a faction defines no team colours. */
@@ -112,7 +118,13 @@ type LoadState =
   | { status: 'loaded' }
   | { status: 'error'; message: string }
 
-export function UnitModelViewer({ factionId, unitId, version, teamColors }: UnitModelViewerProps) {
+export function UnitModelViewer({
+  factionId,
+  unitId,
+  version,
+  teamColors,
+  showChrome = true,
+}: UnitModelViewerProps) {
   const factionDefault: TeamColors = teamColors ?? NEUTRAL_COLORS
 
   const webglAvailable = useMemo(() => isWebGLAvailable(), [])
@@ -377,27 +389,33 @@ export function UnitModelViewer({ factionId, unitId, version, teamColors }: Unit
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [factionId, unitId, version, webglAvailable])
 
-  if (!webglAvailable) {
-    return (
+  // Optionally wrap content in the bordered "3D Model" card. Inside the modal
+  // (showChrome=false) the modal supplies the header, so we render bare.
+  const withChrome = (children: ReactNode, heading = true) =>
+    showChrome ? (
       <div
         data-testid="model-viewer"
         className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
       >
-        <h2 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">3D Model</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          3D preview unavailable — your browser does not support WebGL.
-        </p>
+        {heading && (
+          <h2 className="text-sm font-semibold mb-3 text-gray-900 dark:text-gray-100">3D Model</h2>
+        )}
+        {children}
       </div>
+    ) : (
+      <div data-testid="model-viewer">{children}</div>
+    )
+
+  if (!webglAvailable) {
+    return withChrome(
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        3D preview unavailable — your browser does not support WebGL.
+      </p>
     )
   }
 
-  return (
-    <div
-      data-testid="model-viewer"
-      className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
-    >
-      <h2 className="text-sm font-semibold mb-3 text-gray-900 dark:text-gray-100">3D Model</h2>
-
+  return withChrome(
+    <>
       <div className="relative">
         <div
           ref={mountRef}
@@ -457,7 +475,7 @@ export function UnitModelViewer({ factionId, unitId, version, teamColors }: Unit
           Reset to faction default
         </button>
       </div>
-    </div>
+    </>
   )
 }
 

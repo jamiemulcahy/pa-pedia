@@ -3,24 +3,28 @@
  *
  * Graceful gatekeeper for the 3D model viewer on the Unit Detail page.
  *
- * On mount it consults the faction's model availability index (`models.json`).
- * If the unit has a model it lazy-loads {@link UnitModelViewer} (keeping the
- * heavy three.js bundle out of the main chunk). If not — or if the faction has
- * no model bundle at all — it renders nothing, so the page works with specs +
- * icon exactly as before with no failed network request.
+ * On mount it consults the faction's model availability index (`models.json`,
+ * a few KB). If the unit has a model it shows a "View 3D Model" button; if not —
+ * or if the faction has no model bundle — it renders nothing, so the page works
+ * with specs + icon exactly as before with no failed network request.
+ *
+ * The heavy work (three.js chunk + the unit's glb/textures) is deferred until
+ * the user clicks the button, which opens {@link UnitModelModal}. Nothing large
+ * is downloaded on page load.
  */
 
-import { Suspense, lazy, useEffect, useReducer } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import type { TeamColors } from '@/types/faction'
 import { getFactionModelsIndex } from '@/services/modelLoader'
-
-const UnitModelViewer = lazy(() => import('./UnitModelViewer'))
+import { UnitModelModal } from './UnitModelModal'
 
 interface UnitModelSectionProps {
   factionId: string
   unitId: string
   version?: string | null
   teamColors?: TeamColors
+  /** Human-readable unit name for the modal title. */
+  unitName?: string
 }
 
 type Availability = 'checking' | 'available' | 'none'
@@ -39,8 +43,15 @@ function availabilityReducer(_state: Availability, action: AvailabilityAction): 
   }
 }
 
-export function UnitModelSection({ factionId, unitId, version, teamColors }: UnitModelSectionProps) {
+export function UnitModelSection({
+  factionId,
+  unitId,
+  version,
+  teamColors,
+  unitName,
+}: UnitModelSectionProps) {
   const [availability, dispatch] = useReducer(availabilityReducer, 'checking')
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -64,23 +75,28 @@ export function UnitModelSection({ factionId, unitId, version, teamColors }: Uni
   if (availability !== 'available') return null
 
   return (
-    <Suspense
-      fallback={
-        <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h2 className="text-sm font-semibold mb-3 text-gray-900 dark:text-gray-100">3D Model</h2>
-          <div className="aspect-square w-full rounded bg-[#0f1420] flex items-center justify-center text-sm text-gray-300">
-            Loading 3D viewer…
-          </div>
-        </div>
-      }
-    >
-      <UnitModelViewer
-        factionId={factionId}
-        unitId={unitId}
-        version={version}
-        teamColors={teamColors}
-      />
-    </Suspense>
+    <>
+      <button
+        type="button"
+        data-testid="view-3d-model"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        <span aria-hidden="true">🧊</span>
+        View 3D Model
+      </button>
+
+      {open && (
+        <UnitModelModal
+          factionId={factionId}
+          unitId={unitId}
+          version={version}
+          teamColors={teamColors}
+          title={unitName}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
   )
 }
 
