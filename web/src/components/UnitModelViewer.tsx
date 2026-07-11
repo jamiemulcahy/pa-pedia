@@ -72,17 +72,24 @@ function clearColorPref(): void {
   }
 }
 
-/** Detect WebGL availability without throwing. */
+// Cache the WebGL probe at module scope: it creates a canvas + GL context, and
+// creating one per viewer mount needlessly consumes scarce WebGL contexts
+// (browsers cap at ~16), pushing toward "too many contexts" on repeated opens.
+let webglProbeResult: boolean | null = null
+
+/** Detect WebGL availability without throwing (probed once per session). */
 function isWebGLAvailable(): boolean {
+  if (webglProbeResult !== null) return webglProbeResult
   try {
     const canvas = document.createElement('canvas')
-    return !!(
+    webglProbeResult = !!(
       window.WebGLRenderingContext &&
       (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
     )
   } catch {
-    return false
+    webglProbeResult = false
   }
+  return webglProbeResult
 }
 
 const VERTEX_SHADER = /* glsl */ `
@@ -324,6 +331,11 @@ export function UnitModelViewer({
         const mesh = n as THREE.Mesh
         if (mesh.isMesh) {
           if (mesh.geometry) disposables.push(mesh.geometry)
+          // Dispose the MeshStandardMaterial(s) GLTFLoader auto-created before
+          // swapping in our shared team-colour material, so they don't leak.
+          const original = mesh.material
+          if (Array.isArray(original)) original.forEach((m) => m?.dispose?.())
+          else original?.dispose?.()
           mesh.material = material
         }
       })
@@ -379,6 +391,10 @@ export function UnitModelViewer({
       dracoLoader?.dispose()
       if (renderer) {
         renderer.dispose()
+        // Explicitly drop the GL context so the browser reclaims the context
+        // slot immediately rather than on GC — otherwise repeated open/close
+        // accumulates contexts toward the ~16 cap (black canvas).
+        renderer.forceContextLoss()
         renderer.domElement.remove()
       }
       uniformsRef.current = null

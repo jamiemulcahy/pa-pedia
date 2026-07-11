@@ -163,6 +163,19 @@ export function getRangeSupport(): 'unknown' | 'yes' | 'no' {
   return rangeSupport
 }
 
+/**
+ * Signals that reading the zip's central directory via HTTP range requests
+ * failed — i.e. the CDN doesn't honour Range. Distinguished from entry-level
+ * errors so that only genuine range failures downgrade session range support.
+ */
+class RangeUnsupportedError extends Error {
+  constructor(cause: unknown) {
+    super('model bundle range requests unsupported')
+    this.name = 'RangeUnsupportedError'
+    this.cause = cause
+  }
+}
+
 /** Read a named entry's bytes, narrowing away directory entries. */
 async function readEntry(byName: Map<string, Entry>, name: string): Promise<Uint8Array> {
   const entry = byName.get(name)
@@ -177,8 +190,17 @@ async function extractViaRange(
   names: string[]
 ): Promise<Map<string, Uint8Array>> {
   const reader = new ZipReader(new HttpRangeReader(url))
+  let entries: Entry[]
+  // Reading the central directory is the range-dependent step; a failure here
+  // means Range is unsupported. Entry reads below are NOT treated as range
+  // failures (a missing/corrupt entry must not disable range for the session).
   try {
-    const entries = await reader.getEntries()
+    entries = await reader.getEntries()
+  } catch (error) {
+    await reader.close()
+    throw new RangeUnsupportedError(error)
+  }
+  try {
     const byName = new Map(entries.map((e) => [e.filename, e]))
     const out = new Map<string, Uint8Array>()
     for (const name of names) {
@@ -238,7 +260,8 @@ async function extractEntries(
   url: string,
   cacheKey: string,
   timestamp: number,
-  names: string[]
+  names: string[],
+  allowWholeBundleFallback = true
 ): Promise<Map<string, Uint8Array>> {
   if (rangeSupport !== 'no') {
     try {
@@ -246,11 +269,20 @@ async function extractEntries(
       rangeSupport = 'yes'
       return result
     } catch (error) {
-      // Range read failed (CDN doesn't honour Range, CORS, or partial support).
-      // Remember and use the whole-bundle fallback for the rest of the session.
-      rangeSupport = 'no'
-      console.warn('Model bundle range request failed, falling back to whole-bundle download', error)
+      if (error instanceof RangeUnsupportedError) {
+        // CDN doesn't honour Range — remember for the rest of the session and
+        // fall back to a whole-bundle download (when the caller allows it).
+        rangeSupport = 'no'
+        console.warn('Model bundle range requests unsupported; using whole-bundle fallback', error)
+      } else {
+        // Entry-level/other error — do NOT poison range support for the session.
+        throw error
+      }
     }
+  }
+  if (!allowWholeBundleFallback) {
+    // The availability precheck must never pull the whole bundle on page load.
+    throw new RangeUnsupportedError('whole-bundle fallback disabled for this read')
   }
   return extractViaWholeBundle(url, cacheKey, timestamp, names)
 }
@@ -299,10 +331,28 @@ export async function getFactionModelsIndex(
     return cached.index
   }
 
-  // Cache miss / stale — read models.json from the bundle.
+  // Cache miss / stale — read models.json via a RANGE request only. This runs
+  // on unit-page load (to decide whether to show the "View 3D Model" button), so
+  // it must never download the whole multi-MB bundle. The whole-bundle fallback
+  // is therefore disabled here; if Range is unavailable we treat the faction as
+  // having no viewable models this session (graceful — no button, no big fetch).
+  // The actual model download (loadUnitModel) keeps the fallback, since that only
+  // runs after the user clicks.
   const url = getSiteBaseUrl() + manifestEntry.models.downloadUrl
-  const extracted = await extractEntries(url, cacheKey, manifestEntry.timestamp, ['models.json'])
-  const bytes = extracted.get('models.json')
+  let bytes: Uint8Array | undefined
+  try {
+    const extracted = await extractEntries(
+      url,
+      cacheKey,
+      manifestEntry.timestamp,
+      ['models.json'],
+      false // no whole-bundle fallback on page load
+    )
+    bytes = extracted.get('models.json')
+  } catch (error) {
+    console.warn('Model index unavailable without a whole-bundle download; hiding 3D viewer', error)
+    return null
+  }
   if (!bytes) return null
 
   const index = JSON.parse(new TextDecoder().decode(bytes)) as ModelsIndex
@@ -433,8 +483,10 @@ export async function loadUnitModel(
   }
 }
 
-/** Clear all cached model data (indexes, per-unit blobs, whole bundles). */
+/** Clear all cached model data (indexes, per-unit blobs, whole bundles) and
+ * reset the session's range-support detection. */
 export async function clearModelCache(): Promise<void> {
+  rangeSupport = 'unknown'
   const db = await getDB()
   const tx = db.transaction(['indexes', 'units', 'bundles'], 'readwrite')
   await tx.objectStore('indexes').clear()

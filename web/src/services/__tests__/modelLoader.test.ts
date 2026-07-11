@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { openDB } from 'idb'
 import {
   ZipWriter,
   BlobWriter,
@@ -123,11 +124,59 @@ describe('modelLoader — production mode', () => {
     bundleBytes = await blob.arrayBuffer()
   })
 
-  function mockBundleFetch() {
-    // Fresh Response each call (bodies are single-use). No accept-ranges header,
-    // so the range reader falls back to a whole-bundle download.
-    global.fetch = vi.fn(async () => new Response(bundleBytes.slice(0), { status: 200 })) as unknown as typeof fetch
+  // Tracks how many times the WHOLE bundle was downloaded (a non-range GET) —
+  // used to assert the availability precheck never pulls the full bundle.
+  let wholeBundleDownloads = 0
+
+  // A range-capable CDN mock: serves byte ranges (206) and HEAD, and counts any
+  // full-body GET as a whole-bundle download.
+  function mockRangeFetch() {
+    wholeBundleDownloads = 0
+    global.fetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const total = bundleBytes.byteLength
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const rangeHeader = new Headers(init?.headers).get('Range')
+      if (method === 'HEAD') {
+        return new Response(null, {
+          status: 200,
+          headers: { 'Content-Length': String(total), 'Accept-Ranges': 'bytes' },
+        })
+      }
+      if (rangeHeader) {
+        const m = /bytes=(\d+)-(\d*)/.exec(rangeHeader)
+        const start = m ? Number(m[1]) : 0
+        const end = m && m[2] ? Number(m[2]) : total - 1
+        return new Response(bundleBytes.slice(start, end + 1), {
+          status: 206,
+          headers: {
+            'Content-Range': `bytes ${start}-${end}/${total}`,
+            'Content-Length': String(end - start + 1),
+            'Accept-Ranges': 'bytes',
+          },
+        })
+      }
+      wholeBundleDownloads++
+      return new Response(bundleBytes.slice(0), {
+        status: 200,
+        headers: { 'Content-Length': String(total), 'Accept-Ranges': 'bytes' },
+      })
+    }) as unknown as typeof fetch
   }
+
+  const modelsEntry = () => ({
+    id: 'MLA',
+    version: '1.0.0',
+    filename: 'mla-models.zip',
+    downloadUrl: '/faction-models/mla-1.0.0-models.zip',
+    size: bundleBytes.byteLength,
+    timestamp: 100,
+    models: {
+      filename: 'mla-1.0.0-models.zip',
+      downloadUrl: '/faction-models/mla-1.0.0-models.zip',
+      size: bundleBytes.byteLength,
+      unitCount: 1,
+    },
+  })
 
   it('returns null with NO network request when the manifest has no model bundle', async () => {
     mockGetEntry.mockResolvedValue({
@@ -155,26 +204,15 @@ describe('modelLoader — production mode', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  it('reads models.json from the bundle and caches it (no refetch on 2nd call)', async () => {
-    mockGetEntry.mockResolvedValue({
-      id: 'MLA',
-      version: '1.0.0',
-      filename: 'mla-models.zip',
-      downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-      size: bundleBytes.byteLength,
-      timestamp: 100,
-      models: {
-        filename: 'mla-1.0.0-models.zip',
-        downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-        size: bundleBytes.byteLength,
-        unitCount: 1,
-      },
-    })
-    mockBundleFetch()
+  it('reads models.json via range requests (not a whole-bundle download) and caches it', async () => {
+    mockGetEntry.mockResolvedValue(modelsEntry())
+    mockRangeFetch()
 
     const first = await getFactionModelsIndex('MLA')
     expect(first).not.toBeNull()
     expect(first!.units.radar).toBeDefined()
+    // The availability precheck must NOT pull the whole bundle.
+    expect(wholeBundleDownloads).toBe(0)
 
     const callsAfterFirst = vi.mocked(global.fetch).mock.calls.length
     expect(callsAfterFirst).toBeGreaterThan(0)
@@ -183,24 +221,31 @@ describe('modelLoader — production mode', () => {
     expect(second!.units.radar).toBeDefined()
     // Served from IndexedDB — no additional network calls.
     expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsAfterFirst)
+    expect(wholeBundleDownloads).toBe(0)
+  })
+
+  it('getFactionModelsIndex never whole-bundle-downloads on page load when Range is unsupported', async () => {
+    // A CDN that ignores Range (200, no accept-ranges). The precheck must degrade
+    // to "no models" rather than downloading the entire bundle just to check.
+    mockGetEntry.mockResolvedValue(modelsEntry())
+    // CDN ignores Range: always 200 full body, no Accept-Ranges.
+    global.fetch = vi.fn(async () =>
+      new Response(bundleBytes.slice(0), { status: 200 })
+    ) as unknown as typeof fetch
+
+    const index = await getFactionModelsIndex('MLA')
+    expect(index).toBeNull()
+    // Critically: nothing was cached as a whole bundle — the precheck did not
+    // download the full bundle just to check availability.
+    const db = await openDB('pa-pedia-model-cache', 1)
+    const bundles = await db.getAll('bundles')
+    db.close()
+    expect(bundles.length).toBe(0)
   })
 
   it('loads a unit model as blob URLs and caches per-unit', async () => {
-    mockGetVersion.mockResolvedValue({
-      id: 'MLA',
-      version: '1.0.0',
-      filename: 'mla-models.zip',
-      downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-      size: bundleBytes.byteLength,
-      timestamp: 100,
-      models: {
-        filename: 'mla-1.0.0-models.zip',
-        downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-        size: bundleBytes.byteLength,
-        unitCount: 1,
-      },
-    })
-    mockBundleFetch()
+    mockGetVersion.mockResolvedValue(modelsEntry())
+    mockRangeFetch()
 
     const model = await loadUnitModel('MLA', 'radar', '1.0.0')
     expect(model).not.toBeNull()
@@ -219,21 +264,8 @@ describe('modelLoader — production mode', () => {
   })
 
   it('returns null for a unit absent from the bundle index', async () => {
-    mockGetVersion.mockResolvedValue({
-      id: 'MLA',
-      version: '1.0.0',
-      filename: 'mla-models.zip',
-      downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-      size: bundleBytes.byteLength,
-      timestamp: 100,
-      models: {
-        filename: 'mla-1.0.0-models.zip',
-        downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-        size: bundleBytes.byteLength,
-        unitCount: 1,
-      },
-    })
-    mockBundleFetch()
+    mockGetVersion.mockResolvedValue(modelsEntry())
+    mockRangeFetch()
 
     const model = await loadUnitModel('MLA', 'ghost', '1.0.0')
     expect(model).toBeNull()
