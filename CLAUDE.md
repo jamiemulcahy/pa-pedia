@@ -387,6 +387,31 @@ just upload-base-data
 
 The base data is stored as an encrypted release asset on the `pa-base-data` tag. Only the CI pipeline can decrypt it.
 
+**Note**: The base data archive includes unit `.papa` model/texture files (under `units/`) so the Faction Models workflow can generate 3D models in CI. This makes the archive larger (~180 MB) — re-run `just extract-base-data` + `just upload-base-data` after any change to the extractor's include rules.
+
+### 3D Model Generation
+
+**GitHub Actions Workflow** (`.github/workflows/faction-models.yml`):
+
+Manual-dispatch only (`workflow_dispatch`) — a full run drives headless Blender over ~600 units and is heavy, and models change rarely (so it is not a daily cron).
+
+**How it works**:
+1. Downloads + decrypts the `pa-base-data` archive (must include unit `.papa` — see note above)
+2. Installs pinned headless Blender (`BLENDER_VERSION`, 5.1.x validated)
+3. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
+4. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`
+5. Uploads bundles to the **`faction-models`** release (separate from `faction-data`)
+6. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
+
+**Local generation** (needs a PA install + Blender 5.1.x on PATH):
+```bash
+just generate-models        # extract-models for all profiles → ./models
+just build-model-bundles    # zip → ./models/dist
+# then publish: npm --prefix scripts run upload:model-bundles && npm --prefix scripts run generate:manifest
+```
+
+The feature is invisible until model bundles exist on the `faction-models` release — merging the web/CLI code alone does not show 3D buttons.
+
 ## Common Development Tasks
 
 ### Add New Unit Field

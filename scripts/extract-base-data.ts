@@ -5,6 +5,7 @@
  * - JSON specs (units, ammo, tools, base specs)
  * - Buildbar icons (*_icon_buildbar.png)
  * - Background/splash images referenced by profiles
+ * - Unit model/texture .papa files under units/ (for CI 3D model generation)
  *
  * Creates a tar.gz archive, then encrypts it with AES-256-CBC for safe storage
  * as a public GitHub release asset.
@@ -33,11 +34,20 @@ const ADDITIONAL_PATTERNS = [
   /^ui\/.*\.(png|jpg)$/, // UI images (splash screens, backgrounds)
 ]
 
+/**
+ * Unit model + texture .papa files, needed by `extract-models` to build the 3D
+ * model bundles in CI. Scoped to `units/` (base + expansion) so we pull unit
+ * meshes/textures/animations (~180 MB) rather than the whole ~1.1 GB of .papa in
+ * the media tree (effects, environment, etc.). Paths are normalised to `/`.
+ */
+const MODEL_PATTERNS = [/(^|\/)units\/.*\.papa$/]
+
 interface ExtractStats {
   totalFiles: number
   totalSize: number
   jsonFiles: number
   pngFiles: number
+  papaFiles: number
   otherFiles: number
 }
 
@@ -55,9 +65,19 @@ function shouldIncludeFile(relativePath: string): boolean {
     if (pattern.test(relativePath)) return true
   }
 
+  const normalized = relativePath.replace(/\\/g, '/')
+
   // Include UI assets (splash screens referenced by profiles)
   for (const pattern of ADDITIONAL_PATTERNS) {
-    if (pattern.test(relativePath.replace(/\\/g, '/'))) return true
+    if (pattern.test(normalized)) return true
+  }
+
+  // Include unit model/texture .papa files (for CI 3D model generation)
+  if (ext === '.papa') {
+    for (const pattern of MODEL_PATTERNS) {
+      if (pattern.test(normalized)) return true
+    }
+    return false
   }
 
   return false
@@ -269,7 +289,7 @@ async function main() {
   console.log()
 
   // Calculate stats
-  const stats: ExtractStats = { totalFiles: files.length, totalSize: 0, jsonFiles: 0, pngFiles: 0, otherFiles: 0 }
+  const stats: ExtractStats = { totalFiles: files.length, totalSize: 0, jsonFiles: 0, pngFiles: 0, papaFiles: 0, otherFiles: 0 }
   for (const file of files) {
     const fullPath = path.join(paRoot, file)
     const fileStat = fs.statSync(fullPath)
@@ -277,12 +297,14 @@ async function main() {
     const ext = path.extname(file).toLowerCase()
     if (ext === '.json') stats.jsonFiles++
     else if (ext === '.png') stats.pngFiles++
+    else if (ext === '.papa') stats.papaFiles++
     else stats.otherFiles++
   }
 
   console.log(`Stats:`)
   console.log(`  JSON files: ${stats.jsonFiles}`)
   console.log(`  PNG files:  ${stats.pngFiles}`)
+  console.log(`  PAPA files: ${stats.papaFiles}`)
   console.log(`  Other:      ${stats.otherFiles}`)
   console.log(`  Total size: ${(stats.totalSize / 1024 / 1024).toFixed(2)} MB (uncompressed)`)
   console.log()
@@ -367,6 +389,7 @@ async function main() {
       totalSizeBytes: stats.totalSize,
       jsonFiles: stats.jsonFiles,
       pngFiles: stats.pngFiles,
+      papaFiles: stats.papaFiles,
     },
     sha256Unencrypted: tarHash,
     extractedAt: now.toISOString(),
