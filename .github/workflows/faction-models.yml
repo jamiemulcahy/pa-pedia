@@ -59,6 +59,7 @@ jobs:
         env:
           PA_BASE_DATA_KEY: ${{ secrets.PA_BASE_DATA_KEY }}
         run: |
+          set -euo pipefail
           ENC_FILE=$(ls /tmp/base-data-download/pa-base-data-*.tar.gz.enc)
           node -e "
             const crypto = require('crypto');
@@ -114,7 +115,8 @@ jobs:
           # Runtime libs Blender needs to start even in --background.
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libgl1 libxi6 libxrender1 libxxf86vm1 libxfixes3 libsm6 libxkbcommon0 xz-utils
+            libgl1 libegl1 libxi6 libxrender1 libxxf86vm1 libxfixes3 libsm6 \
+            libxkbcommon0 libxrandr2 libxinerama1 libxcursor1 xz-utils
           MAJOR_MINOR=$(echo "${BLENDER_VERSION}" | cut -d. -f1,2)
           URL="https://download.blender.org/release/Blender${MAJOR_MINOR}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
           echo "Downloading $URL"

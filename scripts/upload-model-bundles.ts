@@ -91,7 +91,10 @@ function uploadZip(filename: string): void {
     throw new Error(`Model bundle not found: ${zipPath}`)
   }
   console.log(`Uploading ${filename}...`)
-  exec(`gh release upload ${RELEASE_TAG} "${zipPath}" --clobber`)
+  // Use raw execSync (not the error-swallowing exec wrapper): a failed upload
+  // MUST fail the step, otherwise the manifest regen finds no bundle and the 3D
+  // button silently never appears.
+  execSync(`gh release upload ${RELEASE_TAG} "${zipPath}" --clobber`, { stdio: 'inherit' })
 }
 
 async function main() {
