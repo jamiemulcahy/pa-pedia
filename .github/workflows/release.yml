@@ -146,12 +146,27 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Keep only the 10 most recent releases, delete older ones
+          # Keep only the 10 most recent VERSIONED (CLI binary) releases, deleting
+          # older ones. Infrastructure releases are NEVER pruned: they hold the
+          # faction data + manifest, 3D model bundles and the encrypted PA base
+          # data, and deploy.yml downloads faction data + manifest from
+          # `faction-data` on every deploy — deleting it silently wipes the live
+          # site's factions on the next deploy. (gh release list is not ordered by
+          # publish date, so these infra releases could otherwise fall outside the
+          # "10 most recent" window and be pruned, as `faction-data` was.)
+          PROTECTED="latest faction-data faction-models pa-base-data"
+
           echo "Fetching releases..."
           RELEASES=$(gh release list --json tagName --jq '.[].tagName')
 
           COUNT=0
           for TAG in $RELEASES; do
+            case " $PROTECTED " in
+              *" $TAG "*)
+                echo "Keeping protected release: $TAG"
+                continue
+                ;;
+            esac
             COUNT=$((COUNT + 1))
             if [ $COUNT -gt 10 ]; then
               echo "Deleting old release: $TAG"
