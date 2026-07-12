@@ -16,5 +16,9 @@
     "Bugs",
     "Legion",
     "MLA"
-  ]
+  ],
+  "teamColors": {
+    "primary": "#12b5a5",
+    "secondary": "#ff8a00"
+  }
 }
