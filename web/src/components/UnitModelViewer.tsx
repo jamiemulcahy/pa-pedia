@@ -248,6 +248,10 @@ export function UnitModelViewer({
       scene.add(keyLight)
 
       const grid = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b)
+      // Sit the grid a hair below y=0 so it never lands exactly coplanar with a
+      // model's flat underside (structures rest their base on y=0), which would
+      // otherwise z-fight into a shimmer as the model auto-rotates. The offset is
+      // scaled to the model below, once we know its size.
       scene.add(grid)
       disposables.push(grid.geometry, grid.material as THREE.Material)
 
@@ -348,6 +352,17 @@ export function UnitModelViewer({
       obj.position.y += size.y / 2
       const r = Math.max(size.x, size.y, size.z) || 1
       camera.position.set(r * 1.6, r * 1.3, r * 1.9)
+      // Tighten the depth range to the model's actual size. The default
+      // 0.1 → 1000 span wastes almost all depth-buffer precision on empty space
+      // in front of PA-scale models, so their many near-coplanar armour panels
+      // z-fight into a heavy flicker while auto-rotating. A near:far ratio of a
+      // few thousand keeps the depth buffer precise across the whole model.
+      camera.near = r * 0.05
+      camera.far = r * 100
+      camera.updateProjectionMatrix()
+      // Drop the grid just beneath the model's base so the two are never exactly
+      // coplanar (see grid creation above).
+      grid.position.y = -r * 0.002
       controls.target.set(0, size.y / 2, 0)
       controls.update()
       scene.add(obj)

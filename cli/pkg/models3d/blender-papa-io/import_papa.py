@@ -127,6 +127,18 @@ def load_papa(properties, context):
                     normals = []
                     for i in range(vBuffer.getNumVertices()):
                         normals.append(vBuffer.getVertex(i).getNormal())
+                    # Blender 4.1+/5.x: normals_split_custom_set_from_vertices()
+                    # reads per-corner normal storage that Blender leaves
+                    # uninitialised for degenerate (zero-area) faces, so the
+                    # native call segfaults (EXCEPTION_ACCESS_VIOLATION) on any
+                    # mesh that contains one — e.g. several PA unit meshes such as
+                    # Dox. validate() strips those invalid faces first, fixing the
+                    # crash; on a clean mesh it is a no-op. Removing faces can
+                    # shift polygon indices, but the glb is exported with
+                    # materials=NONE so the material groups assigned below never
+                    # reach the output (the bounds guard there just keeps the
+                    # assignment from raising on the now-shorter polygon list).
+                    blenderMesh.data.validate(verbose=False)
                     blenderMesh.data.normals_split_custom_set_from_vertices(normals)
 
                 # create the material groups
@@ -150,8 +162,14 @@ def load_papa(properties, context):
                         continue
 
                     ind = materialMap[material]
+                    polyCount = len(blenderMesh.data.polygons)
                     for i in range(mat.getFirstIndex()//3, mat.getFirstIndex()//3 + mat.getNumPrimitives()):
-                        blenderMesh.data.polygons[i].material_index = ind
+                        # validate() (see importNormals above) may have removed
+                        # degenerate faces, shortening the polygon list; skip any
+                        # index past the end. Harmless: the glb exports with
+                        # materials=NONE, so these assignments are display-only.
+                        if i < polyCount:
+                            blenderMesh.data.polygons[i].material_index = ind
                 
                 if papaFile.getNumTextures() > 0: # textures in the file itself, try to find them
                     for i in range(mesh.getNumMaterialGroups()):
@@ -358,6 +376,20 @@ def load_papa(properties, context):
         
         animTargetArmature.animation_data.action = action # link to action
 
+        # Blender 4.4+ (incl. 5.x) replaced the legacy Action.groups /
+        # Action.fcurves collections with "slotted" actions, where f-curves live
+        # on a channelbag inside a layer strip, addressed by the slot the id is
+        # animated with. Resolve the right channel container so the group/fcurve
+        # creation below works on both old (< 4.4) and new Blender.
+        if hasattr(action, "groups"):
+            channels = action  # legacy Blender: Action.groups / Action.fcurves
+        else:
+            slot = action.slots.new(id_type='OBJECT', name=animTargetArmature.name)
+            animTargetArmature.animation_data.action_slot = slot
+            layer = action.layers.new("Layer")
+            strip = layer.strips.new(type='KEYFRAME')
+            channels = strip.channelbag(slot, ensure=True)
+
         # correct each bone to a format that blender accepts
         for bone in animTargetArmature.pose.bones:
             processBone(bone, animation)
@@ -370,17 +402,17 @@ def load_papa(properties, context):
             except KeyError:
                 continue # we allow some misses with fuzzy
             
-            group = action.groups.new(name=currentBone.getName())
+            group = channels.groups.new(name=currentBone.getName())
             boneString = "pose.bones[\""+currentBone.getName()+"\"]."
             curvesLoc = []
             curvesRot = []
-            
+
             for i in range(3): # set up groups for location
-                curve = action.fcurves.new(data_path=boneString + "location",index=i)
+                curve = channels.fcurves.new(data_path=boneString + "location",index=i)
                 curve.group = group
                 curvesLoc.append(curve)
             for i in range(4): # set up groups for rotation
-                curve = action.fcurves.new(data_path=boneString + "rotation_quaternion",index=i)
+                curve = channels.fcurves.new(data_path=boneString + "rotation_quaternion",index=i)
                 curve.group = group
                 curvesRot.append(curve)
 
