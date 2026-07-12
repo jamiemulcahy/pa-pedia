@@ -47,11 +47,12 @@ import {
 // the loader run under jsdom in tests.
 configure({ useWebWorkers: false })
 
-/** One unit's model asset paths, relative to the bundle root. */
+/** One unit's model asset paths, relative to the bundle root. Only `glb` is
+ * guaranteed — texture-less units (many Exiles/Bugs units) omit the textures. */
 export interface ModelEntry {
   glb: string
-  diffuse: string
-  mask: string
+  diffuse?: string
+  mask?: string
   material?: string
 }
 
