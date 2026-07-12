@@ -16,6 +16,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import type { TeamColors } from '@/types/faction'
 import { loadUnitModel, type LoadedUnitModel } from '@/services/modelLoader'
+import { isAuxiliaryMeshName } from '@/utils/auxiliaryMesh'
 
 interface UnitModelViewerProps {
   factionId: string
@@ -347,18 +348,35 @@ export function UnitModelViewer({
       if (cancelled) return
 
       const obj = gltf.scene
+      // Auxiliary meshes (build/nav platform `*_nav`, collision hull `*_col`)
+      // ship inside the model but aren't part of the unit's appearance — left in,
+      // factories render a stray "extra box". Collect them during the traverse
+      // and remove them afterwards (mutating the graph mid-traverse is unsafe).
+      const auxiliary: THREE.Mesh[] = []
       obj.traverse((n) => {
         const mesh = n as THREE.Mesh
-        if (mesh.isMesh) {
-          if (mesh.geometry) disposables.push(mesh.geometry)
-          // Dispose the MeshStandardMaterial(s) GLTFLoader auto-created before
-          // swapping in our shared team-colour material, so they don't leak.
-          const original = mesh.material
-          if (Array.isArray(original)) original.forEach((m) => m?.dispose?.())
-          else original?.dispose?.()
-          mesh.material = material
+        if (!mesh.isMesh) return
+        if (isAuxiliaryMeshName(mesh.name)) {
+          auxiliary.push(mesh)
+          return
         }
+        if (mesh.geometry) disposables.push(mesh.geometry)
+        // Dispose the MeshStandardMaterial(s) GLTFLoader auto-created before
+        // swapping in our shared team-colour material, so they don't leak.
+        const original = mesh.material
+        if (Array.isArray(original)) original.forEach((m) => m?.dispose?.())
+        else original?.dispose?.()
+        mesh.material = material
       })
+      // Drop the auxiliary meshes from the scene graph so they neither render nor
+      // skew the framing bounding box below, disposing their GPU resources.
+      for (const mesh of auxiliary) {
+        mesh.geometry?.dispose?.()
+        const mat = mesh.material
+        if (Array.isArray(mat)) mat.forEach((m) => m?.dispose?.())
+        else mat?.dispose?.()
+        mesh.removeFromParent()
+      }
 
       // Frame the model.
       const box = new THREE.Box3().setFromObject(obj)
