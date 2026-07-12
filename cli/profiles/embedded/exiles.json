@@ -1,7 +1,10 @@
 {
   "displayName": "Exiles",
   "factionUnitType": "Custom6",
-  "mods": ["github.com/NikolaMX/Exiles-Faction"],
+  "mods": [
+    "github.com/NikolaMX/Exiles-Faction",
+    "github.com/NikolaMX/exiles_faction_client"
+  ],
   "backgroundImage": "/ui/mods/com.pa.nik.exiles/img/background.png",
   "teamColors": {
     "primary": "#7c3aed",
