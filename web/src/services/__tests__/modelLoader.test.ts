@@ -32,13 +32,17 @@ configure({ useWebWorkers: false })
 
 const SAMPLE_INDEX: ModelsIndex = {
   generated: '2026-07-11T00:00:00Z',
-  unitCount: 1,
+  unitCount: 2,
   units: {
     radar: {
       glb: 'models/radar.glb',
       diffuse: 'textures/radar_diffuse.png',
       mask: 'textures/radar_mask.png',
       material: 'textures/radar_material.png',
+    },
+    // A texture-less unit (geometry only) — many Exiles/Bugs units are like this.
+    beacon: {
+      glb: 'models/beacon.glb',
     },
   },
 }
@@ -51,6 +55,7 @@ async function buildBundleBlob(): Promise<Blob> {
   await zw.add('textures/radar_diffuse.png', new Uint8ArrayReader(new Uint8Array([5, 6])))
   await zw.add('textures/radar_mask.png', new Uint8ArrayReader(new Uint8Array([7, 8])))
   await zw.add('textures/radar_material.png', new Uint8ArrayReader(new Uint8Array([9, 10])))
+  await zw.add('models/beacon.glb', new Uint8ArrayReader(new Uint8Array([11, 12, 13])))
   return zw.close()
 }
 
@@ -112,6 +117,19 @@ describe('modelLoader — development mode', () => {
 
     const model = await loadUnitModel('MLA', 'does_not_exist')
     expect(model).toBeNull()
+  })
+
+  it('loads a texture-less unit with only a glb URL (no diffuse/mask/material)', async () => {
+    global.fetch = vi.fn(async () =>
+      new Response(JSON.stringify(SAMPLE_INDEX), { status: 200 })
+    ) as unknown as typeof fetch
+
+    const model = await loadUnitModel('MLA', 'beacon')
+    expect(model).not.toBeNull()
+    expect(model!.glbUrl).toBe('/faction-models/MLA/models/beacon.glb')
+    expect(model!.diffuseUrl).toBeUndefined()
+    expect(model!.maskUrl).toBeUndefined()
+    expect(model!.materialUrl).toBeUndefined()
   })
 })
 
@@ -269,5 +287,20 @@ describe('modelLoader — production mode', () => {
 
     const model = await loadUnitModel('MLA', 'ghost', '1.0.0')
     expect(model).toBeNull()
+  })
+
+  it('loads a texture-less unit without requesting undefined bundle entries', async () => {
+    mockGetVersion.mockResolvedValue(modelsEntry())
+    mockRangeFetch()
+
+    // Regression: a unit with only a glb (no diffuse/mask/material) must not
+    // throw "Entry not found in bundle: undefined" — it renders geometry-only.
+    const model = await loadUnitModel('MLA', 'beacon', '1.0.0')
+    expect(model).not.toBeNull()
+    expect(model!.glbUrl).toMatch(/^blob:/)
+    expect(model!.diffuseUrl).toBeUndefined()
+    expect(model!.maskUrl).toBeUndefined()
+    expect(model!.materialUrl).toBeUndefined()
+    model!.release()
   })
 })

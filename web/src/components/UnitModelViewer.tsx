@@ -271,12 +271,28 @@ export function UnitModelViewer({
           )
         })
 
+      // A 1×1 fallback texture for units that ship geometry but no textures
+      // (many Exiles/Bugs units): a neutral grey diffuse reads as bare metal,
+      // and an all-zero mask means no team-colour regions and no emissive. The
+      // shader is unchanged — it just samples a solid colour.
+      const solidTexture = (r: number, g: number, b: number): THREE.Texture => {
+        const tex = new THREE.DataTexture(
+          new Uint8Array([r, g, b, 255]),
+          1,
+          1,
+          THREE.RGBAFormat
+        )
+        tex.colorSpace = THREE.NoColorSpace
+        tex.needsUpdate = true
+        return tex
+      }
+
       let diffuse: THREE.Texture
       let mask: THREE.Texture
       try {
         ;[diffuse, mask] = await Promise.all([
-          loadTexture(model.diffuseUrl),
-          loadTexture(model.maskUrl),
+          model.diffuseUrl ? loadTexture(model.diffuseUrl) : Promise.resolve(solidTexture(170, 170, 170)),
+          model.maskUrl ? loadTexture(model.maskUrl) : Promise.resolve(solidTexture(0, 0, 0)),
         ])
       } catch (err) {
         if (!cancelled) {

@@ -47,11 +47,12 @@ import {
 // the loader run under jsdom in tests.
 configure({ useWebWorkers: false })
 
-/** One unit's model asset paths, relative to the bundle root. */
+/** One unit's model asset paths, relative to the bundle root. Only `glb` is
+ * guaranteed — texture-less units (many Exiles/Bugs units) omit the textures. */
 export interface ModelEntry {
   glb: string
-  diffuse: string
-  mask: string
+  diffuse?: string
+  mask?: string
   material?: string
 }
 
@@ -62,11 +63,15 @@ export interface ModelsIndex {
   units: Record<string, ModelEntry>
 }
 
-/** A loaded unit model, as URLs ready to hand to three.js loaders. */
+/** A loaded unit model, as URLs ready to hand to three.js loaders.
+ *
+ * `diffuseUrl`/`maskUrl` are optional: some units (many Exiles/Bugs units) have
+ * geometry but no textures in the bundle, so the viewer falls back to a plain
+ * material for those. */
 export interface LoadedUnitModel {
   glbUrl: string
-  diffuseUrl: string
-  maskUrl: string
+  diffuseUrl?: string
+  maskUrl?: string
   materialUrl?: string
   /**
    * Release any object URLs created for this model. No-op in dev (plain file
@@ -110,8 +115,9 @@ interface ModelCacheDB extends DBSchema {
       // across environments, and Blobs are rebuilt in-context on read so they
       // are always valid for URL.createObjectURL.
       glb: ArrayBuffer
-      diffuse: ArrayBuffer
-      mask: ArrayBuffer
+      // Optional: some units have geometry but no textures in the bundle.
+      diffuse?: ArrayBuffer
+      mask?: ArrayBuffer
       material?: ArrayBuffer
     }
   }
@@ -403,8 +409,8 @@ export async function loadUnitModel(
     const base = `${MODELS_BASE_PATH}/${factionId}`
     return {
       glbUrl: `${base}/${entry.glb}`,
-      diffuseUrl: `${base}/${entry.diffuse}`,
-      maskUrl: `${base}/${entry.mask}`,
+      diffuseUrl: entry.diffuse ? `${base}/${entry.diffuse}` : undefined,
+      maskUrl: entry.mask ? `${base}/${entry.mask}` : undefined,
       materialUrl: entry.material ? `${base}/${entry.material}` : undefined,
       release: () => {},
     }
@@ -435,14 +441,20 @@ export async function loadUnitModel(
   const cachedUnit = await db.get('units', unitKey)
   if (cachedUnit && cachedUnit.timestamp === manifestEntry.timestamp) {
     glb = bytesToBlob(cachedUnit.glb, entry.glb)
-    diffuse = bytesToBlob(cachedUnit.diffuse, entry.diffuse)
-    mask = bytesToBlob(cachedUnit.mask, entry.mask)
+    diffuse =
+      cachedUnit.diffuse && entry.diffuse ? bytesToBlob(cachedUnit.diffuse, entry.diffuse) : undefined
+    mask = cachedUnit.mask && entry.mask ? bytesToBlob(cachedUnit.mask, entry.mask) : undefined
     material =
       cachedUnit.material && entry.material
         ? bytesToBlob(cachedUnit.material, entry.material)
         : undefined
   } else {
-    const names = [entry.glb, entry.diffuse, entry.mask]
+    // Only request the assets this unit actually has — diffuse/mask/material are
+    // absent for texture-less units, and asking for an undefined entry would
+    // throw "Entry not found in bundle: undefined".
+    const names = [entry.glb]
+    if (entry.diffuse) names.push(entry.diffuse)
+    if (entry.mask) names.push(entry.mask)
     if (entry.material) names.push(entry.material)
 
     const url = getSiteBaseUrl() + manifestEntry.models.downloadUrl
@@ -456,8 +468,8 @@ export async function loadUnitModel(
     }
 
     const glbBytes = getBytes(entry.glb)
-    const diffuseBytes = getBytes(entry.diffuse)
-    const maskBytes = getBytes(entry.mask)
+    const diffuseBytes = entry.diffuse ? getBytes(entry.diffuse) : undefined
+    const maskBytes = entry.mask ? getBytes(entry.mask) : undefined
     const materialBytes = entry.material ? getBytes(entry.material) : undefined
 
     await db.put('units', {
@@ -470,8 +482,8 @@ export async function loadUnitModel(
     })
 
     glb = bytesToBlob(glbBytes, entry.glb)
-    diffuse = bytesToBlob(diffuseBytes, entry.diffuse)
-    mask = bytesToBlob(maskBytes, entry.mask)
+    diffuse = diffuseBytes && entry.diffuse ? bytesToBlob(diffuseBytes, entry.diffuse) : undefined
+    mask = maskBytes && entry.mask ? bytesToBlob(maskBytes, entry.mask) : undefined
     material = materialBytes && entry.material ? bytesToBlob(materialBytes, entry.material) : undefined
   }
 
@@ -484,8 +496,8 @@ export async function loadUnitModel(
 
   return {
     glbUrl: makeUrl(glb),
-    diffuseUrl: makeUrl(diffuse),
-    maskUrl: makeUrl(mask),
+    diffuseUrl: diffuse ? makeUrl(diffuse) : undefined,
+    maskUrl: mask ? makeUrl(mask) : undefined,
     materialUrl: material ? makeUrl(material) : undefined,
     release: () => {
       for (const url of urls) URL.revokeObjectURL(url)
