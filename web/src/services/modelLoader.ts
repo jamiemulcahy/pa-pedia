@@ -194,7 +194,13 @@ async function extractViaRange(
   // GitHub release and serves correct 206 Partial Content, but Cloudflare strips
   // Accept-Ranges from the 206 responses, which would otherwise make zip.js
   // throw "HTTP Range not supported" and hide the 3D viewer.
-  const reader = new ZipReader(new HttpRangeReader(url, { forceRangeRequests: true }))
+  // Cast: forceRangeRequests is supported at runtime but missing from the
+  // installed zip.js type defs.
+  const reader = new ZipReader(
+    new HttpRangeReader(url, {
+      forceRangeRequests: true,
+    } as ConstructorParameters<typeof HttpRangeReader>[1])
+  )
   let entries: Entry[]
   // Reading the central directory is the range-dependent step; a failure here
   // means Range is unsupported. Entry reads below are NOT treated as range
