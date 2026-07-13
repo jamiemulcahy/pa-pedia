@@ -8,7 +8,8 @@
   "build": "124664",
   "type": "mod",
   "mods": [
-    "github.com/NikolaMX/Exiles-Faction"
+    "github.com/NikolaMX/Exiles-Faction",
+    "github.com/NikolaMX/exiles_faction_client"
   ],
   "backgroundImage": "assets/ui/mods/com.pa.nik.exiles/img/background.png",
   "teamColors": {
