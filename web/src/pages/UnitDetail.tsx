@@ -1394,7 +1394,9 @@ export function UnitDetail() {
           <>
             {/* Non-comparison mode - navigation with Compare button */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <BreadcrumbNav factionId={factionId || ''} unitId={unitId} version={version} />
+              <div className="w-full min-w-0 sm:flex-1">
+                <BreadcrumbNav factionId={factionId || ''} unitId={unitId} version={version} />
+              </div>
               <button
                 onClick={() => {
                   // Start comparison mode with one empty slot for selection
