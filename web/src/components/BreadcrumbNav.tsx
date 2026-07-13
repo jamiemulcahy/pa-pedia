@@ -238,9 +238,11 @@ export function BreadcrumbNav({ factionId, unitId, version = null, onUnitChange,
   )
 
   return (
-    <nav aria-label="Unit navigation" className="w-full sm:w-auto">
-      <div className="flex flex-col sm:flex-row sm:inline-flex items-stretch sm:items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="w-full sm:w-auto sm:min-w-[140px]">
+    <nav aria-label="Unit navigation" className="@container w-full">
+      {/* Layout responds to the nav's own width (container query), not the viewport,
+          so comparison columns stack their selectors once they get narrow (3+ units). */}
+      <div className="flex flex-col @lg:flex-row @lg:inline-flex items-stretch @lg:items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="w-full @lg:w-auto @lg:min-w-[140px]">
           <Select<FactionOption>
             options={factionOptions}
             value={selectedFaction}
@@ -257,16 +259,18 @@ export function BreadcrumbNav({ factionId, unitId, version = null, onUnitChange,
 
         {/* Version selector - between faction and unit selectors */}
         {showVersionSelector && (
-          <VersionSelector
-            factionId={factionId}
-            currentVersion={version}
-            onVersionChange={handleVersionChange}
-          />
+          <div className="w-full @lg:w-auto">
+            <VersionSelector
+              factionId={factionId}
+              currentVersion={version}
+              onVersionChange={handleVersionChange}
+            />
+          </div>
         )}
 
-        <span className="text-gray-400 dark:text-gray-500 text-lg hidden sm:inline self-center">&rarr;</span>
+        <span className="text-gray-400 dark:text-gray-500 text-lg hidden @lg:inline self-center">&rarr;</span>
 
-        <div className={`w-full sm:w-auto ${isAllFactionsSelected ? 'sm:min-w-[280px]' : 'sm:min-w-[200px]'}`}>
+        <div className={`w-full @lg:w-auto ${isAllFactionsSelected ? '@lg:min-w-[280px]' : '@lg:min-w-[200px]'}`}>
           <Select<UnitOptionWithFaction>
             options={unitOptions}
             value={selectedUnit}
