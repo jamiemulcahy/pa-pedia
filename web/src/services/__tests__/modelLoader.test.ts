@@ -242,6 +242,52 @@ describe('modelLoader — production mode', () => {
     expect(wholeBundleDownloads).toBe(0)
   })
 
+  it('invalidates the cache when a model-only regen produces a new bundle (same faction-data timestamp)', async () => {
+    // A model regen keeps the faction-data `timestamp` unchanged but ships a new
+    // bundle filename with a new build stamp. The cache must key on the bundle
+    // stamp, not the faction-data timestamp — otherwise stale (e.g. texture-less)
+    // models keep being served after a regen.
+    const oldEntry = {
+      ...modelsEntry(),
+      // faction-data timestamp stays constant across the regen
+      timestamp: 100,
+      models: {
+        filename: 'mla-1.0.0-pedia20260101000000-models.zip',
+        downloadUrl: '/faction-models/mla-1.0.0-pedia20260101000000-models.zip',
+        size: bundleBytes.byteLength,
+        unitCount: 1,
+      },
+    }
+    mockGetEntry.mockResolvedValue(oldEntry)
+    mockRangeFetch()
+
+    const first = await getFactionModelsIndex('MLA')
+    expect(first).not.toBeNull()
+    const callsAfterFirst = vi.mocked(global.fetch).mock.calls.length
+
+    // Same bundle again → cache hit, no new network.
+    await getFactionModelsIndex('MLA')
+    expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsAfterFirst)
+
+    // Model-only regen: NEW bundle filename/stamp, SAME faction-data timestamp.
+    const newEntry = {
+      ...oldEntry,
+      timestamp: 100,
+      models: {
+        filename: 'mla-1.0.0-pedia20260202000000-models.zip',
+        downloadUrl: '/faction-models/mla-1.0.0-pedia20260202000000-models.zip',
+        size: bundleBytes.byteLength,
+        unitCount: 1,
+      },
+    }
+    mockGetEntry.mockResolvedValue(newEntry)
+
+    const refreshed = await getFactionModelsIndex('MLA')
+    expect(refreshed).not.toBeNull()
+    // Cache MUST have been invalidated → a fresh range read happened.
+    expect(vi.mocked(global.fetch).mock.calls.length).toBeGreaterThan(callsAfterFirst)
+  })
+
   it('getFactionModelsIndex never whole-bundle-downloads on page load when Range is unsupported', async () => {
     // A CDN that ignores Range (200, no accept-ranges). The precheck must degrade
     // to "no models" rather than downloading the entire bundle just to check.

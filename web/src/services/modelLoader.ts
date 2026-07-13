@@ -340,11 +340,13 @@ export async function getFactionModelsIndex(
 
   const resolvedVersion = version ?? manifestEntry.version
   const cacheKey = `${factionId.toLowerCase()}@${resolvedVersion}`
+  const bundleStamp = modelBundleStamp(manifestEntry)
 
-  // Version-aware cache check.
+  // Cache freshness keys on the MODEL bundle stamp (not the faction-data
+  // timestamp) so a model-only regen invalidates stale entries.
   const db = await getDB()
   const cached = await db.get('indexes', cacheKey)
-  if (cached && cached.timestamp === manifestEntry.timestamp) {
+  if (cached && cached.timestamp === bundleStamp) {
     return cached.index
   }
 
@@ -361,7 +363,7 @@ export async function getFactionModelsIndex(
     const extracted = await extractEntries(
       url,
       cacheKey,
-      manifestEntry.timestamp,
+      bundleStamp,
       ['models.json'],
       false // no whole-bundle fallback on page load
     )
@@ -375,11 +377,29 @@ export async function getFactionModelsIndex(
   const index = JSON.parse(new TextDecoder().decode(bytes)) as ModelsIndex
   await db.put('indexes', {
     key: cacheKey,
-    timestamp: manifestEntry.timestamp,
+    timestamp: bundleStamp,
     index,
     cachedAt: new Date().toISOString(),
   })
   return index
+}
+
+/**
+ * Freshness token for a faction's model bundle.
+ *
+ * A model-only regen (the `faction-models` workflow) keeps the faction-data
+ * `timestamp` unchanged but ships a NEW bundle filename carrying a new build
+ * stamp. So the model cache must key on the bundle's own stamp — the 14-digit
+ * `pedia<YYYYMMDDHHmmss>` in `{id}-{version}-pedia{stamp}-models.zip` — NOT
+ * `manifestEntry.timestamp` (the spec-zip timestamp), which would leave stale
+ * (e.g. texture-less) models cached indefinitely after a regen.
+ *
+ * Falls back to the faction-data timestamp only if the filename is unparseable,
+ * which should not happen for a real bundle.
+ */
+function modelBundleStamp(entry: { timestamp: number; models?: { filename: string } }): number {
+  const match = entry.models?.filename.match(/pedia(\d{14})-models\.zip$/i)
+  return match ? Number(match[1]) : entry.timestamp
 }
 
 function mimeForPath(path: string): string {
@@ -425,6 +445,7 @@ export async function loadUnitModel(
   const resolvedVersion = version ?? manifestEntry.version
   const bundleKey = `${factionId.toLowerCase()}@${resolvedVersion}`
   const unitKey = `${bundleKey}/${unitId}`
+  const bundleStamp = modelBundleStamp(manifestEntry)
   const db = await getDB()
 
   // Rebuild a Blob from stored bytes in the current context so it is always a
@@ -439,7 +460,7 @@ export async function loadUnitModel(
   let material: Blob | undefined
 
   const cachedUnit = await db.get('units', unitKey)
-  if (cachedUnit && cachedUnit.timestamp === manifestEntry.timestamp) {
+  if (cachedUnit && cachedUnit.timestamp === bundleStamp) {
     glb = bytesToBlob(cachedUnit.glb, entry.glb)
     diffuse =
       cachedUnit.diffuse && entry.diffuse ? bytesToBlob(cachedUnit.diffuse, entry.diffuse) : undefined
@@ -458,7 +479,7 @@ export async function loadUnitModel(
     if (entry.material) names.push(entry.material)
 
     const url = getSiteBaseUrl() + manifestEntry.models.downloadUrl
-    const extracted = await extractEntries(url, bundleKey, manifestEntry.timestamp, names)
+    const extracted = await extractEntries(url, bundleKey, bundleStamp, names)
 
     // Copy each entry into a fresh ArrayBuffer that owns exactly its bytes.
     const getBytes = (name: string): ArrayBuffer => {
@@ -474,7 +495,7 @@ export async function loadUnitModel(
 
     await db.put('units', {
       key: unitKey,
-      timestamp: manifestEntry.timestamp,
+      timestamp: bundleStamp,
       glb: glbBytes,
       diffuse: diffuseBytes,
       mask: maskBytes,
