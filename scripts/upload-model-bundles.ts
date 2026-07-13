@@ -4,8 +4,11 @@
  * Mirrors upload-to-releases.ts but targets a SEPARATE release tag so the heavy
  * model bundles never interfere with the fast `faction-data` (spec zip) release.
  * Reads models/dist/model-build-summary.json (written by build-model-bundles.ts)
- * and uploads each `{id}-{version}-pedia{ts}-models.zip`, deleting older
- * timestamps of the same faction+version (different versions are preserved).
+ * and uploads each `{id}-{version}-pedia{ts}-models.zip`. All prior bundles are
+ * preserved (both older versions AND older rebuilds of the same version): the
+ * manifest generator always selects the newest stamp per faction+version, and
+ * keeping the previous bundle avoids 404-ing the baked prod manifest until the
+ * next deploy.
  *
  * Prerequisites: GitHub CLI (gh) authenticated (GITHUB_TOKEN in CI).
  */
@@ -64,27 +67,6 @@ function ensureReleaseExists(): void {
   )
 }
 
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-/** Delete older timestamps of the same faction+version (preserve other versions). */
-function deleteSameVersionDuplicates(factionId: string, version: string, newFilename: string): void {
-  const output = execSync(`gh release view ${RELEASE_TAG} --json assets -q ".assets[].name"`, {
-    encoding: 'utf-8',
-  })
-  const assets = output.trim().split('\n').filter(Boolean)
-  const sameVersionPattern = new RegExp(
-    `^${escapeRegex(factionId)}-${escapeRegex(version)}-pedia\\d{14}-models\\.zip$`,
-    'i'
-  )
-  const duplicates = assets.filter((name) => sameVersionPattern.test(name) && name !== newFilename)
-  for (const asset of duplicates) {
-    console.log(`  Deleting older timestamp: ${asset}`)
-    exec(`gh release delete-asset ${RELEASE_TAG} "${asset}" --yes`, { silent: true })
-  }
-}
-
 function uploadZip(filename: string): void {
   const zipPath = path.join(OUTPUT_DIR, filename)
   if (!fs.existsSync(zipPath)) {
@@ -120,7 +102,12 @@ async function main() {
 
   for (const bundle of summary.bundles) {
     console.log(`Processing ${bundle.factionId} v${bundle.version} (${bundle.unitCount} units)...`)
-    deleteSameVersionDuplicates(bundle.factionId, bundle.version, bundle.filename)
+    // Old timestamps of the same faction+version are intentionally KEPT. The
+    // baked prod manifest (deployed from the previous run) still points at the
+    // previous bundle until the next deploy; deleting it here would 404 the 3D
+    // viewer in that window. `buildModelBundleMap` (generate-manifest) always
+    // picks the newest stamp per faction+version, so keeping older rebuilds is
+    // harmless — and preserves model history alongside the spec-zip history.
     uploadZip(bundle.filename)
     console.log()
   }
