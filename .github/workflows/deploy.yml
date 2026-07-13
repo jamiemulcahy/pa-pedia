@@ -73,3 +73,38 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy web/dist --project-name=pa-pedia
+
+      # The Cloudflare zone edge-caches index.html for hours (cf-cache-status
+      # HIT), so a JS-hash-changing deploy strands users on the previous chunk
+      # graph — blank page or "Failed to fetch dynamically imported module" —
+      # until someone manually purges. Purge after every deploy so the edge
+      # serves the freshly-deployed index.html immediately. Hashed /assets/* are
+      # immutable, so purging everything is safe (they just re-fetch).
+      #
+      # Requires: CLOUDFLARE_ZONE_ID secret + the API token having
+      # "Zone → Cache Purge → Purge" permission on this zone.
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
+            echo "::warning::CLOUDFLARE_ZONE_ID not set — skipping cache purge."
+            echo "Add the zone ID secret (and give the API token Cache Purge scope)"
+            echo "so deploys stop stranding users on stale HTML."
+            exit 0
+          fi
+          echo "Purging Cloudflare cache for zone ${CLOUDFLARE_ZONE_ID}..."
+          response=$(curl -sS -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+          echo "$response"
+          if [ "$(echo "$response" | jq -r '.success')" != "true" ]; then
+            echo "::error::Cloudflare cache purge failed. Check that the API token has"
+            echo "'Zone → Cache Purge → Purge' permission and CLOUDFLARE_ZONE_ID is correct."
+            exit 1
+          fi
+          echo "Cache purged."
