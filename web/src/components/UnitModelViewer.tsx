@@ -6,7 +6,8 @@
  * an R/G/B channel mask are tinted at runtime by a small ShaderMaterial
  * (ported from the validated spike): mask R = main region, G = highlight
  * region, B = emissive. Two colour pickers drive the tint live; the choice is
- * persisted globally in localStorage and can be reset to the faction default.
+ * persisted per faction (see {@link readTeamColorPref}) and can be reset to the
+ * faction default.
  */
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
@@ -16,6 +17,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import type { TeamColors } from '@/types/faction'
 import { loadUnitModel, type LoadedUnitModel } from '@/services/modelLoader'
+import { readTeamColorPref, writeTeamColorPref, clearTeamColorPref } from '@/services/teamColorPref'
 import { isAuxiliaryMeshName } from '@/utils/auxiliaryMesh'
 
 interface UnitModelViewerProps {
@@ -34,44 +36,6 @@ interface UnitModelViewerProps {
 
 /** Neutral fallback used when a faction defines no team colours. */
 const NEUTRAL_COLORS: TeamColors = { primary: '#6b7280', secondary: '#9ca3af' }
-
-/** Global localStorage key for the user's team-colour preference. */
-const COLOR_PREF_KEY = 'pa-pedia-team-colors'
-
-interface ColorPref {
-  main: string
-  highlight: string
-}
-
-function readColorPref(): ColorPref | null {
-  try {
-    const raw = localStorage.getItem(COLOR_PREF_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<ColorPref>
-    if (typeof parsed.main === 'string' && typeof parsed.highlight === 'string') {
-      return { main: parsed.main, highlight: parsed.highlight }
-    }
-  } catch {
-    // Corrupt / unavailable storage → treat as no preference.
-  }
-  return null
-}
-
-function writeColorPref(pref: ColorPref): void {
-  try {
-    localStorage.setItem(COLOR_PREF_KEY, JSON.stringify(pref))
-  } catch {
-    // Ignore storage failures (private mode / quota).
-  }
-}
-
-function clearColorPref(): void {
-  try {
-    localStorage.removeItem(COLOR_PREF_KEY)
-  } catch {
-    // Ignore.
-  }
-}
 
 // Cache the WebGL probe at module scope: it creates a canvas + GL context, and
 // creating one per viewer mount needlessly consumes scarce WebGL contexts
@@ -137,10 +101,13 @@ export function UnitModelViewer({
 
   const webglAvailable = useMemo(() => isWebGLAvailable(), [])
 
-  // Colour state: user preference (global) seeds initial values, else faction default.
-  const [main, setMain] = useState<string>(() => readColorPref()?.main ?? factionDefault.primary)
+  // Colour state: a preference picked for THIS faction seeds the pickers; anything
+  // else (no pref, or one picked on another faction) opens in faction defaults.
+  const [main, setMain] = useState<string>(
+    () => readTeamColorPref(factionId)?.main ?? factionDefault.primary
+  )
   const [highlight, setHighlight] = useState<string>(
-    () => readColorPref()?.highlight ?? factionDefault.secondary
+    () => readTeamColorPref(factionId)?.highlight ?? factionDefault.secondary
   )
 
   const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' })
@@ -159,17 +126,17 @@ export function UnitModelViewer({
     }
   }, [main, highlight])
 
-  // Persist colour changes globally so the choice carries across units.
+  // Persist against the current faction so the choice carries across its units.
   const setMainColor = (value: string) => {
     setMain(value)
-    writeColorPref({ main: value, highlight })
+    writeTeamColorPref({ main: value, highlight, factionId })
   }
   const setHighlightColor = (value: string) => {
     setHighlight(value)
-    writeColorPref({ main, highlight: value })
+    writeTeamColorPref({ main, highlight: value, factionId })
   }
   const resetToFactionDefault = () => {
-    clearColorPref()
+    clearTeamColorPref()
     setMain(factionDefault.primary)
     setHighlight(factionDefault.secondary)
   }
@@ -196,11 +163,12 @@ export function UnitModelViewer({
       try {
         model = await loadUnitModel(factionId, unitId, version)
       } catch (err) {
+        // Generic on purpose: this error can carry internal URLs and stack text
+        // (network / range / zip failures). The detail goes to the console for
+        // developers, never to the panel.
+        console.warn('Failed to load unit model', err)
         if (!cancelled) {
-          setLoadState({
-            status: 'error',
-            message: err instanceof Error ? err.message : 'Failed to load model',
-          })
+          setLoadState({ status: 'error', message: 'Could not load this model. Try reloading.' })
         }
         return
       }

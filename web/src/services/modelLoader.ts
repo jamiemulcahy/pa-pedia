@@ -327,16 +327,45 @@ async function extractEntries(
 // ---------------------------------------------------------------------------
 
 /**
+ * Raised when the model index could not be READ — network failure, unusable
+ * Range support, or a bundle missing its own `models.json`.
+ *
+ * Kept strictly apart from a `null` return, which means the faction genuinely
+ * HAS no bundle. Callers must not conflate them: absence is normal and permanent
+ * ("no 3D model for this unit"), a failure is transient and reporting it as
+ * absence tells the user something false about data that does exist.
+ *
+ * `cause` is for console diagnostics only — never render it, it can carry
+ * internal URLs and stack text.
+ */
+export class ModelIndexUnavailableError extends Error {
+  constructor(cause: unknown) {
+    super('model index unavailable')
+    this.name = 'ModelIndexUnavailableError'
+    this.cause = cause
+  }
+}
+
+/**
  * Resolve whether a model bundle exists for a faction+version and return its
- * availability index (`models.json`). Returns `null` when there is no bundle
- * (the common backfill case) — with no failed network request in production,
- * since the manifest tells us up front.
+ * availability index (`models.json`).
+ *
+ * Returns `null` when there is no bundle (the common backfill case) — with no
+ * failed network request in production, since the manifest tells us up front.
+ * Throws {@link ModelIndexUnavailableError} when a bundle exists but its index
+ * could not be read.
  */
 export async function getFactionModelsIndex(
   factionId: string,
   version?: string | null
 ): Promise<ModelsIndex | null> {
   // Dev: fetch the unzipped models.json directly. Missing file → no models.
+  //
+  // Any failure here is absence, not an error: a faction with no local models
+  // has no file for the middleware to serve, so the request falls through to
+  // vite's SPA fallback and returns index.html — which fails to parse as JSON.
+  // That is the normal "I only have MLA models checked out" case, so it must
+  // read as "no model", not as a scary error on every other faction.
   if (isDevLocalModels()) {
     try {
       const response = await fetch(`${MODELS_BASE_PATH}/${factionId}/models.json`)
@@ -371,8 +400,8 @@ export async function getFactionModelsIndex(
   // Cache miss / stale — read models.json via a RANGE request only. This runs
   // on unit-page load (to decide whether to show the "View 3D Model" button), so
   // it must never download the whole multi-MB bundle. The whole-bundle fallback
-  // is therefore disabled here; if Range is unavailable we treat the faction as
-  // having no viewable models this session (graceful — no button, no big fetch).
+  // is therefore disabled here; if Range is unavailable we fail this read rather
+  // than pull megabytes just to answer "is there a model?".
   // The actual model download (loadUnitModel) keeps the fallback, since that only
   // runs after the user clicks.
   const url = modelBundleUrl(manifestEntry.models)
@@ -387,10 +416,14 @@ export async function getFactionModelsIndex(
     )
     bytes = extracted.get('models.json')
   } catch (error) {
-    console.warn('Model index unavailable without a whole-bundle download; hiding 3D viewer', error)
-    return null
+    // The manifest told us a bundle exists, so this is a failure to read it —
+    // never absence. Detail stays in the console for developers; callers show a
+    // generic message so internals never reach the UI.
+    console.warn('Model index unavailable without a whole-bundle download', error)
+    throw new ModelIndexUnavailableError(error)
   }
-  if (!bytes) return null
+  // A bundle without its own index is corrupt, not empty.
+  if (!bytes) throw new ModelIndexUnavailableError('models.json missing from bundle')
 
   const index = JSON.parse(new TextDecoder().decode(bytes)) as ModelsIndex
   await db.put('indexes', {
