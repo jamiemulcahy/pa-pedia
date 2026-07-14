@@ -9,6 +9,7 @@ import {
 } from '@zip.js/zip.js'
 import {
   getFactionModelsIndex,
+  ModelIndexUnavailableError,
   loadUnitModel,
   clearModelCache,
   type ModelsIndex,
@@ -289,22 +290,39 @@ describe('modelLoader — production mode', () => {
   })
 
   it('getFactionModelsIndex never whole-bundle-downloads on page load when Range is unsupported', async () => {
-    // A CDN that ignores Range (200, no accept-ranges). The precheck must degrade
-    // to "no models" rather than downloading the entire bundle just to check.
+    // A CDN that ignores Range (200, no accept-ranges). The precheck must fail
+    // rather than download the entire bundle just to check.
     mockGetEntry.mockResolvedValue(modelsEntry())
     // CDN ignores Range: always 200 full body, no Accept-Ranges.
     global.fetch = vi.fn(async () =>
       new Response(bundleBytes.slice(0), { status: 200 })
     ) as unknown as typeof fetch
 
-    const index = await getFactionModelsIndex('MLA')
-    expect(index).toBeNull()
+    // The manifest says a bundle exists, so a failed read must NOT masquerade as
+    // "this faction has no models" — that would report absence for data that
+    // exists. It throws, and the UI turns that into "couldn't check".
+    await expect(getFactionModelsIndex('MLA')).rejects.toBeInstanceOf(ModelIndexUnavailableError)
+
     // Critically: nothing was cached as a whole bundle — the precheck did not
     // download the full bundle just to check availability.
     const db = await openDB('pa-pedia-model-cache', 1)
     const bundles = await db.getAll('bundles')
     db.close()
     expect(bundles.length).toBe(0)
+  })
+
+  it('does not leak the underlying cause in the error message', async () => {
+    mockGetEntry.mockResolvedValue(modelsEntry())
+    global.fetch = vi.fn(async () => {
+      throw new Error('connect ECONNREFUSED 10.0.0.1:443 while fetching /internal/path.zip')
+    }) as unknown as typeof fetch
+
+    const error = await getFactionModelsIndex('MLA').catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ModelIndexUnavailableError)
+    // The message is a fixed string; internals are reachable only via `cause`
+    // (for console diagnostics), never via the message the UI might render.
+    expect((error as Error).message).toBe('model index unavailable')
+    expect((error as Error).message).not.toMatch(/ECONNREFUSED|10\.0\.0\.1|internal/i)
   })
 
   it('loads a unit model as blob URLs and caches per-unit', async () => {
