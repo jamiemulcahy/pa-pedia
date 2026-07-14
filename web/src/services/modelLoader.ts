@@ -38,7 +38,7 @@ import {
   getManifestEntry,
   getManifestVersion,
   isDevelopmentMode,
-  getSiteBaseUrl,
+  type ModelBundleInfo,
 } from './manifestLoader'
 
 // Run zip decompression inline (no web workers). Bundle entries are already
@@ -81,6 +81,24 @@ export interface LoadedUnitModel {
 }
 
 const MODELS_BASE_PATH = `${import.meta.env.BASE_URL}faction-models`
+
+/**
+ * URL of a faction's model bundle zip.
+ *
+ * Deliberately RELATIVE, unlike faction data (which dev-live fetches straight
+ * from the production origin via `getSiteBaseUrl`). We read these bundles with
+ * Range requests to pull one unit out of a large zip, and `Range` is not a
+ * CORS-safelisted header — so fetching cross-origin makes the browser preflight,
+ * and the /faction-models Pages Function answers only GET/HEAD with no CORS
+ * headers (it is same-origin in prod, so it never needs them). The preflight
+ * fails and the viewer concludes there are no models.
+ *
+ * Staying relative keeps the browser same-origin in every mode: prod hits the
+ * Pages Function directly, dev-live goes through the vite proxy (vite.config.ts).
+ */
+function modelBundleUrl(models: ModelBundleInfo): string {
+  return models.downloadUrl
+}
 
 /**
  * Dev-local mode: dev server without live production data. In this mode model
@@ -357,7 +375,7 @@ export async function getFactionModelsIndex(
   // having no viewable models this session (graceful — no button, no big fetch).
   // The actual model download (loadUnitModel) keeps the fallback, since that only
   // runs after the user clicks.
-  const url = getSiteBaseUrl() + manifestEntry.models.downloadUrl
+  const url = modelBundleUrl(manifestEntry.models)
   let bytes: Uint8Array | undefined
   try {
     const extracted = await extractEntries(
@@ -478,7 +496,7 @@ export async function loadUnitModel(
     if (entry.mask) names.push(entry.mask)
     if (entry.material) names.push(entry.material)
 
-    const url = getSiteBaseUrl() + manifestEntry.models.downloadUrl
+    const url = modelBundleUrl(manifestEntry.models)
     const extracted = await extractEntries(url, bundleKey, bundleStamp, names)
 
     // Copy each entry into a fresh ArrayBuffer that owns exactly its bytes.

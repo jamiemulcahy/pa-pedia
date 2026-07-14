@@ -173,6 +173,12 @@ function devContentType(ext: string): string {
   return contentTypes[ext] || 'application/octet-stream'
 }
 
+/** `just dev-live`: dev server backed by real production faction data. */
+const DEV_LIVE = process.env.VITE_USE_LIVE_DATA === 'true'
+
+/** Production origin that dev-live borrows faction + model data from. */
+const PRODUCTION_ORIGIN = 'https://pa-pedia.com'
+
 /**
  * Custom plugin to serve /faction-models from the repo-root faction-models/ dir.
  *
@@ -185,6 +191,9 @@ function devContentType(ext: string): string {
  *
  * Kept separate from /factions so the faction-data zip workflow is untouched.
  * Can be overridden via VITE_FACTION_MODELS_DIR (e.g. for E2E fixtures).
+ *
+ * Skipped in dev-live, where model bundles come from production via the proxy
+ * below rather than from local files (see DEV_LIVE).
  */
 function serveFactionModels(): Plugin {
   const modelsDir = path.resolve(__dirname, process.env.VITE_FACTION_MODELS_DIR || '../faction-models')
@@ -192,6 +201,10 @@ function serveFactionModels(): Plugin {
   return {
     name: 'serve-faction-models',
     configureServer(server) {
+      // dev-live serves these from production through the proxy; local files
+      // must not shadow it.
+      if (DEV_LIVE) return
+
       server.middlewares.use('/faction-models', (req, res, next) => {
         const reqUrl = req.url || ''
         const filePath = path.join(modelsDir, reqUrl.split('?')[0])
@@ -224,5 +237,22 @@ export default defineConfig({
       // Allow serving files from the factions folder at repo root
       allow: ['..'],
     },
+    // dev-live reads model bundles from production. Fetching them cross-origin
+    // does not work: zip.js sends a Range header to read a single unit out of
+    // the bundle, Range is not CORS-safelisted, so the browser preflights — and
+    // the Cloudflare Pages Function that serves /faction-models only answers
+    // GET/HEAD and sets no CORS headers (it is same-origin in prod, so it never
+    // needs them). The preflight fails and the 3D viewer sees "no models".
+    //
+    // Proxying here keeps the browser same-origin, exactly as in production, so
+    // no CORS is involved and production needs no dev-only concessions.
+    ...(DEV_LIVE && {
+      proxy: {
+        '/faction-models': {
+          target: PRODUCTION_ORIGIN,
+          changeOrigin: true,
+        },
+      },
+    }),
   },
 })
