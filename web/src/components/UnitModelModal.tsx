@@ -75,7 +75,11 @@ export function UnitModelModal({
               </div>
             }
           >
+            {/* Keyed on faction so a faction change remounts the viewer, re-seeding
+                the colour pickers from that faction's defaults rather than keeping
+                the previous faction's picks. */}
             <UnitModelViewer
+              key={factionId}
               factionId={factionId}
               unitId={unitId}
               version={version}
