@@ -5,7 +5,15 @@ import { VersionDiffModal } from '../VersionDiffModal'
 import { CurrentFactionProvider } from '@/contexts/CurrentFactionContext'
 import { renderWithFactionProvider } from '@/tests/helpers'
 import { setupMockFetch, mockMLAIndex } from '@/tests/mocks/factionData'
-import type { FactionIndex } from '@/types/faction'
+import * as factionLoader from '@/services/factionLoader'
+import type { FactionIndex, FactionMetadata } from '@/types/faction'
+
+/** Build an asset map from path → string content, as loadFactionAssets returns. */
+function assetMap(entries: Record<string, string>): Map<string, Blob> {
+  const map = new Map<string, Blob>()
+  for (const [path, content] of Object.entries(entries)) map.set(path, new Blob([content]))
+  return map
+}
 
 /**
  * In standard test/dev mode a versioned index load ignores the version and serves
@@ -22,8 +30,15 @@ function renderModal(props: {
   currentIndex: FactionIndex
   previousVersion?: string
   currentVersion?: string
+  currentVersionKey?: string | null
+  currentMetadata?: FactionMetadata
 }) {
-  const { previousVersion = '0.9.0', currentVersion = '1.0.0', ...rest } = props
+  const {
+    previousVersion = '0.9.0',
+    currentVersion = '1.0.0',
+    currentVersionKey = null,
+    ...rest
+  } = props
   return renderWithFactionProvider(
     <BrowserRouter>
       <CurrentFactionProvider factionId="MLA">
@@ -31,6 +46,7 @@ function renderModal(props: {
           factionId="MLA"
           previousVersion={previousVersion}
           currentVersion={currentVersion}
+          currentVersionKey={currentVersionKey}
           {...rest}
         />
       </CurrentFactionProvider>
@@ -116,11 +132,40 @@ describe('VersionDiffModal', () => {
     expect(screen.getByText('Bot')).toBeInTheDocument()
   })
 
-  it('shows an empty state when nothing changed', async () => {
+  it('shows an empty state when source files are unavailable and nothing changed', async () => {
+    // Default test/dev mode: loadFactionAssets returns null (no cached file trees).
     renderModal({ isOpen: true, onClose: mockOnClose, currentIndex: cloneMLAIndex() })
 
     await waitFor(() => {
       expect(screen.getByText(/No tracked changes/i)).toBeInTheDocument()
+    })
+  })
+
+  it('surfaces raw source-file changes invisible to units.json', async () => {
+    const path = 'assets/pa/units/land/tank/tank_ammo.json'
+    vi.spyOn(factionLoader, 'loadFactionAssets')
+      .mockResolvedValueOnce(assetMap({ [path]: '{"collision_check":"Enemies"}' })) // previous
+      .mockResolvedValueOnce(assetMap({ [path]: '{"collision_check":"target"}' })) // current
+
+    renderModal({ isOpen: true, onClose: mockOnClose, currentIndex: cloneMLAIndex() })
+
+    await waitFor(() => {
+      expect(screen.getByText(/Other changes/i)).toBeInTheDocument()
+    })
+    expect(screen.getByText('collision_check: "Enemies" → "target"')).toBeInTheDocument()
+    expect(screen.queryByText(/No tracked changes/i)).not.toBeInTheDocument()
+  })
+
+  it('reports a version-number bump when nothing changed on either side', async () => {
+    const same = () => assetMap({ 'assets/pa/units/land/tank/tank.json': '{"x":1}' })
+    vi.spyOn(factionLoader, 'loadFactionAssets')
+      .mockResolvedValueOnce(same())
+      .mockResolvedValueOnce(same())
+
+    renderModal({ isOpen: true, onClose: mockOnClose, currentIndex: cloneMLAIndex() })
+
+    await waitFor(() => {
+      expect(screen.getByText(/Version-number bump only/i)).toBeInTheDocument()
     })
   })
 })

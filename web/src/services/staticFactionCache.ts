@@ -154,6 +154,34 @@ export async function getStaticAsset(
 }
 
 /**
+ * Get every cached asset for a faction (or versioned faction) as a map keyed by
+ * the asset path (e.g. "assets/pa/units/...").
+ *
+ * Assets are stored under `${cacheKey}/${assetPath}`; we scan the key range for
+ * that prefix and strip it back off. Used by the version diff to compare the raw
+ * source file trees of two versions.
+ *
+ * @param cacheKey - The faction cache key: `${factionId}` (latest) or
+ *   `${factionId}@${version}`, matching the key used by cacheStaticFaction.
+ */
+export async function getAllStaticAssets(cacheKey: string): Promise<Map<string, Blob>> {
+  const db = await getDB()
+  const prefix = `${cacheKey}/`
+  // Range over all keys starting with the prefix. The '/' delimiter guarantees a
+  // versioned key (`id@ver/…`) or a longer id (`bugsX/…`) sorts outside this range,
+  // so we never pick up another faction's assets. '￿' is the largest BMP char.
+  const range = IDBKeyRange.bound(prefix, `${prefix}￿`, false, false)
+  const keys = (await db.getAllKeys('assets', range)) as string[]
+  const blobs = await db.getAll('assets', range)
+
+  const map = new Map<string, Blob>()
+  keys.forEach((key, i) => {
+    map.set(key.slice(prefix.length), blobs[i])
+  })
+  return map
+}
+
+/**
  * Delete a faction and all its assets from cache
  */
 export async function deleteStaticFactionCache(factionId: string): Promise<void> {
