@@ -599,7 +599,9 @@ export function FactionDetail() {
           factionId={factionId}
           previousVersion={previousVersion}
           currentVersion={currentVersionLabel}
+          currentVersionKey={version}
           currentIndex={singleFaction.index}
+          currentMetadata={metadata ?? undefined}
         />
       )}
 

@@ -27,6 +27,7 @@ import {
   getStaticFactionCache,
   cacheStaticFaction,
   pruneStaleStaticFactions,
+  getAllStaticAssets,
 } from './staticFactionCache'
 import { getAssetUrl } from './assetUrlManager'
 
@@ -393,6 +394,40 @@ export async function loadFactionIndex(
   )
 
   return index
+}
+
+/**
+ * Loads the complete raw asset file tree for a faction version as a map keyed by
+ * asset path (e.g. "assets/pa/units/.../tank.json" -> Blob).
+ *
+ * Only cache-backed modes (production, dev-live) retain the raw files; plain dev
+ * (direct file fetch), dev-with-VITE_FACTIONS_DIR, and local factions have no
+ * asset map, so this returns null and callers degrade gracefully (no raw diff).
+ *
+ * Ensures the version is downloaded/cached first (via loadFactionIndex), then reads
+ * the assets straight from IndexedDB using the same cache key that stored them.
+ *
+ * @param version - Version to load (null = latest, keyed unversioned in the cache).
+ */
+export async function loadFactionAssets(
+  factionId: string,
+  isLocal: boolean = false,
+  version?: string | null
+): Promise<Map<string, Blob> | null> {
+  // Local factions and plain/custom-dir dev modes have no cached asset map.
+  if (isLocal) return null
+  if (isDevelopmentMode()) {
+    const useLiveData = import.meta.env.VITE_USE_LIVE_DATA === 'true'
+    if (!useLiveData) return null // plain dev or VITE_FACTIONS_DIR: no asset blobs cached
+  }
+
+  // Ensure the version is present in the cache (downloads + caches assets if missing).
+  await loadFactionIndex(factionId, isLocal, version)
+
+  const normalizedFactionId = factionId.toLowerCase()
+  const cacheKey = version ? `${normalizedFactionId}@${version}` : normalizedFactionId
+  const assets = await getAllStaticAssets(cacheKey)
+  return assets.size > 0 ? assets : null
 }
 
 /**
