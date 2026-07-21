@@ -124,7 +124,7 @@ jobs:
         run: |
           INPUT_PROFILES="${{ github.event.inputs.profiles }}"
           if [ -z "$INPUT_PROFILES" ]; then
-            echo "profiles=mla legion exiles bugs second-wave" >> "$GITHUB_OUTPUT"
+            echo "profiles=mla legion exiles bugs second-wave replicate" >> "$GITHUB_OUTPUT"
             echo "Updating all profiles"
           else
             # Convert comma-separated to space-separated

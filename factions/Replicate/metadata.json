@@ -1,0 +1,17 @@
+{
+  "identifier": "replicate",
+  "displayName": "Replicate",
+  "version": "0.5",
+  "author": "Bot, Taiga, Bill",
+  "description": "Adds a small, robot faction.",
+  "dateCreated": "2024-07-22",
+  "build": "120799",
+  "type": "mod",
+  "mods": [
+    "github.com/BotWhan/com.pa.replicate"
+  ],
+  "teamColors": {
+    "primary": "#5b6672",
+    "secondary": "#e0a82e"
+  }
+}

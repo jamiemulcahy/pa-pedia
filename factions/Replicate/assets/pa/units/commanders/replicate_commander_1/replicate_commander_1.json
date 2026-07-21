@@ -1,0 +1,124 @@
+{
+  "base_spec": "/pa/units/commanders/quad_base/quad_base.json",
+  "si_name": "replicate_commander_1",
+  "catalog_object_name": "TankAeson",
+  "client": {
+    "ui": {
+      "image": "/pa/units/commanders/replicate_commander_1/img_rep_com_1.png",
+      "thumb_image": "/pa/units/commanders/replicate_commander_1/img_rep_com_1_thumb.png",
+      "profile_image": "/pa/units/commanders/replicate_commander_1/profile_rep_1.png"
+    }
+  },
+
+  "storage": {
+    "energy": 15000,
+    "metal": 3500
+  },
+
+  "production": {
+    "energy": 600,
+    "metal": 25
+  },
+  "display_name": "Replicate Commander",
+  "description": "!LOC:Replicate Commander - Replicates",
+  "max_health": 8000,
+  "build_metal_cost": 6000,
+  "buildable_types": "Custom5 - Bot - NoBuild",
+  "show_in_orbital_layer": true,
+  "armor_type": "AT_Commander",
+  "wreckage_health_frac": 0.5,
+  "attachable": { "offsets": { "root": [0, 0, 0], "head": [0, 0, 10] } },
+  "unit_types": [
+    "UNITTYPE_Custom5",
+    "UNITTYPE_Commander",
+    "UNITTYPE_Construction",
+    "UNITTYPE_Mobile",
+    "UNITTYPE_Land",
+    "UNITTYPE_Amphibious",
+    "UNITTYPE_NoBuild"
+  ],
+  "command_caps": [
+    "ORDER_Move",
+    "ORDER_Patrol",
+    "ORDER_Build",
+    "ORDER_Attack",
+    "ORDER_Reclaim",
+    "ORDER_Repair",
+    "ORDER_Assist",
+    "ORDER_Use",
+    "ORDER_FireSecondaryWeapon"
+  ],
+  "transportable": { "size": 1 },
+  "guard_layer": "WL_LandHorizontal",
+  "navigation": {
+    "type": "amphibious",
+    "acceleration": 120,
+    "brake": -1,
+    "move_speed": 12,
+    "turn_speed": 180,
+    "turn_in_place": true,
+    "group_preference": "back"
+  },
+  "physics": { "radius": 12, "allow_pushing": true, "sync_radius_to_extents": true, "air_friction": 1 },
+  "recon": {
+    "observer": {
+      "items": [
+        {
+          "layer": "surface_and_air",
+          "channel": "sight",
+          "shape": "capsule",
+          "radius": 150
+        },
+        {
+          "layer": "underwater",
+          "channel": "sight",
+          "shape": "capsule",
+          "radius": 150
+        },
+        {
+          "layer": "celestial",
+          "channel": "sight",
+          "shape": "sphere",
+          "radius": 1
+        }
+      ]
+    }
+  },
+  "model": {
+    "filename": "/pa/units/commanders/replicate_commander_1/replicate_commander_1.papa"
+  },
+  "tools": [
+    {
+      "spec_id": "/pa/units/addon/extra/replicate_commander_1_build_arm.json",
+      "aim_bone": "bone_turret"
+    },
+    {
+      "spec_id": "/pa/units/addon/extra/replicate_commander_1_tool_weapon.json",
+      "aim_bone": "bone_turret",
+      "muzzle_bone": "socket_rightMuzzle_muzzle",
+      "primary_weapon": true
+    },
+    {
+      "spec_id": "/pa/tools/uber_cannon/uber_cannon.json",
+      "aim_bone": "bone_turret",
+      "muzzle_bone": "socket_rightMuzzle_muzzle",
+      "secondary_weapon": true
+    }
+  ],
+  "events": {
+    "fired": {
+      "effect_spec": "/pa/effects/specs/default_muzzle_flash.pfx socket_rightMuzzle_muzzle"
+    },
+    "teleported": {
+      "audio_cue": "/SE/Death/Veh",
+      "effect_spec": "/pa/effects/specs/default_explosion.pfx"
+    }
+  },
+  "fx_offsets": [
+    {
+      "type": "build",
+      "filename": "/pa/effects/specs/fab_spray.pfx",
+      "bone": "socket_leftMuzzle_muzzle"
+    }
+  ]
+}

@@ -58,6 +58,14 @@ function createBlueprintFetchMock(blueprintResponses: Array<() => Promise<Respon
       return Promise.resolve(createMockFetchResponse(mockSecondWaveIndex))
     }
 
+    // Any other faction metadata/units request (e.g. a newly added faction the
+    // app discovers on disk via import.meta.glob) must NOT fall through to the
+    // sequential blueprint responses below — that would desync callIndex and
+    // break base_spec navigation. Return a 404 so faction discovery just skips it.
+    if (/\/factions\/[^/]+\/(metadata|units)\.json$/.test(urlString)) {
+      return Promise.resolve(createMockFetchResponse(null, false))
+    }
+
     // Handle blueprint requests in sequence
     if (callIndex < blueprintResponses.length) {
       return blueprintResponses[callIndex++]()
