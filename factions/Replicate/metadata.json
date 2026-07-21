@@ -7,6 +7,7 @@
   "dateCreated": "2024-07-22",
   "build": "120799",
   "type": "mod",
+  "backgroundImage": "assets/ui/mods/com.pa.replicate/icon.png",
   "mods": [
     "github.com/BotWhan/com.pa.replicate"
   ],
