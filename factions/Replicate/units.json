@@ -1,0 +1,1416 @@
+{
+  "units": [
+    {
+      "identifier": "r_air_defense",
+      "displayName": "Galata Turret",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Basic",
+        "Land",
+        "AirDefense",
+        "Defense",
+        "CmdBuild",
+        "FabBuild",
+        "FabAdvBuild",
+        "CombatFabAdvBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_air_defense/r_air_defense.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_air_defense/r_air_defense_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_air_defense",
+        "resourceName": "/pa/units/addon/r_air_defense/r_air_defense.json",
+        "displayName": "Galata Turret",
+        "description": "Anti-Air Defense - Equipped with homing missiles. Only attacks air.",
+        "image": "assets/pa/units/addon/r_air_defense/r_air_defense_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Basic",
+          "Land",
+          "AirDefense",
+          "Defense",
+          "CmdBuild",
+          "FabBuild",
+          "FabAdvBuild",
+          "CombatFabAdvBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1000,
+            "dps": 100,
+            "salvoDamage": 25,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/air_defense/air_defense_tool_weapon.json",
+                "safeName": "air_defense_tool_weapon",
+                "name": "air_defense_tool_weapon",
+                "count": 1,
+                "rateOfFire": 4,
+                "damage": 25,
+                "dps": 100,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 200,
+                "maxRange": 150,
+                "splashDamage": 10,
+                "splashRadius": 0.75,
+                "fullDamageRadius": 0.75,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 89,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/air_defense/air_defense_ammo.json",
+                  "safeName": "air_defense_ammo",
+                  "name": "air_defense_ammo",
+                  "damage": 25,
+                  "fullDamageRadius": 0.75,
+                  "splashDamage": 10,
+                  "splashRadius": 0.75,
+                  "muzzleVelocity": 200,
+                  "maxVelocity": 200,
+                  "lifetime": 3,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 225,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 155,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "r_mine",
+      "displayName": "Land Mine",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Land",
+        "Naval",
+        "Defense",
+        "CombatFabBuild",
+        "CombatFabAdvBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_mine/r_mine.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_mine/r_mine_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_mine",
+        "resourceName": "/pa/units/addon/r_mine/r_mine.json",
+        "displayName": "Land Mine",
+        "description": "Land Mine - Detonates when enemy units are in proximity.",
+        "image": "assets/pa/units/addon/r_mine/r_mine_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Land",
+          "Naval",
+          "Defense",
+          "CombatFabBuild",
+          "CombatFabAdvBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5,
+            "salvoDamage": 1000,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/land_mine/land_mine_tool_weapon.json",
+                "safeName": "land_mine_tool_weapon",
+                "name": "land_mine_tool_weapon",
+                "count": 1,
+                "rateOfFire": 5,
+                "damage": 1000,
+                "dps": 5000,
+                "projectilesPerFire": 1,
+                "maxRange": 5,
+                "splashRadius": 15,
+                "selfDestruct": true,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Underwater"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/land_mine/land_mine_ammo.json",
+                  "safeName": "land_mine_ammo",
+                  "name": "land_mine_ammo",
+                  "damage": 1000,
+                  "splashRadius": 15
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 20,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 2,
+            "underwaterVisionRadius": 2
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "r_radar",
+      "displayName": "Radar",
+      "unitTypes": [
+        "Custom5",
+        "Land",
+        "Structure",
+        "Basic",
+        "FabBuild",
+        "Recon",
+        "CombatFabAdvBuild",
+        "Radar"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_radar/r_radar.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_radar/r_radar_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_radar",
+        "resourceName": "/pa/units/addon/r_radar/r_radar.json",
+        "displayName": "Radar",
+        "description": "Basic radar - Detects nearby enemy land, sea, and air units.",
+        "image": "assets/pa/units/addon/r_radar/r_radar_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Land",
+          "Structure",
+          "Basic",
+          "FabBuild",
+          "Recon",
+          "CombatFabAdvBuild",
+          "Radar"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 500
+          },
+          "economy": {
+            "buildCost": 200,
+            "production": {},
+            "consumption": {
+              "energy": 150
+            },
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {},
+            "energyRate": -150
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "orbitalVisionRadius": 600,
+            "mineVisionRadius": 200,
+            "radarRadius": 450,
+            "sonarRadius": 450
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "replicate_commander_1",
+      "displayName": "Replicate Commander",
+      "unitTypes": [
+        "Custom5",
+        "Commander",
+        "Construction",
+        "Mobile",
+        "Land",
+        "Amphibious",
+        "NoBuild",
+        "Economy"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/commanders/replicate_commander_1/replicate_commander_1.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/commanders/replicate_commander_1/replicate_commander_1_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "replicate_commander_1",
+        "resourceName": "/pa/units/commanders/replicate_commander_1/replicate_commander_1.json",
+        "displayName": "Replicate Commander",
+        "description": "Replicate Commander - Replicates",
+        "image": "assets/pa/units/commanders/replicate_commander_1/replicate_commander_1_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Commander",
+          "Construction",
+          "Mobile",
+          "Land",
+          "Amphibious",
+          "NoBuild",
+          "Economy"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 8000,
+            "dps": 335,
+            "salvoDamage": 3800,
+            "weapons": [
+              {
+                "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                "safeName": "nuke_pbaoe",
+                "name": "nuke_pbaoe",
+                "count": 1,
+                "rateOfFire": 0,
+                "damage": 3000,
+                "dps": 0,
+                "projectilesPerFire": 1,
+                "splashRadius": 130,
+                "fullDamageRadius": 30,
+                "burnDamage": 200,
+                "burnRadius": 137,
+                "deathExplosion": true,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/nuke_pbaoe/nuke_pbaoe.json",
+                  "safeName": "nuke_pbaoe",
+                  "name": "nuke_pbaoe",
+                  "damage": 3000,
+                  "fullDamageRadius": 30,
+                  "splashRadius": 130,
+                  "burnDamage": 200,
+                  "burnRadius": 137
+                }
+              },
+              {
+                "resourceName": "/pa/tools/uber_cannon/uber_cannon.json",
+                "safeName": "uber_cannon",
+                "name": "uber_cannon",
+                "count": 1,
+                "rateOfFire": 0.25,
+                "damage": 700,
+                "dps": 175,
+                "sustainedDps": 175,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 100,
+                "maxRange": 100,
+                "splashDamage": 700,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "burnDamage": 200,
+                "burnRadius": 15,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 10000,
+                "ammoCapacity": 10000,
+                "ammoRechargeTime": 4,
+                "energyRate": -2500,
+                "energyPerShot": 10000,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/ammo/cannon_uber/cannon_uber.json",
+                  "safeName": "cannon_uber",
+                  "name": "cannon_uber",
+                  "damage": 700,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 700,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 100,
+                  "maxVelocity": 100,
+                  "lifetime": 1.2,
+                  "burnDamage": 200,
+                  "burnRadius": 15
+                }
+              },
+              {
+                "resourceName": "/pa/units/addon/extra/replicate_commander_1_tool_weapon.json",
+                "safeName": "replicate_commander_1_tool_weapon",
+                "name": "replicate_commander_1_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1.6,
+                "damage": 100,
+                "dps": 160,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 170,
+                "maxRange": 100,
+                "splashDamage": 100,
+                "splashRadius": 7,
+                "fullDamageRadius": 3,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface",
+                  "Air",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Structure - Wall",
+                  "Mobile \u0026 Air",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 360,
+                "pitchRange": 90,
+                "pitchRate": 360,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/extra/replicate_commander_1_ammo.json",
+                  "safeName": "replicate_commander_1_ammo",
+                  "name": "replicate_commander_1_ammo",
+                  "damage": 100,
+                  "fullDamageRadius": 3,
+                  "splashDamage": 100,
+                  "splashRadius": 7,
+                  "muzzleVelocity": 170,
+                  "maxVelocity": 170,
+                  "lifetime": 3,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 6000,
+            "production": {
+              "metal": 25,
+              "energy": 600
+            },
+            "consumption": {},
+            "storage": {
+              "metal": 3500,
+              "energy": 15000
+            },
+            "toolConsumption": {
+              "metal": 15,
+              "energy": 300
+            },
+            "weaponConsumption": {
+              "energy": 2500
+            },
+            "buildRate": 15,
+            "buildInefficiency": 20,
+            "metalRate": 10,
+            "energyRate": -2200,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/extra/replicate_commander_1_build_arm.json",
+                "safeName": "replicate_commander_1_build_arm",
+                "name": "replicate_commander_1_build_arm",
+                "count": 1,
+                "metalConsumption": 15,
+                "energyConsumption": 300,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
+          },
+          "mobility": {
+            "moveSpeed": 12,
+            "turnSpeed": 180,
+            "acceleration": 120,
+            "brake": -1
+          },
+          "recon": {
+            "visionRadius": 150,
+            "underwaterVisionRadius": 150
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "r_mine",
+            "r_wall",
+            "r_radar",
+            "r_air_defense",
+            "r_turret_1",
+            "factory_1",
+            "r_teleporter",
+            "r_umbrella",
+            "r_artillery"
+          ]
+        },
+        "buildableTypes": "Custom5 - Bot - NoBuild"
+      }
+    },
+    {
+      "identifier": "r_turret_1",
+      "displayName": "Single Laser Defense Tower",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Basic",
+        "Land",
+        "SurfaceDefense",
+        "Defense",
+        "FabBuild",
+        "CmdBuild",
+        "CombatFabAdvBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_turret_1/r_turret_1.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_turret_1/r_turret_1_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_turret_1",
+        "resourceName": "/pa/units/addon/r_turret_1/r_turret_1.json",
+        "displayName": "Single Laser Defense Tower",
+        "description": "Basic Turret - Equipped with direct fire anti-land, and anti-ship defenses.",
+        "image": "assets/pa/units/addon/r_turret_1/r_turret_1_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Basic",
+          "Land",
+          "SurfaceDefense",
+          "Defense",
+          "FabBuild",
+          "CmdBuild",
+          "CombatFabAdvBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 400,
+            "dps": 120,
+            "salvoDamage": 60,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/laser_defense_single/laser_defense_single_tool_weapon.json",
+                "safeName": "laser_defense_single_tool_weapon",
+                "name": "laser_defense_single_tool_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 60,
+                "dps": 120,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 500,
+                "maxRange": 100,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall"
+                ],
+                "yawRange": 180,
+                "yawRate": 90,
+                "pitchRange": 90,
+                "pitchRate": 180,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/laser_defense_single/laser_defense_single_ammo.json",
+                  "safeName": "laser_defense_single_ammo",
+                  "name": "laser_defense_single_ammo",
+                  "damage": 60,
+                  "muzzleVelocity": 500,
+                  "maxVelocity": 500,
+                  "lifetime": 2,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 225,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 130,
+            "underwaterVisionRadius": 130
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "r_teleporter",
+      "displayName": "Teleporter",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Teleporter",
+        "CmdBuild",
+        "FabBuild",
+        "FabAdvBuild",
+        "CombatFabAdvBuild",
+        "CombatFabBuild",
+        "FabOrbBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_teleporter/r_teleporter.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_teleporter/r_teleporter_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_teleporter",
+        "resourceName": "/pa/units/addon/r_teleporter/r_teleporter.json",
+        "displayName": "Teleporter",
+        "description": "Interplanetary Teleporter: Teleports units between linked Teleporters.",
+        "image": "assets/pa/units/addon/r_teleporter/r_teleporter_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Teleporter",
+          "CmdBuild",
+          "FabBuild",
+          "FabAdvBuild",
+          "CombatFabAdvBuild",
+          "CombatFabBuild",
+          "FabOrbBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 9750
+          },
+          "economy": {
+            "buildCost": 800,
+            "production": {},
+            "consumption": {
+              "energy": 1000
+            },
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {},
+            "energyRate": -1000
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "r_umbrella",
+      "displayName": "Umbrella",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Basic",
+        "Defense",
+        "OrbitalDefense",
+        "FabBuild",
+        "FabAdvBuild",
+        "CombatFabAdvBuild",
+        "CmdBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_umbrella/r_umbrella.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_umbrella/r_umbrella_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_umbrella",
+        "resourceName": "/pa/units/addon/r_umbrella/r_umbrella.json",
+        "displayName": "Umbrella",
+        "description": "Anti-Orbital Defense - Rapid fire with high damage. Attacks orbital targets and intercepts drop pods.",
+        "image": "assets/pa/units/addon/r_umbrella/r_umbrella_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Basic",
+          "Defense",
+          "OrbitalDefense",
+          "FabBuild",
+          "FabAdvBuild",
+          "CombatFabAdvBuild",
+          "CmdBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 900,
+            "dps": 1000,
+            "salvoDamage": 500,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/orbital/ion_defense/ion_defense_tool_antidrop.json",
+                "safeName": "ion_defense_tool_antidrop",
+                "name": "ion_defense_tool_antidrop",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 400,
+                "dps": 800,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 10,
+                "maxRange": 180,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "Orbital",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Orbital",
+                  "Structure - Wall",
+                  "Mobile",
+                  "Wall"
+                ],
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/ion_defense/ion_defense_antidrop_ammo.json",
+                  "safeName": "ion_defense_antidrop_ammo",
+                  "name": "ion_defense_antidrop_ammo",
+                  "damage": 400,
+                  "muzzleVelocity": 10,
+                  "maxVelocity": 400,
+                  "lifetime": 3,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              },
+              {
+                "resourceName": "/pa/units/orbital/ion_defense/ion_defense_tool_weapon.json",
+                "safeName": "ion_defense_tool_weapon",
+                "name": "ion_defense_tool_weapon",
+                "count": 1,
+                "rateOfFire": 2,
+                "damage": 100,
+                "dps": 200,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 1000,
+                "maxRange": 300,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "Orbital"
+                ],
+                "targetPriorities": [
+                  "Orbital"
+                ],
+                "yawRange": 180,
+                "yawRate": 180,
+                "pitchRange": 180,
+                "pitchRate": 180,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/orbital/ion_defense/ion_defense_ammo.json",
+                  "safeName": "ion_defense_ammo",
+                  "name": "ion_defense_ammo",
+                  "damage": 100,
+                  "muzzleVelocity": 1000,
+                  "maxVelocity": 1000,
+                  "lifetime": 3,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 900,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "orbitalVisionRadius": 500
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "r_wall",
+      "displayName": "Wall",
+      "unitTypes": [
+        "Custom5",
+        "Structure",
+        "Basic",
+        "Wall",
+        "FabBuild",
+        "FabAdvBuild",
+        "CmdBuild",
+        "CombatFabAdvBuild"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_wall/r_wall.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_wall/r_wall_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_wall",
+        "resourceName": "/pa/units/addon/r_wall/r_wall.json",
+        "displayName": "Wall",
+        "description": "Barrier - Blocks units and protects from incoming fire.",
+        "image": "assets/pa/units/addon/r_wall/r_wall_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Structure",
+          "Basic",
+          "Wall",
+          "FabBuild",
+          "FabAdvBuild",
+          "CmdBuild",
+          "CombatFabAdvBuild"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 2000
+          },
+          "economy": {
+            "buildCost": 50,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {}
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 1,
+            "underwaterVisionRadius": 120
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    },
+    {
+      "identifier": "factory_1",
+      "displayName": "factory",
+      "unitTypes": [
+        "Custom5",
+        "Land",
+        "Structure",
+        "Factory",
+        "FabBuild",
+        "Economy"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/factory_1/factory_1.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/factory_1/factory_1_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "factory_1",
+        "resourceName": "/pa/units/addon/factory_1/factory_1.json",
+        "displayName": "factory",
+        "description": "Builds Grug",
+        "image": "assets/pa/units/addon/factory_1/factory_1_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom5",
+          "Land",
+          "Structure",
+          "Factory",
+          "FabBuild",
+          "Economy"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 1550
+          },
+          "economy": {
+            "buildCost": 325,
+            "production": {
+              "metal": 9,
+              "energy": 500
+            },
+            "consumption": {},
+            "storage": {
+              "metal": 25,
+              "energy": 2000
+            },
+            "toolConsumption": {
+              "metal": 6,
+              "energy": 100
+            },
+            "weaponConsumption": {},
+            "buildRate": 6,
+            "buildInefficiency": 16.666666666666668,
+            "metalRate": 3,
+            "energyRate": 400,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/factory_1/factory_1_build_arm.json",
+                "safeName": "factory_1_build_arm",
+                "name": "factory_1_build_arm",
+                "count": 1,
+                "metalConsumption": 6,
+                "energyConsumption": 100
+              }
+            ]
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100,
+            "radarRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "r_grug"
+          ],
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        },
+        "buildableTypes": "FactoryBuild \u0026 Custom5"
+      }
+    },
+    {
+      "identifier": "r_grug",
+      "displayName": "Grug",
+      "unitTypes": [
+        "Custom5",
+        "Bot",
+        "Fabber",
+        "Construction",
+        "Mobile",
+        "Land",
+        "Advanced",
+        "FactoryBuild",
+        "Amphibious"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_grug/r_grug.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_grug/r_grug_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_grug",
+        "resourceName": "/pa/units/addon/r_grug/r_grug.json",
+        "displayName": "Grug",
+        "description": "Grug - Guh?.",
+        "image": "assets/pa/units/addon/r_grug/r_grug_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Custom5",
+          "Bot",
+          "Fabber",
+          "Construction",
+          "Mobile",
+          "Land",
+          "Advanced",
+          "FactoryBuild",
+          "Amphibious"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 84,
+            "dps": 35,
+            "salvoDamage": 35,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/addon/r_grug/r_grug_aa_tool_weapon.json",
+                "safeName": "r_grug_aa_tool_weapon",
+                "name": "r_grug_aa_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 15,
+                "dps": 15,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 200,
+                "maxRange": 100,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 Bomber",
+                  "Air \u0026 Gunship",
+                  "Air \u0026 Transport",
+                  "Air \u0026 Mobile"
+                ],
+                "yawRange": 180,
+                "yawRate": 3600,
+                "pitchRange": 85,
+                "pitchRate": 3600,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/r_grug/r_grug_aa_ammo.json",
+                  "safeName": "r_grug_aa_ammo",
+                  "name": "r_grug_aa_ammo",
+                  "damage": 15,
+                  "muzzleVelocity": 200,
+                  "maxVelocity": 200,
+                  "lifetime": 1,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              },
+              {
+                "resourceName": "/pa/units/addon/r_grug/r_grug_tool_weapon.json",
+                "safeName": "r_grug_tool_weapon",
+                "name": "r_grug_tool_weapon",
+                "count": 1,
+                "rateOfFire": 1,
+                "damage": 20,
+                "dps": 20,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 150,
+                "maxRange": 75,
+                "burnDamage": 15,
+                "burnRadius": 2,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface"
+                ],
+                "targetPriorities": [
+                  "Mobile - Air",
+                  "Naval",
+                  "Structure - Wall",
+                  "Wall",
+                  "Air"
+                ],
+                "yawRange": 360,
+                "yawRate": 180,
+                "pitchRange": 40,
+                "pitchRate": 110,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/addon/r_grug/r_grug_ammo.json",
+                  "safeName": "r_grug_ammo",
+                  "name": "r_grug_ammo",
+                  "damage": 20,
+                  "muzzleVelocity": 150,
+                  "maxVelocity": 150,
+                  "lifetime": 2,
+                  "burnDamage": 15,
+                  "burnRadius": 2,
+                  "burnDuration": 2.5
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 80,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 2,
+              "energy": 50
+            },
+            "weaponConsumption": {},
+            "buildRate": 2,
+            "buildInefficiency": 25,
+            "metalRate": -2,
+            "energyRate": -50,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/addon/r_grug/r_grug_tool_build_arm.json",
+                "safeName": "r_grug_tool_build_arm",
+                "name": "r_grug_tool_build_arm",
+                "count": 1,
+                "metalConsumption": 2,
+                "energyConsumption": 50,
+                "range": 35
+              }
+            ],
+            "buildRange": 35
+          },
+          "mobility": {
+            "moveSpeed": 18,
+            "turnSpeed": 240,
+            "acceleration": 120,
+            "brake": 120
+          },
+          "recon": {
+            "visionRadius": 80,
+            "underwaterVisionRadius": 80,
+            "radarRadius": 85,
+            "sonarRadius": 85
+          },
+          "storage": {},
+          "special": {
+            "amphibious": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "r_mine",
+            "r_wall",
+            "r_radar",
+            "r_air_defense",
+            "r_turret_1",
+            "factory_1",
+            "r_teleporter",
+            "r_umbrella",
+            "r_artillery"
+          ],
+          "builtBy": [
+            "factory_1"
+          ]
+        },
+        "buildableTypes": "Custom5 - Bot - NoBuild"
+      }
+    },
+    {
+      "identifier": "r_artillery",
+      "displayName": "Holkins",
+      "unitTypes": [
+        "Custom5",
+        "Land",
+        "Structure",
+        "Defense",
+        "Artillery",
+        "Advanced",
+        "FabAdvBuild",
+        "Important"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/addon/r_artillery/r_artillery.json",
+          "source": "pa.mla.unit.replicate"
+        },
+        {
+          "path": "pa/units/addon/r_artillery/r_artillery_icon_buildbar.png",
+          "source": "pa.mla.unit.replicate"
+        }
+      ],
+      "unit": {
+        "id": "r_artillery",
+        "resourceName": "/pa/units/addon/r_artillery/r_artillery.json",
+        "displayName": "Holkins",
+        "description": "Advanced Artillery - Extremely long range heavy damage. Can lay siege from very far away. Attacks land and sea targets.",
+        "image": "assets/pa/units/addon/r_artillery/r_artillery_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Custom5",
+          "Land",
+          "Structure",
+          "Defense",
+          "Artillery",
+          "Advanced",
+          "FabAdvBuild",
+          "Important"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 5000,
+            "dps": 333.33,
+            "salvoDamage": 5000,
+            "weapons": [
+              {
+                "resourceName": "/pa/units/land/artillery_long/artillery_long_tool_weapon.json",
+                "safeName": "artillery_long_tool_weapon",
+                "name": "artillery_long_tool_weapon",
+                "count": 1,
+                "rateOfFire": 0.06666666666666667,
+                "damage": 5000,
+                "dps": 333.33,
+                "sustainedDps": 333.33,
+                "projectilesPerFire": 1,
+                "muzzleVelocity": 200,
+                "maxRange": 600,
+                "splashDamage": 5000,
+                "splashRadius": 20,
+                "fullDamageRadius": 5,
+                "ammoSource": "energy",
+                "ammoDemand": 2500,
+                "ammoPerShot": 37500,
+                "ammoCapacity": 37500,
+                "ammoRechargeTime": 15,
+                "energyRate": -2500,
+                "energyPerShot": 37500,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "Seafloor",
+                  "WaterSurface",
+                  "Underwater"
+                ],
+                "targetPriorities": [
+                  "Commander",
+                  "Titan \u0026 ( Land | Naval )",
+                  "Artillery \u0026 Advanced \u0026 ( Land | Naval )",
+                  "Nuke | NukeDefense"
+                ],
+                "yawRange": 360,
+                "yawRate": 10,
+                "pitchRange": 89,
+                "pitchRate": 10,
+                "ammoDetails": {
+                  "resourceName": "/pa/units/land/artillery_long/artillery_long_ammo.json",
+                  "safeName": "artillery_long_ammo",
+                  "name": "artillery_long_ammo",
+                  "damage": 5000,
+                  "fullDamageRadius": 5,
+                  "splashDamage": 5000,
+                  "splashRadius": 20,
+                  "muzzleVelocity": 200,
+                  "lifetime": 30
+                }
+              }
+            ]
+          },
+          "economy": {
+            "buildCost": 10000,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {},
+            "weaponConsumption": {
+              "energy": 2500
+            },
+            "energyRate": -2500
+          },
+          "mobility": {},
+          "recon": {
+            "visionRadius": 100,
+            "underwaterVisionRadius": 100
+          },
+          "storage": {},
+          "special": {
+            "spawnLayers": [
+              "land",
+              "water surface"
+            ]
+          }
+        },
+        "buildRelationships": {
+          "builtBy": [
+            "r_grug",
+            "replicate_commander_1"
+          ]
+        }
+      }
+    }
+  ]
+}

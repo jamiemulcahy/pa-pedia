@@ -1,0 +1,11 @@
+{
+  "displayName": "Replicate",
+  "factionUnitType": "Custom5",
+  "mods": [
+    "github.com/BotWhan/com.pa.replicate"
+  ],
+  "teamColors": {
+    "primary": "#5b6672",
+    "secondary": "#e0a82e"
+  }
+}
