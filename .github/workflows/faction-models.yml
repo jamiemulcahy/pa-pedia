@@ -132,7 +132,7 @@ jobs:
         run: |
           INPUT="${{ github.event.inputs.profiles }}"
           if [ -z "$INPUT" ]; then
-            echo "profiles=mla legion exiles bugs second-wave" >> "$GITHUB_OUTPUT"
+            echo "profiles=mla legion exiles bugs second-wave replicate" >> "$GITHUB_OUTPUT"
           else
             echo "profiles=$(echo "$INPUT" | tr ',' ' ')" >> "$GITHUB_OUTPUT"
           fi
