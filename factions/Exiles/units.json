@@ -123,148 +123,6 @@
       }
     },
     {
-      "identifier": "battle_fab_adv",
-      "displayName": "Advanced Hover Fabricator",
-      "unitTypes": [
-        "Custom6",
-        "Tank",
-        "Vehicle",
-        "Fabber",
-        "Construction",
-        "Mobile",
-        "Land",
-        "Basic",
-        "NoBuild",
-        "Hover"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/exiles/battle_fab_adv/battle_fab_adv.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "pa/units/exiles/battle_fab_adv/battle_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "battle_fab_adv",
-        "resourceName": "/pa/units/exiles/battle_fab_adv/battle_fab_adv.json",
-        "displayName": "Advanced Hover Fabricator",
-        "description": "Constructs Advanced Structures. Can travel over lava and water. Can assist factories.",
-        "image": "assets/pa/units/exiles/battle_fab_adv/battle_fab_adv_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "Custom6",
-          "Tank",
-          "Vehicle",
-          "Fabber",
-          "Construction",
-          "Mobile",
-          "Land",
-          "Basic",
-          "NoBuild",
-          "Hover"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 400
-          },
-          "economy": {
-            "buildCost": 2500,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 30,
-              "energy": 1800
-            },
-            "weaponConsumption": {},
-            "buildRate": 30,
-            "buildInefficiency": 60,
-            "metalRate": -30,
-            "energyRate": -1800,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/exiles/battle_fab_adv/battle_fab_adv_tool_build_arm.json",
-                "safeName": "battle_fab_adv_tool_build_arm",
-                "name": "battle_fab_adv_tool_build_arm",
-                "count": 1,
-                "metalConsumption": 30,
-                "energyConsumption": 1800,
-                "range": 45
-              }
-            ],
-            "buildRange": 45
-          },
-          "mobility": {
-            "moveSpeed": 10,
-            "turnSpeed": 120,
-            "acceleration": 120,
-            "brake": 120
-          },
-          "recon": {
-            "visionRadius": 105,
-            "underwaterVisionRadius": 105
-          },
-          "storage": {},
-          "special": {
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "t_wall",
-            "t_metal_extractor_0",
-            "pylon_overcharged",
-            "r_radar",
-            "ambush_twr_hid",
-            "t_aa_twr",
-            "adv_pylon_overcharged",
-            "t_torp_launcher",
-            "pylon",
-            "adv_fab_turret",
-            "bug_gas_turret",
-            "seizmic",
-            "t_air_fac",
-            "t_bot_fac",
-            "t_power_storage",
-            "t_orbital_launcher",
-            "t_tank_fac",
-            "t_naval_fac",
-            "t_aa_twr_adv",
-            "r_teleporter",
-            "t_storage",
-            "t_arta",
-            "reactor",
-            "r_umbrella",
-            "t_torp_launcher_adv",
-            "anti_ballistics",
-            "quad_turret",
-            "t_transport_adv",
-            "t_metal_extractor_2",
-            "adv_pylon",
-            "aa_missile_launcher",
-            "t_air_fac_adv",
-            "t_bot_fac_adv",
-            "t_tank_fac_adv",
-            "t_naval_fac_adv",
-            "t_arta_long",
-            "t_anti_nuke_launcher",
-            "missile_facility",
-            "t_chimera",
-            "cyclone",
-            "t_control_module",
-            "t_delta_v_engine",
-            "mass_tele_titan"
-          ]
-        },
-        "buildableTypes": "(Land \u0026 Structure \u0026 Advanced | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabAdvBuild | FabBuild | Titan \u0026 Bot) \u0026 Custom6"
-      }
-    },
-    {
       "identifier": "t_air_fac",
       "displayName": "Air factory",
       "unitTypes": [
@@ -364,13 +222,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -497,13 +356,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -658,6 +518,7 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab"
           ]
@@ -776,119 +637,20 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
             "exiles_taurus"
           ]
         }
-      }
-    },
-    {
-      "identifier": "battle_fab",
-      "displayName": "Battle Fabricator",
-      "unitTypes": [
-        "NoBuild",
-        "Custom6",
-        "Tank",
-        "Vehicle",
-        "Offense",
-        "Construction",
-        "Mobile",
-        "Land",
-        "Basic",
-        "Hover"
-      ],
-      "source": "pa",
-      "files": [
-        {
-          "path": "pa/units/exiles/battle_fab/battle_fab.json",
-          "source": "com.pa.nik.exiles"
-        },
-        {
-          "path": "pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
-        }
-      ],
-      "unit": {
-        "id": "battle_fab",
-        "resourceName": "/pa/units/exiles/battle_fab/battle_fab.json",
-        "displayName": "Battle Fabricator",
-        "description": "Armed with weak AA and anti-ground weapons. Can not assist or repair.",
-        "image": "assets/pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
-        "tier": 1,
-        "unitTypes": [
-          "NoBuild",
-          "Custom6",
-          "Tank",
-          "Vehicle",
-          "Offense",
-          "Construction",
-          "Mobile",
-          "Land",
-          "Basic",
-          "Hover"
-        ],
-        "accessible": false,
-        "specs": {
-          "combat": {
-            "health": 250
-          },
-          "economy": {
-            "buildCost": 400,
-            "production": {},
-            "consumption": {},
-            "storage": {},
-            "toolConsumption": {
-              "metal": 10,
-              "energy": 700
-            },
-            "weaponConsumption": {},
-            "buildRate": 10,
-            "buildInefficiency": 70,
-            "metalRate": -10,
-            "energyRate": -700,
-            "buildArms": [
-              {
-                "resourceName": "/pa/units/exiles/battle_fab/battle_fab_tool_build_arm.json",
-                "safeName": "battle_fab_tool_build_arm",
-                "name": "battle_fab_tool_build_arm",
-                "count": 1,
-                "metalConsumption": 10,
-                "energyConsumption": 700,
-                "range": 35
-              }
-            ],
-            "buildRange": 35
-          },
-          "mobility": {
-            "moveSpeed": 10,
-            "turnSpeed": 120,
-            "acceleration": 120,
-            "brake": 120
-          },
-          "recon": {
-            "visionRadius": 105,
-            "underwaterVisionRadius": 105
-          },
-          "storage": {},
-          "special": {
-            "hover": true
-          }
-        },
-        "buildRelationships": {
-          "builds": [
-            "r_teleporter"
-          ]
-        },
-        "buildableTypes": "CombatFabBuild \u0026 Custom6 - Custom7"
       }
     },
     {
@@ -1423,13 +1185,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -2380,9 +2143,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -2576,13 +2339,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -2662,13 +2426,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -2778,13 +2543,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -3009,13 +2775,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -3276,6 +3043,7 @@
       "identifier": "t_tank_fab",
       "displayName": "Fabrication Vehicle",
       "unitTypes": [
+        "NoBuild",
         "Fabber",
         "Construction",
         "Land",
@@ -3304,6 +3072,7 @@
         "image": "assets/pa/units/land/t_tank_fab/t_tank_fab_icon_buildbar.png",
         "tier": 1,
         "unitTypes": [
+          "NoBuild",
           "Fabber",
           "Construction",
           "Land",
@@ -3658,13 +3427,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -3970,13 +3740,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -4101,6 +3872,134 @@
             "t_tank_fac_adv"
           ]
         }
+      }
+    },
+    {
+      "identifier": "battle_fab",
+      "displayName": "Hover Fabricator",
+      "unitTypes": [
+        "Custom6",
+        "FactoryBuild",
+        "Tank",
+        "Vehicle",
+        "Fabber",
+        "Construction",
+        "Mobile",
+        "Land",
+        "Basic",
+        "Hover"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/exiles/battle_fab/battle_fab.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "battle_fab",
+        "resourceName": "/pa/units/exiles/battle_fab/battle_fab.json",
+        "displayName": "Hover Fabricator",
+        "description": " Can hover over water and lava. Can build basic structures. Can not assist or repair.",
+        "image": "assets/pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
+        "tier": 1,
+        "unitTypes": [
+          "Custom6",
+          "FactoryBuild",
+          "Tank",
+          "Vehicle",
+          "Fabber",
+          "Construction",
+          "Mobile",
+          "Land",
+          "Basic",
+          "Hover"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 200
+          },
+          "economy": {
+            "buildCost": 175,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 10,
+              "energy": 600
+            },
+            "weaponConsumption": {},
+            "buildRate": 10,
+            "buildInefficiency": 60,
+            "metalRate": -10,
+            "energyRate": -600,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/exiles/battle_fab/battle_fab_tool_build_arm.json",
+                "safeName": "battle_fab_tool_build_arm",
+                "name": "battle_fab_tool_build_arm",
+                "count": 1,
+                "metalConsumption": 10,
+                "energyConsumption": 600,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
+          },
+          "mobility": {
+            "moveSpeed": 10,
+            "turnSpeed": 120,
+            "acceleration": 120,
+            "brake": 120
+          },
+          "recon": {
+            "visionRadius": 105,
+            "underwaterVisionRadius": 105
+          },
+          "storage": {},
+          "special": {
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "t_wall",
+            "t_metal_extractor_0",
+            "pylon_overcharged",
+            "r_radar",
+            "ambush_twr_hid",
+            "ambush_twr",
+            "t_aa_twr",
+            "t_torp_launcher",
+            "pylon",
+            "adv_fab_turret",
+            "bug_gas_turret",
+            "t_air_fac",
+            "t_bot_fac",
+            "t_power_storage",
+            "t_orbital_launcher",
+            "t_tank_fac",
+            "t_naval_fac",
+            "r_teleporter",
+            "t_storage",
+            "t_arta",
+            "r_umbrella",
+            "t_air_fac_adv",
+            "t_bot_fac_adv",
+            "t_tank_fac_adv",
+            "t_naval_fac_adv"
+          ],
+          "builtBy": [
+            "t_tank_fac",
+            "t_tank_fac_adv"
+          ]
+        },
+        "buildableTypes": "(Land \u0026 Structure \u0026 Basic | Factory \u0026 Basic | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabBuild) \u0026 Custom6 - Custom7"
       }
     },
     {
@@ -5494,13 +5393,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -5643,13 +5543,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -5735,13 +5636,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -5855,9 +5757,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -6691,18 +6593,20 @@
             "t_tank_fab",
             "t_tank_flak",
             "lightning",
+            "battle_fab",
             "roamer"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -7104,15 +7008,15 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "hyena",
             "t_air_fab",
-            "battle_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -7220,13 +7124,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -7581,13 +7486,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -7710,13 +7616,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -7982,13 +7889,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -8065,13 +7973,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
             "t_naval_fab_adv",
-            "battle_fab_adv",
             "exiles_blueberry",
             "exiles_brainiac",
             "exiles_maxim",
@@ -8632,13 +8541,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         },
         "buildableTypes": "Air \u0026 FactoryBuild \u0026 Custom6"
@@ -8747,13 +8657,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         },
         "buildableTypes": "Bot \u0026 Mobile \u0026 FactoryBuild \u0026 Custom6 - Custom7"
@@ -8901,6 +8812,151 @@
       }
     },
     {
+      "identifier": "battle_fab_adv",
+      "displayName": "Advanced Hover Fabricator",
+      "unitTypes": [
+        "Custom6",
+        "FactoryBuild",
+        "Tank",
+        "Vehicle",
+        "Fabber",
+        "Construction",
+        "Mobile",
+        "Land",
+        "Advanced",
+        "Hover"
+      ],
+      "source": "pa",
+      "files": [
+        {
+          "path": "pa/units/exiles/battle_fab_adv/battle_fab_adv.json",
+          "source": "com.pa.nik.exiles"
+        },
+        {
+          "path": "pa/units/exiles/battle_fab_adv/battle_fab_adv_icon_buildbar.png",
+          "source": "com.pa.nik.exiles"
+        }
+      ],
+      "unit": {
+        "id": "battle_fab_adv",
+        "resourceName": "/pa/units/exiles/battle_fab_adv/battle_fab_adv.json",
+        "displayName": "Advanced Hover Fabricator",
+        "description": "Constructs Advanced Structures. Can travel over lava and water. Can assist factories.",
+        "image": "assets/pa/units/exiles/battle_fab_adv/battle_fab_adv_icon_buildbar.png",
+        "tier": 2,
+        "unitTypes": [
+          "Custom6",
+          "FactoryBuild",
+          "Tank",
+          "Vehicle",
+          "Fabber",
+          "Construction",
+          "Mobile",
+          "Land",
+          "Advanced",
+          "Hover"
+        ],
+        "accessible": true,
+        "specs": {
+          "combat": {
+            "health": 500
+          },
+          "economy": {
+            "buildCost": 2250,
+            "production": {},
+            "consumption": {},
+            "storage": {},
+            "toolConsumption": {
+              "metal": 60,
+              "energy": 2500
+            },
+            "weaponConsumption": {},
+            "buildRate": 60,
+            "buildInefficiency": 41.666666666666664,
+            "metalRate": -60,
+            "energyRate": -2500,
+            "buildArms": [
+              {
+                "resourceName": "/pa/units/exiles/battle_fab_adv/battle_fab_adv_tool_build_arm.json",
+                "safeName": "battle_fab_adv_tool_build_arm",
+                "name": "battle_fab_adv_tool_build_arm",
+                "count": 1,
+                "metalConsumption": 60,
+                "energyConsumption": 2500,
+                "range": 45
+              }
+            ],
+            "buildRange": 45
+          },
+          "mobility": {
+            "moveSpeed": 10,
+            "turnSpeed": 120,
+            "acceleration": 120,
+            "brake": 120
+          },
+          "recon": {
+            "visionRadius": 105,
+            "underwaterVisionRadius": 105
+          },
+          "storage": {},
+          "special": {
+            "hover": true
+          }
+        },
+        "buildRelationships": {
+          "builds": [
+            "t_wall",
+            "t_metal_extractor_0",
+            "pylon_overcharged",
+            "r_radar",
+            "ambush_twr_hid",
+            "t_aa_twr",
+            "adv_pylon_overcharged",
+            "t_torp_launcher",
+            "pylon",
+            "adv_fab_turret",
+            "bug_gas_turret",
+            "seizmic",
+            "t_air_fac",
+            "t_bot_fac",
+            "t_power_storage",
+            "t_orbital_launcher",
+            "t_tank_fac",
+            "t_naval_fac",
+            "t_aa_twr_adv",
+            "r_teleporter",
+            "t_storage",
+            "t_arta",
+            "reactor",
+            "r_umbrella",
+            "t_torp_launcher_adv",
+            "anti_ballistics",
+            "quad_turret",
+            "t_transport_adv",
+            "t_metal_extractor_2",
+            "adv_pylon",
+            "aa_missile_launcher",
+            "t_air_fac_adv",
+            "t_bot_fac_adv",
+            "t_tank_fac_adv",
+            "t_naval_fac_adv",
+            "t_arta_long",
+            "t_anti_nuke_launcher",
+            "missile_facility",
+            "t_chimera",
+            "cyclone",
+            "t_control_module",
+            "t_delta_v_engine",
+            "mass_tele_titan"
+          ],
+          "builtBy": [
+            "t_tank_fac_adv"
+          ]
+        },
+        "buildableTypes": "(Land \u0026 Structure \u0026 Advanced | Factory \u0026 Advanced \u0026 (Bot | Air | Naval | Tank) | FabAdvBuild | FabBuild | Titan \u0026 Bot) \u0026 Custom6"
+      }
+    },
+    {
       "identifier": "t_metal_extractor_2",
       "displayName": "Advanced Metal Extractor",
       "unitTypes": [
@@ -8970,9 +9026,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -9085,9 +9141,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -9182,24 +9238,27 @@
             "t_tank_fab",
             "t_tank_flak",
             "lightning",
+            "battle_fab",
             "roamer",
             "tank_gattling",
             "stalker",
             "tank_heavy_adv",
             "hail",
             "shah",
+            "battle_fab_adv",
             "t_tank_fab_adv"
           ],
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         },
         "buildableTypes": "Mobile \u0026 Tank \u0026 FactoryBuild \u0026 Custom6"
@@ -9315,9 +9374,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -9326,6 +9385,7 @@
       "identifier": "t_tank_fab_adv",
       "displayName": "Advanced Vehicle Fabricator",
       "unitTypes": [
+        "NoBuild",
         "Fabber",
         "Construction",
         "Land",
@@ -9355,6 +9415,7 @@
         "image": "assets/pa/units/land/t_tank_fab_adv/t_tank_fab_adv_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
+          "NoBuild",
           "Fabber",
           "Construction",
           "Land",
@@ -9588,9 +9649,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -9745,9 +9806,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -9899,9 +9960,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -10022,9 +10083,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -10204,9 +10265,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -11220,9 +11281,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -11307,9 +11368,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -11411,13 +11472,14 @@
           "builtBy": [
             "t_bot_fab",
             "t_tank_fab",
+            "battle_fab",
             "t_naval_fab",
             "t_air_fab",
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         },
         "buildableTypes": "Custom6 \u0026 ((Naval \u0026 Mobile) \u0026 FactoryBuild)"
@@ -11877,9 +11939,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -12369,9 +12431,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -12686,9 +12748,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -13241,9 +13303,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -13634,9 +13696,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -13879,9 +13941,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
@@ -14001,9 +14063,9 @@
           "builtBy": [
             "t_bot_fab_adv",
             "t_air_fab_adv",
+            "battle_fab_adv",
             "t_tank_fab_adv",
-            "t_naval_fab_adv",
-            "battle_fab_adv"
+            "t_naval_fab_adv"
           ]
         }
       }
