@@ -278,6 +278,33 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 - **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
 - **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
+### Monitoring (Sentry + Cloudflare Web Analytics)
+
+Both are free-tier and **inert unless configured** — no DSN means Sentry never initialises,
+no beacon token means the analytics script isn't injected. Dev, tests and CI send nothing.
+
+**Files**:
+- `web/src/lib/monitoring.ts` - Sentry init, event filtering, `reportError()` helper
+- `web/vite.config.ts` - `cloudflareWebAnalytics()` beacon injection + `sentryVitePlugin` sourcemap upload
+- `web/src/main.tsx` - `initMonitoring()` before render; React 19 root error hooks
+- `web/src/App.tsx` - `Sentry.wrapReactRouterRouting(Routes)` for parameterised route names
+- `web/src/components/ErrorBoundary.tsx` - reports caught errors with component stack
+- `web/.env.example` - all variables documented
+
+**Setup steps and free-tier rationale**: see the Monitoring section in [README.md](README.md).
+
+**Gotchas when touching this code**:
+- Use the non-deprecated `reactRouterBrowserTracingIntegration` / `wrapReactRouterRouting`
+  (Sentry v10 deprecated the `*V7*`-suffixed names).
+- Don't register `onCaughtError` on the React root — `ErrorBoundary` already reports those,
+  and both would double-count against the 5k/month quota.
+- Keep chunk-load sampling in `filterEvent()`. Without it, one stale-deploy incident
+  (see `web/public/_headers`) floods the quota.
+- Sentry's beforeSend logic is pure and unit-tested in `web/src/lib/__tests__/monitoring.test.ts` —
+  extend those tests when changing filters.
+- Adding new tracked routes? They're derived from the `<Route>` tree automatically; no manual
+  pageview calls needed.
+
 ### Faction Data Deployment
 
 **GitHub Actions Workflow** (`.github/workflows/faction-data.yml`):

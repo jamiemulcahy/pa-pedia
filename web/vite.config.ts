@@ -3,6 +3,7 @@ import fs from 'fs'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 /**
  * Check if a directory name looks like a semver version (e.g. "1.0.0", "2.1.3").
@@ -221,10 +222,106 @@ function serveFactionModels(): Plugin {
   }
 }
 
+/**
+ * Cloudflare Web Analytics beacon.
+ *
+ * Injected at build time only, and only when VITE_CF_BEACON_TOKEN is set, so
+ * the dev server never phones home and local page views never pollute the
+ * production numbers.
+ *
+ * `spa: true` is the default but stated explicitly: without it the beacon only
+ * records the initial page load, and every React Router navigation — which is
+ * every unit and faction page on this site — would be invisible.
+ *
+ * The token is not a secret; it is public in the deployed HTML by design.
+ */
+function cloudflareWebAnalytics(): Plugin {
+  return {
+    name: 'cloudflare-web-analytics',
+    apply: 'build',
+    transformIndexHtml(html) {
+      const token = process.env.VITE_CF_BEACON_TOKEN
+      if (!token) return html
+
+      // CF site tokens are 32 hex characters. A malformed token fails silently
+      // at runtime (no data, no error), so surface it at build time instead.
+      if (!/^[a-f0-9]{32}$/i.test(token)) {
+        console.warn(
+          `[cloudflare-web-analytics] VITE_CF_BEACON_TOKEN does not look like a ` +
+            `Cloudflare site token (expected 32 hex chars). Injecting anyway, but ` +
+            `analytics will silently collect nothing if it is wrong.`,
+        )
+      }
+
+      return {
+        html,
+        tags: [
+          {
+            tag: 'script',
+            attrs: {
+              defer: true,
+              src: 'https://static.cloudflareinsights.com/beacon.min.js',
+              'data-cf-beacon': JSON.stringify({ token, spa: true }),
+            },
+            injectTo: 'body',
+          },
+        ],
+      }
+    },
+  }
+}
+
+// Sourcemap upload only runs when a Sentry auth token is present, so PR builds
+// and local builds skip it entirely.
+const SENTRY_UPLOAD_ENABLED = Boolean(
+  process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
+)
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react(), serveFactions(), serveFactionModels()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    serveFactions(),
+    serveFactionModels(),
+    cloudflareWebAnalytics(),
+    // Must come last: it needs the final bundle to inject debug IDs.
+    ...(SENTRY_UPLOAD_ENABLED
+      ? [
+          sentryVitePlugin({
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            release: { name: process.env.VITE_APP_VERSION },
+            // Don't send build telemetry to Sentry; we only want app errors.
+            telemetry: false,
+            sourcemaps: {
+              // Upload the maps to Sentry, then delete them from dist so they
+              // are never served publicly.
+              filesToDeleteAfterUpload: ['./dist/**/*.map'],
+            },
+            // By default the plugin throws and kills the build if the upload
+            // fails. A Sentry outage or an expired token must not block
+            // shipping the site — we lose readable stack traces for that
+            // release, nothing more. The deploy workflow strips any sourcemaps
+            // left behind by a failed upload.
+            errorHandler: err => {
+              console.warn(
+                `[sentry-vite-plugin] Sourcemap upload failed; continuing build. ` +
+                  `Stack traces for this release will be minified.\n${err.message}`,
+              )
+            },
+          }),
+        ]
+      : []),
+  ],
   base: '/',
+  build: {
+    // 'hidden' emits sourcemaps without the //# sourceMappingURL comment: the
+    // Sentry plugin matches them by debug ID, so stack traces resolve without
+    // pointing browsers (or anyone else) at the maps.
+    sourcemap: SENTRY_UPLOAD_ENABLED ? 'hidden' : false,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -214,6 +214,68 @@ npm run preview  # Preview production build
 npm run lint  # Run ESLint
 ```
 
+## Monitoring
+
+The deployed site reports errors to [Sentry](https://sentry.io) and traffic to
+[Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/). Both run on free
+tiers, and both are **off unless configured** — local dev, CI builds and forks send
+nothing.
+
+Configuration is entirely through environment variables (see [`web/.env.example`](web/.env.example));
+production values live in GitHub Actions secrets and are injected by
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+### One-time setup
+
+**Cloudflare Web Analytics** (page views, referrers, countries, devices):
+
+1. Cloudflare dashboard → **Analytics & Logs → Web Analytics → Add a site** → `pa-pedia.com`.
+2. Copy the 32-character site token from **Manage site**.
+3. Add it as the repository secret `CF_BEACON_TOKEN`.
+
+The beacon is injected into `index.html` at build time with `spa: true`, so React Router
+navigations are counted, not just the first page load. It is cookieless and stores no
+personal data.
+
+> Cloudflare Pages also offers a one-click Web Analytics toggle in the dashboard. Don't
+> enable both — you'll double-count every view. The build-time injection is used here
+> because it pins the SPA setting and survives a move off Pages.
+
+**Sentry** (JavaScript errors with stack traces):
+
+1. Create a Sentry project of type **React**, then copy its DSN.
+2. Add the repository secrets:
+   - `SENTRY_DSN` — the project DSN
+   - `SENTRY_ORG` — your Sentry org slug
+   - `SENTRY_PROJECT` — the project slug
+   - `SENTRY_AUTH_TOKEN` — an org auth token with `project:releases` scope, for sourcemap upload
+
+`SENTRY_DSN` and `CF_BEACON_TOKEN` are public values that ship in the client bundle; they
+are stored as secrets only so forks don't report into this project. `SENTRY_AUTH_TOKEN` is
+a real secret and is used at build time only.
+
+### Free-tier guardrails
+
+The Sentry free tier allows 5,000 errors/month, so the setup in
+[`web/src/lib/monitoring.ts`](web/src/lib/monitoring.ts) deliberately limits what is sent:
+
+- **Chunk-load errors are sampled at 5%** and collapsed into a single issue. A deploy that
+  strands users on a deleted bundle (see the comments in `web/public/_headers`) can throw
+  thousands of these — enough to burn the monthly quota in an afternoon. Sampling keeps the
+  signal without the flood.
+- **Browser-extension and `ResizeObserver` noise is dropped** — never actionable.
+- **Tracing is sampled at 10%** (`VITE_SENTRY_TRACES_SAMPLE_RATE`), since spans share the
+  free-tier quota with errors.
+- **Session Replay is not enabled.** The free tier includes 50 replays/month and the
+  integration roughly doubles the SDK's bundle cost. Add `Sentry.replayIntegration()` in
+  `monitoring.ts` if that trade changes.
+- **`sendDefaultPii` is off**, so visitor IPs and headers are never attached.
+
+Sourcemaps are generated only when `SENTRY_AUTH_TOKEN` is set, uploaded to Sentry, then
+deleted from `dist/` so they are never served publicly. If the upload fails the build still
+succeeds — that release just gets minified stack traces — and the deploy workflow strips any
+maps left behind.
+
 ## PA Installation Paths
 
 **Windows**:
