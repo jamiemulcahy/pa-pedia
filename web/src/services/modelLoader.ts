@@ -26,6 +26,7 @@
  */
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { reportError } from '@/lib/monitoring'
 import {
   ZipReader,
   HttpRangeReader,
@@ -420,6 +421,10 @@ export async function getFactionModelsIndex(
     // never absence. Detail stays in the console for developers; callers show a
     // generic message so internals never reach the UI.
     console.warn('Model index unavailable without a whole-bundle download', error)
+    // The UI deliberately discards this error (see UnitModelSection), so Sentry
+    // is the only place it can surface. The manifest promised a bundle, so this
+    // is a broken 3D viewer for the visitor, not simply "no model".
+    reportError(error, { stage: 'loadModelIndex', factionId, version })
     throw new ModelIndexUnavailableError(error)
   }
   // A bundle without its own index is corrupt, not empty.

@@ -291,6 +291,19 @@ no beacon token means the analytics script isn't injected. Dev, tests and CI sen
 - `web/src/components/ErrorBoundary.tsx` - reports caught errors with component stack
 - `web/.env.example` - all variables documented
 
+**Instrumented catch sites**: most failures here are caught and degraded gracefully, so they
+never reach a global handler and Sentry cannot see them unless the catch block reports.
+`reportError()` is called at the sites where the visitor's experience is actually broken:
+- `factionLoader.ts` - manifest load failure (site shows no factions) and local-faction
+  load failure (IndexedDB unavailable, reported at `warning` level)
+- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle that could
+  not be read; `UnitModelSection` discards this error by design, so Sentry is the only place
+  it surfaces
+
+Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
+shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that
+fall back to cache successfully.
+
 **Setup steps and free-tier rationale**: see the Monitoring section in [README.md](README.md).
 
 **Gotchas when touching this code**:

@@ -6,7 +6,7 @@ import {
   createRoutesFromChildren,
   matchRoutes,
 } from 'react-router-dom'
-import type { ErrorEvent, EventHint } from '@sentry/react'
+import type { ErrorEvent, EventHint, SeverityLevel } from '@sentry/react'
 
 /**
  * Sentry error monitoring.
@@ -160,12 +160,21 @@ export function initMonitoring(): void {
 /**
  * Report a handled error with extra context.
  *
- * Used by ErrorBoundary; safe to call when monitoring is disabled (Sentry's
- * capture functions are no-ops until init runs).
+ * Most of this app's interesting failures are caught and degraded gracefully
+ * (a missing manifest, an unreadable model bundle), so they never reach a
+ * global handler. Call this at those catch sites — otherwise the failure is
+ * invisible to us and only the user sees the degraded UI.
+ *
+ * Safe to call when monitoring is disabled: Sentry's capture functions are
+ * no-ops until init runs.
  */
 export function reportError(
   error: unknown,
   context?: Record<string, unknown>,
+  level: SeverityLevel = 'error',
 ): void {
-  Sentry.captureException(error, context ? { extra: context } : undefined)
+  Sentry.captureException(error, {
+    level,
+    ...(context ? { extra: context } : {}),
+  })
 }
