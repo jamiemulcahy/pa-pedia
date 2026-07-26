@@ -143,7 +143,14 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
       // Worth reporting: manifestLoader only throws here when the network
       // failed AND there is no cache, so the visitor sees a site with no
       // factions at all. Offline visitors with a warm cache never reach this.
-      reportError(error, { stage: 'discoverFactions:manifest' })
+      //
+      // perVisitor: a missing or unreachable manifest breaks the site for
+      // everyone at once, producing one event per visitor for as long as it
+      // lasts. Sampled so an outage cannot drain the monthly quota.
+      reportError(error, {
+        context: { stage: 'discoverFactions:manifest' },
+        perVisitor: true,
+      })
     }
   }
 
@@ -157,7 +164,12 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
     console.warn('Failed to load local factions:', error)
     // Usually IndexedDB being unavailable (private browsing, storage pressure).
     // Warning level: the rest of the site still works.
-    reportError(error, { stage: 'discoverFactions:local' }, 'warning')
+    // Not perVisitor: this depends on the individual browser's storage state,
+    // so the volume scales with affected users, not with an outage.
+    reportError(error, {
+      context: { stage: 'discoverFactions:local' },
+      level: 'warning',
+    })
   }
 
   return entries

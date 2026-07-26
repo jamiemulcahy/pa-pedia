@@ -289,6 +289,8 @@ no beacon token means the analytics script isn't injected. Dev, tests and CI sen
 - `web/src/main.tsx` - `initMonitoring()` before render; React 19 root error hooks
 - `web/src/App.tsx` - `Sentry.wrapReactRouterRouting(Routes)` for parameterised route names
 - `web/src/components/ErrorBoundary.tsx` - reports caught errors with component stack
+- `reportError(err, { perVisitor: true })` marks outage-shaped failures, which `filterEvent`
+  samples at 10% — use it whenever a failure hits every visitor at once rather than one user
 - `web/.env.example` - all variables documented
 
 **Instrumented catch sites**: most failures here are caught and degraded gracefully, so they

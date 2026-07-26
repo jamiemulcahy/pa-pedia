@@ -27,6 +27,13 @@
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { reportError } from '@/lib/monitoring'
+
+/**
+ * Model bundles whose index failure has already been reported this session,
+ * keyed by `${factionId}@${version}`. Prevents one broken bundle from emitting
+ * an event on every unit page the visitor opens.
+ */
+const reportedModelIndexFailures = new Set<string>()
 import {
   ZipReader,
   HttpRangeReader,
@@ -424,7 +431,18 @@ export async function getFactionModelsIndex(
     // The UI deliberately discards this error (see UnitModelSection), so Sentry
     // is the only place it can surface. The manifest promised a bundle, so this
     // is a broken 3D viewer for the visitor, not simply "no model".
-    reportError(error, { stage: 'loadModelIndex', factionId, version })
+    //
+    // Reported once per bundle per session: the failure is not cached (only the
+    // success path writes to IndexedDB) and `rangeSupport` latches to 'no' for
+    // the session, so without this guard a visitor behind a Range-stripping
+    // proxy would re-report on every unit page they open.
+    if (!reportedModelIndexFailures.has(cacheKey)) {
+      reportedModelIndexFailures.add(cacheKey)
+      reportError(error, {
+        context: { stage: 'loadModelIndex', factionId, version },
+        perVisitor: true,
+      })
+    }
     throw new ModelIndexUnavailableError(error)
   }
   // A bundle without its own index is corrupt, not empty.

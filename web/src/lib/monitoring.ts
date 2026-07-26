@@ -20,8 +20,17 @@ import type { ErrorEvent, EventHint, SeverityLevel } from '@sentry/react'
  * bundle cost. Add `Sentry.replayIntegration()` here if that trade changes.
  */
 
-/** Fraction of chunk-load errors that get reported. See shouldSampleChunkLoadError. */
+/** Fraction of chunk-load errors that get reported. See isChunkLoadError. */
 const CHUNK_LOAD_SAMPLE_RATE = 0.05
+
+/**
+ * Tag marking failures that hit every affected visitor exactly once — an
+ * outage shape, not a per-user bug. A broken manifest or an unreadable model
+ * bundle produces one event per visitor for as long as it lasts, which is the
+ * same quota risk as a chunk-load storm and needs the same treatment.
+ */
+const PER_VISITOR_TAG = 'per-visitor'
+const PER_VISITOR_SAMPLE_RATE = 0.1
 
 /**
  * Errors that are never actionable for us: browser extensions injecting into
@@ -67,8 +76,11 @@ export function eventMessage(event: ErrorEvent, hint?: EventHint): string {
   const fromException = values
     .map(v => `${v.type ?? ''}: ${v.value ?? ''}`)
     .join(' ')
-  const fromHint =
-    hint?.originalException instanceof Error ? hint.originalException.message : ''
+  // Structural check rather than `instanceof Error`: DOMException (thrown by
+  // IndexedDB and fetch) does not inherit from Error in browsers, and errors
+  // crossing a realm boundary fail instanceof too.
+  const original = hint?.originalException as { message?: unknown } | undefined
+  const fromHint = typeof original?.message === 'string' ? original.message : ''
   return [event.message ?? '', fromException, fromHint].join(' ').trim()
 }
 
@@ -92,6 +104,15 @@ export function filterEvent(
     event.fingerprint = ['chunk-load-error']
     event.tags = { ...event.tags, error_class: 'chunk-load' }
     event.level = 'warning'
+    return event
+  }
+
+  // Outage-shaped failures reported via reportError({ perVisitor: true }).
+  // Sampled for the same reason as chunk-load errors: the event count scales
+  // with how many people visit during the outage, not with how many distinct
+  // bugs exist. 10% still surfaces the issue within a handful of visitors.
+  if (event.tags?.volume === PER_VISITOR_TAG && random() >= PER_VISITOR_SAMPLE_RATE) {
+    return null
   }
 
   return event
@@ -168,13 +189,23 @@ export function initMonitoring(): void {
  * Safe to call when monitoring is disabled: Sentry's capture functions are
  * no-ops until init runs.
  */
-export function reportError(
-  error: unknown,
-  context?: Record<string, unknown>,
-  level: SeverityLevel = 'error',
-): void {
+export interface ReportOptions {
+  /** Extra detail attached to the event. Never put visitor data here. */
+  context?: Record<string, unknown>
+  level?: SeverityLevel
+  /**
+   * Set for failures that hit every affected visitor once, rather than
+   * indicating a bug specific to one user. Such events are sampled — see
+   * PER_VISITOR_SAMPLE_RATE — so an outage cannot drain the monthly quota.
+   */
+  perVisitor?: boolean
+}
+export function reportError(error: unknown, options: ReportOptions = {}): void {
+  const { context, level = 'error', perVisitor = false } = options
+
   Sentry.captureException(error, {
     level,
     ...(context ? { extra: context } : {}),
+    ...(perVisitor ? { tags: { volume: PER_VISITOR_TAG } } : {}),
   })
 }

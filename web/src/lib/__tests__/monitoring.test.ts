@@ -51,6 +51,22 @@ describe('eventMessage', () => {
   it('handles events with no exception data', () => {
     expect(eventMessage({ type: undefined } as ErrorEvent)).toBe('')
   })
+
+  it('reads non-Error throwables such as DOMException', () => {
+    // DOMException does not inherit from Error in browsers, and IndexedDB and
+    // fetch both throw it. An instanceof check would miss the message.
+    const event = { type: undefined } as ErrorEvent
+    const hint = {
+      originalException: { name: 'QuotaExceededError', message: 'ChunkLoadError' },
+    } as unknown as EventHint
+    expect(eventMessage(event, hint)).toContain('ChunkLoadError')
+  })
+
+  it('ignores a hint whose message is not a string', () => {
+    const event = { type: undefined } as ErrorEvent
+    const hint = { originalException: { message: 42 } } as unknown as EventHint
+    expect(eventMessage(event, hint)).toBe('')
+  })
 })
 
 describe('parseSampleRate', () => {
@@ -110,6 +126,35 @@ describe('filterEvent', () => {
       if (filterEvent(event, undefined, () => i / 1000)) kept++
     }
     expect(kept).toBe(50) // 5% of 1000
+  })
+
+  it('drops per-visitor events outside their sample rate', () => {
+    const event = errorEvent('Error', 'No manifest available')
+    event.tags = { volume: 'per-visitor' }
+    // 0.5 is above the 0.1 per-visitor rate.
+    expect(filterEvent(event, undefined, () => 0.5)).toBeNull()
+  })
+
+  it('keeps sampled per-visitor events', () => {
+    const event = errorEvent('Error', 'No manifest available')
+    event.tags = { volume: 'per-visitor' }
+    expect(filterEvent(event, undefined, () => 0.05)).toBe(event)
+  })
+
+  it('samples per-visitor events at roughly the configured rate', () => {
+    let kept = 0
+    for (let i = 0; i < 1000; i++) {
+      const event = errorEvent('Error', 'No manifest available')
+      event.tags = { volume: 'per-visitor' }
+      if (filterEvent(event, undefined, () => i / 1000)) kept++
+    }
+    expect(kept).toBe(100) // 10% of 1000
+  })
+
+  it('does not sample untagged events', () => {
+    const event = errorEvent('Error', 'No manifest available')
+    // Same message, no per-visitor tag: must always be kept.
+    expect(filterEvent(event, undefined, () => 0.99)).toBe(event)
   })
 
   it('preserves existing tags when tagging a chunk-load error', () => {
