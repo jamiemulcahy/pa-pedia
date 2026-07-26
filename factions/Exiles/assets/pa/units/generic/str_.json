@@ -1,6 +1,6 @@
 {
   "atrophy_cool_down": 15,
-  "base_spec": "/pa/units/land/base_structure/base_structure.json",
+  "base_spec": "/pa/units/exiles_base/base_exiles_structure.json",
   "events": {
     "build_complete": {
       "audio_cue": "/SE/Build_Complete/structure_small"

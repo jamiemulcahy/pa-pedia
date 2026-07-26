@@ -1,5 +1,5 @@
 {
-  "base_spec": "/pa/units/land/base_bot/base_bot.json",
+  "base_spec": "/pa/units/exiles_base/base_exiles_bot.json",
   "display_name": "Cyclops",
   "description": "Anti-Heavy Bot. Long Range. High damage continuous laser. Durable. Amphibious.",
   "max_health": 4000,
@@ -108,8 +108,8 @@
     },
     "died": {
       "audio_cue": "/SE/Death/Bot",
-      "effect_spec": "/pa/effects/specs/default_explosion_bot.pfx",
-      "effect_scale": 3
+      "effect_spec": "/pa/effects/new_legion_fx/legion_explosion_blue.pfx",
+      "effect_scale": 1
     }
   },
   "selection_icon": {
