@@ -256,6 +256,10 @@ sourcemap upload — the Vite plugin checks for the org itself, so it is needed 
 an organization auth token already embeds it. Setting some but not all makes the build warn
 and skip the upload rather than fail.
 
+**EU-region orgs**: if your DSN contains `.de.` (e.g. `o123.ingest.de.sentry.io`), also add
+`SENTRY_URL=https://de.sentry.io`. The bundler plugin hardcodes the US endpoint when this is
+unset, so every upload fails against an EU org.
+
 `SENTRY_DSN` and `CF_BEACON_TOKEN` are public values that ship in the client bundle; they
 are stored as secrets only so forks don't report into this project. `SENTRY_AUTH_TOKEN` is
 a real secret and is used at build time only.

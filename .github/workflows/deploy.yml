@@ -64,6 +64,9 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          # Required for EU-region Sentry orgs (https://de.sentry.io).
+          # Leave unset for US orgs; the plugin defaults to https://sentry.io.
+          SENTRY_URL: ${{ secrets.SENTRY_URL }}
         run: npm run build
 
       # Sourcemaps are uploaded to Sentry during the build and then deleted from

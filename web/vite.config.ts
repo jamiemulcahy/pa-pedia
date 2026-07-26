@@ -307,6 +307,11 @@ export default defineConfig({
             org: process.env.SENTRY_ORG,
             project: process.env.SENTRY_PROJECT,
             authToken: process.env.SENTRY_AUTH_TOKEN,
+            // The plugin hardcodes https://sentry.io when unset, so EU-region
+            // orgs (DSNs containing `.de.`) must set SENTRY_URL to
+            // https://de.sentry.io or every upload 404s. Undefined keeps the
+            // plugin's US default.
+            url: process.env.SENTRY_URL || undefined,
             release: { name: process.env.VITE_APP_VERSION },
             // Don't send build telemetry to Sentry; we only want app errors.
             telemetry: false,
