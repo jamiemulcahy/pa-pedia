@@ -273,9 +273,24 @@ function cloudflareWebAnalytics(): Plugin {
 
 // Sourcemap upload only runs when a Sentry auth token is present, so PR builds
 // and local builds skip it entirely.
-const SENTRY_UPLOAD_ENABLED = Boolean(
-  process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT,
-)
+// All three are required. sentry-cli can read the org out of an organization
+// auth token, but the Vite plugin checks for `org` itself before it ever calls
+// the CLI — without it the plugin logs a warning and silently skips the upload.
+const SENTRY_UPLOAD_VARS = ['SENTRY_AUTH_TOKEN', 'SENTRY_ORG', 'SENTRY_PROJECT'] as const
+const SENTRY_UPLOAD_ENABLED = SENTRY_UPLOAD_VARS.every(name => process.env[name])
+
+// A partial config otherwise fails silently: the build succeeds, no sourcemaps
+// are uploaded, and every stack trace in Sentry stays minified.
+if (!SENTRY_UPLOAD_ENABLED) {
+  const missing = SENTRY_UPLOAD_VARS.filter(name => !process.env[name])
+  if (missing.length < SENTRY_UPLOAD_VARS.length) {
+    console.warn(
+      `[sentry] Sourcemap upload disabled — missing ${missing.join(', ')}. ` +
+        `Stack traces will be minified until all of ` +
+        `${SENTRY_UPLOAD_VARS.join(', ')} are set.`,
+    )
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({

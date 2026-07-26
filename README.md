@@ -245,10 +245,16 @@ personal data.
 
 1. Create a Sentry project of type **React**, then copy its DSN.
 2. Add the repository secrets:
-   - `SENTRY_DSN` — the project DSN
-   - `SENTRY_ORG` — your Sentry org slug
-   - `SENTRY_PROJECT` — the project slug
-   - `SENTRY_AUTH_TOKEN` — an org auth token with `project:releases` scope, for sourcemap upload
+   - `SENTRY_DSN` — the project DSN, from **Settings → Projects → [project] → Client Keys (DSN)**
+   - `SENTRY_ORG` — your org slug (visible in the dashboard URL)
+   - `SENTRY_PROJECT` — the project slug (also in the dashboard URL)
+   - `SENTRY_AUTH_TOKEN` — an **organization** auth token with `project:releases` scope,
+     from **Settings → Auth Tokens**. Used for sourcemap upload.
+
+All three of `SENTRY_ORG`, `SENTRY_PROJECT` and `SENTRY_AUTH_TOKEN` are required for
+sourcemap upload — the Vite plugin checks for the org itself, so it is needed even though
+an organization auth token already embeds it. Setting some but not all makes the build warn
+and skip the upload rather than fail.
 
 `SENTRY_DSN` and `CF_BEACON_TOKEN` are public values that ship in the client bundle; they
 are stored as secrets only so forks don't report into this project. `SENTRY_AUTH_TOKEN` is
