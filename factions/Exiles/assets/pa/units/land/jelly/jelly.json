@@ -1,6 +1,11 @@
 {
     "si_name": "jelly",
-    "base_spec": "/pa/units/land/base_vehicle/base_vehicle.json",
+    "base_spec": "/pa/units/exiles_base/base_exiles_vehicle.json",
+    "events": {
+        "died": {
+            "effect_spec": "/pa/effects/new_legion_fx/legion_explosion_blue.pfx"
+        }
+    },
     "display_name": "Jelly",
     "description": "!LOC: Teleportation bot. Can transport itself and up to 32 units anywhere on any planet. Units are vulnerable for a while after teleporting and can't fight back.",
     "max_health": 1500,

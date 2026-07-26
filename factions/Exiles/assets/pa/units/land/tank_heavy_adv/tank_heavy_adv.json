@@ -1,5 +1,5 @@
 {
-	"base_spec": "/pa/units/land/base_vehicle/base_vehicle.json",
+	"base_spec": "/pa/units/exiles_base/base_exiles_vehicle.json",
 	"display_name": "!LOC:Jaguar",
 	"si_name": "jaguar",
 	"description": "!LOC:Adv Heavy Tank - Slow. Armed with a heavy cannon and anti-ship missiles. Vulnerable to flanking. Attacks land and sea targets.",

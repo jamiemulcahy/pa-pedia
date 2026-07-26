@@ -1,6 +1,6 @@
 {
   "si_name": "battle_fab",
-  "base_spec": "/pa/units/land/base_bot/base_bot.json",
+  "base_spec": "/pa/units/exiles_base/base_exiles_bot.json",
   "display_name": "Hover Fabricator",
   "description": "!LOC: Can hover over water and lava. Can build basic structures. Can not assist or repair.",
   "strategic_icon_priority": 0,

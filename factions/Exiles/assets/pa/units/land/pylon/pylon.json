@@ -1,5 +1,5 @@
 {
-	"base_spec": "/pa/units/land/base_structure/base_structure.json",
+	"base_spec": "/pa/units/exiles_base/base_exiles_structure.json",
 	"display_name": "Energy Pylon",
 	"description": "!LOC:Basic Economy - Produces energy. Use alt-fire to overcharge (Tripe production rate, self-destruct after 60 seconds)",
 	"max_health": 1000,

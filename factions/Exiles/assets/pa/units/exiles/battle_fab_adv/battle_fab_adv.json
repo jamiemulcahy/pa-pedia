@@ -1,6 +1,6 @@
 {
   "si_name": "battle_fab_adv",
-  "base_spec": "/pa/units/land/base_bot/base_bot.json",
+  "base_spec": "/pa/units/exiles_base/base_exiles_bot.json",
   "display_name": "Advanced Hover Fabricator",
   "description": "!LOC:Constructs Advanced Structures. Can travel over lava and water. Can assist factories.",
   "strategic_icon_priority": 0,
@@ -93,7 +93,7 @@
   "events": {
     "died": {
       "audio_cue": "/SE/Death/Bot",
-      "effect_spec": "/pa/effects/specs/default_explosion_bot_t2.pfx",
+      "effect_spec": "/pa/effects/new_legion_fx/blue_default_explosion.pfx",
       "effect_scale": 2
     }
   },
