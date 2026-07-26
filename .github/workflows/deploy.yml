@@ -44,9 +44,49 @@ jobs:
         working-directory: web
         run: npm run generate-sitemap
 
+      # Monitoring is configured entirely through these variables. Any that are
+      # unset simply disable their feature: no DSN means Sentry never
+      # initialises, no beacon token means the analytics script is not injected,
+      # and no Sentry auth token means sourcemaps are neither built nor
+      # uploaded. That keeps forks and PR builds from reporting into this
+      # project.
+      #
+      # VITE_SENTRY_DSN and VITE_CF_BEACON_TOKEN are public values (they ship in
+      # the client bundle); they are stored as secrets only so forks don't
+      # inherit them. SENTRY_AUTH_TOKEN is a real secret and is build-time only.
       - name: Build
         working-directory: web
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_ENVIRONMENT: production
+          # Optional dial: set the repository variable to turn tracing down
+          # (or to 0) during a quota crunch without a code change. Unset falls
+          # back to the 0.1 default in monitoring.ts.
+          VITE_SENTRY_TRACES_SAMPLE_RATE: ${{ vars.SENTRY_TRACES_SAMPLE_RATE }}
+          VITE_CF_BEACON_TOKEN: ${{ secrets.CF_BEACON_TOKEN }}
+          VITE_APP_VERSION: ${{ github.sha }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          # Required for EU-region Sentry orgs (https://de.sentry.io).
+          # Leave unset for US orgs; the plugin defaults to https://sentry.io.
+          SENTRY_URL: ${{ secrets.SENTRY_URL }}
         run: npm run build
+
+      # Sourcemaps are uploaded to Sentry during the build and then deleted from
+      # dist. A failed upload leaves them behind, and Pages would serve them —
+      # publishing our unminified source. Strip them here rather than failing:
+      # a Sentry outage should cost readable stack traces, not the deploy.
+      - name: Strip sourcemaps from build output
+        working-directory: web
+        run: |
+          set -euo pipefail
+          if find dist -name '*.map' -print -quit | grep -q .; then
+            echo "::warning::Sourcemaps left in dist (upload likely failed). Removing before deploy."
+            find dist -name '*.map' -print -delete
+          else
+            echo "No sourcemaps in dist."
+          fi
 
       # Download faction data from GitHub Releases and include in dist
       # This serves faction zips from the same origin, avoiding CORS issues

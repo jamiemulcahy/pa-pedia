@@ -278,6 +278,48 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 - **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
 - **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
+### Monitoring (Sentry + Cloudflare Web Analytics)
+
+Both are free-tier and **inert unless configured** — no DSN means Sentry never initialises,
+no beacon token means the analytics script isn't injected. Dev, tests and CI send nothing.
+
+**Files**:
+- `web/src/lib/monitoring.ts` - Sentry init, event filtering, `reportError()` helper
+- `web/vite.config.ts` - `cloudflareWebAnalytics()` beacon injection + `sentryVitePlugin` sourcemap upload
+- `web/src/main.tsx` - `initMonitoring()` before render; React 19 root error hooks
+- `web/src/App.tsx` - `Sentry.wrapReactRouterRouting(Routes)` for parameterised route names
+- `web/src/components/ErrorBoundary.tsx` - reports caught errors with component stack
+- `reportError(err, { perVisitor: true })` marks outage-shaped failures, which `filterEvent`
+  samples at 10% — use it whenever a failure hits every visitor at once rather than one user
+- `web/.env.example` - all variables documented
+
+**Instrumented catch sites**: most failures here are caught and degraded gracefully, so they
+never reach a global handler and Sentry cannot see them unless the catch block reports.
+`reportError()` is called at the sites where the visitor's experience is actually broken:
+- `factionLoader.ts` - manifest load failure (site shows no factions) and local-faction
+  load failure (IndexedDB unavailable, reported at `warning` level)
+- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle that could
+  not be read; `UnitModelSection` discards this error by design, so Sentry is the only place
+  it surfaces
+
+Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
+shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that
+fall back to cache successfully.
+
+**Setup steps and free-tier rationale**: see the Monitoring section in [README.md](README.md).
+
+**Gotchas when touching this code**:
+- Use the non-deprecated `reactRouterBrowserTracingIntegration` / `wrapReactRouterRouting`
+  (Sentry v10 deprecated the `*V7*`-suffixed names).
+- Don't register `onCaughtError` on the React root — `ErrorBoundary` already reports those,
+  and both would double-count against the 5k/month quota.
+- Keep chunk-load sampling in `filterEvent()`. Without it, one stale-deploy incident
+  (see `web/public/_headers`) floods the quota.
+- Sentry's beforeSend logic is pure and unit-tested in `web/src/lib/__tests__/monitoring.test.ts` —
+  extend those tests when changing filters.
+- Adding new tracked routes? They're derived from the `<Route>` tree automatically; no manual
+  pageview calls needed.
+
 ### Faction Data Deployment
 
 **GitHub Actions Workflow** (`.github/workflows/faction-data.yml`):

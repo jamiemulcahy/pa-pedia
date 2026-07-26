@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import * as Sentry from '@sentry/react'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Header } from '@/components/Header'
@@ -9,6 +10,10 @@ import { CliDownload } from '@/components/CliDownload'
 import { Home } from '@/pages/Home'
 import { FactionDetail } from '@/pages/FactionDetail'
 import { UnitDetail } from '@/pages/UnitDetail'
+
+// Gives Sentry the parameterised route (/faction/:id) rather than the raw URL,
+// so navigations group into one transaction per page instead of one per unit.
+const SentryRoutes = Sentry.wrapReactRouterRouting(Routes)
 
 function App() {
   const [showUpload, setShowUpload] = useState(false)
@@ -24,12 +29,12 @@ function App() {
               onUploadClick={() => setShowUpload(true)}
               onDownloadClick={() => setShowCliDownload(true)}
             />
-            <Routes>
+            <SentryRoutes>
               <Route path="/" element={<Home />} />
               <Route path="/faction" element={<FactionDetail />} />
               <Route path="/faction/:id" element={<FactionDetail />} />
               <Route path="/faction/:factionId/unit/:unitId" element={<UnitDetail />} />
-            </Routes>
+            </SentryRoutes>
 
             {/* Modals */}
             {showUpload && (

@@ -9,6 +9,7 @@
 
 import JSZip from 'jszip'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
+import { reportError } from '@/lib/monitoring'
 import {
   getLocalFactionIds,
   getLocalFactionMetadata,
@@ -138,7 +139,18 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
       await pruneStaleStaticFactions(validCacheKeys)
     } catch (error) {
       console.error('Failed to load manifest:', error)
-      // Fall back to empty list - user can still use local factions
+      // Fall back to empty list - user can still use local factions.
+      // Worth reporting: manifestLoader only throws here when the network
+      // failed AND there is no cache, so the visitor sees a site with no
+      // factions at all. Offline visitors with a warm cache never reach this.
+      //
+      // perVisitor: a missing or unreachable manifest breaks the site for
+      // everyone at once, producing one event per visitor for as long as it
+      // lasts. Sampled so an outage cannot drain the monthly quota.
+      reportError(error, {
+        context: { stage: 'discoverFactions:manifest' },
+        perVisitor: true,
+      })
     }
   }
 
@@ -150,6 +162,14 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
     }
   } catch (error) {
     console.warn('Failed to load local factions:', error)
+    // Usually IndexedDB being unavailable (private browsing, storage pressure).
+    // Warning level: the rest of the site still works.
+    // Not perVisitor: this depends on the individual browser's storage state,
+    // so the volume scales with affected users, not with an outage.
+    reportError(error, {
+      context: { stage: 'discoverFactions:local' },
+      level: 'warning',
+    })
   }
 
   return entries

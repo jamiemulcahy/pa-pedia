@@ -1,4 +1,5 @@
 import React from 'react'
+import { reportError } from '@/lib/monitoring'
 
 interface Props {
   children: React.ReactNode
@@ -22,6 +23,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo)
+    reportError(error, { context: { componentStack: errorInfo.componentStack } })
   }
 
   render() {
