@@ -4,7 +4,7 @@
   "description": "Build scripts for PA-Pedia faction data management",
   "type": "module",
   "scripts": {
-    "test": "node --import tsx --test \"*.test.ts\"",
+    "test": "node --import tsx --test manifest-ordering.test.ts model-bundles.test.ts",
     "build:zips": "tsx build-faction-zips.ts",
     "build:model-bundles": "tsx build-model-bundles.ts",
     "upload:model-bundles": "tsx upload-model-bundles.ts",
