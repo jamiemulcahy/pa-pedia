@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
+import { claimTransactionDone } from './idbTransaction'
 
 interface LocalFactionDB extends DBSchema {
   factions: {
@@ -84,6 +85,7 @@ export async function saveLocalFaction(
 ): Promise<void> {
   const db = await getDB()
   const tx = db.transaction(['factions', 'assets'], 'readwrite')
+  claimTransactionDone(tx)
 
   // Save faction data
   await tx.objectStore('factions').put({
@@ -109,6 +111,7 @@ export async function saveLocalFaction(
 export async function deleteLocalFaction(factionId: string): Promise<void> {
   const db = await getDB()
   const tx = db.transaction(['factions', 'assets'], 'readwrite')
+  claimTransactionDone(tx)
 
   // Delete faction data
   await tx.objectStore('factions').delete(factionId)

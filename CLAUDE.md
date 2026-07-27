@@ -315,6 +315,12 @@ fall back to cache successfully.
   and both would double-count against the 5k/month quota.
 - Keep chunk-load sampling in `filterEvent()`. Without it, one stale-deploy incident
   (see `web/public/_headers`) floods the quota.
+- Keep the IndexedDB teardown drop in `filterEvent()`. When the browser force-closes
+  the origin's storage, `idb`'s read shortcuts (`db.get`, `db.getAllKeys`) leave their
+  `tx.done` rejection unobserved, so it lands as a stackless `AbortError: AbortError`.
+  Unactionable, and a duplicate of what `factionLoader`'s catch sites already report.
+  Our own transactions call `claimTransactionDone()` (`web/src/services/idbTransaction.ts`)
+  instead — call it on every new transaction, before the first `await`.
 - Sentry's beforeSend logic is pure and unit-tested in `web/src/lib/__tests__/monitoring.test.ts` —
   extend those tests when changing filters.
 - Adding new tracked routes? They're derived from the `<Route>` tree automatically; no manual

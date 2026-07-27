@@ -70,6 +70,27 @@ export function isChunkLoadError(message: string): boolean {
   )
 }
 
+/**
+ * Detects rejections thrown when the browser tears IndexedDB down underneath an
+ * open transaction — site data cleared, or the origin evicted under storage
+ * pressure. Chromium aborts every in-flight transaction with "Connection is
+ * closing because of: <reason>"; `idb` then rejects each transaction's `done`
+ * promise, falling back to a bare `AbortError: AbortError` when the abort left
+ * `tx.error` unset.
+ *
+ * Unactionable, and already covered: the failure the visitor actually feels is
+ * reported deliberately from the catch sites in factionLoader. These are the
+ * duplicate. We suppress our own leak of `tx.done` (see idbTransaction.ts), but
+ * `idb`'s read shortcuts (`db.get`, `db.getAllKeys`) never attach a handler to
+ * it at all — that one is inside the library, so it has to be filtered here.
+ */
+export function isIdbTeardownError(message: string): boolean {
+  return (
+    /AbortError: AbortError/.test(message) ||
+    /Connection is closing because of:/i.test(message)
+  )
+}
+
 /** Extracts a searchable message from a Sentry event and its original error. */
 export function eventMessage(event: ErrorEvent, hint?: EventHint): string {
   const values = event.exception?.values ?? []
@@ -95,6 +116,8 @@ export function filterEvent(
   random: () => number = Math.random,
 ): ErrorEvent | null {
   const message = eventMessage(event, hint)
+
+  if (isIdbTeardownError(message)) return null
 
   if (isChunkLoadError(message)) {
     if (random() >= CHUNK_LOAD_SAMPLE_RATE) return null
