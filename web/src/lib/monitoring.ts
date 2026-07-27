@@ -91,6 +91,20 @@ export function isIdbTeardownError(message: string): boolean {
   )
 }
 
+/**
+ * Whether the SDK captured this event from a global handler rather than from a
+ * `captureException` call.
+ *
+ * Load-bearing for the teardown filter below: a force-close rejects our own
+ * `reportError` path with the very same message, and `beforeSend` sees handled
+ * and unhandled events alike. Matching on the message alone would drop the
+ * deliberate report too, leaving the storage-teardown failure invisible —
+ * the opposite of what that filter is for.
+ */
+export function isUnhandled(event: ErrorEvent): boolean {
+  return event.exception?.values?.some(v => v.mechanism?.handled === false) ?? false
+}
+
 /** Extracts a searchable message from a Sentry event and its original error. */
 export function eventMessage(event: ErrorEvent, hint?: EventHint): string {
   const values = event.exception?.values ?? []
@@ -117,7 +131,9 @@ export function filterEvent(
 ): ErrorEvent | null {
   const message = eventMessage(event, hint)
 
-  if (isIdbTeardownError(message)) return null
+  // Only the escaped duplicates. Handled events reach here too, and the
+  // reportError() call in factionLoader's catch site carries this same message.
+  if (isUnhandled(event) && isIdbTeardownError(message)) return null
 
   if (isChunkLoadError(message)) {
     if (random() >= CHUNK_LOAD_SAMPLE_RATE) return null

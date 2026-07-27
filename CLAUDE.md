@@ -286,7 +286,10 @@ no beacon token means the analytics script isn't injected. Dev, tests and CI sen
 **Files**:
 - `web/src/lib/monitoring.ts` - Sentry init, event filtering, `reportError()` helper
 - `web/vite.config.ts` - `cloudflareWebAnalytics()` beacon injection + `sentryVitePlugin` sourcemap upload
-- `web/src/main.tsx` - `initMonitoring()` before render; React 19 root error hooks
+- `web/src/instrument.ts` - calls `initMonitoring()`; imported first by `main.tsx`
+  **before `./App.tsx`**, because App wraps the router at module scope and ESM
+  evaluates it first — init any later and the wrapper silently no-ops
+- `web/src/main.tsx` - imports `./instrument`, then React 19 root error hooks
 - `web/src/App.tsx` - `Sentry.wrapReactRouterRouting(Routes)` for parameterised route names
 - `web/src/components/ErrorBoundary.tsx` - reports caught errors with component stack
 - `reportError(err, { perVisitor: true })` marks outage-shaped failures, which `filterEvent`
@@ -319,6 +322,9 @@ fall back to cache successfully.
   the origin's storage, `idb`'s read shortcuts (`db.get`, `db.getAllKeys`) leave their
   `tx.done` rejection unobserved, so it lands as a stackless `AbortError: AbortError`.
   Unactionable, and a duplicate of what `factionLoader`'s catch sites already report.
+  It is gated on `isUnhandled()` for exactly that reason: a force-close rejects the
+  deliberate `reportError()` path with the same message, and dropping that too would
+  leave real storage failures invisible. Don't match on the message alone.
   Our own transactions call `claimTransactionDone()` (`web/src/services/idbTransaction.ts`)
   instead — call it on every new transaction, before the first `await`.
 - Sentry's beforeSend logic is pure and unit-tested in `web/src/lib/__tests__/monitoring.test.ts` —

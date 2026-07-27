@@ -8,11 +8,26 @@ import {
   parseSampleRate,
 } from '../monitoring'
 
-/** Minimal Sentry error event carrying a single exception value. */
+/**
+ * Minimal Sentry error event carrying a single exception value.
+ *
+ * No mechanism, which is how `captureException` events arrive unless the SDK
+ * marks them otherwise — i.e. a handled report.
+ */
 function errorEvent(type: string, value: string): ErrorEvent {
   return {
     type: undefined,
     exception: { values: [{ type, value }] },
+  } as ErrorEvent
+}
+
+/** As above, but flagged the way global handlers (onunhandledrejection) mark events. */
+function unhandledEvent(type: string, value: string): ErrorEvent {
+  return {
+    type: undefined,
+    exception: {
+      values: [{ type, value, mechanism: { type: 'onunhandledrejection', handled: false } }],
+    },
   } as ErrorEvent
 }
 
@@ -127,17 +142,30 @@ describe('filterEvent', () => {
     expect(result?.fingerprint).toBeUndefined()
   })
 
-  it('drops IndexedDB teardown noise unconditionally', () => {
-    const aborted = errorEvent('AbortError', 'AbortError')
-    const forceClosed = errorEvent(
+  it('drops unhandled IndexedDB teardown noise', () => {
+    const aborted = unhandledEvent('AbortError', 'AbortError')
+    const forceClosed = unhandledEvent(
       'UnknownError',
       'Connection is closing because of: Force close delete origin',
     )
 
-    // Not sampled: the failure the visitor feels is already reported from the
-    // catch sites in factionLoader, so these are pure duplicates.
+    // Not sampled: these escaped from a global handler and duplicate what the
+    // catch sites in factionLoader already report.
     expect(filterEvent(aborted, undefined, () => 0)).toBeNull()
     expect(filterEvent(forceClosed, undefined, () => 0)).toBeNull()
+  })
+
+  // The whole point of the teardown filter is that the deliberate report
+  // survives. A force-close rejects getLocalFactionIds() with exactly this
+  // message, and factionLoader reports it via reportError — dropping that too
+  // would leave real storage failures invisible.
+  it('keeps the deliberate reportError for the same failure', () => {
+    const reported = errorEvent(
+      'UnknownError',
+      'Connection is closing because of: Force close delete origin',
+    )
+
+    expect(filterEvent(reported, undefined, () => 0)).toBe(reported)
   })
 
   it('drops chunk-load errors outside the sample rate', () => {

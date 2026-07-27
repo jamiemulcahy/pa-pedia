@@ -27,6 +27,7 @@
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import { reportError } from '@/lib/monitoring'
+import { claimTransactionDone } from './idbTransaction'
 
 /**
  * Model bundles whose index failure has already been reported this session,
@@ -607,6 +608,7 @@ export async function clearModelCache(): Promise<void> {
   rangeSupport = 'unknown'
   const db = await getDB()
   const tx = db.transaction(['indexes', 'units', 'bundles'], 'readwrite')
+  claimTransactionDone(tx)
   await tx.objectStore('indexes').clear()
   await tx.objectStore('units').clear()
   await tx.objectStore('bundles').clear()
