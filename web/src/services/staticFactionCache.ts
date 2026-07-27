@@ -12,6 +12,7 @@
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
+import { claimTransactionDone } from './idbTransaction'
 
 interface StaticFactionDB extends DBSchema {
   factions: {
@@ -111,6 +112,7 @@ export async function cacheStaticFaction(
 ): Promise<void> {
   const db = await getDB()
   const tx = db.transaction(['factions', 'assets'], 'readwrite')
+  claimTransactionDone(tx)
 
   // Save faction data
   await tx.objectStore('factions').put({
@@ -187,6 +189,7 @@ export async function getAllStaticAssets(cacheKey: string): Promise<Map<string, 
 export async function deleteStaticFactionCache(factionId: string): Promise<void> {
   const db = await getDB()
   const tx = db.transaction(['factions', 'assets'], 'readwrite')
+  claimTransactionDone(tx)
 
   // Delete faction data
   await tx.objectStore('factions').delete(factionId)
@@ -255,6 +258,7 @@ export async function getCachedManifestInfo(): Promise<{
 export async function clearStaticFactionCache(): Promise<void> {
   const db = await getDB()
   const tx = db.transaction(['factions', 'assets', 'manifest'], 'readwrite')
+  claimTransactionDone(tx)
   await tx.objectStore('factions').clear()
   await tx.objectStore('assets').clear()
   await tx.objectStore('manifest').clear()

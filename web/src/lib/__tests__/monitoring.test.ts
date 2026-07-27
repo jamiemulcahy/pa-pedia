@@ -2,16 +2,32 @@ import { describe, it, expect } from 'vitest'
 import type { ErrorEvent, EventHint } from '@sentry/react'
 import {
   isChunkLoadError,
+  isIdbTeardownError,
   eventMessage,
   filterEvent,
   parseSampleRate,
 } from '../monitoring'
 
-/** Minimal Sentry error event carrying a single exception value. */
+/**
+ * Minimal Sentry error event carrying a single exception value.
+ *
+ * No mechanism, which is how `captureException` events arrive unless the SDK
+ * marks them otherwise — i.e. a handled report.
+ */
 function errorEvent(type: string, value: string): ErrorEvent {
   return {
     type: undefined,
     exception: { values: [{ type, value }] },
+  } as ErrorEvent
+}
+
+/** As above, but flagged the way global handlers (onunhandledrejection) mark events. */
+function unhandledEvent(type: string, value: string): ErrorEvent {
+  return {
+    type: undefined,
+    exception: {
+      values: [{ type, value, mechanism: { type: 'onunhandledrejection', handled: false } }],
+    },
   } as ErrorEvent
 }
 
@@ -32,6 +48,31 @@ describe('isChunkLoadError', () => {
     expect(isChunkLoadError('Cannot read properties of undefined')).toBe(false)
     expect(isChunkLoadError('QuotaExceededError: IndexedDB is full')).toBe(false)
     expect(isChunkLoadError('Failed to fetch')).toBe(false)
+  })
+})
+
+describe('isIdbTeardownError', () => {
+  // Both messages came off one page load in Sentry (PA-PEDIA-2 / PA-PEDIA-3):
+  // Chromium force-closed the origin's storage under two open transactions.
+  it('matches the messages Chromium emits when it force-closes storage', () => {
+    expect(
+      isIdbTeardownError(
+        'UnknownError: Connection is closing because of: Force close delete origin',
+      ),
+    ).toBe(true)
+  })
+
+  // idb's fallback when the transaction aborted without setting tx.error.
+  it("matches idb's stackless tx.done rejection", () => {
+    expect(isIdbTeardownError('AbortError: AbortError')).toBe(true)
+  })
+
+  it('leaves other IndexedDB failures alone', () => {
+    expect(isIdbTeardownError('QuotaExceededError: quota exceeded')).toBe(false)
+    // A real fetch/user abort carries a descriptive message, unlike idb's.
+    expect(
+      isIdbTeardownError('AbortError: The user aborted a request'),
+    ).toBe(false)
   })
 })
 
@@ -99,6 +140,32 @@ describe('filterEvent', () => {
 
     expect(result).toBe(event)
     expect(result?.fingerprint).toBeUndefined()
+  })
+
+  it('drops unhandled IndexedDB teardown noise', () => {
+    const aborted = unhandledEvent('AbortError', 'AbortError')
+    const forceClosed = unhandledEvent(
+      'UnknownError',
+      'Connection is closing because of: Force close delete origin',
+    )
+
+    // Not sampled: these escaped from a global handler and duplicate what the
+    // catch sites in factionLoader already report.
+    expect(filterEvent(aborted, undefined, () => 0)).toBeNull()
+    expect(filterEvent(forceClosed, undefined, () => 0)).toBeNull()
+  })
+
+  // The whole point of the teardown filter is that the deliberate report
+  // survives. A force-close rejects getLocalFactionIds() with exactly this
+  // message, and factionLoader reports it via reportError — dropping that too
+  // would leave real storage failures invisible.
+  it('keeps the deliberate reportError for the same failure', () => {
+    const reported = errorEvent(
+      'UnknownError',
+      'Connection is closing because of: Force close delete origin',
+    )
+
+    expect(filterEvent(reported, undefined, () => 0)).toBe(reported)
   })
 
   it('drops chunk-load errors outside the sample rate', () => {

@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
@@ -174,9 +174,6 @@ function devContentType(ext: string): string {
   return contentTypes[ext] || 'application/octet-stream'
 }
 
-/** `just dev-live`: dev server backed by real production faction data. */
-const DEV_LIVE = process.env.VITE_USE_LIVE_DATA === 'true'
-
 /** Production origin that dev-live borrows faction + model data from. */
 const PRODUCTION_ORIGIN = 'https://pa-pedia.com'
 
@@ -194,9 +191,9 @@ const PRODUCTION_ORIGIN = 'https://pa-pedia.com'
  * Can be overridden via VITE_FACTION_MODELS_DIR (e.g. for E2E fixtures).
  *
  * Skipped in dev-live, where model bundles come from production via the proxy
- * below rather than from local files (see DEV_LIVE).
+ * below rather than from local files (see the `devLive` argument).
  */
-function serveFactionModels(): Plugin {
+function serveFactionModels(devLive: boolean): Plugin {
   const modelsDir = path.resolve(__dirname, process.env.VITE_FACTION_MODELS_DIR || '../faction-models')
 
   return {
@@ -204,7 +201,7 @@ function serveFactionModels(): Plugin {
     configureServer(server) {
       // dev-live serves these from production through the proxy; local files
       // must not shadow it.
-      if (DEV_LIVE) return
+      if (devLive) return
 
       server.middlewares.use('/faction-models', (req, res, next) => {
         const reqUrl = req.url || ''
@@ -277,99 +274,114 @@ function cloudflareWebAnalytics(): Plugin {
 // auth token, but the Vite plugin checks for `org` itself before it ever calls
 // the CLI — without it the plugin logs a warning and silently skips the upload.
 const SENTRY_UPLOAD_VARS = ['SENTRY_AUTH_TOKEN', 'SENTRY_ORG', 'SENTRY_PROJECT'] as const
-const SENTRY_UPLOAD_ENABLED = SENTRY_UPLOAD_VARS.every(name => process.env[name])
-
-// A partial config otherwise fails silently: the build succeeds, no sourcemaps
-// are uploaded, and every stack trace in Sentry stays minified.
-if (!SENTRY_UPLOAD_ENABLED) {
-  const missing = SENTRY_UPLOAD_VARS.filter(name => !process.env[name])
-  if (missing.length < SENTRY_UPLOAD_VARS.length) {
-    console.warn(
-      `[sentry] Sourcemap upload disabled — missing ${missing.join(', ')}. ` +
-        `Stack traces will be minified until all of ` +
-        `${SENTRY_UPLOAD_VARS.join(', ')} are set.`,
-    )
-  }
-}
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    react(),
-    serveFactions(),
-    serveFactionModels(),
-    cloudflareWebAnalytics(),
-    // Must come last: it needs the final bundle to inject debug IDs.
-    ...(SENTRY_UPLOAD_ENABLED
-      ? [
-          sentryVitePlugin({
-            org: process.env.SENTRY_ORG,
-            project: process.env.SENTRY_PROJECT,
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            // The plugin hardcodes https://sentry.io when unset, so EU-region
-            // orgs (DSNs containing `.de.`) must set SENTRY_URL to
-            // https://de.sentry.io or every upload 404s. Undefined keeps the
-            // plugin's US default.
-            url: process.env.SENTRY_URL || undefined,
-            release: { name: process.env.VITE_APP_VERSION },
-            // Don't send build telemetry to Sentry; we only want app errors.
-            telemetry: false,
-            sourcemaps: {
-              // Upload the maps to Sentry, then delete them from dist so they
-              // are never served publicly.
-              filesToDeleteAfterUpload: ['./dist/**/*.map'],
-            },
-            // By default the plugin throws and kills the build if the upload
-            // fails. A Sentry outage or an expired token must not block
-            // shipping the site — we lose readable stack traces for that
-            // release, nothing more. The deploy workflow strips any sourcemaps
-            // left behind by a failed upload.
-            errorHandler: err => {
-              console.warn(
-                `[sentry-vite-plugin] Sourcemap upload failed; continuing build. ` +
-                  `Stack traces for this release will be minified.\n${err.message}`,
-              )
-            },
-          }),
-        ]
-      : []),
-  ],
-  base: '/',
-  build: {
-    // 'hidden' emits sourcemaps without the //# sourceMappingURL comment: the
-    // Sentry plugin matches them by debug ID, so stack traces resolve without
-    // pointing browsers (or anyone else) at the maps.
-    sourcemap: SENTRY_UPLOAD_ENABLED ? 'hidden' : false,
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+export default defineConfig(({ mode }) => {
+  // Vite exposes .env files to client code via import.meta.env, but it never
+  // populates process.env from them — that only ever holds real shell vars.
+  // Config-time reads therefore miss the `web/.env.local` setup documented in
+  // .env.example entirely, and fail silently: no beacon, no sourcemap upload,
+  // and VITE_USE_LIVE_DATA desyncing from the app code that reads it via
+  // import.meta.env. Merge the files in once, with shell vars still winning so
+  // CI (which sets them for real) is unaffected.
+  Object.assign(process.env, { ...loadEnv(mode, __dirname, ''), ...process.env })
+
+  /** `just dev-live`: dev server backed by real production faction data. */
+  const devLive = process.env.VITE_USE_LIVE_DATA === 'true'
+
+  const sentryUploadEnabled = SENTRY_UPLOAD_VARS.every(name => process.env[name])
+
+  // A partial config otherwise fails silently: the build succeeds, no sourcemaps
+  // are uploaded, and every stack trace in Sentry stays minified.
+  if (!sentryUploadEnabled) {
+    const missing = SENTRY_UPLOAD_VARS.filter(name => !process.env[name])
+    if (missing.length < SENTRY_UPLOAD_VARS.length) {
+      console.warn(
+        `[sentry] Sourcemap upload disabled — missing ${missing.join(', ')}. ` +
+          `Stack traces will be minified until all of ` +
+          `${SENTRY_UPLOAD_VARS.join(', ')} are set.`,
+      )
+    }
+  }
+
+  return {
+    plugins: [
+      tailwindcss(),
+      react(),
+      serveFactions(),
+      serveFactionModels(devLive),
+      cloudflareWebAnalytics(),
+      // Must come last: it needs the final bundle to inject debug IDs.
+      ...(sentryUploadEnabled
+        ? [
+            sentryVitePlugin({
+              org: process.env.SENTRY_ORG,
+              project: process.env.SENTRY_PROJECT,
+              authToken: process.env.SENTRY_AUTH_TOKEN,
+              // The plugin hardcodes https://sentry.io when unset, so EU-region
+              // orgs (DSNs containing `.de.`) must set SENTRY_URL to
+              // https://de.sentry.io or every upload 404s. Undefined keeps the
+              // plugin's US default.
+              url: process.env.SENTRY_URL || undefined,
+              release: { name: process.env.VITE_APP_VERSION },
+              // Don't send build telemetry to Sentry; we only want app errors.
+              telemetry: false,
+              sourcemaps: {
+                // Upload the maps to Sentry, then delete them from dist so they
+                // are never served publicly.
+                filesToDeleteAfterUpload: ['./dist/**/*.map'],
+              },
+              // By default the plugin throws and kills the build if the upload
+              // fails. A Sentry outage or an expired token must not block
+              // shipping the site — we lose readable stack traces for that
+              // release, nothing more. The deploy workflow strips any sourcemaps
+              // left behind by a failed upload.
+              errorHandler: err => {
+                console.warn(
+                  `[sentry-vite-plugin] Sourcemap upload failed; continuing build. ` +
+                    `Stack traces for this release will be minified.\n${err.message}`,
+                )
+              },
+            }),
+          ]
+        : []),
+    ],
+    base: '/',
+    build: {
+      // 'hidden' emits sourcemaps without the //# sourceMappingURL comment: the
+      // Sentry plugin matches them by debug ID, so stack traces resolve without
+      // pointing browsers (or anyone else) at the maps.
+      sourcemap: sentryUploadEnabled ? 'hidden' : false,
     },
-  },
-  server: {
-    // Bind to all addresses (required for Docker container access)
-    host: true,
-    fs: {
-      // Allow serving files from the factions folder at repo root
-      allow: ['..'],
-    },
-    // dev-live reads model bundles from production. Fetching them cross-origin
-    // does not work: zip.js sends a Range header to read a single unit out of
-    // the bundle, Range is not CORS-safelisted, so the browser preflights — and
-    // the Cloudflare Pages Function that serves /faction-models only answers
-    // GET/HEAD and sets no CORS headers (it is same-origin in prod, so it never
-    // needs them). The preflight fails and the 3D viewer sees "no models".
-    //
-    // Proxying here keeps the browser same-origin, exactly as in production, so
-    // no CORS is involved and production needs no dev-only concessions.
-    ...(DEV_LIVE && {
-      proxy: {
-        '/faction-models': {
-          target: PRODUCTION_ORIGIN,
-          changeOrigin: true,
-        },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
       },
-    }),
-  },
+    },
+    server: {
+      // Bind to all addresses (required for Docker container access)
+      host: true,
+      fs: {
+        // Allow serving files from the factions folder at repo root
+        allow: ['..'],
+      },
+      // dev-live reads model bundles from production. Fetching them cross-origin
+      // does not work: zip.js sends a Range header to read a single unit out of
+      // the bundle, Range is not CORS-safelisted, so the browser preflights — and
+      // the Cloudflare Pages Function that serves /faction-models only answers
+      // GET/HEAD and sets no CORS headers (it is same-origin in prod, so it never
+      // needs them). The preflight fails and the 3D viewer sees "no models".
+      //
+      // Proxying here keeps the browser same-origin, exactly as in production, so
+      // no CORS is involved and production needs no dev-only concessions.
+      ...(devLive && {
+        proxy: {
+          '/faction-models': {
+            target: PRODUCTION_ORIGIN,
+            changeOrigin: true,
+          },
+        },
+      }),
+    },
+  }
 })
