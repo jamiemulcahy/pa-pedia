@@ -59,6 +59,15 @@ export interface ModelBundleInfo {
   downloadUrl: string
   size: number
   unitCount: number
+  /**
+   * Set ONLY when this bundle was built from a DIFFERENT faction version than
+   * the entry carrying it. Model bundles come from a heavy manual workflow while
+   * faction data refreshes daily, so the manifest attaches a faction's newest
+   * bundle to versions that have none of their own (see `scripts/model-bundles.ts`).
+   * The viewer names this version so a borrowed model is never passed off as the
+   * displayed version's own.
+   */
+  builtFromVersion?: string
 }
 
 export interface VersionEntry {

@@ -20,6 +20,12 @@ interface UnitModelModalProps {
   teamColors?: TeamColors
   /** Human-readable unit name for the modal title. */
   title?: string
+  /**
+   * Faction version the model was built from, when it differs from the version
+   * being viewed. Named in the header so a model borrowed from a neighbouring
+   * release is never presented as this version's own.
+   */
+  builtFromVersion?: string | null
   onClose: () => void
 }
 
@@ -29,6 +35,7 @@ export function UnitModelModal({
   version,
   teamColors,
   title,
+  builtFromVersion,
   onClose,
 }: UnitModelModalProps) {
   // ESC closes the modal.
@@ -54,9 +61,20 @@ export function UnitModelModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {title ? `${title} — 3D Model` : '3D Model'}
-          </h2>
+          <div className="min-w-0">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {title ? `${title} — 3D Model` : '3D Model'}
+            </h2>
+            {builtFromVersion && (
+              <p
+                data-testid="model-source-version"
+                className="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                title="3D models are generated separately from unit data, so the newest available models are shown."
+              >
+                Model from faction version {builtFromVersion}
+              </p>
+            )}
+          </div>
           <button
             onClick={onClose}
             aria-label="Close"

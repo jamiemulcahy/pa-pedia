@@ -457,6 +457,12 @@ Manual-dispatch only (`workflow_dispatch`) — a full run drives headless Blende
 5. Uploads bundles to the **`faction-models`** release (separate from `faction-data`)
 6. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
 
+**Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
+
+Model generation is manual while faction data refreshes daily, so the two drift apart. A version entry takes the bundle built from its own version when one exists; otherwise it falls back to the faction's **newest** bundle and the entry records `models.builtFromVersion`. Without that fallback, the first upstream release after a regen left every version entry with no `models` field and the 3D button went permanently disabled for that faction (this is what happened to Exiles: five releases in the two weeks after its bundle was built).
+
+Per-unit availability still comes from the bundle's own `models.json`, so a unit added since the regen correctly reports "no model" instead of showing the wrong mesh. When `builtFromVersion` is set the viewer names that version in the modal header — a borrowed model is never presented as the displayed version's own. Regenerating models is still what picks up genuinely new or changed geometry.
+
 **Local generation** (needs a PA install + Blender 5.1.x on PATH):
 ```bash
 just generate-models        # extract-models for all profiles → ./models
