@@ -1,12 +1,14 @@
+// MUST be first: initialises Sentry before App.tsx's module body wraps the
+// router. See instrument.ts — calling initMonitoring() from here instead is
+// too late, and fails silently.
+import './instrument'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.tsx'
-import { initMonitoring, isMonitoringEnabled } from '@/lib/monitoring'
-
-// Before render, so errors thrown during the first paint are captured.
-initMonitoring()
+import { isMonitoringEnabled } from '@/lib/monitoring'
 
 // React 19 root error hooks, registered ONLY when Sentry can receive the error.
 //
