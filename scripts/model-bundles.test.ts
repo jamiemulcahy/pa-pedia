@@ -42,13 +42,17 @@ test('matches a version to the bundle built from it', () => {
   assert.equal(selectModelBundle(bundles, 'mla', '124632')?.asset.name, 'mla-124632-pedia20260711230523-models.zip')
 })
 
+// Asset order from the release API is not guaranteed, so the newest rebuild has
+// to win regardless of which one is seen first.
 test('keeps the newest rebuild when a version was built more than once', () => {
-  const bundles = indexModelBundles([
-    asset('exiles-0.7.4.6-pedia20260712084632-models.zip'),
-    asset('exiles-0.7.4.6-pedia20260712230210-models.zip'), // texture fix rebuild
-  ])
+  const older = asset('exiles-0.7.4.6-pedia20260712084632-models.zip')
+  const newer = asset('exiles-0.7.4.6-pedia20260712230210-models.zip') // texture fix rebuild
 
-  assert.equal(selectModelBundle(bundles, 'exiles', '0.7.4.6')?.timestamp, 20260712230210)
+  for (const order of [[older, newer], [newer, older]]) {
+    const bundles = indexModelBundles(order)
+    assert.equal(bundles.size, 1)
+    assert.equal(selectModelBundle(bundles, 'exiles', '0.7.4.6')?.timestamp, 20260712230210)
+  }
 })
 
 // The intended behaviour, not an oversight. Model bundles come from a manual

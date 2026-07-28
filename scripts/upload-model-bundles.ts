@@ -105,7 +105,7 @@ async function main() {
     // Old timestamps of the same faction+version are intentionally KEPT. The
     // baked prod manifest (deployed from the previous run) still points at the
     // previous bundle until the next deploy; deleting it here would 404 the 3D
-    // viewer in that window. `buildModelBundleMap` (generate-manifest) always
+    // viewer in that window. `indexModelBundles` (model-bundles.ts) always
     // picks the newest stamp per faction+version, so keeping older rebuilds is
     // harmless — and preserves model history alongside the spec-zip history.
     uploadZip(bundle.filename)
