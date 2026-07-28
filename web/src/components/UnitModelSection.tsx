@@ -23,7 +23,7 @@
 
 import { useEffect, useReducer, useState } from 'react'
 import type { TeamColors } from '@/types/faction'
-import { getFactionModelsIndex, getModelBundleSourceVersion } from '@/services/modelLoader'
+import { getFactionModelsIndex } from '@/services/modelLoader'
 import { UnitModelModal } from './UnitModelModal'
 
 interface UnitModelSectionProps {
@@ -36,20 +36,9 @@ interface UnitModelSectionProps {
 }
 
 type Availability = 'checking' | 'available' | 'none' | 'error'
-
-interface AvailabilityState {
-  availability: Availability
-  /**
-   * Faction version the bundle was built from, when it is not the one being
-   * viewed (the manifest's model fallback). Passed to the modal so the viewer
-   * can name it; `null` whenever the model belongs to this version.
-   */
-  builtFromVersion: string | null
-}
-
 type AvailabilityAction =
   | { type: 'CHECK' }
-  | { type: 'RESOLVE'; available: boolean; builtFromVersion: string | null }
+  | { type: 'RESOLVE'; available: boolean }
   | { type: 'FAIL' }
 
 /**
@@ -96,26 +85,18 @@ function Spinner() {
 
 // useReducer (rather than useState) so we can dispatch synchronously inside the
 // effect without tripping react-hooks/set-state-in-effect (mirrors useFaction).
-function availabilityReducer(
-  state: AvailabilityState,
-  action: AvailabilityAction
-): AvailabilityState {
+function availabilityReducer(_state: Availability, action: AvailabilityAction): Availability {
   switch (action.type) {
     case 'CHECK':
-      return { availability: 'checking', builtFromVersion: null }
+      return 'checking'
     case 'RESOLVE':
-      return {
-        availability: action.available ? 'available' : 'none',
-        builtFromVersion: action.builtFromVersion,
-      }
+      return action.available ? 'available' : 'none'
     case 'FAIL':
-      return { availability: 'error', builtFromVersion: null }
+      return 'error'
     default:
-      return state
+      return _state
   }
 }
-
-const INITIAL_STATE: AvailabilityState = { availability: 'checking', builtFromVersion: null }
 
 export function UnitModelSection({
   factionId,
@@ -124,10 +105,7 @@ export function UnitModelSection({
   teamColors,
   unitName,
 }: UnitModelSectionProps) {
-  const [{ availability, builtFromVersion }, dispatch] = useReducer(
-    availabilityReducer,
-    INITIAL_STATE
-  )
+  const [availability, dispatch] = useReducer(availabilityReducer, 'checking')
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -135,15 +113,9 @@ export function UnitModelSection({
     dispatch({ type: 'CHECK' })
 
     getFactionModelsIndex(factionId, version)
-      .then(async (index) => {
-        const available = !!index?.units[unitId]
-        // Disclosure only, and strictly non-fatal: failing to learn WHICH version
-        // built the model must never downgrade an available model to an error.
-        const builtFromVersion = available
-          ? await getModelBundleSourceVersion(factionId, version).catch(() => null)
-          : null
+      .then((index) => {
         if (cancelled) return
-        dispatch({ type: 'RESOLVE', available, builtFromVersion })
+        dispatch({ type: 'RESOLVE', available: !!index?.units[unitId] })
       })
       .catch(() => {
         // The error object is intentionally not captured: modelLoader already
@@ -206,7 +178,6 @@ export function UnitModelSection({
           version={version}
           teamColors={teamColors}
           title={unitName}
-          builtFromVersion={builtFromVersion}
           onClose={() => setOpen(false)}
         />
       )}

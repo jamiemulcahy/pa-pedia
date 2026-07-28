@@ -459,9 +459,11 @@ Manual-dispatch only (`workflow_dispatch`) — a full run drives headless Blende
 
 **Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
 
-Model generation is manual while faction data refreshes daily, so the two drift apart. A version entry takes the bundle built from its own version when one exists; otherwise it falls back to the faction's **newest** bundle and the entry records `models.builtFromVersion`. Without that fallback, the first upstream release after a regen left every version entry with no `models` field and the 3D button went permanently disabled for that faction (this is what happened to Exiles: five releases in the two weeks after its bundle was built).
+A version entry gets a `models` bundle only when one was built from **that exact version**. Model generation is manual while faction data refreshes daily, so expect drift: the moment a mod ships a new release, its newest entry has no bundle and the 3D button reports "no 3D model available" until someone dispatches the workflow. Exiles went 0.7.4.6 → 0.7.5 → 0.7.6 → 0.8 → 0.8.1 in the two weeks after its bundle was built, and shows no models on all of them.
 
-Per-unit availability still comes from the bundle's own `models.json`, so a unit added since the regen correctly reports "no model" instead of showing the wrong mesh. When `builtFromVersion` is set the viewer names that version in the modal header — a borrowed model is never presented as the displayed version's own. Regenerating models is still what picks up genuinely new or changed geometry.
+Serving a neighbouring version's bundle instead was considered and rejected — a model shown against a version it wasn't built from misrepresents what the unit currently looks like. **Regenerating is the fix for a stale faction**; the manifest never approximates.
+
+Older versions are unaffected: each entry is matched independently, so Exiles 0.7.4.6 keeps its bundle and its working viewer however far latest has moved on. This is also why `upload-model-bundles` never deletes old bundles.
 
 **Local generation** (needs a PA install + Blender 5.1.x on PATH):
 ```bash

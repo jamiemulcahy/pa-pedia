@@ -66,12 +66,6 @@ interface ModelBundleInfo {
   downloadUrl: string
   size: number
   unitCount: number
-  /**
-   * Set ONLY when the bundle was built from a different faction version than the
-   * entry it is attached to (see `model-bundles.ts`). The web app shows it so a
-   * borrowed model is never presented as this version's own.
-   */
-  builtFromVersion?: string
 }
 
 interface VersionEntry {
@@ -185,14 +179,6 @@ function getModelReleaseAssets(): ReleaseAsset[] {
 }
 
 /**
- * unitCount per bundle FILENAME. A bundle is now shared across every version
- * entry it backs (one exact match plus any fallbacks), and reading the count
- * costs a whole-bundle download — so without memoisation a faction with 15
- * version entries would pull the same 33 MB zip 15 times.
- */
-const unitCountCache = new Map<string, Promise<number>>()
-
-/**
  * Read unitCount from a model bundle's models.json.
  *
  * NOTE (follow-up): this downloads the whole bundle (glb + textures, many MB)
@@ -200,26 +186,18 @@ const unitCountCache = new Map<string, Promise<number>>()
  * consider a ranged read of the zip's models.json entry, or encoding the count
  * in the asset name / a small sidecar summary asset.
  */
-function readModelUnitCount(filename: string, downloadUrl: string): Promise<number> {
-  const cached = unitCountCache.get(filename)
-  if (cached) return cached
-
-  const pending = (async () => {
-    try {
-      const response = await fetch(downloadUrl)
-      if (!response.ok) return 0
-      const zip = await JSZip.loadAsync(await response.arrayBuffer())
-      const indexFile = zip.file('models.json')
-      if (!indexFile) return 0
-      const index = JSON.parse(await indexFile.async('string')) as { unitCount?: number }
-      return index.unitCount ?? 0
-    } catch {
-      return 0
-    }
-  })()
-
-  unitCountCache.set(filename, pending)
-  return pending
+async function readModelUnitCount(downloadUrl: string): Promise<number> {
+  try {
+    const response = await fetch(downloadUrl)
+    if (!response.ok) return 0
+    const zip = await JSZip.loadAsync(await response.arrayBuffer())
+    const indexFile = zip.file('models.json')
+    if (!indexFile) return 0
+    const index = JSON.parse(await indexFile.async('string')) as { unitCount?: number }
+    return index.unitCount ?? 0
+  } catch {
+    return 0
+  }
 }
 
 /**
@@ -252,9 +230,8 @@ async function main() {
 
   // Fetch model bundles from the separate faction-models release (may be empty).
   console.log('Fetching model bundle assets...')
-  const modelBundles = indexModelBundles(getModelReleaseAssets())
-  const modelBundleCount = [...modelBundles.values()].reduce((n, list) => n + list.length, 0)
-  console.log(`Found ${modelBundleCount} model bundle(s) across ${modelBundles.size} faction(s)`)
+  const modelBundleMap = indexModelBundles(getModelReleaseAssets())
+  console.log(`Found ${modelBundleMap.size} model bundle(s)`)
   console.log()
 
   // Step 1: Dedupe same-version timestamps (keep latest timestamp per faction+version)
@@ -328,26 +305,16 @@ async function main() {
         build: metadata?.build,
       }
 
-      // Exact-version bundle when one exists, else the faction's newest bundle —
-      // a model regen lags behind the daily faction-data refresh, and without the
-      // fallback the 3D viewer dies on every unit until someone dispatches the
-      // (heavy, manual) faction-models workflow. See model-bundles.ts.
-      const selection = selectModelBundle(modelBundles, factionId, zip.parsed!.version)
-      if (selection) {
-        const { bundle, exact } = selection
-        const unitCount = await readModelUnitCount(bundle.asset.name, bundle.asset.url)
+      // Only a bundle built from THIS version — see model-bundles.ts. A version
+      // with no bundle of its own reports "no models"; older versions keep theirs.
+      const bundle = selectModelBundle(modelBundleMap, factionId, zip.parsed!.version)
+      if (bundle) {
+        const unitCount = await readModelUnitCount(bundle.asset.url)
         entry.models = {
           filename: bundle.asset.name,
           downloadUrl: `/${MODELS_RELEASE_TAG}/${bundle.asset.name}`,
           size: bundle.asset.size,
           unitCount,
-          // Only on a fallback: the UI names the version the model came from.
-          ...(exact ? {} : { builtFromVersion: bundle.version }),
-        }
-        if (!exact) {
-          console.log(
-            `  ${factionId} v${zip.parsed!.version}: no model bundle, falling back to v${bundle.version}`
-          )
         }
       }
 

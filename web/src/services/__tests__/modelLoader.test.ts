@@ -9,7 +9,6 @@ import {
 } from '@zip.js/zip.js'
 import {
   getFactionModelsIndex,
-  getModelBundleSourceVersion,
   ModelIndexUnavailableError,
   loadUnitModel,
   clearModelCache,
@@ -367,34 +366,5 @@ describe('modelLoader — production mode', () => {
     expect(model!.maskUrl).toBeUndefined()
     expect(model!.materialUrl).toBeUndefined()
     model!.release()
-  })
-
-  // When no bundle was built for the viewed version, the manifest attaches the
-  // faction's newest one and marks it with `builtFromVersion`. The viewer names
-  // that version rather than passing the model off as this version's own.
-  describe('getModelBundleSourceVersion', () => {
-    it('reports the version a borrowed bundle was built from', async () => {
-      const entry = modelsEntry()
-      mockGetVersion.mockResolvedValue({
-        ...entry,
-        version: '0.8.1',
-        models: { ...entry.models, builtFromVersion: '0.7.4.6' },
-      })
-      global.fetch = vi.fn() as unknown as typeof fetch
-
-      expect(await getModelBundleSourceVersion('Exiles', '0.8.1')).toBe('0.7.4.6')
-      // Answered from the already-loaded manifest — no extra request.
-      expect(global.fetch).not.toHaveBeenCalled()
-    })
-
-    it('reports nothing when the bundle belongs to the viewed version', async () => {
-      mockGetEntry.mockResolvedValue(modelsEntry())
-      expect(await getModelBundleSourceVersion('MLA')).toBeNull()
-    })
-
-    it('reports nothing when the faction has no bundle or is unknown', async () => {
-      mockGetEntry.mockResolvedValue(null)
-      expect(await getModelBundleSourceVersion('Unknown')).toBeNull()
-    })
   })
 })
