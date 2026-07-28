@@ -15,16 +15,13 @@ import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import JSZip from 'jszip'
 import { byTimestampDesc } from './manifest-ordering'
+import { indexModelBundles, selectModelBundle } from './model-bundles'
 
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
 const RELEASE_TAG = 'faction-data'
 // Model bundles live on a separate release so they never slow the spec-zip flow.
 const MODELS_RELEASE_TAG = 'faction-models'
-
-// Model bundle filename: {factionId}-{version}-pedia{timestamp}-models.zip
-const MODEL_ZIP_FILENAME_PATTERN =
-  /^([a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*)-([0-9][0-9.-]*)-pedia(\d{14})-models\.zip$/i
 
 /**
  * Check if GitHub CLI is installed and available
@@ -204,27 +201,6 @@ async function readModelUnitCount(downloadUrl: string): Promise<number> {
 }
 
 /**
- * Build a map of `${factionId}@${version}` -> newest model bundle asset.
- * When several bundles exist for the same faction+version (rebuilds), the one
- * with the newest timestamp wins.
- */
-function buildModelBundleMap(assets: ReleaseAsset[]): Map<string, { asset: ReleaseAsset; timestamp: number }> {
-  const map = new Map<string, { asset: ReleaseAsset; timestamp: number }>()
-  for (const asset of assets) {
-    const match = asset.name.match(MODEL_ZIP_FILENAME_PATTERN)
-    if (!match) continue
-    const [, factionId, version, ts] = match
-    const key = `${factionId.toLowerCase()}@${version}`
-    const timestamp = parseInt(ts, 10)
-    const existing = map.get(key)
-    if (!existing || timestamp > existing.timestamp) {
-      map.set(key, { asset, timestamp })
-    }
-  }
-  return map
-}
-
-/**
  * Main entry point
  */
 async function main() {
@@ -254,7 +230,7 @@ async function main() {
 
   // Fetch model bundles from the separate faction-models release (may be empty).
   console.log('Fetching model bundle assets...')
-  const modelBundleMap = buildModelBundleMap(getModelReleaseAssets())
+  const modelBundleMap = indexModelBundles(getModelReleaseAssets())
   console.log(`Found ${modelBundleMap.size} model bundle(s)`)
   console.log()
 
@@ -329,7 +305,9 @@ async function main() {
         build: metadata?.build,
       }
 
-      const bundle = modelBundleMap.get(`${factionId.toLowerCase()}@${zip.parsed!.version}`)
+      // Only a bundle built from THIS version — see model-bundles.ts. A version
+      // with no bundle of its own reports "no models"; older versions keep theirs.
+      const bundle = selectModelBundle(modelBundleMap, factionId, zip.parsed!.version)
       if (bundle) {
         const unitCount = await readModelUnitCount(bundle.asset.url)
         entry.models = {

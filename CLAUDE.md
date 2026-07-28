@@ -457,6 +457,14 @@ Manual-dispatch only (`workflow_dispatch`) — a full run drives headless Blende
 5. Uploads bundles to the **`faction-models`** release (separate from `faction-data`)
 6. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
 
+**Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
+
+A version entry gets a `models` bundle only when one was built from **that exact version**. Model generation is manual while faction data refreshes daily, so expect drift: the moment a mod ships a new release, its newest entry has no bundle and the 3D button reports "no 3D model available" until someone dispatches the workflow. Exiles went 0.7.4.6 → 0.7.5 → 0.7.6 → 0.8 → 0.8.1 in the two weeks after its bundle was built, and shows no models on all of them.
+
+Serving a neighbouring version's bundle instead was considered and rejected — a model shown against a version it wasn't built from misrepresents what the unit currently looks like. **Regenerating is the fix for a stale faction**; the manifest never approximates.
+
+Older versions are unaffected: each entry is matched independently, so Exiles 0.7.4.6 keeps its bundle and its working viewer however far latest has moved on. This is also why `upload-model-bundles` never deletes old bundles.
+
 **Local generation** (needs a PA install + Blender 5.1.x on PATH):
 ```bash
 just generate-models        # extract-models for all profiles → ./models
