@@ -106,7 +106,7 @@ async function createFactionZip(
       resolve(zipFilename)
     })
 
-    archive.on('error', (err) => {
+    archive.on('error', (err: Error) => {
       reject(err)
     })
 
