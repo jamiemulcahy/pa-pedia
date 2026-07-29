@@ -18,7 +18,7 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import archiver from 'archiver'
+import { ZipArchive } from 'archiver'
 
 interface FactionMetadata {
   identifier: string
@@ -97,7 +97,7 @@ async function createModelZip(
 
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(zipPath)
-    const archive = archiver('zip', { zlib: { level: 9 } })
+    const archive = new ZipArchive({ zlib: { level: 9 } })
 
     output.on('close', () => {
       const sizeMB = (archive.pointer() / 1024 / 1024).toFixed(2)
