@@ -2,8 +2,10 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   indexModelBundles,
+  modelBundleSidecarName,
   parseModelBundleName,
   selectModelBundle,
+  selectModelBundleSidecar,
   type ModelBundleAsset,
 } from './model-bundles'
 
@@ -84,4 +86,45 @@ test('returns null for a faction with no bundles at all', () => {
   const bundles = indexModelBundles([asset('exiles-0.7.4.6-pedia20260712230210-models.zip')])
   assert.equal(selectModelBundle(bundles, 'replicate', '0.5'), null)
   assert.equal(selectModelBundle(new Map(), 'exiles', '0.7.4.6'), null)
+})
+
+// --- sidecar index -------------------------------------------------------
+// The sidecar exists so manifest generation doesn't download tens of MB per
+// bundle to read one integer. See modelBundleSidecarName in model-bundles.ts.
+
+test('derives the sidecar name from a bundle name', () => {
+  assert.equal(
+    modelBundleSidecarName('exiles-0.7.4.6-pedia20260712230210-models.zip'),
+    'exiles-0.7.4.6-pedia20260712230210-models.index.json'
+  )
+})
+
+test('sidecars are not mistaken for bundles', () => {
+  const assets = [
+    asset('exiles-0.7.4.6-pedia20260712230210-models.zip'),
+    asset('exiles-0.7.4.6-pedia20260712230210-models.index.json'),
+  ]
+  // Only the zip is a bundle; indexing the sidecar too would double-count and
+  // could win the newest-stamp race with a non-downloadable asset.
+  assert.equal(indexModelBundles(assets).size, 1)
+  assert.equal(parseModelBundleName('exiles-0.7.4.6-pedia20260712230210-models.index.json'), null)
+})
+
+test('finds a bundle sidecar among release assets', () => {
+  const assets = [
+    asset('mla-124664-pedia20260712084632-models.zip'),
+    asset('exiles-0.7.4.6-pedia20260712230210-models.zip'),
+    asset('exiles-0.7.4.6-pedia20260712230210-models.index.json'),
+  ]
+  assert.equal(
+    selectModelBundleSidecar(assets, 'exiles-0.7.4.6-pedia20260712230210-models.zip')?.name,
+    'exiles-0.7.4.6-pedia20260712230210-models.index.json'
+  )
+})
+
+// Bundles published before sidecars existed have none. That must read as "fall
+// back to opening the bundle", never as "this bundle has no units".
+test('reports no sidecar for bundles predating them', () => {
+  const assets = [asset('mla-124632-pedia20260711230523-models.zip')]
+  assert.equal(selectModelBundleSidecar(assets, 'mla-124632-pedia20260711230523-models.zip'), null)
 })
