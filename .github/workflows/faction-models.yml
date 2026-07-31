@@ -4,8 +4,16 @@ name: Faction Models
 # Blender and publishes them to the `faction-models` release, then regenerates
 # the manifest so the web app shows the "View 3D Model" button.
 #
-# Manual-dispatch only: a full run drives Blender over ~600 units and is heavy,
-# and models change rarely — so this is not on a daily cron (unlike faction data).
+# Runs automatically after `Faction Data Release`, regenerating ONLY the
+# factions whose data changed in the commit that release was built from. That
+# keeps the common case cheap: a single faction is ~1 minute of Blender on top
+# of ~1.5 minutes of fixed setup, against ~10 minutes for all six.
+#
+# Chained via `workflow_run` rather than a second `push` trigger on purpose:
+# both workflows finish by regenerating and uploading manifest.json, so running
+# them concurrently on the same push risks the data release overwriting the
+# manifest that records the bundle this run just published. Chaining makes this
+# run last, after the release completes.
 #
 # REQUIREMENTS:
 #   - The `pa-base-data` release archive must include unit .papa files. Re-run
@@ -14,6 +22,10 @@ name: Faction Models
 #   - PA_BASE_DATA_KEY secret (same as update-factions).
 
 on:
+  workflow_run:
+    workflows: ["Faction Data Release"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       profiles:
@@ -37,11 +49,88 @@ env:
   BLENDER_VERSION: '5.1.2'
 
 jobs:
-  generate-models:
+  # Decide which profiles need regenerating before spinning up the heavy job.
+  # A push that touched no faction folder produces an empty list and the
+  # generate job is skipped entirely.
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 5
+    # A failed data release may have published nothing, or half its zips.
+    # Regenerating models against that is pointless — wait for a good one.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    outputs:
+      profiles: ${{ steps.resolve.outputs.profiles }}
+      sha: ${{ steps.resolve.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Build models from the exact commit the data release published, so a
+          # bundle's version always matches the faction metadata it was built
+          # from. `github.ref` (default branch tip) may already have moved on.
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
+          # Need the parent commit to diff against.
+          fetch-depth: 2
+
+      - name: Resolve profiles to regenerate
+        id: resolve
+        # Dispatch inputs reach the script through env, never through `${{ }}`
+        # interpolation: expressions are pasted into the shell source before it
+        # runs, so an input containing shell metacharacters would execute.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PROFILES: ${{ github.event.inputs.profiles }}
+        run: |
+          set -euo pipefail
+          ALL="mla legion exiles bugs second-wave replicate"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            INPUT="$INPUT_PROFILES"
+            if [ -z "$INPUT" ]; then
+              PROFILES="$ALL"
+              echo "Manual dispatch, no filter — regenerating all profiles"
+            else
+              PROFILES=$(echo "$INPUT" | tr ',' ' ')
+              echo "Manual dispatch — regenerating: $PROFILES"
+            fi
+          else
+            # Faction folders touched by the commit the release was built from.
+            # Diffing against the first parent handles both squash merges (what
+            # update-factions produces) and real merge commits.
+            CHANGED=$(git diff --name-only HEAD^ HEAD -- factions/ 2>/dev/null \
+              | cut -d/ -f2 | sort -u || true)
+            echo "Changed faction folders: ${CHANGED:-none}"
+
+            # Map folder -> profile id via metadata.json. The identifier IS the
+            # profile id (mla, second-wave, ...), so this never guesses at
+            # casing or dashes. factions/dist has no metadata.json and drops out.
+            PROFILES=""
+            for DIR in $CHANGED; do
+              META="factions/$DIR/metadata.json"
+              [ -f "$META" ] || continue
+              PROFILES="$PROFILES $(jq -r '.identifier' "$META")"
+            done
+            PROFILES=$(echo "$PROFILES" | xargs -n1 2>/dev/null | sort -u | xargs || true)
+          fi
+
+          if [ -z "$PROFILES" ]; then
+            echo "::notice::No faction data changed — skipping model generation"
+          else
+            echo "::notice::Regenerating models for: $PROFILES"
+          fi
+          echo "profiles=$PROFILES" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  generate-models:
+    needs: plan
+    if: needs.plan.outputs.profiles != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
 
       # --- PA base data (now includes unit .papa) ---------------------------
       - name: Download base data
@@ -109,45 +198,58 @@ jobs:
         run: npm ci
 
       # --- Headless Blender (pinned; addon validated on 5.1.x) --------------
+      # Download + extract is ~45s of the job's ~1.5 min fixed overhead, and the
+      # tarball never changes for a pinned version — so cache the extracted tree.
+      - name: Restore cached Blender
+        id: blender-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/blender
+          key: blender-${{ env.BLENDER_VERSION }}-linux-x64
+
       - name: Install Blender ${{ env.BLENDER_VERSION }}
         run: |
           set -euo pipefail
-          # Runtime libs Blender needs to start even in --background.
+          # Runtime libs Blender needs to start even in --background. Always
+          # installed: apt state is not part of the cached path.
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libgl1 libegl1 libxi6 libxrender1 libxxf86vm1 libxfixes3 libsm6 \
             libxkbcommon0 libxrandr2 libxinerama1 libxcursor1 xz-utils
-          MAJOR_MINOR=$(echo "${BLENDER_VERSION}" | cut -d. -f1,2)
-          URL="https://download.blender.org/release/Blender${MAJOR_MINOR}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
-          echo "Downloading $URL"
-          curl -fsSL "$URL" -o /tmp/blender.tar.xz
-          mkdir -p /tmp/blender
-          tar -xJf /tmp/blender.tar.xz -C /tmp/blender --strip-components=1
+          if [ -x /tmp/blender/blender ]; then
+            echo "Using cached Blender"
+          else
+            MAJOR_MINOR=$(echo "${BLENDER_VERSION}" | cut -d. -f1,2)
+            URL="https://download.blender.org/release/Blender${MAJOR_MINOR}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
+            echo "Downloading $URL"
+            curl -fsSL "$URL" -o /tmp/blender.tar.xz
+            mkdir -p /tmp/blender
+            tar -xJf /tmp/blender.tar.xz -C /tmp/blender --strip-components=1
+          fi
           echo "BLENDER_BIN=/tmp/blender/blender" >> "$GITHUB_ENV"
+          # Verifies the binary runs — a truncated or partial cache fails here
+          # rather than midway through conversion.
           /tmp/blender/blender --version
 
       # --- Generate models --------------------------------------------------
-      - name: Determine profiles
-        id: profiles
-        run: |
-          INPUT="${{ github.event.inputs.profiles }}"
-          if [ -z "$INPUT" ]; then
-            echo "profiles=mla legion exiles bugs second-wave replicate" >> "$GITHUB_OUTPUT"
-          else
-            echo "profiles=$(echo "$INPUT" | tr ',' ' ')" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Extract models
+        # Both values originate in dispatch inputs, so they arrive via env
+        # rather than `${{ }}` interpolation into the shell source. Word
+        # splitting `$PROFILES` into loop values is intended and safe: split
+        # words are data, not re-parsed shell.
+        env:
+          PROFILES: ${{ needs.plan.outputs.profiles }}
+          TEXTURE_SIZE: ${{ github.event.inputs.texture_size || '512' }}
         run: |
           set -euo pipefail
-          for profile in ${{ steps.profiles.outputs.profiles }}; do
+          for profile in $PROFILES; do
             echo "==================== $profile ===================="
             /tmp/pa-pedia extract-models \
               --profile "$profile" \
               --pa-root /tmp/pa-media \
               --output ./models \
               --blender "$BLENDER_BIN" \
-              --texture-size "${{ github.event.inputs.texture_size || '512' }}"
+              --texture-size "$TEXTURE_SIZE"
           done
 
       - name: Build model bundles
