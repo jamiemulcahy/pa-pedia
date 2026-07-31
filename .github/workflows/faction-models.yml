@@ -75,12 +75,18 @@ jobs:
 
       - name: Resolve profiles to regenerate
         id: resolve
+        # Dispatch inputs reach the script through env, never through `${{ }}`
+        # interpolation: expressions are pasted into the shell source before it
+        # runs, so an input containing shell metacharacters would execute.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PROFILES: ${{ github.event.inputs.profiles }}
         run: |
           set -euo pipefail
           ALL="mla legion exiles bugs second-wave replicate"
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            INPUT="${{ github.event.inputs.profiles }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            INPUT="$INPUT_PROFILES"
             if [ -z "$INPUT" ]; then
               PROFILES="$ALL"
               echo "Manual dispatch, no filter — regenerating all profiles"
@@ -227,16 +233,23 @@ jobs:
 
       # --- Generate models --------------------------------------------------
       - name: Extract models
+        # Both values originate in dispatch inputs, so they arrive via env
+        # rather than `${{ }}` interpolation into the shell source. Word
+        # splitting `$PROFILES` into loop values is intended and safe: split
+        # words are data, not re-parsed shell.
+        env:
+          PROFILES: ${{ needs.plan.outputs.profiles }}
+          TEXTURE_SIZE: ${{ github.event.inputs.texture_size || '512' }}
         run: |
           set -euo pipefail
-          for profile in ${{ needs.plan.outputs.profiles }}; do
+          for profile in $PROFILES; do
             echo "==================== $profile ===================="
             /tmp/pa-pedia extract-models \
               --profile "$profile" \
               --pa-root /tmp/pa-media \
               --output ./models \
               --blender "$BLENDER_BIN" \
-              --texture-size "${{ github.event.inputs.texture_size || '512' }}"
+              --texture-size "$TEXTURE_SIZE"
           done
 
       - name: Build model bundles
