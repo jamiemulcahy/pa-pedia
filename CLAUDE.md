@@ -447,21 +447,28 @@ The base data is stored as an encrypted release asset on the `pa-base-data` tag.
 
 **GitHub Actions Workflow** (`.github/workflows/faction-models.yml`):
 
-Manual-dispatch only (`workflow_dispatch`) — a full run drives headless Blender over ~600 units and is heavy, and models change rarely (so it is not a daily cron).
+Runs **automatically** after `Faction Data Release` (via `workflow_run`), regenerating only the factions whose data changed in that commit. Also dispatchable manually (`workflow_dispatch`, optional profile filter; empty = all).
+
+**Why chained rather than a second `push` trigger**: both workflows finish by regenerating and uploading `manifest.json`. Running them concurrently on the same push risks the data release overwriting the manifest that records the bundle this run just published. Chaining makes model generation run last.
+
+**Cost** (measured): ~1 second per unit, plus ~1.5 minutes of fixed setup. A single faction is ~3 minutes; all six is ~12. Actions minutes are free and unmetered on this public repo, so the scoping is about wall-clock and release-asset churn, not billing.
 
 **How it works**:
-1. Downloads + decrypts the `pa-base-data` archive (must include unit `.papa` — see note above)
-2. Installs pinned headless Blender (`BLENDER_VERSION`, 5.1.x validated)
-3. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
-4. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`
-5. Uploads bundles to the **`faction-models`** release (separate from `faction-data`)
-6. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
+1. `plan` job resolves which profiles to regenerate — faction folders touched by the release commit, mapped to profile IDs via each folder's `metadata.json` `identifier`. No faction change ⇒ empty list ⇒ the heavy job is skipped.
+2. Downloads + decrypts the `pa-base-data` archive (must include unit `.papa` — see note above)
+3. Installs pinned headless Blender (`BLENDER_VERSION`, 5.1.x validated), restored from `actions/cache` when available
+4. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
+5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a small `-models.index.json` sidecar
+6. Uploads bundles + sidecars to the **`faction-models`** release (separate from `faction-data`)
+7. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
 
 **Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
 
-A version entry gets a `models` bundle only when one was built from **that exact version**. Model generation is manual while faction data refreshes daily, so expect drift: the moment a mod ships a new release, its newest entry has no bundle and the 3D button reports "no 3D model available" until someone dispatches the workflow. Exiles went 0.7.4.6 → 0.7.5 → 0.7.6 → 0.8 → 0.8.1 in the two weeks after its bundle was built, and shows no models on all of them.
+A version entry gets a `models` bundle only when one was built from **that exact version**, and the manifest never approximates — serving a neighbouring version's bundle would misrepresent what a unit currently looks like.
 
-Serving a neighbouring version's bundle instead was considered and rejected — a model shown against a version it wasn't built from misrepresents what the unit currently looks like. **Regenerating is the fix for a stale faction**; the manifest never approximates.
+Automatic regeneration is what makes that strictness affordable: every faction update rebuilds that faction's bundle, so a new version arrives with its own models within a few minutes rather than waiting for someone to dispatch the workflow. It also closes a subtler hole — upstream mods sometimes ship changed data *without* bumping their version (see `update-factions.yml`), and matching on version alone would have handed the new data an older bundle with no signal. Always rebuilding means a bundle can never be inherited by data it wasn't built from.
+
+Drift is now bounded by how quickly the workflow runs, not by how often someone remembers to. A version can still legitimately show no models: if its generation run failed, that version has no bundle until the next update or a manual dispatch.
 
 Older versions are unaffected: each entry is matched independently, so Exiles 0.7.4.6 keeps its bundle and its working viewer however far latest has moved on. This is also why `upload-model-bundles` never deletes old bundles.
 

@@ -2,22 +2,24 @@
  * Correlating 3D model bundles with faction-data versions.
  *
  * A version entry gets a model bundle only when one was BUILT FROM THAT EXACT
- * VERSION. This is deliberate, and it is why a faction can currently show "no
- * 3D model" on its newest release:
+ * VERSION. Serving a neighbouring version's bundle instead was considered and
+ * rejected: a model shown against a version it was not built from is a quiet
+ * lie about what the unit currently looks like. Saying "no models yet" is
+ * honest, and the fix for a stale faction is to regenerate, not to approximate.
  *
- * Model bundles are produced by the `faction-models` workflow, which is
- * manual-dispatch only (a full run drives headless Blender over ~600 units).
- * Faction data is refreshed by a DAILY workflow that snapshots whatever
- * upstream has released. So the moment a mod ships a new version, its newest
- * entry has no bundle and the "View 3D Model" button correctly reports that
- * there are no models for it — until someone regenerates. Exiles went
- * 0.7.4.6 -> 0.7.5 -> 0.7.6 -> 0.8 -> 0.8.1 in the two weeks after its bundle
- * was built, which is exactly this.
+ * The `faction-models` workflow regenerates a faction automatically whenever
+ * its data changes (chained off `Faction Data Release`), which is what makes
+ * that strictness affordable — a new version arrives with its own bundle in
+ * minutes. It previously ran only on manual dispatch, so a mod that shipped a
+ * new release showed "no 3D model available" until someone remembered: Exiles
+ * went 0.7.4.6 -> 0.7.5 -> 0.7.6 -> 0.8 -> 0.8.1 in the two weeks after its
+ * bundle was built, with no models on any of them.
  *
- * Serving a neighbouring version's bundle instead was considered and rejected:
- * a model shown against a version it was not built from is a quiet lie about
- * what the unit currently looks like. Saying "no models yet" is honest, and the
- * fix for a stale faction is to regenerate, not to approximate.
+ * Exact-version matching also guards a case that automation alone does not:
+ * upstream mods sometimes ship changed data WITHOUT bumping their version. It
+ * is only safe to keep matching on version because every update rebuilds the
+ * bundle, so the newest bundle for a version was always built from the newest
+ * data for it.
  *
  * What this DOES guarantee is that older versions keep their own models: each
  * version entry is matched independently, so Exiles 0.7.4.6 keeps its bundle
