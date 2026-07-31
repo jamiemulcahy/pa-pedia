@@ -100,10 +100,20 @@ faction folders from the push diff, and pass only those profiles to
 - **Typical run**: 1–2 factions ⇒ 2 min fixed + 1–2 min Blender = **3–5 min**.
 - **Worst case** (the 2026-07-30 burst, 5 factions): ~11 min, or several
   serialised runs under the existing `concurrency: faction-models` group.
-- **Gets you**: models that track faction updates automatically, today.
+- **Gets you**: models that track faction updates automatically, today. It also
+  **subsumes the §3 staleness bug**: if every faction update rebuilds that
+  faction's bundle from scratch, a bundle can never be inherited by data it
+  wasn't built from. Correctness stops depending on Option B.
 - **Doesn't get you**: any reduction in wasted work when models didn't change
   (which is most of the time), and it makes the manifest/asset-growth problems
   in §2 worse, roughly 2×/week instead of ad hoc.
+- **Must fix as part of this**: manifest write races. `faction-data` and
+  `faction-models` both end by regenerating and uploading `manifest.json`, and
+  they sit in *different* `concurrency` groups. Today they rarely overlap;
+  triggering both from the same push makes overlap the norm, and the loser's
+  freshly-uploaded bundle would go unrecorded until the next regen. Fix by
+  chaining — `workflow_run` on `Faction Data Release` completing — rather than
+  a second `push` trigger, so the manifest is regenerated once, last.
 
 ### Option D — Cut the fixed and wall-clock cost (independent of A/B/C)
 
@@ -172,10 +182,13 @@ a guess.
   - *Sidecar/bundle divergence*, if an upload half-fails. Mitigation: upload the
     sidecar only after the bundle upload succeeds; treat a bundle with no
     sidecar as "no bundle" for aliasing (it still works for exact-version match).
-  - *Client re-downloads.* `modelLoader` caches keyed by `factionId@version`, so
-    an aliased bundle is still re-downloaded under a new key. Re-keying that
-    cache on the bundle filename is a small, separate win worth folding in —
-    otherwise users re-fetch 86 MB of unchanged MLA models on every build bump.
+  - *Client re-fetches.* `modelLoader` caches keyed by `factionId@version`, so
+    an aliased bundle is re-read under a new key. This is minor: the viewer
+    pulls single units out of the zip with HTTP range requests (~30–120 KB
+    each), so a version bump costs a re-fetch only of the units a visitor
+    actually opens. It matters only on the whole-bundle fallback path (CDN not
+    honouring ranges), where it would mean re-downloading the full bundle.
+    Re-keying that cache on the bundle filename would remove even that.
 
 ### Option C — Incremental per-unit rebuild
 
@@ -212,9 +225,12 @@ Phase it, and don't build the expensive thing first.
    a ranged read of the zip's `models.json`) instead of downloading every
    bundle. This is a standing cost on the *daily* faction-data workflow today,
    and it's a prerequisite for aliasing.
-3. **Then — Option B.** Worth doing for the §3 staleness bug alone; the saved
-   work is a bonus. It makes the "just reuse the old artefacts" instinct
-   rigorous instead of approximate.
+3. **Optional — Option B.** Note that once step 1 is in place, this is *purely*
+   an efficiency play: always-rebuild already guarantees a bundle matches its
+   data, so the §3 bug is gone. What B adds is not re-doing ~10 minutes of
+   Blender and ~190 MB of uploads when nothing about the models changed. Worth
+   it if the release growth (~2 full sets/week, never pruned) starts to bite;
+   not worth it for correctness, because step 1 already bought that.
 4. **Probably never — Option C**, unless the corpus grows a lot.
 
 The one thing worth deciding early: whether Actions minutes are genuinely a
