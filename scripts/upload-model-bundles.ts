@@ -23,7 +23,14 @@ const RELEASE_TAG = 'faction-models'
 
 interface ModelBuildSummary {
   timestamp: string
-  bundles: { factionId: string; filename: string; version: string; unitCount: number }[]
+  bundles: {
+    factionId: string
+    filename: string
+    /** Sidecar index name; absent in summaries written before sidecars existed. */
+    sidecar?: string
+    version: string
+    unitCount: number
+  }[]
 }
 
 function checkGhCli(): void {
@@ -67,16 +74,16 @@ function ensureReleaseExists(): void {
   )
 }
 
-function uploadZip(filename: string): void {
-  const zipPath = path.join(OUTPUT_DIR, filename)
-  if (!fs.existsSync(zipPath)) {
-    throw new Error(`Model bundle not found: ${zipPath}`)
+function uploadAsset(filename: string): void {
+  const assetPath = path.join(OUTPUT_DIR, filename)
+  if (!fs.existsSync(assetPath)) {
+    throw new Error(`Model bundle asset not found: ${assetPath}`)
   }
   console.log(`Uploading ${filename}...`)
   // Use raw execSync (not the error-swallowing exec wrapper): a failed upload
   // MUST fail the step, otherwise the manifest regen finds no bundle and the 3D
   // button silently never appears.
-  execSync(`gh release upload ${RELEASE_TAG} "${zipPath}" --clobber`, { stdio: 'inherit' })
+  execSync(`gh release upload ${RELEASE_TAG} "${assetPath}" --clobber`, { stdio: 'inherit' })
 }
 
 async function main() {
@@ -108,7 +115,14 @@ async function main() {
     // viewer in that window. `indexModelBundles` (model-bundles.ts) always
     // picks the newest stamp per faction+version, so keeping older rebuilds is
     // harmless — and preserves model history alongside the spec-zip history.
-    uploadZip(bundle.filename)
+    uploadAsset(bundle.filename)
+    // Sidecar AFTER the bundle: a sidecar with no bundle behind it would make
+    // the manifest generator report a unit count for something it cannot serve.
+    // The reverse (bundle, no sidecar) degrades safely — the generator falls
+    // back to reading models.json out of the bundle, as it did before sidecars.
+    if (bundle.sidecar) {
+      uploadAsset(bundle.sidecar)
+    }
     console.log()
   }
 

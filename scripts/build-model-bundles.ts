@@ -19,6 +19,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { ZipArchive } from 'archiver'
+import { modelBundleSidecarName, type ModelBundleSidecar } from './model-bundles'
 
 interface FactionMetadata {
   identifier: string
@@ -112,6 +113,28 @@ async function createModelZip(
   })
 }
 
+/**
+ * Write the sidecar index next to a bundle: the facts the manifest generator
+ * needs (unit count) without downloading tens of MB. See `model-bundles.ts`.
+ */
+function createSidecar(
+  zipFilename: string,
+  metadata: FactionMetadata,
+  timestamp: string,
+  unitCount: number
+): string {
+  const sidecarName = modelBundleSidecarName(zipFilename)
+  const sidecar: ModelBundleSidecar = {
+    factionId: metadata.identifier,
+    version: metadata.version,
+    timestamp: parseInt(timestamp, 10),
+    unitCount,
+  }
+  fs.writeFileSync(path.join(OUTPUT_DIR, sidecarName), JSON.stringify(sidecar, null, 2))
+  console.log(`  Created ${sidecarName}`)
+  return sidecarName
+}
+
 async function main() {
   console.log('Building faction model bundles...')
   console.log(`Source: ${MODELS_DIR}`)
@@ -133,7 +156,13 @@ async function main() {
   console.log(`Build timestamp: ${timestamp}`)
   console.log()
 
-  const results: { factionId: string; filename: string; version: string; unitCount: number }[] = []
+  const results: {
+    factionId: string
+    filename: string
+    sidecar: string
+    version: string
+    unitCount: number
+  }[] = []
 
   for (const folderName of folders) {
     console.log(`Processing ${folderName}...`)
@@ -141,7 +170,14 @@ async function main() {
       const metadata = readFactionMetadata(folderName)
       const unitCount = readUnitCount(folderName)
       const filename = await createModelZip(folderName, metadata, timestamp)
-      results.push({ factionId: metadata.identifier, filename, version: metadata.version, unitCount })
+      const sidecar = createSidecar(filename, metadata, timestamp, unitCount)
+      results.push({
+        factionId: metadata.identifier,
+        filename,
+        sidecar,
+        version: metadata.version,
+        unitCount,
+      })
     } catch (error) {
       console.error(`  Error: ${error}`)
       process.exit(1)

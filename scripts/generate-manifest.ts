@@ -15,7 +15,12 @@ import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import JSZip from 'jszip'
 import { byTimestampDesc } from './manifest-ordering'
-import { indexModelBundles, selectModelBundle } from './model-bundles'
+import {
+  indexModelBundles,
+  selectModelBundle,
+  selectModelBundleSidecar,
+  type ModelBundleAsset,
+} from './model-bundles'
 
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
 const OUTPUT_DIR = path.join(FACTIONS_DIR, 'dist')
@@ -179,16 +184,37 @@ function getModelReleaseAssets(): ReleaseAsset[] {
 }
 
 /**
- * Read unitCount from a model bundle's models.json.
+ * Read unitCount for a model bundle.
  *
- * NOTE (follow-up): this downloads the whole bundle (glb + textures, many MB)
- * just to read one integer. Fine at current scale, but for large backfills
- * consider a ranged read of the zip's models.json entry, or encoding the count
- * in the asset name / a small sidecar summary asset.
+ * Prefers the bundle's sidecar index asset (~100 bytes). Bundles published
+ * before sidecars existed have none, so we fall back to downloading the whole
+ * bundle (tens of MB) to read `models.json` — correct, just expensive, and it
+ * self-heals as those versions age out or get regenerated.
+ *
+ * This runs per version entry that has a bundle, on every manifest
+ * regeneration, i.e. on every faction-data push. Keep it cheap.
  */
-async function readModelUnitCount(downloadUrl: string): Promise<number> {
+async function readModelUnitCount(
+  bundle: ModelBundleAsset,
+  modelAssets: ModelBundleAsset[]
+): Promise<number> {
+  const sidecar = selectModelBundleSidecar(modelAssets, bundle.name)
+  if (sidecar) {
+    try {
+      const response = await fetch(sidecar.url)
+      if (response.ok) {
+        const parsed = (await response.json()) as { unitCount?: number }
+        if (typeof parsed.unitCount === 'number') return parsed.unitCount
+      }
+      console.warn(`  Sidecar unreadable for ${bundle.name}, falling back to bundle download`)
+    } catch (error) {
+      console.warn(`  Sidecar fetch failed for ${bundle.name} (${error}), falling back`)
+    }
+  }
+
   try {
-    const response = await fetch(downloadUrl)
+    console.log(`  Downloading ${bundle.name} to read its unit count (no sidecar)...`)
+    const response = await fetch(bundle.url)
     if (!response.ok) return 0
     const zip = await JSZip.loadAsync(await response.arrayBuffer())
     const indexFile = zip.file('models.json')
@@ -230,7 +256,8 @@ async function main() {
 
   // Fetch model bundles from the separate faction-models release (may be empty).
   console.log('Fetching model bundle assets...')
-  const modelBundleMap = indexModelBundles(getModelReleaseAssets())
+  const modelAssets = getModelReleaseAssets()
+  const modelBundleMap = indexModelBundles(modelAssets)
   console.log(`Found ${modelBundleMap.size} model bundle(s)`)
   console.log()
 
@@ -309,7 +336,7 @@ async function main() {
       // with no bundle of its own reports "no models"; older versions keep theirs.
       const bundle = selectModelBundle(modelBundleMap, factionId, zip.parsed!.version)
       if (bundle) {
-        const unitCount = await readModelUnitCount(bundle.asset.url)
+        const unitCount = await readModelUnitCount(bundle.asset, modelAssets)
         entry.models = {
           filename: bundle.asset.name,
           downloadUrl: `/${MODELS_RELEASE_TAG}/${bundle.asset.name}`,

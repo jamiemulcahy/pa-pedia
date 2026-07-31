@@ -32,6 +32,17 @@ export interface ModelBundleAsset {
   url: string
 }
 
+/**
+ * Contents of a bundle's sidecar index asset — the few facts the manifest
+ * generator needs about a bundle without opening it.
+ */
+export interface ModelBundleSidecar {
+  factionId: string
+  version: string
+  timestamp: number
+  unitCount: number
+}
+
 /** A model bundle asset whose filename parsed successfully. */
 export interface ParsedModelBundle {
   factionId: string
@@ -89,4 +100,36 @@ export function selectModelBundle(
   version: string
 ): ParsedModelBundle | null {
   return byVersion.get(`${factionId.toLowerCase()}@${version}`) ?? null
+}
+
+/**
+ * Name of the sidecar index asset published next to a bundle.
+ *
+ * The sidecar exists so the manifest generator can read a bundle's `unitCount`
+ * with a ~100-byte fetch instead of downloading the whole bundle (tens of MB)
+ * to read one integer out of its `models.json`. That download runs for every
+ * version entry that has a bundle, on every manifest regeneration — i.e. on
+ * every faction-data push — so it grows with the bundle history.
+ *
+ * `-models.zip` -> `-models.index.json`, which cannot collide with a bundle
+ * name (the bundle pattern requires a `.zip` suffix, so sidecars are ignored by
+ * `indexModelBundles`).
+ */
+export function modelBundleSidecarName(bundleName: string): string {
+  return bundleName.replace(/\.zip$/, '.index.json')
+}
+
+/**
+ * Locate a bundle's sidecar among the release assets.
+ *
+ * Returns `null` for bundles published before sidecars existed; callers must
+ * fall back to reading `models.json` out of the bundle itself rather than
+ * treating a missing sidecar as "no units".
+ */
+export function selectModelBundleSidecar(
+  assets: ModelBundleAsset[],
+  bundleName: string
+): ModelBundleAsset | null {
+  const wanted = modelBundleSidecarName(bundleName)
+  return assets.find((a) => a.name === wanted) ?? null
 }
