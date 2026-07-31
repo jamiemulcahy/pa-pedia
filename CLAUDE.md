@@ -460,7 +460,10 @@ Runs **automatically** after `Faction Data Release` (via `workflow_run`), regene
 4. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
 5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a small `-models.index.json` sidecar
 6. Uploads bundles + sidecars to the **`faction-models`** release (separate from `faction-data`)
-7. Regenerates the manifest so version entries gain their `models` field → the web app shows the "View 3D Model" button
+7. Regenerates the manifest so version entries gain their `models` field
+8. Completing triggers **Deploy to Cloudflare Pages**, which is what actually makes the button appear → see below
+
+**Why a deploy is required**: the deploy bakes `manifest.json` into `web/dist/factions/` and the site reads that static copy, *not* the release. Model generation finishes after the data-release deploy has already baked the older manifest, so `deploy.yml` lists **both** `Faction Data Release` and `Faction Models` in its `workflow_run` trigger. Drop the second one and bundles will exist on the release but stay invisible until an unrelated push redeploys.
 
 **Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
 
