@@ -7,9 +7,17 @@ on:
       - 'web/**'
       - 'schema/**'
       - 'functions/**'
-  # Also deploy when faction data is updated by the faction workflow
+  # Also deploy when faction data or model bundles are updated.
+  #
+  # BOTH are required because the build BAKES manifest.json into web/dist
+  # (see "Download faction data from release" below) — the site reads that
+  # static copy, not the release. Faction Models runs after Faction Data
+  # Release and republishes the manifest with the new `models` entries, which
+  # lands AFTER the data-release deploy has already baked the old one. Without
+  # a deploy on Faction Models too, a freshly generated bundle exists on the
+  # release but stays invisible until some unrelated push redeploys.
   workflow_run:
-    workflows: ["Faction Data Release"]
+    workflows: ["Faction Data Release", "Faction Models"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
