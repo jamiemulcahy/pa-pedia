@@ -184,9 +184,14 @@ export function Privacy() {
 
           <Section title="Changes to this page">
             <p>
-              If we ever add something that collects more than the above, this
-              page will be updated before that change goes live. The full history
-              of this page is public in the project&apos;s git repository.
+              We may change how the site works, and this notice along with it, at
+              any time and without telling you in advance. This page describes
+              the site as it is today, not as it will always be — if it matters
+              to you, it is worth re-reading.
+            </p>
+            <p>
+              The date at the top shows when this notice last changed, and its
+              full history is public in the project&apos;s git repository.
             </p>
           </Section>
 
