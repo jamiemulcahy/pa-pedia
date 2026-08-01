@@ -1,12 +1,34 @@
 @import "tailwindcss";
 
+/*
+ * Fonts are self-hosted via Fontsource rather than fetched from
+ * fonts.googleapis.com. Hotlinking Google Fonts transmits every visitor's IP
+ * address to Google before they interact with the page, which has no legal
+ * basis under GDPR for an EU visitor (LG München I, 3 O 17493/20). Serving the
+ * files from our own origin removes the transfer entirely, and also drops two
+ * preconnects plus a render-blocking stylesheet from the critical path.
+ *
+ * Each face declares a unicode-range, so the browser downloads only the
+ * subsets it actually needs to paint — the non-latin files ship in the build
+ * but are never requested by an English page.
+ */
+@import "@fontsource-variable/orbitron";
+@import "@fontsource/rajdhani/latin.css";
+@import "@fontsource/rajdhani/latin-ext.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Fonts */
-  --font-display: "Orbitron", sans-serif;
+  /*
+   * Fonts. The "Variable" suffix is part of the family name Fontsource
+   * registers for its variable packages — dropping it silently falls through
+   * to the generic fallback. Rajdhani has no variable build, so it keeps the
+   * plain family name and ships static weights (300-700).
+   */
+  --font-display: "Orbitron Variable", sans-serif;
   --font-sans: "Rajdhani", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-mono: "JetBrains Mono Variable", monospace;
 
   /* MLA theme colors (blue/cyan) */
   --color-mla-50: #eff6ff;

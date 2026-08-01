@@ -257,6 +257,18 @@ Tailwind CSS v3 with custom theme:
 - **Dark mode**: CSS variables configured (`:root` and `.dark` selectors)
 - **Responsive**: Mobile-first breakpoints (sm, md, lg, xl)
 
+**Fonts** are self-hosted via Fontsource, imported at the top of `web/src/index.css`.
+Do **not** re-add a `fonts.googleapis.com` link. Hotlinking transmits every visitor's IP
+to Google before they interact with the page, with no legal basis under GDPR (LG München I,
+3 O 17493/20), and it is also slower: two extra TLS handshakes plus a serial round trip
+(stylesheet must load before the font URLs are even discovered). Browser HTTP caches have
+been partitioned per top-level site since 2020, so the old "already cached from another
+site" argument no longer applies.
+
+Fontsource's variable packages register the family as `"Orbitron Variable"` and
+`"JetBrains Mono Variable"` — the `@theme` stack must use those exact names or it silently
+falls back. Rajdhani has no variable build and keeps its plain family name.
+
 ### Type Safety
 
 TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
