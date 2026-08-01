@@ -78,98 +78,94 @@ export function Privacy() {
           <div className="border border-border rounded-lg p-5 mb-10 bg-card">
             <p className="text-foreground leading-relaxed">
               PA-Pedia is a free, open-source reference site for Planetary
-              Annihilation: Titans. There are no accounts, no cookies, no
-              advertising, and no tracking across other websites. You can browse
-              the whole site without giving us anything.
+              Annihilation: Titans. It does not use cookies, does not require an
+              account, and carries no advertising or cross-site tracking.
             </p>
           </div>
 
-          <Section title="What is stored in your browser">
+          <Section title="Data stored on your device">
             <p>
-              The site keeps some data on your own device so it loads quickly and
-              remembers how you like it. This stays in your browser — it is not
-              uploaded to us and we cannot read it.
+              The site stores data locally in your browser in order to function.
+              This data remains on your device: it is not transmitted to us, and
+              we have no means of accessing it.
             </p>
             <ul className="list-disc pl-5 space-y-2">
               <li>
                 <StorageKey>pa-pedia-preferences</StorageKey> and{' '}
                 <StorageKey>pa-pedia-team-colors</StorageKey> — display settings
-                you have chosen, such as list or table view, sort order, filters
-                and unit colours.
+                you have selected, such as list or table view, sort order, active
+                filters and unit colours.
               </li>
               <li>
                 <StorageKey>pa-pedia-static-factions</StorageKey> and{' '}
-                <StorageKey>pa-pedia-model-cache</StorageKey> — a cache of the
-                faction data and 3D models you have viewed, so revisiting a
-                faction does not download it again.
+                <StorageKey>pa-pedia-model-cache</StorageKey> — cached faction
+                data and 3D models you have already viewed, so that returning to
+                a faction does not require downloading it again.
               </li>
               <li>
-                <StorageKey>pa-pedia-local-factions</StorageKey> — any faction
-                folder you upload yourself. Uploaded factions never leave your
-                device; they are stored locally so they survive a page reload,
-                and they are visible only to you.
+                <StorageKey>pa-pedia-local-factions</StorageKey> — faction
+                folders you have uploaded yourself. These are held locally so
+                that they persist between visits; they are not uploaded to us and
+                are visible only to you.
               </li>
             </ul>
             <p>
-              You can delete all of it at any time by clearing site data for
-              pa-pedia.com in your browser settings. Nothing here identifies you,
-              and none of it is a cookie — no part of it is sent to us or to
-              anyone else when you make a request.
+              None of this is a cookie, and none of it is transmitted with your
+              requests. You may remove all of it at any time by clearing site data
+              for pa-pedia.com in your browser settings.
             </p>
           </Section>
 
           <Section title="Analytics">
             <p>
-              We use Cloudflare Web Analytics to see roughly how many people
-              visit and which pages are popular. It is cookieless by design: it
-              sets no cookies, stores nothing on your device, and does not
-              fingerprint your browser or build a profile of you. It cannot
-              follow you to other sites, and we only ever see aggregate counts —
-              never individual visitors.
+              We use Cloudflare Web Analytics to measure overall traffic: how
+              many visits the site receives and which pages are viewed. It is
+              cookieless. It sets no cookies, stores nothing on your device, and
+              does not fingerprint your browser or construct a profile of you. It
+              cannot track you across other sites, and the figures available to
+              us are aggregate totals rather than individual visitors.
             </p>
           </Section>
 
           <Section title="Error reporting">
             <p>
-              When something on the site breaks, a report is sent to Sentry so we
-              can fix it. A report contains the error message, the technical stack
-              trace, and which page it happened on.
+              When an error occurs, a diagnostic report is sent to Sentry so that
+              the fault can be identified and corrected. A report contains the
+              error message, a technical stack trace, and the page on which the
+              error occurred.
             </p>
             <p>
-              Sentry is configured not to collect personally identifying
-              information: IP addresses are not retained, and session replay —
-              which would record what you did on the page — is deliberately
-              switched off. We rely on this to keep the site working, and it is
-              not used for advertising or analytics.
-            </p>
-          </Section>
-
-          <Section title="Third parties">
-            <p>
-              The site loads no third-party fonts, scripts, embeds, or images
-              while you browse. Fonts are served from our own domain
-              specifically so that no outside company receives your IP address
-              just because you opened a page.
-            </p>
-            <p>
-              The site is hosted on Cloudflare Pages. Like any web host,
-              Cloudflare processes your IP address and request in order to
-              deliver the page to you and to protect the site from abuse.
-              Faction data, unit icons and 3D models are all served from this
-              same domain.
+              Sentry is configured not to collect personal data. IP addresses are
+              not retained, and session replay, which would record your activity
+              on the page, is disabled. These reports are used solely to maintain
+              the site, and not for advertising or analytics.
             </p>
           </Section>
 
-          <Section title="Your data rights">
+          <Section title="Third-party services">
             <p>
-              We hold no account, profile or contact record for you, so there is
-              nothing personal for us to look up, export or delete. The data on
-              your own device is under your control and can be cleared from your
-              browser settings at any time.
+              No third-party fonts, scripts, embeds or images are loaded while you
+              browse. Fonts are served from our own domain so that no external
+              provider receives your IP address as a result of your visit. Faction
+              data, unit icons and 3D models are likewise served from this domain.
             </p>
             <p>
-              If you have a question about any of this, or believe something on
-              this page is inaccurate, please open an issue on{' '}
+              The site is hosted on Cloudflare Pages. As with any web host,
+              Cloudflare processes your IP address and request data in order to
+              deliver pages to you and to protect the site against abuse.
+            </p>
+          </Section>
+
+          <Section title="Your rights">
+            <p>
+              We hold no account, profile or contact record relating to you, so
+              there is no personal data for us to provide, export or erase on
+              request. Data held on your device remains under your control and can
+              be cleared through your browser at any time.
+            </p>
+            <p>
+              If you have a question about this notice, or believe any part of it
+              to be inaccurate, please open an issue on{' '}
               <a
                 href={githubUrl}
                 target="_blank"
@@ -182,26 +178,26 @@ export function Privacy() {
             </p>
           </Section>
 
-          <Section title="Changes to this page">
+          <Section title="Changes to this notice">
             <p>
-              We may change how the site works, and this notice along with it, at
-              any time and without telling you in advance. This page describes
-              the site as it is today, not as it will always be — if it matters
-              to you, it is worth re-reading.
+              We may change how the site operates, and this notice along with it,
+              at any time and without prior notification. This notice describes
+              the site as it currently operates.
             </p>
             <p>
-              The date at the top shows when this notice last changed, and its
-              full history is public in the project&apos;s git repository.
+              The date above indicates when it was last revised, and its full
+              revision history is publicly available in the project&apos;s Git
+              repository.
             </p>
           </Section>
 
-          <Section title="About the game data">
+          <Section title="Game data and attribution">
             <p>
               Planetary Annihilation: Titans is a game by Planetary Annihilation
               Inc. PA-Pedia is an unofficial, community-run project and is not
-              affiliated with or endorsed by them. Unit data and artwork belong
-              to their respective owners, including the authors of the community
-              mods featured here.
+              affiliated with or endorsed by them. Unit data and artwork remain
+              the property of their respective owners, including the authors of
+              the community mods featured here.
             </p>
           </Section>
         </div>

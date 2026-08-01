@@ -53,10 +53,10 @@ describe('Privacy', () => {
 
   it('states the core position: no cookies, accounts, ads or tracking', () => {
     renderWithProviders(<Privacy />)
-    const summary = screen.getByText(/no accounts, no cookies/i)
+    const summary = screen.getByText(/does not use cookies/i)
     expect(summary).toBeInTheDocument()
-    expect(summary.textContent).toMatch(/no advertising/i)
-    expect(summary.textContent).toMatch(/no tracking across other websites/i)
+    expect(summary.textContent).toMatch(/does not require an account/i)
+    expect(summary.textContent).toMatch(/no advertising or cross-site tracking/i)
   })
 
   it('discloses the third parties that receive any visitor data', () => {

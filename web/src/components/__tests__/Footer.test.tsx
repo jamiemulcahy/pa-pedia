@@ -9,11 +9,11 @@ describe('Footer', () => {
     expect(screen.getByRole('link', { name: /privacy/i })).toHaveAttribute('href', '/privacy')
   })
 
-  it('links to the project repository in a safe new tab', () => {
+  // The header already carries GitHub and the CLI download. Duplicating them
+  // here would compete with the one link this footer exists to surface.
+  it('stays a single-link footer', () => {
     renderWithProviders(<Footer />)
-    const github = screen.getByRole('link', { name: /github/i })
-    expect(github).toHaveAttribute('href', 'https://github.com/jamiemulcahy/pa-pedia')
-    expect(github).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.getAllByRole('link')).toHaveLength(1)
   })
 
   it('carries the unaffiliated disclaimer', () => {
