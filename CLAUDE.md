@@ -278,6 +278,30 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 - **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
 - **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
+### Privacy (no cookie banner by design)
+
+The site sets **no cookies** and needs no consent banner. That is a property worth
+preserving, not an accident:
+
+- **Client-side storage is consent-exempt** — `localStorage` holds only preferences the
+  visitor chose (`pa-pedia-preferences`, `pa-pedia-team-colors`), and the IndexedDB stores
+  (`pa-pedia-static-factions`, `pa-pedia-model-cache`, `pa-pedia-local-factions`) are caches
+  of data the visitor asked to see. Nothing is a cross-site identifier.
+- **Cloudflare Web Analytics is cookieless** and Sentry Session Replay is deliberately off
+  (see `web/src/lib/monitoring.ts`). Enabling Replay would make the site consent-requiring.
+- **Fonts are self-hosted** via Fontsource, imported in `web/src/index.css`. Do **not**
+  re-add a `fonts.googleapis.com` link: hotlinking transmits every visitor's IP to Google
+  with no legal basis under GDPR (LG München I, 3 O 17493/20). Fontsource's variable
+  packages register the family as `"Orbitron Variable"` / `"JetBrains Mono Variable"` —
+  the `@theme` stack must use those exact names or it silently falls back.
+- **`web/src/pages/Privacy.tsx`** (`/privacy`, linked from `Footer.tsx`) is the Art. 13
+  notice. Its list of storage keys is enforced by `Privacy.test.tsx`, which scans `src/`
+  for `pa-pedia-*` literals — **adding a new cache or preference key fails that test until
+  the page documents it**.
+
+Anything that introduces a third-party request during browsing, or a cross-site
+identifier, changes the "no banner" answer and should be raised before merging.
+
 ### Monitoring (Sentry + Cloudflare Web Analytics)
 
 Both are free-tier and **inert unless configured** — no DSN means Sentry never initialises,
