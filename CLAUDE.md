@@ -290,6 +290,26 @@ TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
 - **Future Requirement**: If server-side faction sharing is implemented, add DOMPurify sanitization before storing/displaying shared content
 - **Best Practice**: Continue avoiding `dangerouslySetInnerHTML` for user-provided content
 
+### Privacy (no cookie banner by design)
+
+The site sets **no cookies** and needs no consent banner. That is a property worth
+preserving, not an accident:
+
+- **Client-side storage is consent-exempt** — `localStorage` holds only preferences the
+  visitor chose, and the IndexedDB stores are caches of data the visitor asked to see.
+  Nothing is a cross-site identifier.
+- **Cloudflare Web Analytics is cookieless** and Sentry Session Replay is deliberately off
+  (see `web/src/lib/monitoring.ts`). Enabling Replay would make the site consent-requiring.
+- **No third-party requests during browsing.** Anything that adds one — an embed, a
+  hotlinked asset, a CDN script — changes the "no banner" answer and should be raised
+  before merging.
+- **`web/src/pages/Privacy.tsx`** (`/privacy`, linked from `Footer.tsx`) is the Art. 13
+  notice. Its scope is deliberately narrow: what visitor data is processed and who
+  receives it, **not** how the site works. Individual storage keys and service
+  configuration stay out, so a new cache key needs no change here. The exception is
+  recipients — Art. 13(1)(e) requires them, so Cloudflare and Sentry are named and
+  `Privacy.test.tsx` asserts it. **Adding a processor means adding it to that page.**
+
 ### Monitoring (Sentry + Cloudflare Web Analytics)
 
 Both are free-tier and **inert unless configured** — no DSN means Sentry never initialises,

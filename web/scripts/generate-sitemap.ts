@@ -54,6 +54,10 @@ function generateSitemap(): void {
   // Add "All Factions" page (route exists at /faction without ID)
   urls.push({ loc: '/faction', priority: '0.9', changefreq: 'weekly', lastmod: buildDate })
 
+  // Privacy policy — low priority, but it should be indexable so the notice is
+  // discoverable without having to land on the site first.
+  urls.push({ loc: '/privacy', priority: '0.3', changefreq: 'yearly', lastmod: buildDate })
+
   // Add each faction and its units
   for (const factionId of STATIC_FACTIONS) {
     // Faction page
