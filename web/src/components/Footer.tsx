@@ -11,25 +11,31 @@ export function Footer() {
   const githubUrl = `https://github.com/${CLI_RELEASE.githubRepo}`
 
   return (
-    <footer className="mt-16 border-t border-border">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <p>
+    <footer className="mt-16 border-t border-border bg-card/40">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-5">
+          <p className="text-sm text-muted-foreground text-center sm:text-left">
             Unofficial community project. Not affiliated with Planetary
             Annihilation Inc.
           </p>
-          <nav className="flex items-center gap-4">
+          {/* Links carry full foreground contrast rather than the muted grey
+              used for the disclaimer: a privacy notice nobody can pick out of
+              the page is not meaningfully reachable. */}
+          <nav className="flex items-center gap-2 font-display text-sm tracking-wide">
             <Link
               to="/privacy"
-              className="hover:text-foreground transition-colors"
+              className="px-3 py-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-colors"
             >
               Privacy
             </Link>
+            <span aria-hidden="true" className="text-border">
+              |
+            </span>
             <a
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
+              className="px-3 py-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-colors"
             >
               GitHub
             </a>
