@@ -3,7 +3,7 @@ import { SEO } from '@/components/SEO'
 import { CLI_RELEASE } from '@/config/releases'
 
 /**
- * Privacy policy.
+ * Privacy notice.
  *
  * Exists to satisfy GDPR Art. 13 transparency rather than to gather consent:
  * the site sets no cookies, and everything it does store client-side is either
@@ -12,9 +12,11 @@ import { CLI_RELEASE } from '@/config/releases'
  * cross-site identifier (ad tags, Sentry Session Replay, a hotlinked
  * third-party asset) changes that answer and needs this page revisited first.
  *
- * The storage keys below are load-bearing documentation: they must stay in
- * step with usePreferences.ts, teamColorPref.ts, staticFactionCache.ts,
- * modelLoader.ts and localFactionStorage.ts.
+ * Scope is deliberately narrow: what visitor data is processed and who receives
+ * it. It is not documentation of how the site works, so individual storage keys
+ * and service configuration stay out. The one detail that cannot be dropped is
+ * the list of recipients — Art. 13(1)(e) requires them, hence Cloudflare and
+ * Sentry being named. Adding a new processor means adding it here.
  */
 
 const LAST_UPDATED = '1 August 2026'
@@ -34,15 +36,6 @@ function Section({ title, children }: SectionProps) {
         {children}
       </div>
     </section>
-  )
-}
-
-/** Inline reference to a browser storage key. */
-function StorageKey({ children }: { children: React.ReactNode }) {
-  return (
-    <code className="font-mono text-sm text-foreground bg-muted px-1.5 py-0.5 rounded">
-      {children}
-    </code>
   )
 }
 
@@ -85,74 +78,40 @@ export function Privacy() {
 
           <Section title="Data stored on your device">
             <p>
-              The site stores data locally in your browser in order to function.
-              This data remains on your device: it is not transmitted to us, and
-              we have no means of accessing it.
-            </p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>
-                <StorageKey>pa-pedia-preferences</StorageKey> and{' '}
-                <StorageKey>pa-pedia-team-colors</StorageKey> — display settings
-                you have selected, such as list or table view, sort order, active
-                filters and unit colours.
-              </li>
-              <li>
-                <StorageKey>pa-pedia-static-factions</StorageKey> and{' '}
-                <StorageKey>pa-pedia-model-cache</StorageKey> — cached faction
-                data and 3D models you have already viewed, so that returning to
-                a faction does not require downloading it again.
-              </li>
-              <li>
-                <StorageKey>pa-pedia-local-factions</StorageKey> — faction
-                folders you have uploaded yourself. These are held locally so
-                that they persist between visits; they are not uploaded to us and
-                are visible only to you.
-              </li>
-            </ul>
-            <p>
-              None of this is a cookie, and none of it is transmitted with your
-              requests. You may remove all of it at any time by clearing site data
+              The site uses your browser&apos;s local storage to hold your display
+              preferences and to cache the faction data you have viewed. This
+              stays on your device, is not transmitted to us, and is not used to
+              identify you. You may remove it at any time by clearing site data
               for pa-pedia.com in your browser settings.
             </p>
           </Section>
 
           <Section title="Analytics">
             <p>
-              We use Cloudflare Web Analytics to measure overall traffic: how
-              many visits the site receives and which pages are viewed. It is
-              cookieless. It sets no cookies, stores nothing on your device, and
-              does not fingerprint your browser or construct a profile of you. It
-              cannot track you across other sites, and the figures available to
-              us are aggregate totals rather than individual visitors.
+              We collect aggregate visitor statistics using a cookieless
+              analytics service. It sets no cookies, stores nothing on your
+              device, and does not profile you or track you across other sites.
             </p>
           </Section>
 
           <Section title="Error reporting">
             <p>
-              When an error occurs, a diagnostic report is sent to Sentry so that
-              the fault can be identified and corrected. A report contains the
-              error message, a technical stack trace, and the page on which the
-              error occurred.
-            </p>
-            <p>
-              Sentry is configured not to collect personal data. IP addresses are
-              not retained, and session replay, which would record your activity
-              on the page, is disabled. These reports are used solely to maintain
-              the site, and not for advertising or analytics.
+              When an error occurs, a diagnostic report is sent to our
+              error-monitoring provider so that the fault can be corrected. IP
+              addresses are not retained, and session recording is disabled.
             </p>
           </Section>
 
-          <Section title="Third-party services">
+          <Section title="Who receives your data">
             <p>
-              No third-party fonts, scripts, embeds or images are loaded while you
-              browse. Fonts are served from our own domain so that no external
-              provider receives your IP address as a result of your visit. Faction
-              data, unit icons and 3D models are likewise served from this domain.
+              The site is hosted by Cloudflare, which also provides our
+              analytics. As with any web host, Cloudflare necessarily processes
+              your IP address in order to deliver pages and to protect the site
+              against abuse. Error reports are processed by Sentry.
             </p>
             <p>
-              The site is hosted on Cloudflare Pages. As with any web host,
-              Cloudflare processes your IP address and request data in order to
-              deliver pages to you and to protect the site against abuse.
+              No other third-party content is loaded while you browse, and your
+              data is not sold or shared with anyone else.
             </p>
           </Section>
 
@@ -160,8 +119,8 @@ export function Privacy() {
             <p>
               We hold no account, profile or contact record relating to you, so
               there is no personal data for us to provide, export or erase on
-              request. Data held on your device remains under your control and can
-              be cleared through your browser at any time.
+              request. If you are in the UK or EU, you have the right to lodge a
+              complaint with your data protection authority.
             </p>
             <p>
               If you have a question about this notice, or believe any part of it
@@ -181,23 +140,8 @@ export function Privacy() {
           <Section title="Changes to this notice">
             <p>
               We may change how the site operates, and this notice along with it,
-              at any time and without prior notification. This notice describes
-              the site as it currently operates.
-            </p>
-            <p>
-              The date above indicates when it was last revised, and its full
-              revision history is publicly available in the project&apos;s Git
-              repository.
-            </p>
-          </Section>
-
-          <Section title="Game data and attribution">
-            <p>
-              Planetary Annihilation: Titans is a game by Planetary Annihilation
-              Inc. PA-Pedia is an unofficial, community-run project and is not
-              affiliated with or endorsed by them. Unit data and artwork remain
-              the property of their respective owners, including the authors of
-              the community mods featured here.
+              at any time and without prior notification. The date above indicates
+              when it was last revised.
             </p>
           </Section>
         </div>

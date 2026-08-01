@@ -295,9 +295,11 @@ preserving, not an accident:
   packages register the family as `"Orbitron Variable"` / `"JetBrains Mono Variable"` —
   the `@theme` stack must use those exact names or it silently falls back.
 - **`web/src/pages/Privacy.tsx`** (`/privacy`, linked from `Footer.tsx`) is the Art. 13
-  notice. Its list of storage keys is enforced by `Privacy.test.tsx`, which scans `src/`
-  for `pa-pedia-*` literals — **adding a new cache or preference key fails that test until
-  the page documents it**.
+  notice. Its scope is deliberately narrow — what visitor data is processed and who
+  receives it, **not** how the site works. Individual storage keys and service
+  configuration stay out; a new cache key needs no change here. The exception is
+  recipients: Art. 13(1)(e) requires them, so Cloudflare and Sentry are named and
+  `Privacy.test.tsx` asserts it. **Adding a processor means adding it to that page.**
 
 Anything that introduces a third-party request during browsing, or a cross-site
 identifier, changes the "no banner" answer and should be raised before merging.
