@@ -202,7 +202,7 @@ jobs:
       # tarball never changes for a pinned version — so cache the extracted tree.
       - name: Restore cached Blender
         id: blender-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/blender
           key: blender-${{ env.BLENDER_VERSION }}-linux-x64
