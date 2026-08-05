@@ -196,6 +196,16 @@ export function UnitModelViewer({
         }
         return
       }
+      // Guard against the cleanup having run while we were awaiting loadUnitModel.
+      // Without this check, a stale build() would append the canvas to the
+      // React-managed mountRef div after React has already moved on to rendering
+      // a new unit, corrupting the DOM structure and triggering a React
+      // insertBefore NotFoundError during the next commit phase.
+      if (cancelled) {
+        renderer.dispose()
+        renderer.forceContextLoss()
+        return
+      }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       renderer.setSize(width, height)
       mount!.appendChild(renderer.domElement)
