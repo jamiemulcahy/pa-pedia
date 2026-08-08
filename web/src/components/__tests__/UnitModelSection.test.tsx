@@ -1,3 +1,4 @@
+import { Component, type ReactNode } from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -180,5 +181,103 @@ describe('UnitModelSection — checking state', () => {
 
     expect(await screen.findByTestId('view-3d-model')).toBeEnabled()
     await waitFor(() => expect(screen.queryByTestId('view-3d-model-checking')).toBeNull())
+  })
+})
+
+describe('UnitModelSection — survives browser page translation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  /** Wrap each text node in a <font>, as Chrome/Edge translation does. */
+  function simulateBrowserTranslation(root: HTMLElement) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    const texts: Text[] = []
+    while (walker.nextNode()) texts.push(walker.currentNode as Text)
+
+    for (const text of texts) {
+      if (!text.data.trim()) continue
+      const font = document.createElement('font')
+      text.replaceWith(font)
+      font.appendChild(text)
+    }
+    // Without a detached text node these tests would pass for the wrong reason.
+    expect(root.querySelectorAll('font').length).toBeGreaterThan(0)
+  }
+
+  class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+    state: { error: Error | null } = { error: null }
+    static getDerivedStateFromError(error: Error) {
+      return { error }
+    }
+    render() {
+      if (this.state.error) {
+        return <div data-testid="boundary-tripped">{this.state.error.message}</div>
+      }
+      return this.props.children
+    }
+  }
+
+  it('swaps the spinner for the trigger after the page has been translated', async () => {
+    mockGetIndex.mockResolvedValue(indexWith('radar'))
+    const { container } = render(
+      <CaptureBoundary>
+        <UnitModelSection factionId="MLA" unitId="radar" />
+      </CaptureBoundary>
+    )
+
+    // Translation runs while the availability lookup is still in flight; the
+    // lookup resolving is what swaps the spinner for the icon.
+    expect(screen.getByTestId('view-3d-model-checking')).toBeInTheDocument()
+    simulateBrowserTranslation(container)
+
+    const button = await screen.findByTestId('view-3d-model')
+    expect(screen.queryByTestId('boundary-tripped')).toBeNull()
+    expect(button).toHaveTextContent('View 3D Model')
+  })
+
+  it('reaches the unavailable state after the page has been translated', async () => {
+    mockGetIndex.mockResolvedValue(null)
+    const { container } = render(
+      <CaptureBoundary>
+        <UnitModelSection factionId="MLA" unitId="radar" />
+      </CaptureBoundary>
+    )
+
+    simulateBrowserTranslation(container)
+
+    const button = await screen.findByTestId('view-3d-model')
+    expect(screen.queryByTestId('boundary-tripped')).toBeNull()
+    expect(button).toHaveAttribute('data-state', 'none')
+  })
+
+  it('reaches the error state after the page has been translated', async () => {
+    mockGetIndex.mockRejectedValue(new Error('network'))
+    const { container } = render(
+      <CaptureBoundary>
+        <UnitModelSection factionId="MLA" unitId="radar" />
+      </CaptureBoundary>
+    )
+
+    simulateBrowserTranslation(container)
+
+    const button = await screen.findByTestId('view-3d-model')
+    expect(screen.queryByTestId('boundary-tripped')).toBeNull()
+    expect(button).toHaveAttribute('data-state', 'error')
+  })
+
+  it('still opens the modal once translated', async () => {
+    mockGetIndex.mockResolvedValue(indexWith('radar'))
+    const { container } = render(
+      <CaptureBoundary>
+        <UnitModelSection factionId="MLA" unitId="radar" />
+      </CaptureBoundary>
+    )
+
+    simulateBrowserTranslation(container)
+
+    await userEvent.click(await screen.findByTestId('view-3d-model'))
+    expect(screen.queryByTestId('boundary-tripped')).toBeNull()
+    expect(screen.getByTestId('model-modal')).toHaveTextContent('modal:radar')
   })
 })
