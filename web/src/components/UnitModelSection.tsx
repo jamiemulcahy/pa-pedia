@@ -129,11 +129,16 @@ export function UnitModelSection({
     }
   }, [factionId, unitId, version])
 
+  // Labels are wrapped, not left as bare text beside the icon: Chrome/Edge page
+  // translation moves bare text nodes into <font> wrappers, and this button
+  // swaps its first child (spinner → icon) once the lookup resolves, so React
+  // would insert against a text node that is no longer its child. An element's
+  // only text child is set via textContent, so it survives translation.
   if (availability === 'checking') {
     return (
       <button type="button" data-testid="view-3d-model-checking" disabled className={INERT_BUTTON}>
         <Spinner />
-        Checking…
+        <span>Checking…</span>
       </button>
     )
   }
@@ -154,7 +159,7 @@ export function UnitModelSection({
         className={INERT_BUTTON}
       >
         <span aria-hidden="true">🧊</span>
-        View 3D Model
+        <span>View 3D Model</span>
       </button>
     )
   }
@@ -168,7 +173,7 @@ export function UnitModelSection({
         className={`${BUTTON_BASE} border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700`}
       >
         <span aria-hidden="true">🧊</span>
-        View 3D Model
+        <span>View 3D Model</span>
       </button>
 
       {open && (
