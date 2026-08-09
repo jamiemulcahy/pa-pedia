@@ -29,7 +29,7 @@
     "@types/dompurify": "^3.2.0",
     "@zip.js/zip.js": "^2.8.34",
     "clsx": "^2.1.1",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "idb": "^8.0.3",
     "jszip": "^3.10.1",
     "react": "^19.2.8",
