@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { openDB } from 'idb'
 import {
   ZipWriter,
-  BlobWriter,
+  Uint8ArrayWriter,
   TextReader,
   Uint8ArrayReader,
   configure,
@@ -48,16 +48,27 @@ const SAMPLE_INDEX: ModelsIndex = {
   },
 }
 
-/** Build an in-memory model bundle zip matching SAMPLE_INDEX. */
-async function buildBundleBlob(): Promise<Blob> {
-  const zw = new ZipWriter(new BlobWriter('application/zip'))
+/**
+ * Build an in-memory model bundle zip matching SAMPLE_INDEX.
+ *
+ * Deliberately assembled with Uint8ArrayWriter rather than BlobWriter: under
+ * jsdom the global Blob is jsdom's while Response/streams are Node's, and
+ * zip.js's BlobWriter finishes by re-wrapping the Response's (Node) Blob in a
+ * `new Blob([...])` to apply the content type. jsdom's Blob constructor does
+ * not recognise a foreign-realm Blob, so it stringifies it to "[object Blob]"
+ * and the "zip" comes back as 13 bytes. Uint8Array in, Uint8Array out keeps
+ * the fixture clear of that cross-realm trap.
+ */
+async function buildBundleBytes(): Promise<ArrayBuffer> {
+  const zw = new ZipWriter(new Uint8ArrayWriter())
   await zw.add('models.json', new TextReader(JSON.stringify(SAMPLE_INDEX)))
   await zw.add('models/radar.glb', new Uint8ArrayReader(new Uint8Array([1, 2, 3, 4])))
   await zw.add('textures/radar_diffuse.png', new Uint8ArrayReader(new Uint8Array([5, 6])))
   await zw.add('textures/radar_mask.png', new Uint8ArrayReader(new Uint8Array([7, 8])))
   await zw.add('textures/radar_material.png', new Uint8ArrayReader(new Uint8Array([9, 10])))
   await zw.add('models/beacon.glb', new Uint8ArrayReader(new Uint8Array([11, 12, 13])))
-  return zw.close()
+  const bytes = await zw.close()
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
 }
 
 const mockIsDev = vi.mocked(isDevelopmentMode)
@@ -139,8 +150,7 @@ describe('modelLoader — production mode', () => {
 
   beforeEach(async () => {
     mockIsDev.mockReturnValue(false)
-    const blob = await buildBundleBlob()
-    bundleBytes = await blob.arrayBuffer()
+    bundleBytes = await buildBundleBytes()
   })
 
   // Tracks how many times the WHOLE bundle was downloaded (a non-range GET) —
