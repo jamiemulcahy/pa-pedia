@@ -28,6 +28,24 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise
   return originalFetch(url, init)
 }
 
+// jsdom does not implement Blob.prototype.stream() (jsdom#2555), and unlike
+// arrayBuffer()/text() it is not polyfilled by the vitest jsdom environment
+// either. Newer @zip.js/zip.js (2.8.55 onwards here) reads a whole Blob
+// through stream() rather than arrayBuffer(), so any test that builds a zip
+// in memory dies with
+// "sourceBlob.stream is not a function". Node's own Blob is shadowed by
+// jsdom's here, so we back the missing method with arrayBuffer().
+if (typeof Blob !== 'undefined' && typeof Blob.prototype.stream !== 'function') {
+  Blob.prototype.stream = function stream(this: Blob) {
+    return new ReadableStream({
+      pull: async (controller) => {
+        controller.enqueue(new Uint8Array(await this.arrayBuffer()))
+        controller.close()
+      },
+    })
+  } as Blob['stream']
+}
+
 // Mock URL.createObjectURL and revokeObjectURL
 if (typeof URL.createObjectURL === 'undefined') {
   URL.createObjectURL = vi.fn(() => 'blob:mock-url')
