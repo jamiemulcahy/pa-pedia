@@ -172,7 +172,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
       {ammo.burnDamage !== undefined && ammo.burnDamage > 0 && showRow(burnDamageDiff) && (
         <StatRow
           label="Burn damage"
-          tooltip="Total damage dealt over time in the burn area"
+          tooltip="Total damage dealt over time within the burn radius. Trees only — burn never damages units or structures."
           value={
             <ComparisonValue
               value={ammo.burnDamage}
