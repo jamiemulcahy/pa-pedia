@@ -16647,7 +16647,8 @@
         "Factory",
         "FabAdvBuild",
         "Important",
-        "Custom1"
+        "Custom1",
+        "Interplanetary"
       ],
       "source": "pa",
       "files": [
@@ -16676,7 +16677,8 @@
           "Factory",
           "FabAdvBuild",
           "Important",
-          "Custom1"
+          "Custom1",
+          "Interplanetary"
         ],
         "accessible": true,
         "specs": {
