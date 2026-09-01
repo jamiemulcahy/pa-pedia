@@ -20,7 +20,7 @@
         },
         {
           "path": "pa/units/l_addon/anti_ground_satellite/almaz_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -698,7 +698,7 @@
         },
         {
           "path": "pa/units/l_addon/fab_turret/fab_turret_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -963,7 +963,7 @@
         },
         {
           "path": "pa/units/l_addon/anti_orbital_armor/lynx_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -1290,7 +1290,7 @@
         },
         {
           "path": "pa/units/l_addon/mass_generator/mass_generator_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -3004,7 +3004,7 @@
         },
         {
           "path": "pa/units/l_addon/adv_fab_turret/adv_fab_turret_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -3095,7 +3095,7 @@
         },
         {
           "path": "pa/units/l_addon/adv_mass_generator/adv_mass_generator_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -3956,7 +3956,7 @@
         },
         {
           "path": "pa/units/l_addon/orbital_anti_nuke/orbital_anti_nuke_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -4118,7 +4118,7 @@
         },
         {
           "path": "pa/units/addon/orbital_anti_nuke/orbital_anti_nuke_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -4271,7 +4271,7 @@
         },
         {
           "path": "pa/units/l_addon/l_orbital_power/l_orbital_power_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -5007,7 +5007,7 @@
         },
         {
           "path": "pa/units/l_addon/l_orbital_jammer/l_orbital_jammer_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
@@ -5296,7 +5296,7 @@
         },
         {
           "path": "pa/units/l_addon/l_jammer_station/l_jammer_station_icon_buildbar.png",
-          "source": "pa.mla.unit.addon.companion"
+          "source": "pa.mla.unit.addon"
         }
       ],
       "unit": {
