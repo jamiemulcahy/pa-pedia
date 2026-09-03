@@ -6,6 +6,7 @@ import { SpawnUnitLink } from './SpawnUnitLink';
 import { ComparisonValue } from '../ComparisonValue';
 import { isDifferent } from '@/utils/comparison';
 import { useCurrentFaction } from '@/contexts/CurrentFactionContext';
+import type { AmmoBuildCost } from '@/utils/ammoBuild';
 import type { Ammo } from '@/types/faction';
 
 interface AmmoSectionProps {
@@ -15,9 +16,17 @@ interface AmmoSectionProps {
   hideDiff?: boolean;
   /** Optional faction ID override (used for comparison mode) */
   factionId?: string;
+  /**
+   * Cost of building one round, for factory-sourced ammo only. Omitted when the
+   * round is not built (e.g. the Ward drains metal directly), because the ammo
+   * blueprint's build_metal_cost is then unused and would contradict the weapon's
+   * own "Metal per shot".
+   */
+  buildCost?: AmmoBuildCost;
+  compareBuildCost?: AmmoBuildCost;
 }
 
-export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, showDifferencesOnly, hideDiff, factionId: propFactionId }) => {
+export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, showDifferencesOnly, hideDiff, factionId: propFactionId, buildCost, compareBuildCost }) => {
   const { factionId: contextFactionId } = useCurrentFaction();
   const factionId = propFactionId || contextFactionId;
 
@@ -79,11 +88,18 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
   const burnDamageDiff = isDifferent(ammo.burnDamage, compareAmmo?.burnDamage);
   const burnRadiusDiff = isDifferent(ammo.burnRadius, compareAmmo?.burnRadius);
   const burnDurationDiff = isDifferent(ammo.burnDuration, compareAmmo?.burnDuration);
+  const buildMetalDiff = isDifferent(buildCost?.metal, compareBuildCost?.metal);
+  const buildEnergyDiff = isDifferent(buildCost?.energy, compareBuildCost?.energy);
+  const buildTimeDiff = isDifferent(
+    buildCost && Number(buildCost.seconds.toFixed(1)),
+    compareBuildCost && Number(compareBuildCost.seconds.toFixed(1))
+  );
 
   // In diff mode with compare ammo, check if we have any visible rows
   const hasAnyDifference = !showDifferencesOnly || !compareAmmo ||
     damageDiff || splashDamageDiff || splashRadiusDiff || fullDamageRadiusDiff || muzzleVelDiff || maxVelDiff || spawnDiff ||
-    burnDamageDiff || burnRadiusDiff || burnDurationDiff;
+    burnDamageDiff || burnRadiusDiff || burnDurationDiff ||
+    buildMetalDiff || buildEnergyDiff || buildTimeDiff;
 
   if (!hasAnyDifference) {
     return null;
@@ -104,6 +120,49 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
           resolvedData={ammo}
         />
       </div>
+      {buildCost && showRow(buildMetalDiff) && (
+        <StatRow
+          label="Metal per shot"
+          tooltip="Metal cost of one round — this unit builds its ammo rather than drawing metal as it fires"
+          value={
+            <ComparisonValue
+              value={buildCost.metal}
+              compareValue={compareBuildCost?.metal}
+              comparisonType="lower-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {buildCost && buildCost.energy > 0 && showRow(buildEnergyDiff) && (
+        <StatRow
+          label="Energy per shot"
+          tooltip="Energy drawn by the build arm over the time it takes to build one round"
+          value={
+            <ComparisonValue
+              value={buildCost.energy}
+              compareValue={compareBuildCost?.energy}
+              comparisonType="lower-better"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
+      {buildCost && showRow(buildTimeDiff) && (
+        <StatRow
+          label="Ammo build time"
+          tooltip={`Time to build one round at this unit's build rate of ${Math.round(buildCost.metal / buildCost.seconds)} metal/s`}
+          value={
+            <ComparisonValue
+              value={Number(buildCost.seconds.toFixed(1))}
+              compareValue={compareBuildCost && Number(compareBuildCost.seconds.toFixed(1))}
+              comparisonType="lower-better"
+              suffix="s"
+              hideDiff={hideDiff}
+            />
+          }
+        />
+      )}
       {ammo.damage !== undefined && showRow(damageDiff) && (
         <StatRow
           label="Damage"

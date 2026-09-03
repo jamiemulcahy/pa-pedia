@@ -383,4 +383,63 @@ describe('AmmoSection', () => {
       expect(screen.getByText('0 (0%)')).toBeInTheDocument()
     })
   })
+
+  describe('factory-built ammo', () => {
+    // MLA anti_nuke_launcher: 5000 metal at 60 metal/s while drawing 4000 energy/s
+    const antiNukeBuildCost = { metal: 5000, energy: 333333, seconds: 5000 / 60 }
+
+    it('should render metal, energy and build time for a round the unit builds', () => {
+      renderAmmoSection({ ammo: mockAmmo, buildCost: antiNukeBuildCost })
+
+      expect(screen.getByText('Metal per shot:')).toBeInTheDocument()
+      expect(screen.getByText('5000')).toBeInTheDocument()
+      expect(screen.getByText('Energy per shot:')).toBeInTheDocument()
+      expect(screen.getByText('333333')).toBeInTheDocument()
+      expect(screen.getByText('Ammo build time:')).toBeInTheDocument()
+      expect(screen.getByText('83.3s')).toBeInTheDocument()
+    })
+
+    it('should omit the rows entirely when the ammo is not built by the unit', () => {
+      renderAmmoSection({ ammo: mockAmmo })
+
+      expect(screen.queryByText('Metal per shot:')).not.toBeInTheDocument()
+      expect(screen.queryByText('Energy per shot:')).not.toBeInTheDocument()
+      expect(screen.queryByText('Ammo build time:')).not.toBeInTheDocument()
+    })
+
+    it('should omit only the energy row for a build arm that draws no energy', () => {
+      renderAmmoSection({ ammo: mockAmmo, buildCost: { metal: 300, energy: 0, seconds: 10 } })
+
+      expect(screen.getByText('Metal per shot:')).toBeInTheDocument()
+      expect(screen.getByText('Ammo build time:')).toBeInTheDocument()
+      expect(screen.queryByText('Energy per shot:')).not.toBeInTheDocument()
+    })
+
+    it('should show the diff against the compared unit', () => {
+      renderAmmoSection({
+        ammo: mockAmmo,
+        compareAmmo: mockCompareAmmo,
+        buildCost: antiNukeBuildCost,
+        // MLA nuke_launcher: 30000 metal at 90 metal/s
+        compareBuildCost: { metal: 30000, energy: 2000000, seconds: 30000 / 90 },
+      })
+
+      // Cheaper and faster than the compared round
+      expect(screen.getByText('(-25000)')).toBeInTheDocument()
+      expect(screen.getByText('(-250s)')).toBeInTheDocument()
+    })
+
+    it('should keep the rows hidden in differences-only mode when the costs match', () => {
+      renderAmmoSection({
+        ammo: mockAmmo,
+        compareAmmo: { ...mockAmmo },
+        showDifferencesOnly: true,
+        buildCost: antiNukeBuildCost,
+        compareBuildCost: { ...antiNukeBuildCost },
+      })
+
+      expect(screen.queryByText('Metal per shot:')).not.toBeInTheDocument()
+      expect(screen.queryByText('Ammo build time:')).not.toBeInTheDocument()
+    })
+  })
 })

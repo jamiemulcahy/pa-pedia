@@ -25,15 +25,30 @@ import { StorageSection } from '@/components/stats/StorageSection'
 import { matchWeaponsByTargetLayers } from '@/utils/weaponMatching'
 import { aggregateGroupStats, matchAggregatedWeapons } from '@/utils/groupAggregation'
 import { getEffectiveUnitDps } from '@/utils/effectiveDps'
+import { calculateAmmoBuildCost } from '@/utils/ammoBuild'
 import {
   GroupModeToggle,
   GroupWeaponCard,
   GroupUnitList,
 } from '@/components/comparison'
 import { StatSection } from '@/components/StatSection'
-import type { Weapon, Unit } from '@/types/faction'
+import type { Weapon, Unit, Ammo, EconomySpecs } from '@/types/faction'
 import type { ComparisonMode, GroupMember } from '@/types/group'
 import { parseFactionRef, parseComparisonRef, buildComparisonRef } from '@/utils/versionedFactionId'
+
+/**
+ * Build cost of one round, for weapons whose ammo is constructed by the unit's own
+ * build arm ("factory" ammo source, e.g. the anti-nuke and nuke launchers).
+ *
+ * Other ammo sources are deliberately excluded: a metal-sourced weapon like the Ward
+ * drains metal directly per shot, so its ammo blueprint's build_metal_cost is unused
+ * and would contradict the "Metal per shot" the weapon already reports.
+ */
+const getAmmoBuildCost = (
+  weapon: Weapon | undefined,
+  ammo: Ammo | undefined,
+  economy: EconomySpecs | undefined
+) => (weapon?.ammoSource === 'factory' ? calculateAmmoBuildCost(ammo?.metalCost, economy) : undefined)
 
 /** Filter to get regular weapons (excludes self-destruct and death explosions) */
 const isRegularWeapon = (w: Weapon) => !w.selfDestruct && !w.deathExplosion
@@ -1151,18 +1166,21 @@ export function UnitDetail() {
                     weapon.buildableAmmo.map((ammo, ammoIndex) => {
                       const matchedWeapon = weaponMatchMaps[0]?.get(weapon)
                       const compareAmmo = matchedWeapon?.buildableAmmo?.[ammoIndex] ?? matchedWeapon?.ammoDetails
+                      const buildCost = getAmmoBuildCost(weapon, ammo, specs.economy)
+                      const compareBuildCost = getAmmoBuildCost(matchedWeapon, compareAmmo, comparisonUnits[0]?.specs.economy)
                       return (
                         <div key={`ammo-${wIndex}-${ammoIndex}`} className="flex gap-6 items-stretch">
                           <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                            <AmmoSection ammo={ammo} compareAmmo={compareAmmo} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                            <AmmoSection ammo={ammo} compareAmmo={compareAmmo} showDifferencesOnly={showDifferencesOnly} hideDiff buildCost={buildCost} compareBuildCost={compareBuildCost} />
                           </div>
                           {comparisonRefs.map((_ref, index) => {
                             const compMatchedWeapon = weaponMatchMaps[index]?.get(weapon)
                             const compAmmo = compMatchedWeapon?.buildableAmmo?.[ammoIndex] ?? compMatchedWeapon?.ammoDetails
+                            const compBuildCost = getAmmoBuildCost(compMatchedWeapon, compAmmo, comparisonUnits[index]?.specs.economy)
                             return (
                               <div key={`ammo-${wIndex}-${ammoIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                                 {compAmmo && (
-                                  <AmmoSection ammo={compAmmo} compareAmmo={ammo} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
+                                  <AmmoSection ammo={compAmmo} compareAmmo={ammo} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} buildCost={compBuildCost} compareBuildCost={buildCost} />
                                 )}
                               </div>
                             )
@@ -1173,7 +1191,14 @@ export function UnitDetail() {
                   ) : weapon.ammoDetails ? (
                     <div className="flex gap-6 items-stretch">
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
-                        <AmmoSection ammo={weapon.ammoDetails} compareAmmo={weaponMatchMaps[0]?.get(weapon)?.ammoDetails} showDifferencesOnly={showDifferencesOnly} hideDiff />
+                        <AmmoSection
+                          ammo={weapon.ammoDetails}
+                          compareAmmo={weaponMatchMaps[0]?.get(weapon)?.ammoDetails}
+                          showDifferencesOnly={showDifferencesOnly}
+                          hideDiff
+                          buildCost={getAmmoBuildCost(weapon, weapon.ammoDetails, specs.economy)}
+                          compareBuildCost={getAmmoBuildCost(weaponMatchMaps[0]?.get(weapon), weaponMatchMaps[0]?.get(weapon)?.ammoDetails, comparisonUnits[0]?.specs.economy)}
+                        />
                       </div>
                       {comparisonRefs.map((_ref, index) => {
                         const matchedWeapon = weaponMatchMaps[index]?.get(weapon)
@@ -1181,7 +1206,14 @@ export function UnitDetail() {
                         return (
                           <div key={`ammo-${wIndex}-${index}`} className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)]">
                             {compAmmo && (
-                              <AmmoSection ammo={compAmmo} compareAmmo={weapon.ammoDetails} showDifferencesOnly={showDifferencesOnly} factionId={_ref.factionId} />
+                              <AmmoSection
+                                ammo={compAmmo}
+                                compareAmmo={weapon.ammoDetails}
+                                showDifferencesOnly={showDifferencesOnly}
+                                factionId={_ref.factionId}
+                                buildCost={getAmmoBuildCost(matchedWeapon, compAmmo, comparisonUnits[index]?.specs.economy)}
+                                compareBuildCost={getAmmoBuildCost(weapon, weapon.ammoDetails, specs.economy)}
+                              />
                             )}
                           </div>
                         )
@@ -1475,10 +1507,14 @@ export function UnitDetail() {
                       <AmmoSection
                         key={`${weapon.resourceName}-ammo-${ammoIndex}`}
                         ammo={ammo}
+                        buildCost={getAmmoBuildCost(weapon, ammo, specs.economy)}
                       />
                     ))
                   ) : weapon.ammoDetails ? (
-                    <AmmoSection ammo={weapon.ammoDetails} />
+                    <AmmoSection
+                      ammo={weapon.ammoDetails}
+                      buildCost={getAmmoBuildCost(weapon, weapon.ammoDetails, specs.economy)}
+                    />
                   ) : null}
                 </React.Fragment>
               ))}
