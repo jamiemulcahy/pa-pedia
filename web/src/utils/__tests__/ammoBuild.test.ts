@@ -29,6 +29,19 @@ describe('calculateAmmoBuildCost', () => {
     expect(calculateAmmoBuildCost(0, antiNukeEconomy)).toBeUndefined()
   })
 
+  it('treats a cost of 1 as a placeholder rather than a price', () => {
+    // unit_cannon_deploy and l_orbital_dropper_ammo both cost "1": the real cost is
+    // the unit loaded into them, built separately. Reporting 1 metal and a 0.0s build
+    // would be noise, so these rounds report no build cost at all.
+    expect(calculateAmmoBuildCost(1, antiNukeEconomy)).toBeUndefined()
+  })
+
+  it('still reports a genuine cost on a zero-damage round', () => {
+    // The Bugs control node's portal charge deals no damage but costs a real 5000,
+    // so damage is not the signal that separates a placeholder from a price.
+    expect(calculateAmmoBuildCost(5000, { buildCost: 9000, buildRate: 45 })?.metal).toBe(5000)
+  })
+
   it('returns undefined when the unit has no build arm to construct the round', () => {
     expect(calculateAmmoBuildCost(5000, undefined)).toBeUndefined()
     expect(calculateAmmoBuildCost(5000, { buildCost: 8000 })).toBeUndefined()
