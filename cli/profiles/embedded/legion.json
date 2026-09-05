@@ -1,11 +1,9 @@
 {
   "displayName": "Legion",
   "factionUnitType": "Custom1",
-  "version": "1.32.1",
-  "build": "124615",
   "mods": [
-    "github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/server",
-    "github.com/Legion-Expansion/Legion-Expansion/tree/develop/src/client"
+    "github.com/Legion-Expansion/com.pa.legion-expansion-server",
+    "github.com/Legion-Expansion/com.pa.legion-expansion-client"
   ],
   "backgroundImage": "ui/mods/com.pa.legion-expansion/img/splash_no_logo.png",
   "teamColors": {
