@@ -24,7 +24,9 @@ test.describe('Home page', () => {
 
     const addonCard = page.locator(`a[href="/faction/${FACTIONS.ADDON.id}"]`)
     await expect(addonCard).toBeVisible()
-    await expect(addonCard.locator('span', { hasText: 'ADDON' })).toBeVisible()
+    // Exact match: hasText is a case-insensitive substring, so a loose 'ADDON'
+    // also matches the byline of a faction whose author name contains "addon".
+    await expect(addonCard.locator('span').filter({ hasText: /^ADDON$/ })).toBeVisible()
   })
 
   test('shows community links', async ({ page }) => {

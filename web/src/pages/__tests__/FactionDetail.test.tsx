@@ -1,3 +1,4 @@
+import { Component, type ReactNode } from 'react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { screen, waitFor, within } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
@@ -76,7 +77,7 @@ describe('FactionDetail', () => {
     renderFactionDetail('MLA')
 
     await waitFor(() => {
-      expect(screen.getByText(/4 units.*1 hidden/i)).toBeInTheDocument()
+      expect(screen.getByTestId('unit-count')).toHaveTextContent(/4 units.*1 hidden/i)
     })
   })
 
@@ -877,6 +878,71 @@ describe('FactionDetail', () => {
       expect(screen.getByText('Tanks')).toBeInTheDocument()
       // Button should indicate next mode is grid (since we're in list)
       expect(screen.getByRole('button', { name: /switch to grid view/i })).toBeInTheDocument()
+    })
+  })
+  describe('survives browser page translation', () => {
+    /** Wrap each text node in a <font>, as Chrome/Edge/Yandex translation does. */
+    function simulateBrowserTranslation(root: HTMLElement) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      const texts: Text[] = []
+      while (walker.nextNode()) texts.push(walker.currentNode as Text)
+
+      for (const text of texts) {
+        if (!text.data.trim()) continue
+        const font = document.createElement('font')
+        text.replaceWith(font)
+        font.appendChild(text)
+      }
+      // Without a detached text node this test would pass for the wrong reason.
+      expect(root.querySelectorAll('font').length).toBeGreaterThan(0)
+    }
+
+    class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+      state: { error: Error | null } = { error: null }
+      static getDerivedStateFromError(error: Error) {
+        return { error }
+      }
+      render() {
+        if (this.state.error) {
+          return <div data-testid="boundary-tripped">{this.state.error.message}</div>
+        }
+        return this.props.children
+      }
+    }
+
+    // PA-PEDIA-6: the summary line's trailing "(N hidden)" segment is removed when
+    // the visitor reveals inaccessible units. As a bare text node it would already
+    // have been reparented into a <font> by the translator, so React's removeChild
+    // against the summary div threw NotFoundError and the boundary ate the page.
+    it('drops the hidden-unit count after the page has been translated', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(
+        <MemoryRouter initialEntries={['/faction/MLA']}>
+          <Routes>
+            <Route
+              path="/faction/:id"
+              element={
+                <CaptureBoundary>
+                  <FactionDetail />
+                </CaptureBoundary>
+              }
+            />
+            <Route path="/" element={<div>Home</div>} />
+          </Routes>
+        </MemoryRouter>,
+        { skipRouter: true }
+      )
+
+      const summary = await screen.findByTestId('unit-count')
+      await waitFor(() => expect(summary).toHaveTextContent(/4 units.*1 hidden/i))
+      // Only the summary line, so an unrelated node cannot throw first.
+      simulateBrowserTranslation(summary)
+
+      await user.click(screen.getByRole('button', { name: /show 1 inaccessible unit/i }))
+
+      await waitFor(() => expect(screen.getByText('Sea Mine')).toBeInTheDocument())
+      expect(screen.queryByTestId('boundary-tripped')).toBeNull()
+      expect(screen.getByTestId('unit-count')).toHaveTextContent(/5 units/i)
     })
   })
 })

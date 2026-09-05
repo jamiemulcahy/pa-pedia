@@ -180,7 +180,7 @@ describe('Navigation Integration Tests', () => {
 
     // Verify that faction data loaded correctly with metadata
     expect(screen.getByRole('heading', { name: 'MLA' })).toBeInTheDocument()
-    expect(screen.getByText(/4 units.*1 hidden/i)).toBeInTheDocument()
+    expect(screen.getByTestId('unit-count')).toHaveTextContent(/4 units.*1 hidden/i)
   })
 
   it('should update URL correctly during navigation', async () => {

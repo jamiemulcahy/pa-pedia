@@ -89,9 +89,13 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
             </div>
           )}
           <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">{faction.description}</div>
-          <div className="text-sm text-muted-foreground font-mono mt-auto">
-            {faction.author && `By ${faction.author} • `}
-            Version {faction.version}
+          {/* Wrapped, not bare text: page translation reparents bare text nodes into
+              <font> wrappers, so React's removeChild for the author segment would miss
+              if a card ever renders with an author and then without one. See the same
+              guard on FactionDetail's unit count. */}
+          <div data-testid="faction-byline" className="text-sm text-muted-foreground font-mono mt-auto">
+            {faction.author && <span>{`By ${faction.author} • `}</span>}
+            <span>{`Version ${faction.version}`}</span>
           </div>
         </div>
       </Link>
