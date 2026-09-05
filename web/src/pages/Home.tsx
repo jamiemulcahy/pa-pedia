@@ -55,7 +55,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
   ) ? effectiveBackgroundUrl : null
 
   return (
-    <div key={faction.folderName} className="relative group h-full">
+    <div key={faction.folderName} data-testid="faction-card" className="relative group h-full">
       <div className="relative h-full min-h-[280px] border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden">
         {/* Background image layer */}
         {safeBackgroundUrl && (

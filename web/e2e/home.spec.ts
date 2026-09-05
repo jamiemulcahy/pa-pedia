@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { FACTIONS, ALL_FACTION_IDS } from './helpers'
+import { FACTIONS, ALL_FACTION_IDS, factionCard } from './helpers'
 
 test.describe('Home page', () => {
   test('loads and displays faction cards', async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe('Home page', () => {
   test('shows ADDON badge on addon faction', async ({ page }) => {
     await page.goto('/')
 
-    const addonCard = page.locator(`a[href="/faction/${FACTIONS.ADDON.id}"]`)
+    const addonCard = factionCard(page, FACTIONS.ADDON.id)
     await expect(addonCard).toBeVisible()
     // Exact match: hasText is a case-insensitive substring, so a loose 'ADDON'
     // also matches the byline of a faction whose author name contains "addon".
@@ -56,8 +56,28 @@ test.describe('Home page', () => {
     await page.goto('/')
 
     // Second Wave-style "Extends:" text
-    const addonCard = page.locator(`a[href="/faction/${FACTIONS.ADDON.id}"]`)
+    const addonCard = factionCard(page, FACTIONS.ADDON.id)
     await expect(addonCard.getByText(/Extends:/i)).toBeVisible()
+  })
+
+  test('faction card links to the source repo root, deduped', async ({ page }) => {
+    await page.goto('/')
+
+    // The fixture lists a client and a server folder on one branch of one repo;
+    // both collapse to a single link at the repository root.
+    const card = factionCard(page, FACTIONS.FACTION.id)
+    const repoLink = card.getByRole('link', { name: 'test-org/test-faction' })
+    await expect(repoLink).toHaveCount(1)
+    await expect(repoLink).toHaveAttribute('href', 'https://github.com/test-org/test-faction')
+    await expect(repoLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  test('faction card with no GitHub source shows no repo link', async ({ page }) => {
+    await page.goto('/')
+
+    const card = factionCard(page, FACTIONS.BASE_GAME.id)
+    await expect(card).toBeVisible()
+    await expect(card.locator('a[href*="github.com"]')).toHaveCount(0)
   })
 
   test('header shows upload and download buttons', async ({ page }) => {
