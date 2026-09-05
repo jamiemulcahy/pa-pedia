@@ -9,6 +9,7 @@ import { UnitTable } from '@/components/UnitTable'
 import { UnitListView } from '@/components/UnitListView'
 import { UnitIcon } from '@/components/UnitIcon'
 import { FactionSelector } from '@/components/FactionSelector'
+import { FactionRepoLinks } from '@/components/FactionRepoLinks'
 import { VersionSelector } from '@/components/VersionSelector'
 import { VersionDiffModal } from '@/components/VersionDiffModal'
 import { getFactionVersions, isDevelopmentMode, type VersionEntry } from '@/services/manifestLoader'
@@ -413,6 +414,9 @@ export function FactionDetail() {
             )}
             {isAllMode && factionCount > 0 && <span>{` from ${factionCount} factions`}</span>}
           </div>
+          {!isAllMode && (
+            <FactionRepoLinks mods={metadata?.mods} className="mt-2 md:justify-center" />
+          )}
         </div>
       </div>
 

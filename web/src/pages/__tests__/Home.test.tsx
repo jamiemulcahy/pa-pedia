@@ -48,11 +48,10 @@ describe('Home', () => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
     })
 
-    const mlaLink = screen.getByText('MLA').closest('a')
-    expect(mlaLink).toHaveAttribute('href', '/faction/MLA')
-
-    const legionLink = screen.getByText('Legion').closest('a')
-    expect(legionLink).toHaveAttribute('href', '/faction/Legion')
+    // The card's click target is an overlay anchor labelled with the faction name,
+    // so that the source-repo link can sit in the card's normal flow.
+    expect(screen.getByRole('link', { name: 'MLA' })).toHaveAttribute('href', '/faction/MLA')
+    expect(screen.getByRole('link', { name: 'Legion' })).toHaveAttribute('href', '/faction/Legion')
   })
 
   it('should create links to faction detail pages', async () => {
@@ -62,11 +61,11 @@ describe('Home', () => {
       expect(screen.getByText('MLA')).toBeInTheDocument()
     })
 
-    const mlaCard = screen.getByText('MLA').closest('a')
+    const mlaCard = screen.getByRole('link', { name: 'MLA' })
     expect(mlaCard).toBeTruthy()
 
     // Verify the link exists and points to the correct faction
-    expect(mlaCard?.getAttribute('href')).toBe('/faction/MLA')
+    expect(mlaCard.getAttribute('href')).toBe('/faction/MLA')
   })
 
   it('should handle error state', async () => {
