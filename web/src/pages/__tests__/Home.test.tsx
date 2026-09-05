@@ -198,4 +198,24 @@ describe('Home', () => {
     const grid = screen.getByText('MLA').closest('div.grid')?.parentElement
     expect(grid?.className).toContain('grid')
   })
+  // The author segment disappears when a card has no author. As a bare text node it
+  // would already have been reparented into a <font> by browser page translation, so
+  // React's removeChild would throw NotFoundError — the PA-PEDIA-6 failure. Keeping
+  // every segment inside its own element makes the line immune, because an element's
+  // only text child is set via textContent rather than tracked as a separate node.
+  it('keeps the author/version line free of bare text nodes', async () => {
+    renderWithProviders(<Home />)
+
+    await screen.findByText('MLA')
+    const line = screen
+      .getAllByTestId('faction-byline')
+      .find((el) => el.textContent?.includes('Test Author'))
+
+    expect(line).toBeDefined()
+    expect(line!.textContent).toMatch(/By Test Author • Version 1\.0\.0/)
+    const bareText = Array.from(line!.childNodes).filter(
+      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+    )
+    expect(bareText).toEqual([])
+  })
 })

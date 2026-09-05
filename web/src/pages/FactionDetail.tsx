@@ -400,9 +400,18 @@ export function FactionDetail() {
           <p className="text-muted-foreground font-medium">
             {isAllMode ? 'Browse units from all available factions' : metadata?.description}
           </p>
-          <div className="text-sm text-muted-foreground mt-2 font-mono">
-            {filteredUnits.length} units{inaccessibleCount > 0 && !showInaccessible && ` (${inaccessibleCount} hidden)`}
-            {isAllMode && factionCount > 0 && ` from ${factionCount} factions`}
+          {/* Each segment is wrapped rather than left as a bare text node beside its
+              siblings: Chrome/Edge/Yandex page translation moves bare text into <font>
+              wrappers, and both trailing segments disappear during normal use (toggling
+              "show inaccessible", leaving All-factions mode), so React would call
+              removeChild for a text node that is no longer its child. An element's only
+              text child is set via textContent, which translation cannot detach. */}
+          <div data-testid="unit-count" className="text-sm text-muted-foreground mt-2 font-mono">
+            <span>{`${filteredUnits.length} units`}</span>
+            {inaccessibleCount > 0 && !showInaccessible && (
+              <span>{` (${inaccessibleCount} hidden)`}</span>
+            )}
+            {isAllMode && factionCount > 0 && <span>{` from ${factionCount} factions`}</span>}
           </div>
         </div>
       </div>
