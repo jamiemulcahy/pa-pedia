@@ -19,7 +19,7 @@
         },
         {
           "path": "pa/units/air/l_air_bomb/triggered/l_air_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -181,7 +181,7 @@
         },
         {
           "path": "pa/units/sea/l_attack_sub/l_attack_sub_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -309,7 +309,7 @@
         },
         {
           "path": "pa/units/land/l_fabrication_vehicle/l_fabrication_vehicle_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -431,7 +431,7 @@
         },
         {
           "path": "pa/units/land/l_vehicle_factory/l_vehicle_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -546,7 +546,7 @@
         },
         {
           "path": "pa/units/sea/l_destroyer/l_destroyer_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -763,7 +763,7 @@
         },
         {
           "path": "pa/units/commanders/l_cataphract/l_cataphract_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1074,7 +1074,7 @@
         },
         {
           "path": "pa/units/sea/l_sea_scout/l_sea_scout_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1225,7 +1225,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_lander/l_orbital_lander_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1300,7 +1300,7 @@
         },
         {
           "path": "pa/units/land/l_land_barrier/l_land_barrier_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1390,7 +1390,7 @@
         },
         {
           "path": "pa/units/commanders/l_quad/l_quad_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1705,7 +1705,7 @@
         },
         {
           "path": "pa/units/land/l_hover_tank/l_hover_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -1836,7 +1836,7 @@
         },
         {
           "path": "pa/units/commanders/l_cyclops/l_cyclops_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2148,7 +2148,7 @@
         },
         {
           "path": "pa/units/air/l_bomber/l_bomber_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2292,7 +2292,7 @@
         },
         {
           "path": "pa/units/air/l_fabrication_aircraft/l_fabrication_aircraft_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2412,7 +2412,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_fabrication_bot/l_orbital_fabrication_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2520,7 +2520,7 @@
         },
         {
           "path": "pa/units/sea/l_fabrication_ship/l_fabrication_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2641,7 +2641,7 @@
         },
         {
           "path": "pa/units/land/l_fabrication_bot/l_fabrication_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2762,7 +2762,7 @@
         },
         {
           "path": "pa/units/air/l_air_factory/l_air_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2880,7 +2880,7 @@
         },
         {
           "path": "pa/units/land/l_fabrication_vehicle_combat/l_fabrication_vehicle_combat_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -2982,7 +2982,7 @@
         },
         {
           "path": "pa/units/land/l_swarm_hive/l_swarm_hive_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -3119,7 +3119,7 @@
         },
         {
           "path": "pa/units/land/l_scout_bot/l_scout_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -3276,7 +3276,7 @@
         },
         {
           "path": "pa/units/land/l_scout_bot/l_scout_bot_radar_mode_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -3498,7 +3498,7 @@
         },
         {
           "path": "pa/units/land/l_t1_turret_basic/l_t1_turret_basic_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -3649,7 +3649,7 @@
         },
         {
           "path": "pa/units/land/l_sniper_bot/l_sniper_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4080,7 +4080,7 @@
         },
         {
           "path": "pa/units/air/l_raider/l_raider_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4198,7 +4198,7 @@
         },
         {
           "path": "pa/units/land/l_mex/l_mex_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4291,7 +4291,7 @@
         },
         {
           "path": "pa/units/land/l_shotgun_tank/l_shotgun_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4411,7 +4411,7 @@
         },
         {
           "path": "pa/units/air/l_air_carrier/l_drone/l_drone_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4556,7 +4556,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_battleship/l_drone/l_drone_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -4867,7 +4867,7 @@
         },
         {
           "path": "pa/units/air/l_air_bomb/l_air_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5058,7 +5058,7 @@
         },
         {
           "path": "pa/units/air/l_transport/l_transport_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5135,7 +5135,7 @@
         },
         {
           "path": "pa/units/commanders/l_overwatch/l_overwatch_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5449,7 +5449,7 @@
         },
         {
           "path": "pa/units/land/l_bot_aa/l_bot_aa_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5577,7 +5577,7 @@
         },
         {
           "path": "pa/units/land/l_assault_bot/l_assault_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5701,7 +5701,7 @@
         },
         {
           "path": "pa/units/land/l_energy_plant/l_energy_plant_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5792,7 +5792,7 @@
         },
         {
           "path": "pa/units/land/l_bot_bomb/l_bot_bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -5955,7 +5955,7 @@
         },
         {
           "path": "pa/units/land/l_necromancer/l_minion/l_minion_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -6289,7 +6289,7 @@
         },
         {
           "path": "pa/units/land/l_radar/l_radar_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -6377,7 +6377,7 @@
         },
         {
           "path": "pa/units/commanders/l_tank/l_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -6689,7 +6689,7 @@
         },
         {
           "path": "pa/units/orbital/l_mining_platform/l_mining_platform_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -6793,7 +6793,7 @@
         },
         {
           "path": "pa/units/sea/l_torpedo_launcher/l_torpedo_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -6924,7 +6924,7 @@
         },
         {
           "path": "pa/units/land/l_t1_turret_adv/l_t1_turret_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7051,7 +7051,7 @@
         },
         {
           "path": "pa/units/commanders/l_raptor/l_raptor_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7363,7 +7363,7 @@
         },
         {
           "path": "pa/units/air/l_fighter/l_fighter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7474,7 +7474,7 @@
         },
         {
           "path": "pa/units/sea/l_sea_mine/l_sea_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7576,7 +7576,7 @@
         },
         {
           "path": "pa/units/land/l_tank_shank/l_tank_shank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7705,7 +7705,7 @@
         },
         {
           "path": "pa/units/sea/l_naval_factory/l_naval_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7822,7 +7822,7 @@
         },
         {
           "path": "pa/units/land/l_air_defense/l_air_defense_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -7987,7 +7987,7 @@
         },
         {
           "path": "pa/units/land/l_teleporter/l_teleporter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8081,7 +8081,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_probe/l_orbital_probe_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8153,7 +8153,7 @@
         },
         {
           "path": "pa/units/land/l_land_mine/l_land_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8268,7 +8268,7 @@
         },
         {
           "path": "pa/units/land/l_land_mine/triggered/l_land_mine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8398,7 +8398,7 @@
         },
         {
           "path": "pa/units/orbital/l_radar_satellite/l_radar_satellite_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8481,7 +8481,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_launcher/l_orbital_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8599,7 +8599,7 @@
         },
         {
           "path": "pa/units/land/l_mortar_tank/l_mortar_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8767,7 +8767,7 @@
         },
         {
           "path": "pa/units/sea/l_frigate/l_frigate_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -8876,7 +8876,7 @@
         },
         {
           "path": "pa/units/land/l_artillery_short/l_artillery_short_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9015,7 +9015,7 @@
         },
         {
           "path": "pa/units/orbital/l_ion_defense/l_ion_defense_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9176,7 +9176,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_fighter/l_orbital_fighter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9294,7 +9294,7 @@
         },
         {
           "path": "pa/units/land/l_bot_factory/l_bot_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9412,7 +9412,7 @@
         },
         {
           "path": "pa/units/land/l_fabrication_vehicle_adv/l_fabrication_vehicle_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9546,7 +9546,7 @@
         },
         {
           "path": "pa/units/land/l_vehicle_factory_adv/l_vehicle_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9651,7 +9651,7 @@
         },
         {
           "path": "pa/units/air/l_fabrication_aircraft_adv/l_fabrication_aircraft_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9785,7 +9785,7 @@
         },
         {
           "path": "pa/units/sea/l_fabrication_ship_adv/l_fabrication_ship_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -9919,7 +9919,7 @@
         },
         {
           "path": "pa/units/land/l_fabrication_bot_adv/l_fabrication_bot_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10052,7 +10052,7 @@
         },
         {
           "path": "pa/units/air/l_air_factory_adv/l_air_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10157,7 +10157,7 @@
         },
         {
           "path": "pa/units/land/l_mex_adv/l_mex_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10234,7 +10234,7 @@
         },
         {
           "path": "pa/units/land/l_energy_plant_adv/l_energy_plant_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10385,7 +10385,7 @@
         },
         {
           "path": "pa/units/sea/l_naval_factory_adv/l_naval_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10489,7 +10489,7 @@
         },
         {
           "path": "pa/units/land/l_bot_factory_adv/l_bot_factory_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10596,7 +10596,7 @@
         },
         {
           "path": "pa/units/land/l_air_defense_adv/l_air_defense_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10714,7 +10714,7 @@
         },
         {
           "path": "pa/units/land/l_flame_turret/l_flame_turret_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -10841,7 +10841,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_laser/l_orbital_laser_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -11112,7 +11112,7 @@
         },
         {
           "path": "pa/units/land/l_control_module/l_control_module_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -11186,7 +11186,7 @@
         },
         {
           "path": "pa/units/orbital/l_defense_satellite/l_defense_satellite_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -11672,7 +11672,7 @@
         },
         {
           "path": "pa/units/air/l_flying_teleporter/l_flying_teleporter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -11758,7 +11758,7 @@
         },
         {
           "path": "pa/units/land/l_sniper_tank/l_sniper_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -11882,7 +11882,7 @@
         },
         {
           "path": "pa/units/land/l_rocket_barrage/l_rocket_barrage_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12006,7 +12006,7 @@
         },
         {
           "path": "pa/units/orbital/l_delta_v_engine/l_delta_v_engine_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12084,7 +12084,7 @@
         },
         {
           "path": "pa/units/land/l_tank_heavy_armor/l_tank_heavy_armor_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12205,7 +12205,7 @@
         },
         {
           "path": "pa/units/land/l_riot_bot/l_riot_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12325,7 +12325,7 @@
         },
         {
           "path": "pa/units/sea/l_battleship/l_battleship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12502,7 +12502,7 @@
         },
         {
           "path": "pa/units/air/l_fighter_adv/l_fighter_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12655,7 +12655,7 @@
         },
         {
           "path": "pa/units/land/l_artillery_long/l_artillery_long_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12789,7 +12789,7 @@
         },
         {
           "path": "pa/units/sea/l_sea_tank/l_sea_tank_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -12993,7 +12993,7 @@
         },
         {
           "path": "pa/units/land/l_tank_swarm/l_tank_swarm_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13163,7 +13163,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_battleship/l_orbital_battleship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13403,7 +13403,7 @@
         },
         {
           "path": "pa/units/air/l_air_scout_adv/l_air_scout_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13532,7 +13532,7 @@
         },
         {
           "path": "pa/units/land/l_anti_nuke_launcher/l_anti_nuke_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13686,7 +13686,7 @@
         },
         {
           "path": "pa/units/sea/l_hover_ship/l_hover_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13858,7 +13858,7 @@
         },
         {
           "path": "pa/units/orbital/l_radar_satellite_adv/l_radar_satellite_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -13975,7 +13975,7 @@
         },
         {
           "path": "pa/units/air/l_gunship/l_gunship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14142,7 +14142,7 @@
         },
         {
           "path": "pa/units/sea/l_missile_ship/l_missile_ship_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14376,7 +14376,7 @@
         },
         {
           "path": "pa/units/air/l_air_carrier/l_air_carrier_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14502,7 +14502,7 @@
         },
         {
           "path": "pa/units/land/l_bot_artillery/l_bot_artillery_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14628,7 +14628,7 @@
         },
         {
           "path": "pa/units/land/l_bot_artillery_adv/l_bot_artillery_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14798,7 +14798,7 @@
         },
         {
           "path": "pa/units/land/l_necromancer/l_necromancer_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -14921,7 +14921,7 @@
         },
         {
           "path": "pa/units/land/l_storage/l_storage_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15043,7 +15043,7 @@
         },
         {
           "path": "pa/units/land/l_bot_aa_adv/l_bot_aa_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15154,7 +15154,7 @@
         },
         {
           "path": "pa/units/land/l_radar_adv/l_radar_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15236,7 +15236,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_railgun/l_orbital_railgun_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15360,7 +15360,7 @@
         },
         {
           "path": "pa/units/land/l_hover_tank_adv/l_hover_tank_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15543,7 +15543,7 @@
         },
         {
           "path": "pa/units/land/l_bot_support_commander/l_bot_support_commander_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15733,7 +15733,7 @@
         },
         {
           "path": "pa/units/air/l_firestarter/l_drop_turret/l_drop_turret_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -15857,7 +15857,7 @@
         },
         {
           "path": "pa/units/land/l_shield_gen/l_shield_gen_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16003,7 +16003,7 @@
         },
         {
           "path": "pa/units/sea/l_fabrication_sub_combat_adv/l_fabrication_sub_combat_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16110,7 +16110,7 @@
         },
         {
           "path": "pa/units/air/l_firestarter/l_firestarter_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16280,7 +16280,7 @@
         },
         {
           "path": "pa/units/land/l_tank_laser_adv/l_tank_laser_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16407,7 +16407,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_dropper/l_orbital_dropper_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16555,7 +16555,7 @@
         },
         {
           "path": "pa/units/orbital/l_orbital_factory/l_orbital_factory_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16658,7 +16658,7 @@
         },
         {
           "path": "pa/units/land/l_nuke_launcher/l_nuke_launcher_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16819,7 +16819,7 @@
         },
         {
           "path": "pa/units/land/l_bot_artillery/bomb/bomb_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -16923,7 +16923,7 @@
         },
         {
           "path": "pa/units/sea/l_torpedo_launcher_adv/l_torpedo_launcher_adv_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -17043,7 +17043,7 @@
         },
         {
           "path": "pa/units/land/l_titan_structure/l_titan_structure_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -17154,7 +17154,7 @@
         },
         {
           "path": "pa/units/air/l_titan_air/l_titan_air_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -17360,7 +17360,7 @@
         },
         {
           "path": "pa/units/land/l_titan_vehicle/l_titan_vehicle_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -17557,7 +17557,7 @@
         },
         {
           "path": "pa/units/land/l_titan_bot/l_titan_bot_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {
@@ -17807,7 +17807,7 @@
         },
         {
           "path": "pa/units/orbital/l_titan_orbital/l_titan_orbital_icon_buildbar.png",
-          "source": "com.pa.legion-expansion-server"
+          "source": "com.pa.legion-expansion-client"
         }
       ],
       "unit": {

@@ -16,7 +16,11 @@
   },
   "guard_layer": "WL_AnySurface",
   "max_health": 50,
-  "mesh_bounds": [0.01, 0.01, 0.01],
+  "mesh_bounds": [
+    0.01,
+    0.01,
+    0.01
+  ],
   "navigation": {
     "acceleration": 0,
     "brake": 0,
@@ -54,7 +58,10 @@
   "tools": [
     {
       "aim_bone": "bone_root",
-      "muzzle_bone": ["bone_root", "bone_root"],
+      "muzzle_bone": [
+        "bone_root",
+        "bone_root"
+      ],
       "record_index": 0,
       "show_range": false,
       "spec_id": "/pa/units/land/l_tank_swarm/chain/chain_tool_weapon.json"
