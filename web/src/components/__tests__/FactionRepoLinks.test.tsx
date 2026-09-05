@@ -13,7 +13,7 @@ describe('FactionRepoLinks', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('shows one "Source" link pointing at the repo root', () => {
+  it('shows one owner/repo link pointing at the repo root', () => {
     render(
       <FactionRepoLinks
         mods={[
@@ -22,13 +22,13 @@ describe('FactionRepoLinks', () => {
         ]}
       />
     )
-    const link = screen.getByRole('link', { name: /source/i })
+    const link = screen.getByRole('link', { name: 'Legion-Expansion/Legion-Expansion' })
     expect(link).toHaveAttribute('href', 'https://github.com/Legion-Expansion/Legion-Expansion')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     expect(link).toHaveAttribute('target', '_blank')
   })
 
-  it('labels each repo when a faction spans more than one', () => {
+  it('labels every repo when a faction spans more than one', () => {
     render(
       <FactionRepoLinks
         mods={[

@@ -35,7 +35,7 @@ export function FactionRepoLinks({ mods, className = '' }: FactionRepoLinksProps
           title={`View ${link.label} on GitHub`}
         >
           <GitHubIcon />
-          <span>{links.length > 1 ? link.label : 'Source'}</span>
+          <span>{link.label}</span>
         </a>
       ))}
     </div>
