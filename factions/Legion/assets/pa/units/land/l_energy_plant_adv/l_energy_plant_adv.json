@@ -35,13 +35,21 @@
     {
       "bone": "socket_effect",
       "filename": "/pa/units/land/l_energy_plant_adv/black_hole.pfx",
-      "offset": [0, 0, 0],
+      "offset": [
+        0,
+        0,
+        0
+      ],
       "type": "idle"
     }
   ],
   "headlights": [],
   "max_health": 2500,
-  "mesh_bounds": [25, 25, 12],
+  "mesh_bounds": [
+    25,
+    25,
+    12
+  ],
   "model": [
     {
       "animations": {

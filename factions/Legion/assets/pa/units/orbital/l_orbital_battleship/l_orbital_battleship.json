@@ -4,7 +4,11 @@
   "TEMP_texelinfo": 31.6199,
   "attachable": {
     "offsets": {
-      "root": [0, 0, 0]
+      "root": [
+        0,
+        0,
+        0
+      ]
     }
   },
   "attack_range_frac": 0.6,
@@ -65,7 +69,11 @@
   ],
   "guard_layer": "WL_AnySurface",
   "max_health": 5500,
-  "mesh_bounds": [45, 77, 15.958],
+  "mesh_bounds": [
+    45,
+    77,
+    15.958
+  ],
   "model": {
     "animtree": "/pa/anim/anim_trees/l_orbital_battleship_anim_tree.json",
     "filename": "/pa/units/orbital/l_orbital_battleship/l_orbital_battleship.papa"

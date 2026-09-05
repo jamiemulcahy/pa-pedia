@@ -60,7 +60,11 @@
   ],
   "guard_layer": "WL_AnySurface",
   "max_health": 1100,
-  "mesh_bounds": [11, 15, 8],
+  "mesh_bounds": [
+    11,
+    15,
+    8
+  ],
   "model": {
     "animations": {
       "deploy": "/pa/units/air/l_firestarter/l_firestarter_deploy.papa",

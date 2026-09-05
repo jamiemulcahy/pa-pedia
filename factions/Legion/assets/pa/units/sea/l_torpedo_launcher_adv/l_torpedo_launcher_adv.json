@@ -7,7 +7,9 @@
   "atrophy_rate": 30.0,
   "base_spec": "/pa/units/land/base_structure/base_structure.json",
   "build_metal_cost": 1000,
-  "command_caps": ["ORDER_Attack"],
+  "command_caps": [
+    "ORDER_Attack"
+  ],
   "events": {
     "build_complete": {
       "audio_cue": "/SE/Build_Complete/sea"
@@ -22,7 +24,11 @@
   },
   "guard_layer": "WL_WaterSurface",
   "max_health": 4000,
-  "mesh_bounds": [30, 18, 6],
+  "mesh_bounds": [
+    30,
+    18,
+    6
+  ],
   "model": {
     "animations": {
       "fire": "/pa/units/sea/l_torpedo_launcher_adv/l_torpedo_launcher_adv_anim_fire.papa"
