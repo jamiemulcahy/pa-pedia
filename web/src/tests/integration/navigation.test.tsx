@@ -40,7 +40,8 @@ describe('Navigation Integration Tests', () => {
     })
 
     // Click on MLA faction
-    const mlaCard = screen.getByText('MLA').closest('a')
+    // The card's click target is an overlay anchor labelled with the faction name.
+    const mlaCard = screen.getByRole('link', { name: 'MLA' })
     expect(mlaCard).toBeTruthy()
 
     // Verify we can see the faction cards

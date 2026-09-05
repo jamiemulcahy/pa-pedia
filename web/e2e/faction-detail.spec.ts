@@ -20,6 +20,22 @@ test.describe('Faction Detail page', () => {
       await expect(page.getByText(/Extends:/i)).toBeVisible()
     })
 
+    test('links to the source repo root, deduped', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.FACTION.id}`)
+      await waitForFactionLoad(page)
+
+      const repoLink = page.getByRole('link', { name: 'test-org/test-faction' })
+      await expect(repoLink).toHaveCount(1)
+      await expect(repoLink).toHaveAttribute('href', 'https://github.com/test-org/test-faction')
+    })
+
+    test('shows no repo link for a faction with no GitHub source', async ({ page }) => {
+      await page.goto(`/faction/${FACTIONS.BASE_GAME.id}`)
+      await waitForFactionLoad(page)
+
+      await expect(page.locator('main a[href*="github.com"]')).toHaveCount(0)
+    })
+
     test('displays units grouped by category', async ({ page }) => {
       await page.goto(`/faction/${FACTIONS.BASE_GAME.id}`)
       await waitForFactionLoad(page)

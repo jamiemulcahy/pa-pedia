@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
 /**
  * Test fixture faction constants.
@@ -128,6 +128,18 @@ export const KNOWN_UNITS = {
     buildCost: 350,
   },
 } as const
+
+/**
+ * Locate a whole faction card on the home page.
+ *
+ * The card's route link is an overlay anchor covering the card rather than a
+ * wrapper around it, so that the source-repo links can sit in the card's normal
+ * flow. Scoping to the anchor would therefore find none of the card's content -
+ * scope to the card container instead.
+ */
+export function factionCard(page: Page, factionId: string): Locator {
+  return page.locator(`[data-testid="faction-card"]:has(a[href="/faction/${factionId}"])`)
+}
 
 /**
  * Wait for the faction detail page to finish loading units.

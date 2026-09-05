@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useFactions } from '@/hooks/useFactions'
 import { getAssetUrl, releaseAssetUrl } from '@/services/assetUrlManager'
 import { SEO } from '@/components/SEO'
+import { FactionRepoLinks } from '@/components/FactionRepoLinks'
 import { JsonLd } from '@/components/JsonLd'
 import { WEBSITE_SCHEMA, PA_TITANS_GAME } from '@/components/seoSchemas'
 import type { FactionWithFolder } from '@/types/faction'
@@ -54,11 +55,8 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
   ) ? effectiveBackgroundUrl : null
 
   return (
-    <div key={faction.folderName} className="relative group h-full">
-      <Link
-        to={`/faction/${faction.folderName}`}
-        className="relative block h-full min-h-[280px] border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden"
-      >
+    <div key={faction.folderName} data-testid="faction-card" className="relative group h-full">
+      <div className="relative h-full min-h-[280px] border rounded-lg hover:border-primary transition-all hover:shadow-lg hover:shadow-primary/20 overflow-hidden">
         {/* Background image layer */}
         {safeBackgroundUrl && (
           <div
@@ -66,8 +64,17 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
             style={{ backgroundImage: `url(${safeBackgroundUrl})` }}
           />
         )}
-        {/* Content layer */}
-        <div className="relative z-10 p-8 h-full flex flex-col">
+        {/* Click target for the whole card. It sits under the content rather than
+            wrapping it so the source-repo anchor can live in normal flow - an
+            anchor cannot nest inside another anchor. */}
+        <Link
+          to={`/faction/${faction.folderName}`}
+          className="absolute inset-0 z-10"
+          aria-label={faction.displayName}
+        />
+        {/* Content layer - transparent to clicks so they reach the link below,
+            except for the nested links that opt back in. */}
+        <div className="relative z-20 p-8 h-full flex flex-col pointer-events-none">
           <div className="flex items-start justify-between mb-4">
             <div className="text-4xl font-display font-bold tracking-wide">{faction.displayName}</div>
             <div className="flex gap-1.5">
@@ -89,16 +96,19 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
             </div>
           )}
           <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">{faction.description}</div>
-          {/* Wrapped, not bare text: page translation reparents bare text nodes into
-              <font> wrappers, so React's removeChild for the author segment would miss
-              if a card ever renders with an author and then without one. See the same
-              guard on FactionDetail's unit count. */}
-          <div data-testid="faction-byline" className="text-sm text-muted-foreground font-mono mt-auto">
-            {faction.author && <span>{`By ${faction.author} • `}</span>}
-            <span>{`Version ${faction.version}`}</span>
+          <div className="mt-auto flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+            {/* Wrapped, not bare text: page translation reparents bare text nodes into
+                <font> wrappers, so React's removeChild for the author segment would miss
+                if a card ever renders with an author and then without one. See the same
+                guard on FactionDetail's unit count. */}
+            <div data-testid="faction-byline" className="text-sm text-muted-foreground font-mono">
+              {faction.author && <span>{`By ${faction.author} • `}</span>}
+              <span>{`Version ${faction.version}`}</span>
+            </div>
+            <FactionRepoLinks mods={faction.mods} className="pointer-events-auto" />
           </div>
         </div>
-      </Link>
+      </div>
       {faction.isLocal && (
         <button
           onClick={(e) => {

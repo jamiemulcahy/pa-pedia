@@ -7,6 +7,8 @@
   "type": "mod",
   "build": "100000",
   "mods": [
-    "com.test.faction-mod"
+    "com.test.faction-mod",
+    "github.com/test-org/test-faction/tree/main/src/server",
+    "github.com/test-org/test-faction/tree/main/src/client"
   ]
 }
