@@ -1,10 +1,10 @@
 {
   "identifier": "second-wave",
   "displayName": "Second Wave",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "author": "Anonemous2, billthebluebot, Taiga, Quitch, Quildtide, Ferretmaster, Tatarstan, DrWondertainment",
   "description": "Expansion mod adding new units to MLA, Legion, and Bugs factions",
-  "dateCreated": "2026-08-31",
+  "dateCreated": "2026-09-10",
   "build": "124644",
   "type": "mod",
   "mods": [
