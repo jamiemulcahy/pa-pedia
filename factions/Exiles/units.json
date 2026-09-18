@@ -145,7 +145,7 @@
         },
         {
           "path": "pa/units/air/t_air_fac/t_air_fac_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -261,7 +261,7 @@
         },
         {
           "path": "pa/units/land/ambush_twr/hid/ambush_twr_hid_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -392,7 +392,7 @@
         },
         {
           "path": "pa/units/land/ambush_twr/ambush_twr_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -553,7 +553,7 @@
         },
         {
           "path": "pa/units/land/t_metal_extractor_0/t_metal_extractor_0_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -681,7 +681,7 @@
         },
         {
           "path": "pa/units/commanders/exiles_blueberry/exiles_blueberry_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -997,7 +997,7 @@
         },
         {
           "path": "pa/units/land/lightning/lightning_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -1116,7 +1116,7 @@
         },
         {
           "path": "pa/units/land/t_bot_fac/t_bot_fac_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -1231,7 +1231,7 @@
         },
         {
           "path": "pa/units/commanders/exiles_brainiac/exiles_brainiac_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -1470,7 +1470,7 @@
         },
         {
           "path": "pa/units/sea/a_mortar/a_mortar_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -1789,7 +1789,7 @@
         },
         {
           "path": "pa/units/land/roamer/roamer_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -1912,7 +1912,7 @@
         },
         {
           "path": "pa/units/land/can/can_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2037,7 +2037,7 @@
         },
         {
           "path": "pa/units/land/cyclone/cyclone_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2177,7 +2177,7 @@
         },
         {
           "path": "pa/units/air/scout/dragonfly_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2256,7 +2256,7 @@
         },
         {
           "path": "pa/units/land/pylon/pylon_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2382,7 +2382,7 @@
         },
         {
           "path": "pa/units/land/t_power_storage/t_power_storage_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2469,7 +2469,7 @@
         },
         {
           "path": "pa/units/land/t_storage/t_storage_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2586,7 +2586,7 @@
         },
         {
           "path": "pa/units/air/t_air_fab/t_air_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2711,7 +2711,7 @@
         },
         {
           "path": "pa/units/structures/fab_complex/adv_fab_turret_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2819,7 +2819,7 @@
         },
         {
           "path": "pa/units/land/t_bot_fab/t_bot_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -2941,7 +2941,7 @@
         },
         {
           "path": "pa/units/sea/t_naval_fab/t_naval_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3068,7 +3068,7 @@
         },
         {
           "path": "pa/units/land/t_tank_fab/t_tank_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3189,7 +3189,7 @@
         },
         {
           "path": "pa/units/sea/a_croc/a_croc_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3325,7 +3325,7 @@
         },
         {
           "path": "pa/units/land/t_arta/t_arta_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3467,7 +3467,7 @@
         },
         {
           "path": "pa/units/sea/hardtack/hardtack_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3639,7 +3639,7 @@
         },
         {
           "path": "pa/units/land/t_aa_twr/t_aa_twr_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3784,7 +3784,7 @@
         },
         {
           "path": "pa/units/land/tank_wheel/tank_wheel_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -3904,7 +3904,7 @@
         },
         {
           "path": "pa/units/exiles/battle_fab/battle_fab_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4029,7 +4029,7 @@
         },
         {
           "path": "pa/units/land/hyena/hyena_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4107,7 +4107,7 @@
         },
         {
           "path": "pa/units/land/t_metal_extractor_1/t_metal_extractor_1_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4178,7 +4178,7 @@
         },
         {
           "path": "pa/units/air/fighter_stealth/fighter_stealth_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4292,7 +4292,7 @@
         },
         {
           "path": "pa/units/land/sword_dox/sword_dox_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4407,7 +4407,7 @@
         },
         {
           "path": "pa/units/land/hail/hail_mine/hail_mine_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4532,7 +4532,7 @@
         },
         {
           "path": "pa/units/land/lice/lice_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4609,7 +4609,7 @@
         },
         {
           "path": "pa/units/commanders/exiles_maxim/exiles_maxim_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -4968,7 +4968,7 @@
         },
         {
           "path": "pa/units/land/meerkat/meerkat_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5103,7 +5103,7 @@
         },
         {
           "path": "pa/units/land/gale/nuke_mine/nuke_mine_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5206,7 +5206,7 @@
         },
         {
           "path": "pa/units/land/t_tank_flak/t_tank_flak_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5330,7 +5330,7 @@
         },
         {
           "path": "pa/units/orbital/t_orbital_launcher/t_orbital_launcher_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5438,7 +5438,7 @@
         },
         {
           "path": "pa/units/land/pylon/overcharged/pylon_overcharged_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5587,7 +5587,7 @@
         },
         {
           "path": "pa/units/addon/r_radar/r_radar_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5675,7 +5675,7 @@
         },
         {
           "path": "pa/units/land/reactor/reactor_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5857,7 +5857,7 @@
         },
         {
           "path": "pa/units/air/t_bomber/t_bomber_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -5995,7 +5995,7 @@
         },
         {
           "path": "pa/units/sea/scilla/scilla_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6111,7 +6111,7 @@
         },
         {
           "path": "pa/units/base/shrapnel/shrapnel_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6222,7 +6222,7 @@
         },
         {
           "path": "pa/units/sea/t_hover_skiff/t_hover_skiff_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6336,7 +6336,7 @@
         },
         {
           "path": "pa/units/air/t_transport/t_transport_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6413,7 +6413,7 @@
         },
         {
           "path": "pa/units/land/hunter/hunter_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6528,7 +6528,7 @@
         },
         {
           "path": "pa/units/land/t_tank_fac/t_tank_fac_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6644,7 +6644,7 @@
         },
         {
           "path": "pa/units/commanders/exiles_taurus/exiles_taurus_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -6962,7 +6962,7 @@
         },
         {
           "path": "pa/units/addon/r_teleporter/r_teleporter_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7055,7 +7055,7 @@
         },
         {
           "path": "pa/units/sea/t_naval_fac/t_naval_fac_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7170,7 +7170,7 @@
         },
         {
           "path": "pa/units/land/tin/tin_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7290,7 +7290,7 @@
         },
         {
           "path": "pa/units/land/tin/dead/tin_ded_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7396,7 +7396,7 @@
         },
         {
           "path": "pa/units/sea/t_torp_launcher/t_torp_launcher_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7525,7 +7525,7 @@
         },
         {
           "path": "pa/units/land/bug_gas_turret/bug_gas_turret_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7651,7 +7651,7 @@
         },
         {
           "path": "pa/units/land/t_metal_extractor_01/t_metal_extractor_01_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7762,7 +7762,7 @@
         },
         {
           "path": "pa/units/addon/r_umbrella/r_umbrella_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -7927,7 +7927,7 @@
         },
         {
           "path": "pa/units/land/t_wall/t_wall_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8325,7 +8325,7 @@
         },
         {
           "path": "pa/units/land/t_bot_fab_adv/t_bot_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8464,7 +8464,7 @@
         },
         {
           "path": "pa/units/air/t_air_fac_adv/t_air_fac_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8578,7 +8578,7 @@
         },
         {
           "path": "pa/units/land/t_bot_fac_adv/t_bot_fac_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8693,7 +8693,7 @@
         },
         {
           "path": "pa/units/sea/t_naval_fab_adv/t_naval_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8837,7 +8837,7 @@
         },
         {
           "path": "pa/units/exiles/battle_fab_adv/battle_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -8978,7 +8978,7 @@
         },
         {
           "path": "pa/units/land/t_metal_extractor_2/t_metal_extractor_2_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9055,7 +9055,7 @@
         },
         {
           "path": "pa/units/land/adv_pylon/adv_pylon_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9172,7 +9172,7 @@
         },
         {
           "path": "pa/units/land/t_tank_fac_adv/t_tank_fac_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9286,7 +9286,7 @@
         },
         {
           "path": "pa/units/sea/t_torp_launcher_adv/t_torp_launcher_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9407,7 +9407,7 @@
         },
         {
           "path": "pa/units/land/t_tank_fab_adv/t_tank_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9547,7 +9547,7 @@
         },
         {
           "path": "pa/units/land/anti_ballistics/anti_ballistics_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9682,7 +9682,7 @@
         },
         {
           "path": "pa/units/land/t_anti_nuke_launcher/t_anti_nuke_launcher_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9838,7 +9838,7 @@
         },
         {
           "path": "pa/units/land/aa_missile_launcher/aa_missile_launcher_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -9990,7 +9990,7 @@
         },
         {
           "path": "pa/units/land/t_aa_twr_adv/t_aa_twr_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10114,7 +10114,7 @@
         },
         {
           "path": "pa/units/land/gale/gale_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10221,7 +10221,7 @@
         },
         {
           "path": "pa/units/addon/t_control_module/t_control_module_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10297,7 +10297,7 @@
         },
         {
           "path": "pa/units/land/stalker/stalker_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10420,7 +10420,7 @@
         },
         {
           "path": "pa/units/land/tank_gattling/tank_gattling_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10548,7 +10548,7 @@
         },
         {
           "path": "pa/units/land/tripod/tripod_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10688,7 +10688,7 @@
         },
         {
           "path": "pa/units/air/strat_bomber/strat_bomber_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10831,7 +10831,7 @@
         },
         {
           "path": "pa/units/air/t_air_fab_adv/t_air_fab_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -10972,7 +10972,7 @@
         },
         {
           "path": "pa/units/air/t_gunship/t_gunship_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11099,7 +11099,7 @@
         },
         {
           "path": "pa/units/land/hail/hail_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11234,7 +11234,7 @@
         },
         {
           "path": "pa/units/addon/t_delta_v_engine/t_delta_v_engine_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11314,7 +11314,7 @@
         },
         {
           "path": "pa/units/air/t_transport_adv/t_transport_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11398,7 +11398,7 @@
         },
         {
           "path": "pa/units/sea/t_naval_fac_adv/t_naval_fac_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11509,7 +11509,7 @@
         },
         {
           "path": "pa/units/land/tank_heavy_adv/tank_heavy_adv_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11679,7 +11679,7 @@
         },
         {
           "path": "pa/units/land/t_arta_long/t_arta_long_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11852,7 +11852,7 @@
         },
         {
           "path": "pa/units/sea/t_battleship/t_battleship_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -11975,7 +11975,7 @@
         },
         {
           "path": "pa/units/sea/cruiser/cruiser_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12093,7 +12093,7 @@
         },
         {
           "path": "pa/units/land/jelly/jelly_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12211,7 +12211,7 @@
         },
         {
           "path": "pa/units/air/t_int/t_int_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12333,7 +12333,7 @@
         },
         {
           "path": "pa/units/land/adv_pylon/overcharged/adv_pylon_overcharged_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12466,7 +12466,7 @@
         },
         {
           "path": "pa/units/commanders/ft_commander/ft_commander_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12658,7 +12658,7 @@
         },
         {
           "path": "pa/units/land/quad_turret/quad_turret_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12780,7 +12780,7 @@
         },
         {
           "path": "pa/units/land/luddite/luddite_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -12897,7 +12897,7 @@
         },
         {
           "path": "pa/units/land/shah/shah_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13020,7 +13020,7 @@
         },
         {
           "path": "pa/units/air/swordfish/swordfish_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13158,7 +13158,7 @@
         },
         {
           "path": "pa/units/land/missile_facility/missile_facility_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13336,7 +13336,7 @@
         },
         {
           "path": "pa/units/land/t_bot_aa/t_bot_aa_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13519,7 +13519,7 @@
         },
         {
           "path": "pa/units/land/torch/torch_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13643,7 +13643,7 @@
         },
         {
           "path": "pa/units/land/seizmic/seizmic_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13728,7 +13728,7 @@
         },
         {
           "path": "pa/units/sea/drone_aa/drone_aa_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13892,7 +13892,7 @@
         },
         {
           "path": "pa/units/exiles/mass_tele_titan/mass_tele_titan_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
@@ -13975,7 +13975,7 @@
         },
         {
           "path": "pa/units/land/t_chimera/t_chimera_icon_buildbar.png",
-          "source": "com.pa.nik.exiles"
+          "source": "com.pa.nik.exiles_client"
         }
       ],
       "unit": {
