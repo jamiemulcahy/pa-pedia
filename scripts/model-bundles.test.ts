@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  hasUnitIndex,
   indexModelBundles,
   modelBundleSidecarName,
   parseModelBundleName,
@@ -89,8 +90,8 @@ test('returns null for a faction with no bundles at all', () => {
 })
 
 // --- sidecar index -------------------------------------------------------
-// The sidecar exists so manifest generation doesn't download tens of MB per
-// bundle to read one integer. See modelBundleSidecarName in model-bundles.ts.
+// The sidecar carries the bundle's models.json so neither the web app nor the
+// manifest generator opens tens of MB to read it. See ModelBundleSidecar.
 
 test('derives the sidecar name from a bundle name', () => {
   assert.equal(
@@ -122,9 +123,20 @@ test('finds a bundle sidecar among release assets', () => {
   )
 })
 
-// Bundles published before sidecars existed have none. That must read as "fall
-// back to opening the bundle", never as "this bundle has no units".
+// Bundles published before sidecars existed have none. That must read as
+// "rebuild it from the bundle", never as "this bundle has no units".
 test('reports no sidecar for bundles predating them', () => {
   const assets = [asset('mla-124632-pedia20260711230523-models.zip')]
   assert.equal(selectModelBundleSidecar(assets, 'mla-124632-pedia20260711230523-models.zip'), null)
+})
+
+// Sidecars published before the unit index moved into them carry only the unit
+// count. The manifest generator must rebuild those, not publish an indexUrl the
+// web app would find no units behind.
+test('tells a sidecar with the unit index from one with only a unit count', () => {
+  const legacy = { factionId: 'mla', version: '124667', timestamp: 20260731125725, unitCount: 192 }
+  assert.equal(hasUnitIndex(legacy), false)
+  assert.equal(hasUnitIndex({ ...legacy, units: { tank: { glb: 'models/tank.glb' } } }), true)
+  assert.equal(hasUnitIndex({ ...legacy, units: [] }), false)
+  assert.equal(hasUnitIndex(null), false)
 })

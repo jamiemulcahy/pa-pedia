@@ -238,13 +238,20 @@ export interface ReportOptions {
    * PER_VISITOR_SAMPLE_RATE — so an outage cannot drain the monthly quota.
    */
   perVisitor?: boolean
+  /**
+   * Groups every event from this call site into one Sentry issue. Without it,
+   * Sentry groups by stack, so one failure seen from different frames or
+   * browsers is split across several issues.
+   */
+  fingerprint?: string[]
 }
 export function reportError(error: unknown, options: ReportOptions = {}): void {
-  const { context, level = 'error', perVisitor = false } = options
+  const { context, level = 'error', perVisitor = false, fingerprint } = options
 
   Sentry.captureException(error, {
     level,
     ...(context ? { extra: context } : {}),
     ...(perVisitor ? { tags: { volume: PER_VISITOR_TAG } } : {}),
+    ...(fingerprint ? { fingerprint } : {}),
   })
 }

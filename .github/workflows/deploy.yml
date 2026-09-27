@@ -115,6 +115,52 @@ jobs:
           echo "Faction data downloaded:"
           ls -la web/dist/factions/ || echo "No faction data found"
 
+      # Bake each model bundle's unit index (its `-models.index.json` sidecar)
+      # into the site. Every manifest `models.indexUrl` points here, and unit
+      # pages read it to decide whether to offer the 3D viewer, so that check is
+      # a same-origin static GET rather than a Range read into a 20-80 MB bundle
+      # through the GitHub proxy. At most ~70 KB each, under 10 KB compressed.
+      #
+      # Runs AFTER the manifest download on purpose: generate-manifest uploads a
+      # sidecar before writing any manifest that names it, so everything the
+      # baked manifest references is already on the release by now.
+      #
+      # Then verify every index the manifest names was baked, and fail the
+      # deploy if not: the previous deployment stays live, which beats shipping
+      # a site where every unit page says "couldn't check" for its 3D model.
+      # A manifest from before indexUrl existed fails here too. Regenerate it by
+      # dispatching Faction Models (any one profile) and this deploy re-runs.
+      - name: Download model indexes from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          MANIFEST=web/dist/factions/manifest.json
+          mkdir -p web/dist/model-index
+          if [ ! -f "$MANIFEST" ]; then
+            echo "No manifest baked; nothing references model indexes."
+            exit 0
+          fi
+          # Only when the manifest references a bundle: the faction-models
+          # release may not exist at all (a fork, or before any models).
+          if jq -e '[.factions[].versions[].models | select(. != null)] | length > 0' "$MANIFEST" >/dev/null; then
+            gh release download faction-models --dir web/dist/model-index --pattern "*-models.index.json"
+          fi
+
+          MISSING=$(jq -r '.factions[].versions[].models | select(. != null) | .indexUrl // "(no indexUrl) \(.filename)"' "$MANIFEST" \
+            | while read -r url; do
+                case "$url" in
+                  /model-index/*) [ -f "web/dist$url" ] || echo "$url" ;;
+                  *) echo "$url" ;;
+                esac
+              done)
+          if [ -n "$MISSING" ]; then
+            echo "::error::The manifest names model indexes this deploy could not bake:"
+            echo "$MISSING"
+            exit 1
+          fi
+          echo "Baked $(ls web/dist/model-index | wc -l) model indexes; all referenced ones present."
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
         with:

@@ -367,9 +367,19 @@ never reach a global handler and Sentry cannot see them unless the catch block r
 `reportError()` is called at the sites where the visitor's experience is actually broken:
 - `factionLoader.ts` - manifest load failure (site shows no factions) and local-faction
   load failure (IndexedDB unavailable, reported at `warning` level)
-- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle that could
-  not be read; `UnitModelSection` discards this error by design, so Sentry is the only place
-  it surfaces
+- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle whose index
+  could not be read; `UnitModelSection` discards this error by design, so Sentry is the only
+  place it surfaces. Also a failed Range read of a bundle (reported as a warning, once per
+  session), which the whole-bundle fallback otherwise hides. Both report the *original* error
+  with a fixed `fingerprint`, so one failure is one Sentry issue and its real cause is visible.
+  Its IndexedDB cache is best-effort (`cacheGet`/`cachePut`): a failed read is a miss, a failed
+  write is skipped (a whole bundle that can't be cached is kept in memory instead), and each
+  kind of failure is reported once per session as a warning (`model-cache-unavailable`,
+  fingerprinted by error name). Go through those helpers, not `db.get`/`db.put`, so a broken
+  store never hides the 3D viewer. `DB_VERSION` 2 exists only to re-run `upgrade()`, which
+  recreates stores missing from databases left at v1 without them. If an older tab blocks an
+  upgrade, `getDB` gives up and the session runs without the cache rather than waiting, and the
+  `blocking` handler closes our connection for future bumps: keep both when bumping again
 - `translationGuard.ts` - a DOM call the guard absorbed instead of crashing (once per method
   per page, `warning`, per-visitor sampled); names the component the lint rule missed
 
@@ -526,12 +536,18 @@ Runs **automatically** after `Faction Data Release` (via `workflow_run`), regene
 2. Downloads + decrypts the `pa-base-data` archive (must include unit `.papa` — see note above)
 3. Installs pinned headless Blender (`BLENDER_VERSION`, 5.1.x validated), restored from `actions/cache` when available
 4. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
-5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a small `-models.index.json` sidecar
+5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a `-models.index.json` sidecar holding the bundle's `models.json`
 6. Uploads bundles + sidecars to the **`faction-models`** release (separate from `faction-data`)
-7. Regenerates the manifest so version entries gain their `models` field
+7. Regenerates the manifest so version entries gain their `models` field (with `indexUrl`)
 8. Completing triggers **Deploy to Cloudflare Pages**, which is what actually makes the button appear → see below
 
-**Why a deploy is required**: the deploy bakes `manifest.json` into `web/dist/factions/` and the site reads that static copy, *not* the release. Model generation finishes after the data-release deploy has already baked the older manifest, so `deploy.yml` lists **both** `Faction Data Release` and `Faction Models` in its `workflow_run` trigger. Drop the second one and bundles will exist on the release but stay invisible until an unrelated push redeploys.
+**Why a deploy is required**: the deploy bakes `manifest.json` into `web/dist/factions/` and every sidecar into `web/dist/model-index/`, and the site reads those static copies, *not* the release. Model generation finishes after the data-release deploy has already baked the older manifest, so `deploy.yml` lists **both** `Faction Data Release` and `Faction Models` in its `workflow_run` trigger. Drop the second one and bundles will exist on the release but stay invisible until an unrelated push redeploys.
+
+**Unit page load never touches a bundle**: whether to show the 3D button comes from the bundle's sidecar, baked at `models.indexUrl` (`/model-index/...`) and read with a plain same-origin GET. Bundles are only opened (HTTP Range through the `/faction-models` Pages Function, whole-bundle fallback) once the visitor clicks "View 3D Model". Keep it that way: the page-load check used to Range-read the bundle's central directory through Cloudflare → GitHub, and every failure on that chain hid the button (#520).
+- Sidecars published before they carried the index hold only `unitCount`. `generate-manifest` rebuilds those from the bundle and re-uploads them (one bundle download each, once). It fails rather than publish a bundle without an `indexUrl`.
+- `deploy.yml` fails if the manifest names an index it could not bake, including a manifest from before `indexUrl` existed. The previous deployment stays live. Fix: dispatch **Faction Models** (any one profile), which regenerates the manifest and re-deploys.
+- In the client, a manifest entry with `models` but no `indexUrl` reads as "couldn't check", never "no model".
+- If the Range read of a bundle's central directory fails, that one read falls back to the whole bundle, and the cached bundle then serves every unit in it. `rangeSupport` latches to `'no'` for the session only on zip.js's `ERR_HTTP_RANGE` (a 200 for a ranged request, bad `Content-Range`, 416). Network errors and 403/429/5xx don't latch it.
 
 **Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
 

@@ -11,15 +11,22 @@
  */
 
 import * as fs from 'node:fs'
+import * as os from 'node:os'
 import * as path from 'node:path'
 import { execSync } from 'node:child_process'
 import JSZip from 'jszip'
 import { byTimestampDesc } from './manifest-ordering'
 import {
+  MODEL_INDEX_PATH,
+  hasUnitIndex,
   indexModelBundles,
+  modelBundleSidecarName,
   selectModelBundle,
   selectModelBundleSidecar,
   type ModelBundleAsset,
+  type ModelBundleSidecar,
+  type ModelsIndex,
+  type ParsedModelBundle,
 } from './model-bundles'
 
 const FACTIONS_DIR = path.join(import.meta.dirname, '..', 'factions')
@@ -71,6 +78,8 @@ interface ModelBundleInfo {
   downloadUrl: string
   size: number
   unitCount: number
+  /** Same-origin path of the bundle's unit index, baked in by the deploy. */
+  indexUrl: string
 }
 
 interface VersionEntry {
@@ -184,46 +193,66 @@ function getModelReleaseAssets(): ReleaseAsset[] {
 }
 
 /**
- * Read unitCount for a model bundle.
+ * Resolve a bundle's unit index: its unit count for the manifest, and the site
+ * path the web app reads the index from.
  *
- * Prefers the bundle's sidecar index asset (~100 bytes). Bundles published
- * before sidecars existed have none, so we fall back to downloading the whole
- * bundle (tens of MB) to read `models.json` — correct, just expensive, and it
- * self-heals as those versions age out or get regenerated.
+ * The index comes from the bundle's sidecar (see `ModelBundleSidecar`). A
+ * sidecar published before it carried the unit index, or a bundle with no
+ * sidecar at all, is rebuilt here from the bundle's own `models.json` and
+ * re-uploaded. That costs one bundle download (tens of MB) per legacy bundle,
+ * once; every later run takes the cheap path. Before this, bundles with no
+ * sidecar were downloaded on every run.
  *
- * This runs per version entry that has a bundle, on every manifest
- * regeneration, i.e. on every faction-data push. Keep it cheap.
+ * Throws rather than publishing a bundle without an index: deploy.yml refuses
+ * a manifest naming an index it could not bake, and a failed run is retried
+ * with one click, where a quietly degraded manifest would stay live.
  */
-async function readModelUnitCount(
-  bundle: ModelBundleAsset,
+async function resolveModelIndex(
+  bundle: ParsedModelBundle,
   modelAssets: ModelBundleAsset[]
-): Promise<number> {
-  const sidecar = selectModelBundleSidecar(modelAssets, bundle.name)
-  if (sidecar) {
-    try {
-      const response = await fetch(sidecar.url)
-      if (response.ok) {
-        const parsed = (await response.json()) as { unitCount?: number }
-        if (typeof parsed.unitCount === 'number') return parsed.unitCount
-      }
-      console.warn(`  Sidecar unreadable for ${bundle.name}, falling back to bundle download`)
-    } catch (error) {
-      console.warn(`  Sidecar fetch failed for ${bundle.name} (${error}), falling back`)
+): Promise<{ unitCount: number; indexUrl: string }> {
+  const sidecarName = modelBundleSidecarName(bundle.asset.name)
+  const indexUrl = MODEL_INDEX_PATH + sidecarName
+
+  const existing = selectModelBundleSidecar(modelAssets, bundle.asset.name)
+  if (existing) {
+    // A failed fetch is NOT a reason to rebuild: that would download tens of MB
+    // and overwrite a sidecar that may be fine. Only a legacy one is rebuilt.
+    const response = await fetch(existing.url)
+    if (!response.ok) throw new Error(`${sidecarName}: HTTP ${response.status}`)
+    const parsed: unknown = await response.json()
+    if (hasUnitIndex(parsed)) {
+      return { unitCount: parsed.unitCount ?? Object.keys(parsed.units).length, indexUrl }
     }
   }
 
-  try {
-    console.log(`  Downloading ${bundle.name} to read its unit count (no sidecar)...`)
-    const response = await fetch(bundle.url)
-    if (!response.ok) return 0
-    const zip = await JSZip.loadAsync(await response.arrayBuffer())
-    const indexFile = zip.file('models.json')
-    if (!indexFile) return 0
-    const index = JSON.parse(await indexFile.async('string')) as { unitCount?: number }
-    return index.unitCount ?? 0
-  } catch {
-    return 0
+  console.log(`  Rebuilding ${sidecarName} from the bundle's models.json...`)
+  const response = await fetch(bundle.asset.url)
+  if (!response.ok) throw new Error(`${bundle.asset.name}: HTTP ${response.status}`)
+  const zip = await JSZip.loadAsync(await response.arrayBuffer())
+  const indexFile = zip.file('models.json')
+  if (!indexFile) throw new Error(`${bundle.asset.name} has no models.json`)
+  const index = JSON.parse(await indexFile.async('string')) as ModelsIndex
+
+  const sidecar: ModelBundleSidecar = {
+    factionId: bundle.factionId,
+    version: bundle.version,
+    timestamp: bundle.timestamp,
+    ...index,
   }
+  // Scratch dir, not factions/dist: CI archives that folder as the zip build output.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'model-sidecar-'))
+  try {
+    const sidecarPath = path.join(dir, sidecarName)
+    fs.writeFileSync(sidecarPath, JSON.stringify(sidecar))
+    // --clobber: replaces a pre-index sidecar with a superset of its contents.
+    execSync(`gh release upload ${MODELS_RELEASE_TAG} "${sidecarPath}" --clobber`, {
+      stdio: 'inherit',
+    })
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+  return { unitCount: index.unitCount ?? Object.keys(index.units).length, indexUrl }
 }
 
 /**
@@ -336,12 +365,13 @@ async function main() {
       // with no bundle of its own reports "no models"; older versions keep theirs.
       const bundle = selectModelBundle(modelBundleMap, factionId, zip.parsed!.version)
       if (bundle) {
-        const unitCount = await readModelUnitCount(bundle.asset, modelAssets)
+        const { unitCount, indexUrl } = await resolveModelIndex(bundle, modelAssets)
         entry.models = {
           filename: bundle.asset.name,
           downloadUrl: `/${MODELS_RELEASE_TAG}/${bundle.asset.name}`,
           size: bundle.asset.size,
           unitCount,
+          indexUrl,
         }
       }
 
