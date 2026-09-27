@@ -46,7 +46,7 @@ import {
   ZipReader,
   ERR_HTTP_RANGE,
   HttpRangeReader,
-  BlobReader,
+  Uint8ArrayReader,
   Uint8ArrayWriter,
   configure,
   type Entry,
@@ -161,7 +161,9 @@ interface ModelCacheDB extends DBSchema {
     value: {
       key: string
       timestamp: number
-      blob: Blob
+      // Raw bytes, for the same reason as `units`. Entries written before this
+      // hold a `blob` instead and read as a cache miss.
+      bytes?: ArrayBuffer
     }
   }
 }
@@ -281,19 +283,22 @@ async function downloadWholeBundle(
   url: string,
   cacheKey: string,
   timestamp: number
-): Promise<Blob> {
+): Promise<ArrayBuffer> {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to download model bundle: ${response.status} ${response.statusText}`)
   }
-  const blob = await response.blob()
+  const bytes = await response.arrayBuffer()
   const db = await getDB()
-  await db.put('bundles', { key: cacheKey, timestamp, blob })
-  return blob
+  await db.put('bundles', { key: cacheKey, timestamp, bytes })
+  return bytes
 }
 
-async function extractFromBlob(blob: Blob, names: string[]): Promise<Map<string, Uint8Array>> {
-  const reader = new ZipReader(new BlobReader(blob))
+async function extractFromBytes(
+  bytes: ArrayBuffer,
+  names: string[]
+): Promise<Map<string, Uint8Array>> {
+  const reader = new ZipReader(new Uint8ArrayReader(new Uint8Array(bytes)))
   try {
     const entries = await reader.getEntries()
     const byName = new Map(entries.map((e) => [e.filename, e]))
@@ -325,8 +330,8 @@ async function extractEntries(
   // failure no longer switches the session over to the fallback.
   const db = await getDB()
   const cached = await db.get('bundles', cacheKey)
-  if (cached && cached.timestamp === timestamp) {
-    return extractFromBlob(cached.blob, names)
+  if (cached?.bytes && cached.timestamp === timestamp) {
+    return extractFromBytes(cached.bytes, names)
   }
 
   if (rangeSupport !== 'no') {
@@ -355,7 +360,7 @@ async function extractEntries(
       }
     }
   }
-  return extractFromBlob(await downloadWholeBundle(url, cacheKey, timestamp), names)
+  return extractFromBytes(await downloadWholeBundle(url, cacheKey, timestamp), names)
 }
 
 /**
