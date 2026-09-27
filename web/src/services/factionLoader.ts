@@ -17,7 +17,7 @@ import {
 } from './localFactionStorage'
 import {
   loadManifest,
-  findManifestHttpError,
+  manifestFailureReport,
   getManifestEntry,
   getManifestVersion,
   isDevelopmentMode,
@@ -141,27 +141,12 @@ export async function discoverFactions(): Promise<FactionDiscoveryEntry[]> {
     } catch (error) {
       console.error('Failed to load manifest:', error)
       // Fall back to empty list - user can still use local factions.
-      // Worth reporting: manifestLoader only throws here when the network
+      // Worth reporting: manifestLoader only throws here when the fetch
       // failed AND there is no cache, so the visitor sees a site with no
-      // factions at all. Offline visitors with a warm cache never reach this.
+      // factions at all. Visitors with a warm cache never reach this.
       //
-      // perVisitor: a missing or unreachable manifest breaks the site for
-      // everyone at once, producing one event per visitor for as long as it
-      // lasts. Sampled so an outage cannot drain the monthly quota.
-      //
-      // An edge block (see ManifestHttpError) gets its own issue at warning
-      // level, so scrapers Cloudflare turned away don't read as an outage.
-      // Still reported: a rule that catches real visitors leaves them with no
-      // factions, and this is the only place that would show up.
-      const httpError = findManifestHttpError(error)
-      const edgeBlocked = httpError?.edgeBlocked ?? false
-      reportError(error, {
-        context: { stage: 'discoverFactions:manifest', ...httpError?.diagnostics },
-        perVisitor: true,
-        ...(edgeBlocked
-          ? { level: 'warning' as const, fingerprint: ['manifest-edge-blocked'] }
-          : {}),
-      })
+      // Classification and sampling: see manifestFailureReport.
+      reportError(error, manifestFailureReport(error, 'discoverFactions:manifest'))
     }
   }
 

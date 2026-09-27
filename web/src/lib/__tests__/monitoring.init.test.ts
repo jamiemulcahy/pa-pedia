@@ -3,8 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 // Mocked wholesale: these tests assert what monitoring.ts asks the SDK to do,
 // not what the SDK then does. Kept in its own file so the filterEvent tests
 // still exercise the real types.
+// init records a client so getClient() reflects whether it ran, as in the SDK.
+const sdk = vi.hoisted(() => ({ client: undefined as object | undefined }))
 vi.mock('@sentry/react', () => ({
-  init: vi.fn(),
+  init: vi.fn(() => {
+    sdk.client = {}
+  }),
+  getClient: vi.fn(() => sdk.client),
   captureException: vi.fn(),
   reactRouterBrowserTracingIntegration: vi.fn(() => ({ name: 'router' })),
 }))
@@ -15,6 +20,7 @@ import { initMonitoring, isMonitoringEnabled, reportError } from '../monitoring'
 describe('initMonitoring', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    sdk.client = undefined
   })
 
   // The load-bearing safety property: without a DSN nothing is ever sent, which

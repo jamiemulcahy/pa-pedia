@@ -176,25 +176,23 @@ export function filterEvent(
  * `scope` is injected so the check is testable.
  */
 export function isRealBrowser(scope: object = globalThis): boolean {
-  const g = scope as {
-    Deno?: unknown
-    indexedDB?: unknown
-    navigator?: { webdriver?: unknown }
-  }
-  if (typeof g.Deno !== 'undefined') return false
-  if (typeof g.indexedDB === 'undefined') return false
+  const g = scope as { navigator?: { webdriver?: unknown } }
+  // `in`, not a read: some browsers throw SecurityError from the indexedDB
+  // getter when storage is blocked, and this runs before the app renders.
+  if ('Deno' in g) return false
+  if (!('indexedDB' in g)) return false
   if (g.navigator?.webdriver === true) return false
   return true
 }
 
 /**
- * Whether monitoring is active: configured for this build, and running in a
- * real browser. main.tsx keys the React root error handlers off this, so it
- * must agree with initMonitoring — those handlers swallow console output when
- * registered without an initialised client.
+ * Whether initMonitoring actually started Sentry. Derived from the client
+ * rather than re-checking its conditions, because main.tsx keys the React root
+ * error handlers off this and those swallow console output when registered
+ * without a client.
  */
 export function isMonitoringEnabled(): boolean {
-  return Boolean(import.meta.env.VITE_SENTRY_DSN) && isRealBrowser()
+  return Sentry.getClient() !== undefined
 }
 
 /**

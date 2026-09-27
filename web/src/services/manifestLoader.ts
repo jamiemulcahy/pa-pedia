@@ -10,6 +10,7 @@
  * - In-memory caching to avoid repeated fetches during session
  */
 
+import { reportError, type ReportOptions } from '@/lib/monitoring'
 import { getCachedManifestInfo, cacheManifestInfo } from './staticFactionCache'
 
 // Production site URL for dev-live mode
@@ -149,18 +150,35 @@ export class ManifestHttpError extends Error {
 }
 
 /**
- * Finds the ManifestHttpError behind a manifest failure. loadManifest wraps it
- * as the `cause` of its "no manifest available" error when there is no cached
- * manifest to fall back to.
+ * Finds the ManifestHttpError behind a manifest failure: the error itself, or
+ * the `cause` of loadManifest's "no manifest available" wrapper.
  */
 export function findManifestHttpError(error: unknown): ManifestHttpError | null {
-  let current: unknown = error
-  // Bounded: a cause chain is a few links deep, and a cycle must not hang.
-  for (let depth = 0; depth < 5 && current; depth++) {
-    if (current instanceof ManifestHttpError) return current
-    current = (current as { cause?: unknown }).cause
+  if (error instanceof ManifestHttpError) return error
+  const cause = (error as { cause?: unknown } | null | undefined)?.cause
+  return cause instanceof ManifestHttpError ? cause : null
+}
+
+/**
+ * Report options for a failed manifest load.
+ *
+ * perVisitor: a missing or unreachable manifest breaks the site for everyone
+ * at once, producing one event per visitor for as long as it lasts. Sampled so
+ * an outage cannot drain the monthly quota.
+ *
+ * An edge block (see ManifestHttpError) gets its own issue at warning level,
+ * so scrapers Cloudflare turned away don't read as an outage. It is still
+ * reported: a rule that catches real visitors breaks the site for them.
+ */
+export function manifestFailureReport(error: unknown, stage: string): ReportOptions {
+  const httpError = findManifestHttpError(error)
+  return {
+    context: { stage, ...httpError?.diagnostics },
+    perVisitor: true,
+    ...(httpError?.edgeBlocked
+      ? { level: 'warning', fingerprint: ['manifest-edge-blocked'] }
+      : {}),
   }
-  return null
 }
 
 // In-memory cache for the current session
@@ -220,6 +238,12 @@ async function doLoadManifest(): Promise<FactionManifest> {
     const cached = await getCachedManifestInfo()
     if (cached) {
       console.log('Using cached manifest info for offline mode')
+      // Being offline is expected and not reported. An HTTP error is not
+      // offline: the site answered and refused, and returning visitors only
+      // ever reach this branch — discoverFactions never sees the failure.
+      if (error instanceof ManifestHttpError) {
+        reportError(error, manifestFailureReport(error, 'loadManifest:cachedFallback'))
+      }
       // Return a minimal manifest from cache
       // Note: This won't have download URLs, so new factions can't be loaded
       const placeholderVersion: VersionEntry = {
