@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { simulateBrowserTranslation } from '@/tests/translation'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -189,22 +190,6 @@ describe('UnitModelSection — survives browser page translation', () => {
     vi.clearAllMocks()
   })
 
-  /** Wrap each text node in a <font>, as Chrome/Edge translation does. */
-  function simulateBrowserTranslation(root: HTMLElement) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
-    const texts: Text[] = []
-    while (walker.nextNode()) texts.push(walker.currentNode as Text)
-
-    for (const text of texts) {
-      if (!text.data.trim()) continue
-      const font = document.createElement('font')
-      text.replaceWith(font)
-      font.appendChild(text)
-    }
-    // Without a detached text node these tests would pass for the wrong reason.
-    expect(root.querySelectorAll('font').length).toBeGreaterThan(0)
-  }
-
   class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
     state: { error: Error | null } = { error: null }
     static getDerivedStateFromError(error: Error) {
@@ -229,7 +214,7 @@ describe('UnitModelSection — survives browser page translation', () => {
     // Translation runs while the availability lookup is still in flight; the
     // lookup resolving is what swaps the spinner for the icon.
     expect(screen.getByTestId('view-3d-model-checking')).toBeInTheDocument()
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -244,7 +229,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -259,7 +244,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -274,7 +259,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     await userEvent.click(await screen.findByTestId('view-3d-model'))
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()

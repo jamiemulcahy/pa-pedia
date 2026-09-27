@@ -131,7 +131,7 @@ export function CategoryListColumn({
             className="px-1.5 py-0.5 text-[10px] font-mono bg-muted text-muted-foreground rounded"
             title={`${hiddenVariantCount} variant${hiddenVariantCount !== 1 ? 's' : ''} hidden (identical stats)`}
           >
-            +{hiddenVariantCount}
+            {`+${hiddenVariantCount}`}
           </span>
         )}
       </div>

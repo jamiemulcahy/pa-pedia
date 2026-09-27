@@ -185,7 +185,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
                 formatDiff={(d) => Math.abs(d).toLocaleString()}
                 hideDiff={hideDiff}
               />
-              {' metal'}
+              <span> metal</span>
             </span>
           }
         />
