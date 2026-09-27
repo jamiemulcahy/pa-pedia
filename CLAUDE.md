@@ -339,9 +339,13 @@ never reach a global handler and Sentry cannot see them unless the catch block r
   session), which the whole-bundle fallback otherwise hides. Both report the *original* error
   with a fixed `fingerprint`, so one failure is one Sentry issue and its real cause is visible.
   Its IndexedDB cache is best-effort (`cacheGet`/`cachePut`): a failed read is a miss, a failed
-  write is skipped, and the first failure is reported once as a warning
-  (`model-cache-unavailable`). Go through those helpers, not `db.get`/`db.put`, so a broken
-  store (e.g. a database left with no object stores) never hides the 3D viewer
+  write is skipped (a whole bundle that can't be cached is kept in memory instead), and each
+  kind of failure is reported once per session as a warning (`model-cache-unavailable`,
+  fingerprinted by error name). Go through those helpers, not `db.get`/`db.put`, so a broken
+  store never hides the 3D viewer. `DB_VERSION` 2 exists only to re-run `upgrade()`, which
+  recreates stores missing from databases left at v1 without them. If an older tab blocks an
+  upgrade, `getDB` gives up and the session runs without the cache rather than waiting, and the
+  `blocking` handler closes our connection for future bumps: keep both when bumping again
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that

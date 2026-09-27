@@ -21,7 +21,8 @@ vi.mock('idb', async (importOriginal) => {
   const actual = await importOriginal<typeof import('idb')>()
   return {
     ...actual,
-    // Same name and version, but no upgrade callback: an empty v1 database.
+    // A separate database opened with no upgrade callback, so it never gets any
+    // stores, whatever version the loader asks for.
     openDB: (name: string, version?: number) => actual.openDB(`${name}-storeless`, version),
   }
 })
@@ -40,7 +41,7 @@ configure({ useWebWorkers: false })
 const INDEX: ModelsIndex = {
   generated: '2026-09-27T00:00:00Z',
   unitCount: 1,
-  units: { radar: { glb: 'models/radar.glb' } },
+  units: { radar: { glb: 'models/radar.glb' }, beacon: { glb: 'models/beacon.glb' } },
 }
 const INDEX_URL = '/model-index/mla-1.0.0-pedia20260101000000-models.index.json'
 const BUNDLE_URL = '/faction-models/mla-1.0.0-pedia20260101000000-models.zip'
@@ -49,12 +50,16 @@ async function buildBundle(): Promise<ArrayBuffer> {
   const zw = new ZipWriter(new Uint8ArrayWriter())
   await zw.add('models.json', new TextReader(JSON.stringify(INDEX)))
   await zw.add('models/radar.glb', new Uint8ArrayReader(new Uint8Array([1, 2, 3, 4])))
+  await zw.add('models/beacon.glb', new Uint8ArrayReader(new Uint8Array([5, 6])))
   const bytes = await zw.close()
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
 }
 
 describe('modelLoader with an unusable IndexedDB cache', () => {
   let bundle: ArrayBuffer
+  // Flip to simulate a proxy that ignores Range, forcing the whole-bundle fallback.
+  let rangeIgnored = false
+  let wholeBundleDownloads = 0
 
   beforeEach(async () => {
     vi.mocked(isDevelopmentMode).mockReturnValue(false)
@@ -87,7 +92,10 @@ describe('modelLoader with an unusable IndexedDB cache', () => {
         return new Response(null, { status: 200, headers: { 'Content-Length': String(total) } })
       }
       const m = range ? /bytes=(\d+)-(\d*)/.exec(range) : null
-      if (!m) return new Response(bundle.slice(0), { status: 200 })
+      if (!m || rangeIgnored) {
+        if (!m) wholeBundleDownloads++
+        return new Response(bundle.slice(0), { status: 200 })
+      }
       const start = Number(m[1])
       const end = m[2] ? Number(m[2]) : total - 1
       return new Response(bundle.slice(start, end + 1), {
@@ -110,7 +118,18 @@ describe('modelLoader with an unusable IndexedDB cache', () => {
     expect(model?.glbUrl).toMatch(/^blob:/)
     model?.release()
 
-    // Many failed cache reads and writes above, one warning.
+    // Range ignored: the whole bundle is downloaded once. It can't be cached, so
+    // it is held in memory and serves the next unit without another download.
+    rangeIgnored = true
+    const viaFallback = await loadUnitModel('MLA', 'radar', '1.0.0')
+    expect(viaFallback?.glbUrl).toMatch(/^blob:/)
+    const nextUnit = await loadUnitModel('MLA', 'beacon', '1.0.0')
+    expect(nextUnit?.glbUrl).toMatch(/^blob:/)
+    expect(wholeBundleDownloads).toBe(1)
+    viaFallback?.release()
+    nextUnit?.release()
+
+    // Many failed cache reads and writes above, one warning per kind of failure.
     const cacheReports = vi
       .mocked(reportError)
       .mock.calls.filter(([, opts]) => opts?.fingerprint?.[0] === 'model-cache-unavailable')
