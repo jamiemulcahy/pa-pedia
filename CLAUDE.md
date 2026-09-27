@@ -269,6 +269,40 @@ Fontsource's variable packages register the family as `"Orbitron Variable"` and
 `"JetBrains Mono Variable"` — the `@theme` stack must use those exact names or it silently
 falls back. Rajdhani has no variable build and keeps its plain family name.
 
+### Browser Page Translation (no bare text beside siblings)
+
+Chrome, Edge and Yandex "Translate this page" swap every text node for a `<font>` element.
+React still holds the original node, so the next update that removes that text, or inserts
+a sibling before it, throws `NotFoundError` and `ErrorBoundary` blanks the page
+(PA-PEDIA-4, PA-PEDIA-6, issue #519). There are two layers of protection:
+
+- **`local/no-bare-text-siblings`** (`web/eslint-rules/`, run by `just web-lint`): JSX text
+  must be the **only** child of its element, because React writes a sole text child with
+  `textContent` rather than tracking a separate node. `{expr}` children count as text when
+  their TypeScript type can be a string or number (so `ReactNode` counts). Fix hits like this:
+  - `<p>Showing {n} units</p>` → ``<p>{`Showing ${n} units`}</p>``
+  - `<button><Icon />Save</button>` → `<button><Icon /><span>Save</span></button>`
+  - `{cond && ' (hidden)'}` → `{cond && <span> (hidden)</span>}`
+  - `{count && <X />}` → `{count > 0 && <X />}` (a `0` would render as text anyway)
+  - A `ReactNode` slot that only ever receives elements → type it `ReactElement`
+
+  A fragment's text and a lone `string[]` child count too, since neither gets `textContent`.
+  Don't `eslint-disable` it. The rule is type-aware, so it only covers `src/**/*.tsx`
+  outside tests.
+- **`web/src/lib/translationGuard.ts`**, installed from `main.tsx` before the first render,
+  patches `removeChild`/`insertBefore` so that a mismatched call does the nearest correct
+  thing instead of throwing. It is the backstop, not the fix: where it steps in, the page
+  can show stale, leftover or misplaced text. So it reports each intervention (a sampled
+  Sentry warning naming the parent element), and one of those means the lint rule missed a
+  component: fix that component.
+
+`web/src/tests/integration/translation.test.tsx` renders the real pages under a simulated
+live translator (**without** the guard), in both the wrap-in-place and Chrome's
+replace-with-a-copy shapes, and drives the known triggers. When a page gains a
+new structural state change (a toggle, a view mode, an async swap), add it there. Use
+`simulateBrowserTranslation`, `startLiveTranslation` and `CaptureBoundary` from
+`web/src/tests/translation.tsx` for component-level tests.
+
 ### Type Safety
 
 TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
@@ -346,6 +380,8 @@ never reach a global handler and Sentry cannot see them unless the catch block r
   recreates stores missing from databases left at v1 without them. If an older tab blocks an
   upgrade, `getDB` gives up and the session runs without the cache rather than waiting, and the
   `blocking` handler closes our connection for future bumps: keep both when bumping again
+- `translationGuard.ts` - a DOM call the guard absorbed instead of crashing (once per method
+  per page, `warning`, per-visitor sampled); names the component the lint rule missed
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that

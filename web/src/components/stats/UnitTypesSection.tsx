@@ -65,7 +65,7 @@ export const UnitTypesSection: React.FC<UnitTypesSectionProps> = ({
             >
               {isAdded && <span className="font-medium">+ </span>}
               {isRemoved && <span className="font-medium">− </span>}
-              {type}
+              <span>{type}</span>
             </span>
           );
         })}

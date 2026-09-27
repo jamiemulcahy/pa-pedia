@@ -92,7 +92,7 @@ function FactionCard({ faction, onDeleteClick }: FactionCardProps) {
           </div>
           {faction.isAddon && faction.baseFactions && faction.baseFactions.length > 0 && (
             <div className="text-sm text-amber-400 mb-2 font-medium">
-              Extends: {faction.baseFactions.join(', ')}
+              {`Extends: ${faction.baseFactions.join(', ')}`}
             </div>
           )}
           <div className="text-base text-muted-foreground mb-4 font-medium flex-grow">{faction.description}</div>
@@ -253,7 +253,7 @@ export function Home() {
               Browse units from all available factions in one view
             </div>
             <div className="text-sm text-muted-foreground font-mono mt-auto">
-              {factions.length} factions available
+              {`${factions.length} factions available`}
             </div>
           </Link>
         </div>
@@ -269,7 +269,7 @@ export function Home() {
           <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
             <h2 id="delete-dialog-title" className="text-xl font-semibold text-white mb-4">Delete Local Faction</h2>
             <p className="text-gray-300 mb-4">
-              Are you sure you want to delete the local faction "{deleteConfirm}"? This action cannot be undone.
+              {`Are you sure you want to delete the local faction "${deleteConfirm}"? This action cannot be undone.`}
             </p>
             <div className="flex justify-end gap-3">
               <button

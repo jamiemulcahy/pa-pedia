@@ -65,7 +65,7 @@ export function Privacy() {
             PRIVACY
           </h1>
           <p className="text-sm text-muted-foreground mb-10">
-            Last updated {LAST_UPDATED}
+            {`Last updated ${LAST_UPDATED}`}
           </p>
 
           <div className="border border-border rounded-lg p-5 mb-10 bg-card">
@@ -123,8 +123,10 @@ export function Privacy() {
               complaint with your data protection authority.
             </p>
             <p>
-              If you have a question about this notice, or believe any part of it
-              to be inaccurate, please open an issue on{' '}
+              <span>
+                If you have a question about this notice, or believe any part of it
+                to be inaccurate, please open an issue on
+              </span>{' '}
               <a
                 href={githubUrl}
                 target="_blank"
@@ -133,7 +135,7 @@ export function Privacy() {
               >
                 the project&apos;s GitHub repository
               </a>
-              .
+              <span>.</span>
             </p>
           </Section>
 

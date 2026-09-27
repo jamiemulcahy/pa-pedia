@@ -84,9 +84,10 @@ export function VersionDiffModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <h2 id="version-diff-title" className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            What changed: <span className="font-mono">v{previousVersion}</span>
-            {' → '}
-            <span className="font-mono">v{currentVersion}</span>
+            <span>What changed: </span>
+            <span className="font-mono">{`v${previousVersion}`}</span>
+            <span> → </span>
+            <span className="font-mono">{`v${currentVersion}`}</span>
           </h2>
           <button
             onClick={onClose}
@@ -249,7 +250,7 @@ function VersionDiffBody({
     return (
       <div className="text-center py-8">
         <p className="text-red-600 dark:text-red-400 mb-3">
-          Failed to load v{previousVersion} for comparison.
+          {`Failed to load v${previousVersion} for comparison.`}
         </p>
         <button
           onClick={retry}
@@ -264,7 +265,7 @@ function VersionDiffBody({
   if (loading || !diff) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
-        Loading v{previousVersion}…
+        {`Loading v${previousVersion}…`}
       </div>
     )
   }
@@ -287,7 +288,7 @@ function VersionDiffBody({
     if (rawState.phase === 'unavailable') {
       return (
         <div className="text-center py-12 text-muted-foreground">
-          No tracked changes between v{previousVersion} and v{currentVersion}.
+          {`No tracked changes between v${previousVersion} and v${currentVersion}.`}
         </div>
       )
     }
@@ -295,8 +296,7 @@ function VersionDiffBody({
       <div className="text-center py-12 text-muted-foreground">
         <p className="font-semibold text-foreground mb-1">Version-number bump only.</p>
         <p className="text-sm">
-          The version changed from v{previousVersion} to v{currentVersion}, but nothing in the
-          extracted faction data did.
+          {`The version changed from v${previousVersion} to v${currentVersion}, but nothing in the extracted faction data did.`}
         </p>
       </div>
     )
@@ -367,7 +367,7 @@ function DiffSection({ title, count, accentClass, children }: DiffSectionProps) 
   return (
     <section>
       <h3 className={`text-sm font-semibold uppercase tracking-wide mb-2 ${accentClass}`}>
-        {title} ({count})
+        {`${title} (${count})`}
       </h3>
       <ul className="space-y-2">{children}</ul>
     </section>
@@ -456,7 +456,7 @@ function OtherChangesSection({ factionId, grouped, metaChanges, onNavigate }: Ot
   return (
     <section className="border-t border-gray-200 dark:border-gray-700 pt-4">
       <h3 className="text-xs font-semibold uppercase tracking-wide mb-1 text-muted-foreground">
-        Other changes ({count})
+        {`Other changes (${count})`}
       </h3>
       <p className="text-xs text-muted-foreground mb-2">
         Source-level edits not reflected in unit stats (raw PA field names).
@@ -528,7 +528,7 @@ function OtherChangeGroup({
                 ))}
                 {file.truncatedLines > 0 && (
                   <li className="text-xs italic text-muted-foreground">
-                    …and {file.truncatedLines} more
+                    {`…and ${file.truncatedLines} more`}
                   </li>
                 )}
               </ul>

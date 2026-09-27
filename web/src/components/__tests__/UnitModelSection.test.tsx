@@ -1,9 +1,9 @@
-import { Component, type ReactNode } from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UnitModelSection } from '../UnitModelSection'
 import { getFactionModelsIndex, type ModelsIndex } from '@/services/modelLoader'
+import { CaptureBoundary, simulateBrowserTranslation } from '@/tests/translation'
 
 // Mock the model availability layer so we control what the index returns.
 vi.mock('@/services/modelLoader', () => ({
@@ -189,35 +189,6 @@ describe('UnitModelSection — survives browser page translation', () => {
     vi.clearAllMocks()
   })
 
-  /** Wrap each text node in a <font>, as Chrome/Edge translation does. */
-  function simulateBrowserTranslation(root: HTMLElement) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
-    const texts: Text[] = []
-    while (walker.nextNode()) texts.push(walker.currentNode as Text)
-
-    for (const text of texts) {
-      if (!text.data.trim()) continue
-      const font = document.createElement('font')
-      text.replaceWith(font)
-      font.appendChild(text)
-    }
-    // Without a detached text node these tests would pass for the wrong reason.
-    expect(root.querySelectorAll('font').length).toBeGreaterThan(0)
-  }
-
-  class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-    state: { error: Error | null } = { error: null }
-    static getDerivedStateFromError(error: Error) {
-      return { error }
-    }
-    render() {
-      if (this.state.error) {
-        return <div data-testid="boundary-tripped">{this.state.error.message}</div>
-      }
-      return this.props.children
-    }
-  }
-
   it('swaps the spinner for the trigger after the page has been translated', async () => {
     mockGetIndex.mockResolvedValue(indexWith('radar'))
     const { container } = render(
@@ -229,7 +200,7 @@ describe('UnitModelSection — survives browser page translation', () => {
     // Translation runs while the availability lookup is still in flight; the
     // lookup resolving is what swaps the spinner for the icon.
     expect(screen.getByTestId('view-3d-model-checking')).toBeInTheDocument()
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -244,7 +215,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -259,7 +230,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     const button = await screen.findByTestId('view-3d-model')
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()
@@ -274,7 +245,7 @@ describe('UnitModelSection — survives browser page translation', () => {
       </CaptureBoundary>
     )
 
-    simulateBrowserTranslation(container)
+    expect(simulateBrowserTranslation(container)).toBeGreaterThan(0)
 
     await userEvent.click(await screen.findByTestId('view-3d-model'))
     expect(screen.queryByTestId('boundary-tripped')).toBeNull()

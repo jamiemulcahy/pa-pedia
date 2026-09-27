@@ -64,9 +64,9 @@ export const SpawnUnitLink: React.FC<SpawnUnitLinkProps> = ({
   const fallbackId = extractUnitId(resourcePath);
   return (
     <span className="text-gray-600 dark:text-gray-400">
-      {fallbackId}
-      <span className="text-xs ml-1">({resourcePath})</span>
-      {velocityNote}
+      <span>{fallbackId}</span>
+      <span className="text-xs ml-1">{`(${resourcePath})`}</span>
+      {velocityNote && <span>{velocityNote}</span>}
     </span>
   );
 };

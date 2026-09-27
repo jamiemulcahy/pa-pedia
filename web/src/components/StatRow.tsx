@@ -20,7 +20,7 @@ export const StatRow: React.FC<StatRowProps> = ({
   return (
     <div className={`flex justify-between py-1 ${className}`}>
       <dt className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-        {label}:
+        <span>{`${label}:`}</span>
         {tooltip && <InfoTooltip text={tooltip} />}
       </dt>
       <dd className={`font-medium text-gray-900 dark:text-gray-100 ${valueClassName}`}>
