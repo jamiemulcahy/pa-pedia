@@ -8,10 +8,23 @@
  * (BlueprintModal): backdrop click + ESC to close, panel stops propagation.
  */
 
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import type { TeamColors } from '@/types/faction'
+import { LazyLoadBoundary } from './LazyLoadBoundary'
 
-const UnitModelViewer = lazy(() => import('./UnitModelViewer'))
+const loadViewer = () => import('./UnitModelViewer')
+
+// React caches a lazy component's rejected import for good, so Try again has to
+// swap in a fresh lazy(). Module-level rather than per-modal so a successful
+// retry also fixes the next modal opened, and an ordinary re-render never
+// recreates the component.
+let UnitModelViewer = lazy(loadViewer)
+function retryViewerImport() {
+  UnitModelViewer = lazy(loadViewer)
+}
+
+const VIEWER_PLACEHOLDER =
+  'aspect-square w-full rounded bg-[#0f1420] flex items-center justify-center text-sm text-gray-300'
 
 interface UnitModelModalProps {
   factionId: string
@@ -31,6 +44,9 @@ export function UnitModelModal({
   title,
   onClose,
 }: UnitModelModalProps) {
+  // Bumped after retryViewerImport() so this modal re-renders with the new lazy().
+  const [, setAttempt] = useState(0)
+
   // ESC closes the modal.
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -68,25 +84,28 @@ export function UnitModelModal({
 
         {/* Body */}
         <div className="p-4 overflow-auto min-h-0">
-          <Suspense
-            fallback={
-              <div className="aspect-square w-full rounded bg-[#0f1420] flex items-center justify-center text-sm text-gray-300">
-                Loading 3D viewer…
-              </div>
-            }
+          <LazyLoadBoundary
+            feature="the 3D viewer"
+            onRetry={() => {
+              retryViewerImport()
+              setAttempt(a => a + 1)
+            }}
+            className={VIEWER_PLACEHOLDER}
           >
-            {/* Keyed on faction so a faction change remounts the viewer, re-seeding
-                the colour pickers from that faction's defaults rather than keeping
-                the previous faction's picks. */}
-            <UnitModelViewer
-              key={factionId}
-              factionId={factionId}
-              unitId={unitId}
-              version={version}
-              teamColors={teamColors}
-              showChrome={false}
-            />
-          </Suspense>
+            <Suspense fallback={<div className={VIEWER_PLACEHOLDER}>Loading 3D viewer…</div>}>
+              {/* Keyed on faction so a faction change remounts the viewer, re-seeding
+                  the colour pickers from that faction's defaults rather than keeping
+                  the previous faction's picks. */}
+              <UnitModelViewer
+                key={factionId}
+                factionId={factionId}
+                unitId={unitId}
+                version={version}
+                teamColors={teamColors}
+                showChrome={false}
+              />
+            </Suspense>
+          </LazyLoadBoundary>
         </div>
       </div>
     </div>

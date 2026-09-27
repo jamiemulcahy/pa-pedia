@@ -238,13 +238,16 @@ export interface ReportOptions {
    * PER_VISITOR_SAMPLE_RATE — so an outage cannot drain the monthly quota.
    */
   perVisitor?: boolean
+  /** Searchable tags. Values must be low-cardinality and never visitor data. */
+  tags?: Record<string, string>
 }
 export function reportError(error: unknown, options: ReportOptions = {}): void {
-  const { context, level = 'error', perVisitor = false } = options
+  const { context, level = 'error', perVisitor = false, tags } = options
+  const allTags = { ...tags, ...(perVisitor ? { volume: PER_VISITOR_TAG } : {}) }
 
   Sentry.captureException(error, {
     level,
     ...(context ? { extra: context } : {}),
-    ...(perVisitor ? { tags: { volume: PER_VISITOR_TAG } } : {}),
+    ...(Object.keys(allTags).length > 0 ? { tags: allTags } : {}),
   })
 }

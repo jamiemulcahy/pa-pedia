@@ -350,6 +350,14 @@ fall back to cache successfully.
   and both would double-count against the 5k/month quota.
 - Keep chunk-load sampling in `filterEvent()`. Without it, one stale-deploy incident
   (see `web/public/_headers`) floods the quota.
+- Wrap every `lazy()` import in `LazyLoadBoundary` (`web/src/components/LazyLoadBoundary.tsx`).
+  `_headers` only protects fresh loads; a tab left open across a deploy asks for chunks the
+  deploy deleted. The boundary keeps the failure inside the feature, checks `index.html`
+  for a newer build (`web/src/lib/staleBuild.ts`) and offers **Reload page** if there is
+  one, **Try again** otherwise. It never reloads on its own — that would discard a working
+  page, and reload on offline or same-build failures would not help anyway. Its reports
+  carry a `build_status` tag (`stale` / `current` / `unknown`); `current` is the one that
+  points at a real problem.
 - Keep the IndexedDB teardown drop in `filterEvent()`. When the browser force-closes
   the origin's storage, `idb`'s read shortcuts (`db.get`, `db.getAllKeys`) leave their
   `tx.done` rejection unobserved, so it lands as a stackless `AbortError: AbortError`.
