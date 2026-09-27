@@ -8,20 +8,14 @@
  * (BlueprintModal): backdrop click + ESC to close, panel stops propagation.
  */
 
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, useEffect } from 'react'
 import type { TeamColors } from '@/types/faction'
+import { retryableLazy } from '@/lib/retryableLazy'
 import { LazyLoadBoundary } from './LazyLoadBoundary'
 
-const loadViewer = () => import('./UnitModelViewer')
-
-// React caches a lazy component's rejected import for good, so Try again has to
-// swap in a fresh lazy(). Module-level rather than per-modal so a successful
-// retry also fixes the next modal opened, and an ordinary re-render never
-// recreates the component.
-let UnitModelViewer = lazy(loadViewer)
-function retryViewerImport() {
-  UnitModelViewer = lazy(loadViewer)
-}
+const { Component: UnitModelViewer, retry: retryViewerImport } = retryableLazy(
+  () => import('./UnitModelViewer'),
+)
 
 const VIEWER_PLACEHOLDER =
   'aspect-square w-full rounded bg-[#0f1420] flex items-center justify-center text-sm text-gray-300'
@@ -44,9 +38,6 @@ export function UnitModelModal({
   title,
   onClose,
 }: UnitModelModalProps) {
-  // Bumped after retryViewerImport() so this modal re-renders with the new lazy().
-  const [, setAttempt] = useState(0)
-
   // ESC closes the modal.
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -86,10 +77,8 @@ export function UnitModelModal({
         <div className="p-4 overflow-auto min-h-0">
           <LazyLoadBoundary
             feature="the 3D viewer"
-            onRetry={() => {
-              retryViewerImport()
-              setAttempt(a => a + 1)
-            }}
+            retryImport={retryViewerImport}
+            resetKey={`${factionId}/${unitId}`}
             className={VIEWER_PLACEHOLDER}
           >
             <Suspense fallback={<div className={VIEWER_PLACEHOLDER}>Loading 3D viewer…</div>}>

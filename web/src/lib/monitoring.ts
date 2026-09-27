@@ -139,8 +139,12 @@ export function filterEvent(
     if (random() >= CHUNK_LOAD_SAMPLE_RATE) return null
 
     // Collapse every variant (each references a different hashed filename)
-    // into one issue instead of one issue per deploy per chunk.
-    event.fingerprint = ['chunk-load-error']
+    // into one issue instead of one issue per deploy per chunk. Split by the
+    // build_status LazyLoadBoundary attaches: `stale` is expected after every
+    // deploy, while `current` means the deployed build itself can't load, and
+    // must not be buried under that noise.
+    const buildStatus = event.tags?.build_status
+    event.fingerprint = buildStatus ? ['chunk-load-error', String(buildStatus)] : ['chunk-load-error']
     event.tags = { ...event.tags, error_class: 'chunk-load' }
     event.level = 'warning'
     return event
