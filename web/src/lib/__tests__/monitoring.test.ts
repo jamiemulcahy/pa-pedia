@@ -5,6 +5,7 @@ import {
   isIdbTeardownError,
   eventMessage,
   filterEvent,
+  isRealBrowser,
   parseSampleRate,
 } from '../monitoring'
 
@@ -230,5 +231,37 @@ describe('filterEvent', () => {
     const result = filterEvent(event, undefined, () => 0)
 
     expect(result?.tags).toEqual({ faction: 'MLA', error_class: 'chunk-load' })
+  })
+})
+
+describe('isRealBrowser', () => {
+  const browser = { indexedDB: {}, navigator: { webdriver: false } }
+
+  it('accepts a normal browser', () => {
+    expect(isRealBrowser(browser)).toBe(true)
+  })
+
+  // Older and non-Chromium engines leave navigator.webdriver undefined.
+  it('accepts a browser without navigator.webdriver', () => {
+    expect(isRealBrowser({ indexedDB: {}, navigator: {} })).toBe(true)
+  })
+
+  // PA-PEDIA-7: a Deno runtime with a spoofed Chrome UA and no IndexedDB.
+  it('rejects Deno', () => {
+    expect(isRealBrowser({ ...browser, Deno: {} })).toBe(false)
+  })
+
+  it('rejects an environment without IndexedDB', () => {
+    expect(isRealBrowser({ navigator: { webdriver: false } })).toBe(false)
+  })
+
+  it('rejects an automation-driven browser', () => {
+    expect(isRealBrowser({ ...browser, navigator: { webdriver: true } })).toBe(false)
+  })
+
+  // The test environment loads fake-indexeddb, so it passes as a browser —
+  // which is what lets the init tests exercise the enabled path.
+  it('defaults to the global scope', () => {
+    expect(isRealBrowser()).toBe(true)
   })
 })

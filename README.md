@@ -274,6 +274,13 @@ The Sentry free tier allows 5,000 errors/month, so the setup in
   thousands of these — enough to burn the monthly quota in an afternoon. Sampling keeps the
   signal without the flood.
 - **Browser-extension and `ResizeObserver` noise is dropped** — never actionable.
+- **Non-browser clients report nothing.** Sentry is not initialised under Deno, without
+  IndexedDB, or in an automation-driven browser (`navigator.webdriver`) — scrapers that
+  execute the bundle fail in ways no visitor can.
+- **Cloudflare edge blocks are warnings, not outages.** A manifest request refused by
+  Cloudflare (403, 429 or `cf-mitigated`) is grouped as `manifest-edge-blocked` with its
+  `cf-ray`. If real visitors show up there, check **Security → Events** for the rule
+  catching `/factions/*` and add a skip for it.
 - **Tracing is sampled at 10%** (`VITE_SENTRY_TRACES_SAMPLE_RATE`), since spans share the
   free-tier quota with errors.
 - **Session Replay is not enabled.** The free tier includes 50 replays/month and the

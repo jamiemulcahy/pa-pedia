@@ -105,6 +105,64 @@ export interface ManifestEntry {
   models?: ModelBundleInfo
 }
 
+/**
+ * A non-OK response for the manifest, carrying the headers that tell an edge
+ * block apart from an origin failure.
+ *
+ * The manifest is a public static file on Cloudflare Pages, which has no auth
+ * and never answers 403 or 429 itself. Those statuses, or a `cf-mitigated`
+ * header (set when Cloudflare serves a challenge), mean a Cloudflare security
+ * feature — WAF, Bot Fight Mode, rate limiting — refused the request before it
+ * reached the site. That is a configuration question, not an app bug, and it
+ * mostly hits scrapers (PA-PEDIA-9), so it is reported separately from a
+ * genuine outage. `cf-ray` locates the request in Cloudflare's Security Events.
+ */
+export class ManifestHttpError extends Error {
+  readonly status: number
+  readonly cfMitigated: string | null
+  readonly cfRay: string | null
+  readonly contentType: string | null
+
+  constructor(response: Response) {
+    super(`Failed to load manifest: ${response.status} ${response.statusText}`)
+    this.name = 'ManifestHttpError'
+    this.status = response.status
+    this.cfMitigated = response.headers.get('cf-mitigated')
+    this.cfRay = response.headers.get('cf-ray')
+    this.contentType = response.headers.get('content-type')
+  }
+
+  get edgeBlocked(): boolean {
+    return this.cfMitigated !== null || this.status === 403 || this.status === 429
+  }
+
+  /** Response details for error reports. Headers only; nothing about the visitor. */
+  get diagnostics(): Record<string, unknown> {
+    return {
+      status: this.status,
+      cfMitigated: this.cfMitigated,
+      cfRay: this.cfRay,
+      contentType: this.contentType,
+      edgeBlocked: this.edgeBlocked,
+    }
+  }
+}
+
+/**
+ * Finds the ManifestHttpError behind a manifest failure. loadManifest wraps it
+ * as the `cause` of its "no manifest available" error when there is no cached
+ * manifest to fall back to.
+ */
+export function findManifestHttpError(error: unknown): ManifestHttpError | null {
+  let current: unknown = error
+  // Bounded: a cause chain is a few links deep, and a cycle must not hang.
+  for (let depth = 0; depth < 5 && current; depth++) {
+    if (current instanceof ManifestHttpError) return current
+    current = (current as { cause?: unknown }).cause
+  }
+  return null
+}
+
 // In-memory cache for the current session
 let cachedManifest: FactionManifest | null = null
 let manifestLoadPromise: Promise<FactionManifest> | null = null
@@ -143,7 +201,7 @@ async function doLoadManifest(): Promise<FactionManifest> {
     const response = await fetch(url)
 
     if (!response.ok) {
-      throw new Error(`Failed to load manifest: ${response.status} ${response.statusText}`)
+      throw new ManifestHttpError(response)
     }
 
     const manifest: FactionManifest = await response.json()
