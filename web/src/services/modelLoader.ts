@@ -29,7 +29,13 @@
  * no failed network request.
  */
 
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import {
+  openDB,
+  type DBSchema,
+  type IDBPDatabase,
+  type StoreNames,
+  type StoreValue,
+} from 'idb'
 import { reportError } from '@/lib/monitoring'
 import { claimTransactionDone } from './idbTransaction'
 
@@ -192,6 +198,57 @@ function getDB(): Promise<IDBPDatabase<ModelCacheDB>> {
   return dbPromise
 }
 
+/** Whether a failure to use the model cache has been reported this session. */
+let reportedCacheFailure = false
+
+/**
+ * The cache is only an optimisation, so a browser whose IndexedDB is unusable
+ * must still get its models from the network. Seen in the wild: a database
+ * left at version 1 with none of its stores (so every `db.get` throws
+ * NotFoundError), which used to disable the 3D button on every unit page for
+ * that visitor. Storage that is blocked or fails to open is handled the same.
+ *
+ * Reported once per session, at warning level: it is one visitor's browser
+ * state, not an outage, and Sentry is the only way to see how common it is.
+ */
+function reportCacheFailure(error: unknown, store: string, op: 'read' | 'write'): void {
+  if (reportedCacheFailure) return
+  reportedCacheFailure = true
+  console.warn(`Model cache ${op} failed; continuing without it this session`, error)
+  reportError(error, {
+    level: 'warning',
+    context: { stage: 'modelCache', store, op },
+    fingerprint: ['model-cache-unavailable'],
+  })
+}
+
+/** Read from the model cache. Any failure reads as a miss. */
+async function cacheGet<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  key: string
+): Promise<StoreValue<ModelCacheDB, S> | undefined> {
+  try {
+    const db = await getDB()
+    return await db.get(store, key)
+  } catch (error) {
+    reportCacheFailure(error, store, 'read')
+    return undefined
+  }
+}
+
+/** Write to the model cache. Any failure is skipped: the caller has the data. */
+async function cachePut<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  value: StoreValue<ModelCacheDB, S>
+): Promise<void> {
+  try {
+    const db = await getDB()
+    await db.put(store, value)
+  } catch (error) {
+    reportCacheFailure(error, store, 'write')
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Range-request support detection + zip entry extraction (production)
 // ---------------------------------------------------------------------------
@@ -289,8 +346,7 @@ async function downloadWholeBundle(
     throw new Error(`Failed to download model bundle: ${response.status} ${response.statusText}`)
   }
   const bytes = await response.arrayBuffer()
-  const db = await getDB()
-  await db.put('bundles', { key: cacheKey, timestamp, bytes })
+  await cachePut('bundles', { key: cacheKey, timestamp, bytes })
   return bytes
 }
 
@@ -328,8 +384,7 @@ async function extractEntries(
   // A bundle an earlier fallback already downloaded serves every unit in it
   // with no network at all. Checked before Range because a transient Range
   // failure no longer switches the session over to the fallback.
-  const db = await getDB()
-  const cached = await db.get('bundles', cacheKey)
+  const cached = await cacheGet('bundles', cacheKey)
   if (cached?.bytes && cached.timestamp === timestamp) {
     return extractFromBytes(cached.bytes, names)
   }
@@ -451,8 +506,7 @@ export async function getFactionModelsIndex(
 
   // Cache freshness keys on the MODEL bundle stamp (not the faction-data
   // timestamp) so a model-only regen invalidates stale entries.
-  const db = await getDB()
-  const cached = await db.get('indexes', cacheKey)
+  const cached = await cacheGet('indexes', cacheKey)
   if (cached && cached.timestamp === bundleStamp) {
     return cached.index
   }
@@ -496,7 +550,7 @@ export async function getFactionModelsIndex(
     throw new ModelIndexUnavailableError(error)
   }
 
-  await db.put('indexes', {
+  await cachePut('indexes', {
     key: cacheKey,
     timestamp: bundleStamp,
     index,
@@ -567,7 +621,6 @@ export async function loadUnitModel(
   const bundleKey = `${factionId.toLowerCase()}@${resolvedVersion}`
   const unitKey = `${bundleKey}/${unitId}`
   const bundleStamp = modelBundleStamp(manifestEntry)
-  const db = await getDB()
 
   // Rebuild a Blob from stored bytes in the current context so it is always a
   // valid Blob for URL.createObjectURL (Blobs do not reliably survive an
@@ -580,7 +633,7 @@ export async function loadUnitModel(
   let mask: Blob | undefined
   let material: Blob | undefined
 
-  const cachedUnit = await db.get('units', unitKey)
+  const cachedUnit = await cacheGet('units', unitKey)
   if (cachedUnit && cachedUnit.timestamp === bundleStamp) {
     glb = bytesToBlob(cachedUnit.glb, entry.glb)
     diffuse =
@@ -614,7 +667,7 @@ export async function loadUnitModel(
     const maskBytes = entry.mask ? getBytes(entry.mask) : undefined
     const materialBytes = entry.material ? getBytes(entry.material) : undefined
 
-    await db.put('units', {
+    await cachePut('units', {
       key: unitKey,
       timestamp: bundleStamp,
       glb: glbBytes,
@@ -653,6 +706,7 @@ export async function loadUnitModel(
 export async function clearModelCache(): Promise<void> {
   rangeSupport = 'unknown'
   reportedRangeReadFailure = false
+  reportedCacheFailure = false
   reportedModelIndexFailures.clear()
   const db = await getDB()
   const tx = db.transaction(['indexes', 'units', 'bundles'], 'readwrite')

@@ -337,7 +337,11 @@ never reach a global handler and Sentry cannot see them unless the catch block r
   could not be read; `UnitModelSection` discards this error by design, so Sentry is the only
   place it surfaces. Also a failed Range read of a bundle (reported as a warning, once per
   session), which the whole-bundle fallback otherwise hides. Both report the *original* error
-  with a fixed `fingerprint`, so one failure is one Sentry issue and its real cause is visible
+  with a fixed `fingerprint`, so one failure is one Sentry issue and its real cause is visible.
+  Its IndexedDB cache is best-effort (`cacheGet`/`cachePut`): a failed read is a miss, a failed
+  write is skipped, and the first failure is reported once as a warning
+  (`model-cache-unavailable`). Go through those helpers, not `db.get`/`db.put`, so a broken
+  store (e.g. a database left with no object stores) never hides the 3D viewer
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that
