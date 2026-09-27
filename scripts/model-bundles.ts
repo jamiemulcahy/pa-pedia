@@ -34,15 +34,50 @@ export interface ModelBundleAsset {
   url: string
 }
 
+/** One unit's asset paths inside a bundle — a `models.json` entry. */
+export interface ModelEntry {
+  glb: string
+  diffuse?: string
+  mask?: string
+  material?: string
+}
+
+/** A bundle's `models.json`, as written by the CLI's `extract-models`. */
+export interface ModelsIndex {
+  generated?: string
+  unitCount: number
+  units: Record<string, ModelEntry>
+}
+
 /**
- * Contents of a bundle's sidecar index asset — the few facts the manifest
- * generator needs about a bundle without opening it.
+ * Contents of a bundle's sidecar index asset: the bundle's full `models.json`
+ * plus which faction version it was built from.
+ *
+ * It is what the web app reads on every unit page to decide whether to offer
+ * the 3D viewer. The deploy bakes every sidecar into the site at
+ * {@link MODEL_INDEX_PATH}, so that check is a plain same-origin GET of a small
+ * JSON file and never touches the (20-80 MB) bundle or HTTP Range.
+ *
+ * Sidecars published before the index moved in here carry only the first four
+ * fields; {@link hasUnitIndex} tells them apart, and `generate-manifest`
+ * rebuilds those from the bundle once.
  */
-export interface ModelBundleSidecar {
+export interface ModelBundleSidecar extends ModelsIndex {
   factionId: string
   version: string
   timestamp: number
-  unitCount: number
+}
+
+/**
+ * Site path the deploy bakes sidecars into (see deploy.yml). A manifest
+ * `models.indexUrl` is this path plus the sidecar's asset name.
+ */
+export const MODEL_INDEX_PATH = '/model-index/'
+
+/** Whether a parsed sidecar carries the unit index, not just the unit count. */
+export function hasUnitIndex(sidecar: unknown): sidecar is ModelBundleSidecar {
+  const units = (sidecar as { units?: unknown } | null)?.units
+  return typeof units === 'object' && units !== null && !Array.isArray(units)
 }
 
 /** A model bundle asset whose filename parsed successfully. */
@@ -107,11 +142,9 @@ export function selectModelBundle(
 /**
  * Name of the sidecar index asset published next to a bundle.
  *
- * The sidecar exists so the manifest generator can read a bundle's `unitCount`
- * with a ~100-byte fetch instead of downloading the whole bundle (tens of MB)
- * to read one integer out of its `models.json`. That download runs for every
- * version entry that has a bundle, on every manifest regeneration — i.e. on
- * every faction-data push — so it grows with the bundle history.
+ * The sidecar lets both the web app and the manifest generator read a bundle's
+ * `models.json` (at most ~70 KB, ~8 KB compressed) without opening the bundle
+ * (tens of MB). See {@link ModelBundleSidecar}.
  *
  * `-models.zip` -> `-models.index.json`, which cannot collide with a bundle
  * name (the bundle pattern requires a `.zip` suffix, so sidecars are ignored by
@@ -125,8 +158,8 @@ export function modelBundleSidecarName(bundleName: string): string {
  * Locate a bundle's sidecar among the release assets.
  *
  * Returns `null` for bundles published before sidecars existed; callers must
- * fall back to reading `models.json` out of the bundle itself rather than
- * treating a missing sidecar as "no units".
+ * rebuild the sidecar from the bundle's own `models.json` rather than treating
+ * a missing sidecar as "no units".
  */
 export function selectModelBundleSidecar(
   assets: ModelBundleAsset[],

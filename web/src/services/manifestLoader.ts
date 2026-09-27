@@ -59,6 +59,13 @@ export interface ModelBundleInfo {
   downloadUrl: string
   size: number
   unitCount: number
+  /**
+   * Same-origin URL of the bundle's unit index (its `models.json`), which the
+   * deploy bakes into the site. Read on unit-page load, so that check never
+   * touches the bundle itself. Absent only in manifests generated before it
+   * existed, or when the generator could not produce the index.
+   */
+  indexUrl?: string
 }
 
 export interface VersionEntry {
