@@ -29,7 +29,13 @@
  * no failed network request.
  */
 
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import {
+  openDB,
+  type DBSchema,
+  type IDBPDatabase,
+  type StoreNames,
+  type StoreValue,
+} from 'idb'
 import { reportError } from '@/lib/monitoring'
 import { claimTransactionDone } from './idbTransaction'
 
@@ -169,28 +175,123 @@ interface ModelCacheDB extends DBSchema {
 }
 
 const DB_NAME = 'pa-pedia-model-cache'
-const DB_VERSION = 1
+// v2 changes no schema. It exists so `upgrade()` runs once more for databases
+// left at v1 with none of their stores (seen in Firefox): it creates whatever
+// is missing, which repairs them in place.
+const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<ModelCacheDB>> | null = null
 
 function getDB(): Promise<IDBPDatabase<ModelCacheDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<ModelCacheDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('indexes')) {
-          db.createObjectStore('indexes', { keyPath: 'key' })
-        }
-        if (!db.objectStoreNames.contains('units')) {
-          db.createObjectStore('units', { keyPath: 'key' })
-        }
-        if (!db.objectStoreNames.contains('bundles')) {
-          db.createObjectStore('bundles', { keyPath: 'key' })
-        }
-      },
+    dbPromise = new Promise((resolve, reject) => {
+      let gaveUp = false
+      openDB<ModelCacheDB>(DB_NAME, DB_VERSION, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('indexes')) {
+            db.createObjectStore('indexes', { keyPath: 'key' })
+          }
+          if (!db.objectStoreNames.contains('units')) {
+            db.createObjectStore('units', { keyPath: 'key' })
+          }
+          if (!db.objectStoreNames.contains('bundles')) {
+            db.createObjectStore('bundles', { keyPath: 'key' })
+          }
+        },
+        // Another tab holds an older version open and won't close it (tabs
+        // from before v2 have no `blocking` handler). Waiting would leave the
+        // 3D check pending until that tab closes, so run without the cache.
+        blocked() {
+          gaveUp = true
+          reject(new Error('model cache upgrade blocked by another open tab'))
+        },
+        // Our half of the same courtesy: let a newer version upgrade.
+        blocking(_current, _blocked, event) {
+          ;(event.target as IDBDatabase).close()
+          dbPromise = null
+        },
+      }).then(
+        (db) => {
+          // The upgrade finished after we stopped waiting; don't hold it open.
+          if (gaveUp) db.close()
+          else resolve(db)
+        },
+        reject
+      )
     })
   }
   return dbPromise
 }
+
+/** Cache failures already reported this session, by error name. */
+const reportedCacheFailures = new Set<string>()
+
+/**
+ * The cache is only an optimisation, so a browser whose IndexedDB is unusable
+ * must still get its models from the network. Seen in the wild: a database
+ * left at version 1 with none of its stores (so every read threw NotFoundError),
+ * which disabled the 3D button on every unit page for that visitor.
+ *
+ * Reported once per error name per session, at warning level: it is one
+ * visitor's browser state, not an outage. Keyed by name so an expected
+ * QuotaExceededError on a large bundle write neither hides a later, real
+ * failure nor lands in the same Sentry issue.
+ */
+function reportCacheFailure(error: unknown, store: string, op: 'read' | 'write'): void {
+  const name = error instanceof Error || error instanceof DOMException ? error.name : 'unknown'
+  if (reportedCacheFailures.has(name)) return
+  reportedCacheFailures.add(name)
+  console.warn(`Model cache ${op} failed (${name}); continuing without it`, error)
+  reportError(error, {
+    level: 'warning',
+    context: { stage: 'modelCache', store, op },
+    fingerprint: ['model-cache-unavailable', name],
+  })
+}
+
+/** Read from the model cache. Any failure reads as a miss. */
+async function cacheGet<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  key: string
+): Promise<StoreValue<ModelCacheDB, S> | undefined> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction(store, 'readonly')
+    claimTransactionDone(tx)
+    return await tx.store.get(key)
+  } catch (error) {
+    reportCacheFailure(error, store, 'read')
+    return undefined
+  }
+}
+
+/**
+ * Write to the model cache. Returns whether it stuck; a failure is skipped,
+ * since the caller already has the data.
+ */
+async function cachePut<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  value: StoreValue<ModelCacheDB, S>
+): Promise<boolean> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction(store, 'readwrite')
+    claimTransactionDone(tx)
+    await tx.store.put(value)
+    await tx.done
+    return true
+  } catch (error) {
+    reportCacheFailure(error, store, 'write')
+    return false
+  }
+}
+
+/**
+ * The last whole bundle downloaded, held in memory only when it could not be
+ * cached. Without it, a broken cache would re-download tens of MB for every
+ * unit the visitor opens.
+ */
+let uncachedBundle: { key: string; timestamp: number; bytes: ArrayBuffer } | null = null
 
 // ---------------------------------------------------------------------------
 // Range-request support detection + zip entry extraction (production)
@@ -289,8 +390,8 @@ async function downloadWholeBundle(
     throw new Error(`Failed to download model bundle: ${response.status} ${response.statusText}`)
   }
   const bytes = await response.arrayBuffer()
-  const db = await getDB()
-  await db.put('bundles', { key: cacheKey, timestamp, bytes })
+  const cached = await cachePut('bundles', { key: cacheKey, timestamp, bytes })
+  uncachedBundle = cached ? null : { key: cacheKey, timestamp, bytes }
   return bytes
 }
 
@@ -328,8 +429,10 @@ async function extractEntries(
   // A bundle an earlier fallback already downloaded serves every unit in it
   // with no network at all. Checked before Range because a transient Range
   // failure no longer switches the session over to the fallback.
-  const db = await getDB()
-  const cached = await db.get('bundles', cacheKey)
+  if (uncachedBundle?.key === cacheKey && uncachedBundle.timestamp === timestamp) {
+    return extractFromBytes(uncachedBundle.bytes, names)
+  }
+  const cached = await cacheGet('bundles', cacheKey)
   if (cached?.bytes && cached.timestamp === timestamp) {
     return extractFromBytes(cached.bytes, names)
   }
@@ -451,8 +554,7 @@ export async function getFactionModelsIndex(
 
   // Cache freshness keys on the MODEL bundle stamp (not the faction-data
   // timestamp) so a model-only regen invalidates stale entries.
-  const db = await getDB()
-  const cached = await db.get('indexes', cacheKey)
+  const cached = await cacheGet('indexes', cacheKey)
   if (cached && cached.timestamp === bundleStamp) {
     return cached.index
   }
@@ -496,7 +598,7 @@ export async function getFactionModelsIndex(
     throw new ModelIndexUnavailableError(error)
   }
 
-  await db.put('indexes', {
+  await cachePut('indexes', {
     key: cacheKey,
     timestamp: bundleStamp,
     index,
@@ -567,7 +669,6 @@ export async function loadUnitModel(
   const bundleKey = `${factionId.toLowerCase()}@${resolvedVersion}`
   const unitKey = `${bundleKey}/${unitId}`
   const bundleStamp = modelBundleStamp(manifestEntry)
-  const db = await getDB()
 
   // Rebuild a Blob from stored bytes in the current context so it is always a
   // valid Blob for URL.createObjectURL (Blobs do not reliably survive an
@@ -580,7 +681,7 @@ export async function loadUnitModel(
   let mask: Blob | undefined
   let material: Blob | undefined
 
-  const cachedUnit = await db.get('units', unitKey)
+  const cachedUnit = await cacheGet('units', unitKey)
   if (cachedUnit && cachedUnit.timestamp === bundleStamp) {
     glb = bytesToBlob(cachedUnit.glb, entry.glb)
     diffuse =
@@ -614,7 +715,7 @@ export async function loadUnitModel(
     const maskBytes = entry.mask ? getBytes(entry.mask) : undefined
     const materialBytes = entry.material ? getBytes(entry.material) : undefined
 
-    await db.put('units', {
+    await cachePut('units', {
       key: unitKey,
       timestamp: bundleStamp,
       glb: glbBytes,
@@ -653,6 +754,8 @@ export async function loadUnitModel(
 export async function clearModelCache(): Promise<void> {
   rangeSupport = 'unknown'
   reportedRangeReadFailure = false
+  reportedCacheFailures.clear()
+  uncachedBundle = null
   reportedModelIndexFailures.clear()
   const db = await getDB()
   const tx = db.transaction(['indexes', 'units', 'bundles'], 'readwrite')
