@@ -1,10 +1,14 @@
-import { Component, type ReactNode } from 'react'
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { setupMockFetch } from '@/tests/mocks/factionData'
-import { startLiveTranslation, translatedNodeCount } from '@/tests/translation'
+import {
+  CaptureBoundary,
+  startLiveTranslation,
+  translatedNodeCount,
+  type TranslationMode,
+} from '@/tests/translation'
 import { FactionProvider } from '@/contexts/FactionContext'
 import { Home } from '@/pages/Home'
 import { FactionDetail } from '@/pages/FactionDetail'
@@ -14,8 +18,8 @@ import { Privacy } from '@/pages/Privacy'
 /**
  * Browser page translation regression test (issue #519).
  *
- * Renders the real pages under a simulated live translator, which moves every
- * text node into a <font> as soon as it appears, then drives the state changes
+ * Renders the real pages under a simulated live translator, which swaps every
+ * text node for a <font> as soon as it appears, then drives the state changes
  * that have crashed production (PA-PEDIA-4, PA-PEDIA-6) plus the other common
  * structural updates on each page.
  *
@@ -25,20 +29,10 @@ import { Privacy } from '@/pages/Privacy'
  * sibling, which is what `local/no-bare-text-siblings` enforces statically. The
  * lint rule cannot see through component boundaries or runtime values, so this
  * is the runtime half of that check.
+ *
+ * Runs under both translator shapes (see TranslationMode): wrapping the
+ * original node, and replacing it with a translated copy as Chrome does.
  */
-
-class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-  state: { error: Error | null } = { error: null }
-  static getDerivedStateFromError(error: Error) {
-    return { error }
-  }
-  render() {
-    if (this.state.error) {
-      return <div data-testid="boundary-tripped">{this.state.error.message}</div>
-    }
-    return this.props.children
-  }
-}
 
 /** Test-only control to change route without a full remount, as in-app links do. */
 function GoTo({ to }: { to: string }) {
@@ -52,7 +46,7 @@ function GoTo({ to }: { to: string }) {
 
 let stopTranslation: (() => void) | null = null
 
-function renderTranslated(initialRoute: string, links: string[] = []) {
+function renderTranslated(mode: TranslationMode, initialRoute: string, links: string[] = []) {
   const result = render(
     <MemoryRouter initialEntries={[initialRoute]}>
       <FactionProvider>
@@ -73,7 +67,7 @@ function renderTranslated(initialRoute: string, links: string[] = []) {
   )
   // Translation starts on first paint, while the page is still loading, so the
   // loading → loaded transition is exercised too.
-  stopTranslation = startLiveTranslation(result.container)
+  stopTranslation = startLiveTranslation(result.container, mode)
   return result
 }
 
@@ -84,11 +78,18 @@ function expectNoCrash(container: HTMLElement) {
   expect(translatedNodeCount(container)).toBeGreaterThan(0)
 }
 
-describe('pages survive browser page translation', () => {
+// jsdom has no layout, so no element scrolling; comparison mode scrolls its row.
+const hadScrollTo = 'scrollTo' in Element.prototype
+beforeAll(() => {
+  if (!hadScrollTo) Element.prototype.scrollTo = () => {}
+})
+afterAll(() => {
+  if (!hadScrollTo) delete (Element.prototype as Partial<Element>).scrollTo
+})
+
+describe.each<TranslationMode>(['wrap', 'replace'])('pages survive browser page translation (%s)', (mode) => {
   beforeEach(() => {
     setupMockFetch()
-    // jsdom has no layout, so no element scrolling; comparison mode scrolls its row.
-    Element.prototype.scrollTo ??= () => {}
   })
 
   afterEach(() => {
@@ -98,7 +99,7 @@ describe('pages survive browser page translation', () => {
   })
 
   it('Home loads its faction cards', async () => {
-    const { container } = renderTranslated('/')
+    const { container } = renderTranslated(mode, '/')
 
     await screen.findByRole('link', { name: 'MLA' })
     expect(screen.getByText('Legion')).toBeInTheDocument()
@@ -108,7 +109,7 @@ describe('pages survive browser page translation', () => {
   // PA-PEDIA-6
   it('FactionDetail toggles inaccessible units, views and categories', async () => {
     const user = userEvent.setup()
-    const { container } = renderTranslated('/faction/MLA')
+    const { container } = renderTranslated(mode, '/faction/MLA')
 
     await screen.findByTestId('unit-count')
     await user.click(await screen.findByRole('button', { name: /show 1 inaccessible unit/i }))
@@ -140,7 +141,7 @@ describe('pages survive browser page translation', () => {
   // but this keeps the transition covered if that ever changes.
   it('FactionDetail moves from All factions to a single faction', async () => {
     const user = userEvent.setup()
-    const { container } = renderTranslated('/faction', ['/faction/MLA'])
+    const { container } = renderTranslated(mode, '/faction', ['/faction/MLA'])
 
     await waitFor(() => expect(screen.getByTestId('unit-count')).toHaveTextContent(/from \d+ factions/))
     await user.click(screen.getByTestId('goto:/faction/MLA'))
@@ -153,7 +154,7 @@ describe('pages survive browser page translation', () => {
   // availability lookup resolves.
   it('UnitDetail resolves model availability and enters comparison mode', async () => {
     const user = userEvent.setup()
-    const { container } = renderTranslated('/faction/MLA/unit/tank', ['/faction/MLA/unit/bot'])
+    const { container } = renderTranslated(mode, '/faction/MLA/unit/tank', ['/faction/MLA/unit/bot'])
 
     await screen.findByRole('heading', { name: 'Tank' })
     await screen.findByTestId('view-3d-model')
@@ -169,7 +170,7 @@ describe('pages survive browser page translation', () => {
   })
 
   it('UnitDetail loads a comparison from the URL', async () => {
-    const { container } = renderTranslated('/faction/MLA/unit/tank?compare=MLA/bot')
+    const { container } = renderTranslated(mode, '/faction/MLA/unit/tank?compare=MLA/bot')
 
     await screen.findByRole('heading', { name: 'Tank' })
     await screen.findByRole('heading', { name: 'Bot' })
@@ -177,7 +178,7 @@ describe('pages survive browser page translation', () => {
   })
 
   it('Privacy renders', async () => {
-    const { container } = renderTranslated('/privacy')
+    const { container } = renderTranslated(mode, '/privacy')
 
     await screen.findByRole('heading', { name: /privacy/i })
     expectNoCrash(container)

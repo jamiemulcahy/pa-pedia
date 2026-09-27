@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/react'
+import { reportError } from '@/lib/monitoring'
 
 /**
  * Keeps browser page translation from crashing React (issue #519).
@@ -12,23 +12,25 @@ import * as Sentry from '@sentry/react'
  * the error fallback (PA-PEDIA-4, PA-PEDIA-6).
  *
  * This wraps both methods so that, in exactly the case that would throw, they
- * do the nearest correct thing instead:
+ * do the nearest thing to what React asked for instead:
  *
- * - removeChild: if the node still sits somewhere under this parent (wrapped
- *   in place), remove it from where it actually is; if it is gone entirely
- *   (replaced), there is nothing left to remove.
+ * - removeChild: if the node still sits somewhere under this parent (the
+ *   translator wrapped it), remove it from where it actually is. If it has
+ *   left the parent (the translator replaced it), there is nothing of React's
+ *   left to remove, and the translated copy stays on screen.
  * - insertBefore: insert before whichever child of this parent now holds the
- *   reference node (the <font>), or append if the reference has left the
- *   subtree. Dropping the insert, as some versions of this workaround do,
- *   would lose the new content outright.
+ *   reference node. If the reference has left the parent, append: out of
+ *   order, but present. Dropping the insert, as some versions of this
+ *   workaround do, would lose the new content outright.
  *
  * Every other call goes straight to the native method, so an untranslated page
  * behaves exactly as before. This is the established workaround from
  * facebook/react#11538.
  *
- * It is the backstop, not the fix: a guarded page no longer crashes, but text
- * React updates after the translator replaced it still shows the old value. The
- * `local/no-bare-text-siblings` lint rule keeps components from relying on it.
+ * It is the backstop, not the fix. As above, a guarded page can show stale,
+ * leftover or misplaced text where it would have crashed, so each intervention
+ * is reported: it marks a component the `local/no-bare-text-siblings` lint
+ * rule missed.
  */
 
 type RemoveChild = <T extends Node>(child: T) => T
@@ -36,21 +38,33 @@ type InsertBefore = <T extends Node>(node: T, child: Node | null) => T
 
 let uninstall: (() => void) | null = null
 
-/** One breadcrumb per method per page: a translated page can hit this constantly. */
+/** One report per method per page: a translated page can hit this constantly. */
 const reported = new Set<string>()
+
+/** Enough of an element to find the component that rendered it. */
+function describeNode(node: Node): string {
+  if (!(node instanceof Element)) return node.nodeName
+  const testId = node.getAttribute('data-testid')
+  const classes = node.getAttribute('class')?.slice(0, 80)
+  return [node.tagName.toLowerCase(), testId && `[data-testid=${testId}]`, classes && `.${classes}`]
+    .filter(Boolean)
+    .join('')
+}
 
 function recordMismatch(method: 'removeChild' | 'insertBefore', parent: Node, child: Node) {
   if (reported.has(method)) return
   reported.add(method)
-  Sentry.addBreadcrumb({
-    category: 'dom.translation-guard',
+  // Sampled like any other per-visitor failure: every translated visitor who
+  // reaches the same component would otherwise report it.
+  reportError(new Error(`Translation guard absorbed ${method} for a node that moved`), {
     level: 'warning',
-    message: `${method} on a node the page no longer holds where React left it`,
-    data: {
-      parent: parent.nodeName,
-      child: child.nodeName,
-      detached: child.parentNode === null,
-      lang: document.documentElement.lang,
+    perVisitor: true,
+    context: {
+      parent: describeNode(parent),
+      child: describeNode(child),
+      childDetached: child.parentNode === null,
+      // Chrome marks a translated page this way; other translators may not.
+      chromeTranslated: /\btranslated-(ltr|rtl)\b/.test(document.documentElement.className),
     },
   })
 }

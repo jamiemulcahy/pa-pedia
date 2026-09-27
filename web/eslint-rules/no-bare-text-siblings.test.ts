@@ -31,7 +31,7 @@ const eslint = new ESLint({
 
 /** Lints `jsx` as the return value of a component, and returns the flagged source snippets. */
 async function flagged(jsx: string): Promise<string[]> {
-  const code = `import type { ReactNode } from 'react'
+  const code = `import type { ReactElement, ReactNode } from 'react'
 declare const n: number
 declare const s: string
 declare const names: string[]
@@ -39,7 +39,7 @@ declare const flag: boolean
 declare const children: ReactNode
 declare const untyped: any
 declare function Icon(): ReactNode
-export function Fixture() {
+export function Fixture<T extends ReactNode, E extends ReactElement>(generic: T, element: E) {
   return (${jsx})
 }
 `
@@ -62,6 +62,10 @@ describe('local/no-bare-text-siblings', { timeout: 60_000 }, () => {
     ['an element list beside an element', '<ul><li>a</li>{names.map((x) => <li key={x}>{x}</li>)}</ul>'],
     ['a conditional element beside an element', '<p>{flag ? <b /> : <i />}<Icon /></p>'],
     ['a comment beside text', '<p>{/* note */}Hello</p>'],
+    ['a lone string expression', '<p>{s}</p>'],
+    ['a lone element list', '<ul>{names.map((x) => <li key={x}>{x}</li>)}</ul>'],
+    ['a lone ReactNode slot', '<div>{children}</div>'],
+    ['an element-constrained generic beside an element', '<p><b />{element}</p>'],
   ])('allows %s', async (_, jsx) => {
     expect(await flagged(jsx)).toEqual([])
   })
@@ -75,6 +79,9 @@ describe('local/no-bare-text-siblings', { timeout: 60_000 }, () => {
     ['an array of strings', '<p><b>a</b>{names}</p>', ['{names}']],
     ['an untyped value', '<p><b>a</b>{untyped}</p>', ['{untyped}']],
     ['text in a fragment', '<><Icon />Save</>', ['Save']],
+    ['lone text in a fragment', '<>{s}</>', ['{s}']],
+    ['a lone array of strings', '<p>{names}</p>', ['{names}']],
+    ['a text-capable generic beside an element', '<p><b />{generic}</p>', ['{generic}']],
   ])('flags %s', async (_, jsx, expected) => {
     expect(await flagged(jsx)).toEqual(expected)
   })

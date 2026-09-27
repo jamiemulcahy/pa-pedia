@@ -286,18 +286,22 @@ a sibling before it, throws `NotFoundError` and `ErrorBoundary` blanks the page
   - `{count && <X />}` → `{count > 0 && <X />}` (a `0` would render as text anyway)
   - A `ReactNode` slot that only ever receives elements → type it `ReactElement`
 
+  A fragment's text and a lone `string[]` child count too, since neither gets `textContent`.
   Don't `eslint-disable` it. The rule is type-aware, so it only covers `src/**/*.tsx`
   outside tests.
 - **`web/src/lib/translationGuard.ts`**, installed from `main.tsx` before the first render,
   patches `removeChild`/`insertBefore` so that a mismatched call does the nearest correct
-  thing instead of throwing. It is the backstop, not the fix: guarded text that React
-  updates after translation still shows the stale value.
+  thing instead of throwing. It is the backstop, not the fix: where it steps in, the page
+  can show stale, leftover or misplaced text. So it reports each intervention (a sampled
+  Sentry warning naming the parent element), and one of those means the lint rule missed a
+  component: fix that component.
 
 `web/src/tests/integration/translation.test.tsx` renders the real pages under a simulated
-live translator (**without** the guard) and drives the known triggers. When a page gains a
+live translator (**without** the guard), in both the wrap-in-place and Chrome's
+replace-with-a-copy shapes, and drives the known triggers. When a page gains a
 new structural state change (a toggle, a view mode, an async swap), add it there. Use
-`simulateBrowserTranslation` / `startLiveTranslation` from `web/src/tests/translation.ts`
-for component-level tests.
+`simulateBrowserTranslation`, `startLiveTranslation` and `CaptureBoundary` from
+`web/src/tests/translation.tsx` for component-level tests.
 
 ### Type Safety
 
@@ -366,6 +370,8 @@ never reach a global handler and Sentry cannot see them unless the catch block r
 - `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle that could
   not be read; `UnitModelSection` discards this error by design, so Sentry is the only place
   it surfaces
+- `translationGuard.ts` - a DOM call the guard absorbed instead of crashing (once per method
+  per page, `warning`, per-visitor sampled); names the component the lint rule missed
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that

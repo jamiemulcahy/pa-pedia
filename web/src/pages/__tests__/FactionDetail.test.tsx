@@ -1,11 +1,10 @@
-import { Component, type ReactNode } from 'react'
-import { simulateBrowserTranslation } from '@/tests/translation'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { screen, waitFor, within } from '@testing-library/react'
 import { FactionDetail } from '../FactionDetail'
 import { renderWithProviders, userEvent } from '@/tests/helpers'
 import { setupMockFetch } from '@/tests/mocks/factionData'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { CaptureBoundary, simulateBrowserTranslation } from '@/tests/translation'
 
 // Helper component to display current location for testing navigation
 function LocationDisplay() {
@@ -882,19 +881,6 @@ describe('FactionDetail', () => {
     })
   })
   describe('survives browser page translation', () => {
-    class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-      state: { error: Error | null } = { error: null }
-      static getDerivedStateFromError(error: Error) {
-        return { error }
-      }
-      render() {
-        if (this.state.error) {
-          return <div data-testid="boundary-tripped">{this.state.error.message}</div>
-        }
-        return this.props.children
-      }
-    }
-
     // PA-PEDIA-6: the summary line's trailing "(N hidden)" segment is removed when
     // the visitor reveals inaccessible units. As a bare text node it would already
     // have been reparented into a <font> by the translator, so React's removeChild

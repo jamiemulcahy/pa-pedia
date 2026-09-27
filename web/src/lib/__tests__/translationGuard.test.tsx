@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, act } from '@testing-library/react'
-import * as Sentry from '@sentry/react'
 import { installTranslationGuard } from '../translationGuard'
-import { simulateBrowserTranslation } from '@/tests/translation'
+import { reportError } from '@/lib/monitoring'
+import { simulateBrowserTranslation, type TranslationMode } from '@/tests/translation'
 
-vi.mock('@sentry/react', () => ({ addBreadcrumb: vi.fn() }))
+vi.mock('@/lib/monitoring', () => ({ reportError: vi.fn() }))
 
 let uninstall: (() => void) | null = null
 
@@ -39,7 +39,7 @@ describe('installTranslationGuard', () => {
     expect(parent.insertBefore(document.createElement('i'), null)).toBeInstanceOf(HTMLElement)
     expect(parent.removeChild(a)).toBe(a)
     expect(Array.from(parent.childNodes, (n) => n.nodeName)).toEqual(['B', 'I'])
-    expect(Sentry.addBreadcrumb).not.toHaveBeenCalled()
+    expect(reportError).not.toHaveBeenCalled()
   })
 
   it('removes a wrapped node from the wrapper that now holds it', () => {
@@ -91,7 +91,7 @@ describe('installTranslationGuard', () => {
     expect(Array.from(parent.childNodes)).toEqual([first, icon])
   })
 
-  it('records one breadcrumb per method, not one per call', () => {
+  it('reports one sampled warning per method, not one per call', () => {
     guard()
     const a = translatedParent()
     const b = translatedParent()
@@ -99,9 +99,14 @@ describe('installTranslationGuard', () => {
     b.parent.removeChild(b.node)
     translatedParent().parent.insertBefore(document.createElement('i'), a.node)
 
-    expect(Sentry.addBreadcrumb).toHaveBeenCalledTimes(2)
-    expect(Sentry.addBreadcrumb).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'dom.translation-guard', level: 'warning' })
+    expect(reportError).toHaveBeenCalledTimes(2)
+    expect(reportError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('removeChild') }),
+      expect.objectContaining({
+        level: 'warning',
+        perVisitor: true,
+        context: expect.objectContaining({ parent: 'div', child: '#text' }),
+      })
     )
   })
 
@@ -159,14 +164,13 @@ describe('React under simulated translation', () => {
     expect(errors.map(String).join('\n')).toMatch(/NotFoundError|not a child|can not be found/i)
   })
 
-  it('keeps rendering with the guard installed', () => {
+  it.each<TranslationMode>(['wrap', 'replace'])('keeps rendering with the guard installed (%s)', (mode) => {
     guard()
     render(<Exposed />)
-    simulateBrowserTranslation(screen.getByTestId('exposed'))
+    simulateBrowserTranslation(screen.getByTestId('exposed'), mode)
 
     act(() => screen.getByRole('button').click())
     expect(screen.getByTestId('exposed')).toHaveTextContent('icon')
-    expect(screen.getByTestId('exposed')).toHaveTextContent('(on)')
 
     act(() => screen.getByRole('button').click())
     expect(screen.getByTestId('exposed')).not.toHaveTextContent('icon')

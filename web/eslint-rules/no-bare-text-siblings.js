@@ -21,7 +21,13 @@ import ts from 'typescript'
  *
  * Whether an `{expression}` renders text is decided from its TypeScript type,
  * so `{unit.name}` is caught but `{cond && <Badge />}` is not. Whitespace-only
- * text (`{' '}`) is allowed: translators leave it alone.
+ * text (`{' '}`) is allowed: translators leave it alone. A fragment has no
+ * element of its own, so its text is flagged even when alone, and so is a lone
+ * array of strings, which React renders one text node per item.
+ *
+ * Out of reach: a component that returns a bare string, and ReactNode slots
+ * that receive an array at runtime. The runtime check in
+ * src/tests/integration/translation.test.tsx covers what this cannot see.
  *
  * web/src/lib/translationGuard.ts stops the crash app-wide; this rule keeps
  * components from depending on it, because a guarded page still shows stale
@@ -37,6 +43,10 @@ function canRenderText(type, checker, seen = new Set()) {
 
   // An untyped value might be text; make the author say which it is.
   if (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) return true
+  if (type.isTypeParameter()) {
+    const constraint = checker.getBaseConstraintOfType(type)
+    return !constraint || constraint === type || canRenderText(constraint, checker, seen)
+  }
   // `str && <X />` types as `"" | Element`, but React renders nothing for an
   // empty string, and translators skip whitespace, so neither can be detached.
   if (type.isStringLiteral() && type.value.trim() === '') return false
@@ -55,6 +65,24 @@ function canRenderText(type, checker, seen = new Set()) {
     return arg ? canRenderText(arg, checker, seen) : false
   }
   return false
+}
+
+/**
+ * An array of text renders one text node per item even as an element's only
+ * child; textContent is used only for a lone string or number. ReactNode's own
+ * Iterable member is left out: it would flag every `{children}` slot.
+ */
+/** @param {ts.Type} type @param {ts.TypeChecker} checker */
+function isTextArray(type, checker) {
+  if (type.isUnion()) return type.types.some((t) => isTextArray(t, checker))
+  if (type.isTypeParameter()) {
+    const constraint = checker.getBaseConstraintOfType(type)
+    return !!constraint && constraint !== type && isTextArray(constraint, checker)
+  }
+  return (
+    (checker.isArrayType(type) || checker.isTupleType(type)) &&
+    checker.getTypeArguments(/** @type {ts.TypeReference} */ (type)).some((t) => canRenderText(t, checker))
+  )
 }
 
 function isWhitespaceLiteral(expression) {
@@ -105,11 +133,24 @@ export default {
       return canRenderText(services.getTypeAtLocation(child.expression), checker)
     }
 
+    function report(node) {
+      context.report({ node, messageId: 'bareText' })
+    }
+
     function check(node) {
       const children = renderedChildren(node.children)
-      if (children.length < 2) return
-      for (const child of children) {
-        if (rendersText(child)) context.report({ node: child, messageId: 'bareText' })
+      // A fragment has no element to take textContent, so even a lone text child
+      // lands beside whatever surrounds the component at its call site.
+      if (children.length >= 2 || node.type === 'JSXFragment') {
+        children.filter(rendersText).forEach(report)
+        return
+      }
+      const [only] = children
+      if (
+        only?.type === 'JSXExpressionContainer' &&
+        isTextArray(services.getTypeAtLocation(only.expression), checker)
+      ) {
+        report(only)
       }
     }
 

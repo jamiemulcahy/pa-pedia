@@ -1,10 +1,9 @@
-import { Component, type ReactNode } from 'react'
-import { simulateBrowserTranslation } from '@/tests/translation'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UnitModelSection } from '../UnitModelSection'
 import { getFactionModelsIndex, type ModelsIndex } from '@/services/modelLoader'
+import { CaptureBoundary, simulateBrowserTranslation } from '@/tests/translation'
 
 // Mock the model availability layer so we control what the index returns.
 vi.mock('@/services/modelLoader', () => ({
@@ -189,19 +188,6 @@ describe('UnitModelSection — survives browser page translation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
-  class CaptureBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-    state: { error: Error | null } = { error: null }
-    static getDerivedStateFromError(error: Error) {
-      return { error }
-    }
-    render() {
-      if (this.state.error) {
-        return <div data-testid="boundary-tripped">{this.state.error.message}</div>
-      }
-      return this.props.children
-    }
-  }
 
   it('swaps the spinner for the trigger after the page has been translated', async () => {
     mockGetIndex.mockResolvedValue(indexWith('radar'))
