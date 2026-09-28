@@ -269,6 +269,40 @@ Fontsource's variable packages register the family as `"Orbitron Variable"` and
 `"JetBrains Mono Variable"` — the `@theme` stack must use those exact names or it silently
 falls back. Rajdhani has no variable build and keeps its plain family name.
 
+### Browser Page Translation (no bare text beside siblings)
+
+Chrome, Edge and Yandex "Translate this page" swap every text node for a `<font>` element.
+React still holds the original node, so the next update that removes that text, or inserts
+a sibling before it, throws `NotFoundError` and `ErrorBoundary` blanks the page
+(PA-PEDIA-4, PA-PEDIA-6, issue #519). There are two layers of protection:
+
+- **`local/no-bare-text-siblings`** (`web/eslint-rules/`, run by `just web-lint`): JSX text
+  must be the **only** child of its element, because React writes a sole text child with
+  `textContent` rather than tracking a separate node. `{expr}` children count as text when
+  their TypeScript type can be a string or number (so `ReactNode` counts). Fix hits like this:
+  - `<p>Showing {n} units</p>` → ``<p>{`Showing ${n} units`}</p>``
+  - `<button><Icon />Save</button>` → `<button><Icon /><span>Save</span></button>`
+  - `{cond && ' (hidden)'}` → `{cond && <span> (hidden)</span>}`
+  - `{count && <X />}` → `{count > 0 && <X />}` (a `0` would render as text anyway)
+  - A `ReactNode` slot that only ever receives elements → type it `ReactElement`
+
+  A fragment's text and a lone `string[]` child count too, since neither gets `textContent`.
+  Don't `eslint-disable` it. The rule is type-aware, so it only covers `src/**/*.tsx`
+  outside tests.
+- **`web/src/lib/translationGuard.ts`**, installed from `main.tsx` before the first render,
+  patches `removeChild`/`insertBefore` so that a mismatched call does the nearest correct
+  thing instead of throwing. It is the backstop, not the fix: where it steps in, the page
+  can show stale, leftover or misplaced text. So it reports each intervention (a sampled
+  Sentry warning naming the parent element), and one of those means the lint rule missed a
+  component: fix that component.
+
+`web/src/tests/integration/translation.test.tsx` renders the real pages under a simulated
+live translator (**without** the guard), in both the wrap-in-place and Chrome's
+replace-with-a-copy shapes, and drives the known triggers. When a page gains a
+new structural state change (a toggle, a view mode, an async swap), add it there. Use
+`simulateBrowserTranslation`, `startLiveTranslation` and `CaptureBoundary` from
+`web/src/tests/translation.tsx` for component-level tests.
+
 ### Type Safety
 
 TypeScript types in `web/src/types/faction.ts` manually defined from schemas:
@@ -339,9 +373,21 @@ never reach a global handler and Sentry cannot see them unless the catch block r
 - `manifestLoader.ts` - an HTTP error (not an offline failure) that falls back to the
   cached manifest. Returning visitors only ever take that path, so without it a block
   or outage would be invisible for most real traffic
-- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle that could
-  not be read; `UnitModelSection` discards this error by design, so Sentry is the only place
-  it surfaces
+- `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle whose index
+  could not be read; `UnitModelSection` discards this error by design, so Sentry is the only
+  place it surfaces. Also a failed Range read of a bundle (reported as a warning, once per
+  session), which the whole-bundle fallback otherwise hides. Both report the *original* error
+  with a fixed `fingerprint`, so one failure is one Sentry issue and its real cause is visible.
+  Its IndexedDB cache is best-effort (`cacheGet`/`cachePut`): a failed read is a miss, a failed
+  write is skipped (a whole bundle that can't be cached is kept in memory instead), and each
+  kind of failure is reported once per session as a warning (`model-cache-unavailable`,
+  fingerprinted by error name). Go through those helpers, not `db.get`/`db.put`, so a broken
+  store never hides the 3D viewer. `DB_VERSION` 2 exists only to re-run `upgrade()`, which
+  recreates stores missing from databases left at v1 without them. If an older tab blocks an
+  upgrade, `getDB` gives up and the session runs without the cache rather than waiting, and the
+  `blocking` handler closes our connection for future bumps: keep both when bumping again
+- `translationGuard.ts` - a DOM call the guard absorbed instead of crashing (once per method
+  per page, `warning`, per-visitor sampled); names the component the lint rule missed
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that
@@ -501,12 +547,18 @@ Runs **automatically** after `Faction Data Release` (via `workflow_run`), regene
 2. Downloads + decrypts the `pa-base-data` archive (must include unit `.papa` — see note above)
 3. Installs pinned headless Blender (`BLENDER_VERSION`, 5.1.x validated), restored from `actions/cache` when available
 4. Builds the CLI, runs `extract-models` per profile → `models/{Faction}/`
-5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a small `-models.index.json` sidecar
+5. `build-model-bundles` zips them → `models/dist/{id}-{version}-pedia{ts}-models.zip`, plus a `-models.index.json` sidecar holding the bundle's `models.json`
 6. Uploads bundles + sidecars to the **`faction-models`** release (separate from `faction-data`)
-7. Regenerates the manifest so version entries gain their `models` field
+7. Regenerates the manifest so version entries gain their `models` field (with `indexUrl`)
 8. Completing triggers **Deploy to Cloudflare Pages**, which is what actually makes the button appear → see below
 
-**Why a deploy is required**: the deploy bakes `manifest.json` into `web/dist/factions/` and the site reads that static copy, *not* the release. Model generation finishes after the data-release deploy has already baked the older manifest, so `deploy.yml` lists **both** `Faction Data Release` and `Faction Models` in its `workflow_run` trigger. Drop the second one and bundles will exist on the release but stay invisible until an unrelated push redeploys.
+**Why a deploy is required**: the deploy bakes `manifest.json` into `web/dist/factions/` and every sidecar into `web/dist/model-index/`, and the site reads those static copies, *not* the release. Model generation finishes after the data-release deploy has already baked the older manifest, so `deploy.yml` lists **both** `Faction Data Release` and `Faction Models` in its `workflow_run` trigger. Drop the second one and bundles will exist on the release but stay invisible until an unrelated push redeploys.
+
+**Unit page load never touches a bundle**: whether to show the 3D button comes from the bundle's sidecar, baked at `models.indexUrl` (`/model-index/...`) and read with a plain same-origin GET. Bundles are only opened (HTTP Range through the `/faction-models` Pages Function, whole-bundle fallback) once the visitor clicks "View 3D Model". Keep it that way: the page-load check used to Range-read the bundle's central directory through Cloudflare → GitHub, and every failure on that chain hid the button (#520).
+- Sidecars published before they carried the index hold only `unitCount`. `generate-manifest` rebuilds those from the bundle and re-uploads them (one bundle download each, once). It fails rather than publish a bundle without an `indexUrl`.
+- `deploy.yml` fails if the manifest names an index it could not bake, including a manifest from before `indexUrl` existed. The previous deployment stays live. Fix: dispatch **Faction Models** (any one profile), which regenerates the manifest and re-deploys.
+- In the client, a manifest entry with `models` but no `indexUrl` reads as "couldn't check", never "no model".
+- If the Range read of a bundle's central directory fails, that one read falls back to the whole bundle, and the cached bundle then serves every unit in it. `rangeSupport` latches to `'no'` for the session only on zip.js's `ERR_HTTP_RANGE` (a 200 for a ranged request, bad `Content-Range`, 416). Network errors and 403/429/5xx don't latch it.
 
 **Bundle ↔ version correlation** (`scripts/model-bundles.ts`):
 

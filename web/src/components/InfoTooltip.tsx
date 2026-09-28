@@ -117,7 +117,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, className = '' }
             left: position.left,
           }}
         >
-          {text}
+          <span>{text}</span>
           {/* Arrow */}
           <span
             className="absolute dark:[border-color:transparent_transparent_rgb(55,65,81)_transparent]"
@@ -151,7 +151,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, className = '' }
           <circle cx="12" cy="12" r="10" strokeWidth="2" />
           <path strokeLinecap="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
         </svg>
-        <span className="sr-only">Info: {text}</span>
+        <span className="sr-only">{`Info: ${text}`}</span>
       </button>
       {tooltip}
     </span>

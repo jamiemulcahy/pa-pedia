@@ -41,7 +41,7 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
           {weapon.safeName}
         </h4>
         <span className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
-          x{formatNumber(weapon.totalCount)}
+          {`x${formatNumber(weapon.totalCount)}`}
         </span>
       </div>
 
@@ -109,13 +109,13 @@ export function GroupWeaponCard({ weapon, compareWeapon, hideDiff }: GroupWeapon
 
       {weapon.targetLayers && weapon.targetLayers.length > 0 && (
         <div className="text-xs text-gray-500 dark:text-gray-400">
-          Targets: {formatTargetLayers(weapon.targetLayers)}
+          {`Targets: ${formatTargetLayers(weapon.targetLayers)}`}
         </div>
       )}
 
       {/* Source units - always show inline */}
       <div className="text-xs text-gray-500 dark:text-gray-400">
-        From: {weapon.sourceUnits.map(s => `${s.quantity}x ${s.displayName}`).join(', ')}
+        {`From: ${weapon.sourceUnits.map(s => `${s.quantity}x ${s.displayName}`).join(', ')}`}
       </div>
     </div>
   )

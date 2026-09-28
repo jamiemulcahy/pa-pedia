@@ -39,7 +39,7 @@ export const StatSection: React.FC<StatSectionProps> = ({
               className="hidden md:inline ml-1 font-normal text-gray-600 dark:text-gray-400 truncate"
               title={subtitle}
             >
-              : {subtitle}
+              {`: ${subtitle}`}
             </span>
           )}
         </h2>

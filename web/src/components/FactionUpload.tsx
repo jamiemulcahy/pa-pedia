@@ -213,7 +213,7 @@ export function FactionUpload({
                       d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
                     />
                   </svg>
-                  Browse Files
+                  <span>Browse Files</span>
                 </button>
                 <span className="text-sm text-gray-400">.zip files only</span>
               </div>
@@ -278,7 +278,7 @@ export function FactionUpload({
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              Get the CLI Tool
+              <span>Get the CLI Tool</span>
             </button>
           </div>
         </div>

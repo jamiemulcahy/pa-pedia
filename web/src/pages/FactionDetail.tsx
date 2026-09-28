@@ -310,7 +310,7 @@ export function FactionDetail() {
           <div className="text-3xl font-display font-bold mb-2">LOADING UNITS...</div>
           {isAllMode && allFactions.totalCount > 0 && (
             <div className="text-muted-foreground font-mono">
-              {allFactions.loadedCount} / {allFactions.totalCount} factions
+              {`${allFactions.loadedCount} / ${allFactions.totalCount} factions`}
             </div>
           )}
         </div>
@@ -395,7 +395,7 @@ export function FactionDetail() {
           </div>
           {!isAllMode && metadata?.isAddon && metadata.baseFactions && metadata.baseFactions.length > 0 && (
             <p className="text-sm text-amber-400 font-medium mb-1">
-              Extends: {metadata.baseFactions.join(', ')}
+              {`Extends: ${metadata.baseFactions.join(', ')}`}
             </p>
           )}
           <p className="text-muted-foreground font-medium">

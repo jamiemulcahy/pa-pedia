@@ -19,16 +19,16 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { ZipArchive } from 'archiver'
-import { modelBundleSidecarName, type ModelBundleSidecar } from './model-bundles'
+import {
+  modelBundleSidecarName,
+  type ModelBundleSidecar,
+  type ModelsIndex,
+} from './model-bundles'
 
 interface FactionMetadata {
   identifier: string
   displayName: string
   version: string
-}
-
-interface ModelsIndex {
-  unitCount: number
 }
 
 const ROOT = path.join(import.meta.dirname, '..')
@@ -81,10 +81,9 @@ function readFactionMetadata(folderName: string): FactionMetadata {
   return data
 }
 
-function readUnitCount(folderName: string): number {
+function readModelsIndex(folderName: string): ModelsIndex {
   const indexPath = path.join(MODELS_DIR, folderName, 'models.json')
-  const index = JSON.parse(fs.readFileSync(indexPath, 'utf-8')) as ModelsIndex
-  return index.unitCount ?? 0
+  return JSON.parse(fs.readFileSync(indexPath, 'utf-8')) as ModelsIndex
 }
 
 async function createModelZip(
@@ -114,23 +113,25 @@ async function createModelZip(
 }
 
 /**
- * Write the sidecar index next to a bundle: the facts the manifest generator
- * needs (unit count) without downloading tens of MB. See `model-bundles.ts`.
+ * Write the sidecar index next to a bundle: the bundle's `models.json`, so the
+ * web app and the manifest generator never open tens of MB to read it. See
+ * `ModelBundleSidecar` in `model-bundles.ts`.
  */
 function createSidecar(
   zipFilename: string,
   metadata: FactionMetadata,
   timestamp: string,
-  unitCount: number
+  index: ModelsIndex
 ): string {
   const sidecarName = modelBundleSidecarName(zipFilename)
   const sidecar: ModelBundleSidecar = {
     factionId: metadata.identifier,
     version: metadata.version,
     timestamp: parseInt(timestamp, 10),
-    unitCount,
+    ...index,
   }
-  fs.writeFileSync(path.join(OUTPUT_DIR, sidecarName), JSON.stringify(sidecar, null, 2))
+  // Compact: the web app downloads this, and indentation is ~30% of its size.
+  fs.writeFileSync(path.join(OUTPUT_DIR, sidecarName), JSON.stringify(sidecar))
   console.log(`  Created ${sidecarName}`)
   return sidecarName
 }
@@ -168,9 +169,10 @@ async function main() {
     console.log(`Processing ${folderName}...`)
     try {
       const metadata = readFactionMetadata(folderName)
-      const unitCount = readUnitCount(folderName)
+      const index = readModelsIndex(folderName)
+      const unitCount = index.unitCount ?? 0
       const filename = await createModelZip(folderName, metadata, timestamp)
-      const sidecar = createSidecar(filename, metadata, timestamp, unitCount)
+      const sidecar = createSidecar(filename, metadata, timestamp, index)
       results.push({
         factionId: metadata.identifier,
         filename,

@@ -272,8 +272,10 @@ export interface ReportOptions {
    */
   perVisitor?: boolean
   /**
-   * Overrides Sentry's stack-based grouping. Use when one call site reports
-   * failures with different causes that deserve separate issues.
+   * Groups every event from this call site into one Sentry issue. Without it,
+   * Sentry groups by stack, so one failure seen from different frames or
+   * browsers is split across several issues. Also separates failures from
+   * one call site whose causes deserve different issues.
    */
   fingerprint?: string[]
 }

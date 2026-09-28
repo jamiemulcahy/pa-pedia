@@ -189,7 +189,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
           }
         />
       )}
-      {ammo.splashRadius && showRow(splashRadiusDiff) && (
+      {!!ammo.splashRadius && showRow(splashRadiusDiff) && (
         <StatRow
           label="Splash radius"
           value={
@@ -222,7 +222,7 @@ export const AmmoSection: React.FC<AmmoSectionProps> = ({ ammo, compareAmmo, sho
             {falloffBreakdown.map((entry, idx) => (
               <div key={idx} className="flex justify-between text-gray-700 dark:text-gray-300">
                 <span>{entry.radius}</span>
-                <span>{entry.damage.toLocaleString()} ({entry.percent}%)</span>
+                <span>{`${entry.damage.toLocaleString()} (${entry.percent}%)`}</span>
               </div>
             ))}
           </div>

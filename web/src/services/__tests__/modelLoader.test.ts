@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { openDB } from 'idb'
 import {
   ZipWriter,
   Uint8ArrayWriter,
@@ -9,11 +8,13 @@ import {
 } from '@zip.js/zip.js'
 import {
   getFactionModelsIndex,
+  getRangeSupport,
   ModelIndexUnavailableError,
   loadUnitModel,
   clearModelCache,
   type ModelsIndex,
 } from '../modelLoader'
+import { reportError } from '@/lib/monitoring'
 import {
   isDevelopmentMode,
   getManifestEntry,
@@ -28,6 +29,8 @@ vi.mock('../manifestLoader', () => ({
   getManifestEntry: vi.fn(),
   getManifestVersion: vi.fn(),
 }))
+
+vi.mock('@/lib/monitoring', () => ({ reportError: vi.fn() }))
 
 configure({ useWebWorkers: false })
 
@@ -148,23 +151,41 @@ describe('modelLoader — development mode', () => {
 describe('modelLoader — production mode', () => {
   let bundleBytes: ArrayBuffer
 
+  const BUNDLE_URL = '/faction-models/mla-1.0.0-pedia20260101000000-models.zip'
+  const INDEX_URL = '/model-index/mla-1.0.0-pedia20260101000000-models.index.json'
+
   beforeEach(async () => {
     mockIsDev.mockReturnValue(false)
     bundleBytes = await buildBundleBytes()
   })
 
-  // Tracks how many times the WHOLE bundle was downloaded (a non-range GET) —
-  // used to assert the availability precheck never pulls the full bundle.
-  let wholeBundleDownloads = 0
+  /** Requests the loader made, by kind. */
+  let requests: { index: number; ranged: number; wholeBundle: number }
 
-  // A range-capable CDN mock: serves byte ranges (206) and HEAD, and counts any
-  // full-body GET as a whole-bundle download.
-  function mockRangeFetch() {
-    wholeBundleDownloads = 0
-    global.fetch = vi.fn(async (_url: unknown, init?: RequestInit) => {
+  /**
+   * Fake site: serves the baked index (the bundle's sidecar) and a
+   * range-capable bundle. `bundle` can override how ranged bundle requests are
+   * answered, to simulate failures on the viewer path.
+   */
+  function mockSite(opts: { index?: () => Response; ranged?: () => Response | never } = {}) {
+    requests = { index: 0, ranged: 0, wholeBundle: 0 }
+    global.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const url = String(input)
       const total = bundleBytes.byteLength
       const method = (init?.method ?? 'GET').toUpperCase()
       const rangeHeader = new Headers(init?.headers).get('Range')
+
+      if (url === INDEX_URL) {
+        requests.index++
+        // The index must be an ordinary GET: no Range, ever.
+        expect(rangeHeader).toBeNull()
+        return opts.index
+          ? opts.index()
+          : new Response(
+              JSON.stringify({ factionId: 'mla', version: '1.0.0', timestamp: 1, ...SAMPLE_INDEX }),
+              { status: 200 }
+            )
+      }
       if (method === 'HEAD') {
         return new Response(null, {
           status: 200,
@@ -172,6 +193,8 @@ describe('modelLoader — production mode', () => {
         })
       }
       if (rangeHeader) {
+        requests.ranged++
+        if (opts.ranged) return opts.ranged()
         const m = /bytes=(\d+)-(\d*)/.exec(rangeHeader)
         const start = m ? Number(m[1]) : 0
         const end = m && m[2] ? Number(m[2]) : total - 1
@@ -184,7 +207,7 @@ describe('modelLoader — production mode', () => {
           },
         })
       }
-      wholeBundleDownloads++
+      requests.wholeBundle++
       return new Response(bundleBytes.slice(0), {
         status: 200,
         headers: { 'Content-Length': String(total), 'Accept-Ranges': 'bytes' },
@@ -192,18 +215,19 @@ describe('modelLoader — production mode', () => {
     }) as unknown as typeof fetch
   }
 
-  const modelsEntry = () => ({
+  const modelsEntry = (stamp = '20260101000000', indexUrl: string | null = INDEX_URL) => ({
     id: 'MLA',
     version: '1.0.0',
-    filename: 'mla-models.zip',
-    downloadUrl: '/faction-models/mla-1.0.0-models.zip',
-    size: bundleBytes.byteLength,
+    filename: 'mla.zip',
+    downloadUrl: '/factions/mla.zip',
+    size: 1,
     timestamp: 100,
     models: {
-      filename: 'mla-1.0.0-models.zip',
-      downloadUrl: '/faction-models/mla-1.0.0-models.zip',
+      filename: `mla-1.0.0-pedia${stamp}-models.zip`,
+      downloadUrl: BUNDLE_URL,
       size: bundleBytes.byteLength,
-      unitCount: 1,
+      unitCount: 2,
+      ...(indexUrl ? { indexUrl } : {}),
     },
   })
 
@@ -233,24 +257,19 @@ describe('modelLoader — production mode', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  it('reads models.json via range requests (not a whole-bundle download) and caches it', async () => {
+  it('reads the baked index with one plain GET, never touching the bundle, and caches it', async () => {
     mockGetEntry.mockResolvedValue(modelsEntry())
-    mockRangeFetch()
+    mockSite()
 
     const first = await getFactionModelsIndex('MLA')
-    expect(first).not.toBeNull()
-    expect(first!.units.radar).toBeDefined()
-    // The availability precheck must NOT pull the whole bundle.
-    expect(wholeBundleDownloads).toBe(0)
-
-    const callsAfterFirst = vi.mocked(global.fetch).mock.calls.length
-    expect(callsAfterFirst).toBeGreaterThan(0)
+    expect(first!.units.radar.glb).toBe('models/radar.glb')
+    // Page load: exactly one small request. No Range, no bundle.
+    expect(requests).toEqual({ index: 1, ranged: 0, wholeBundle: 0 })
 
     const second = await getFactionModelsIndex('MLA')
     expect(second!.units.radar).toBeDefined()
     // Served from IndexedDB — no additional network calls.
-    expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsAfterFirst)
-    expect(wholeBundleDownloads).toBe(0)
+    expect(vi.mocked(global.fetch)).toHaveBeenCalledTimes(1)
   })
 
   it('invalidates the cache when a model-only regen produces a new bundle (same faction-data timestamp)', async () => {
@@ -258,73 +277,68 @@ describe('modelLoader — production mode', () => {
     // bundle filename with a new build stamp. The cache must key on the bundle
     // stamp, not the faction-data timestamp — otherwise stale (e.g. texture-less)
     // models keep being served after a regen.
-    const oldEntry = {
-      ...modelsEntry(),
-      // faction-data timestamp stays constant across the regen
-      timestamp: 100,
-      models: {
-        filename: 'mla-1.0.0-pedia20260101000000-models.zip',
-        downloadUrl: '/faction-models/mla-1.0.0-pedia20260101000000-models.zip',
-        size: bundleBytes.byteLength,
-        unitCount: 1,
-      },
-    }
-    mockGetEntry.mockResolvedValue(oldEntry)
-    mockRangeFetch()
+    mockGetEntry.mockResolvedValue(modelsEntry('20260101000000'))
+    mockSite()
 
-    const first = await getFactionModelsIndex('MLA')
-    expect(first).not.toBeNull()
-    const callsAfterFirst = vi.mocked(global.fetch).mock.calls.length
-
-    // Same bundle again → cache hit, no new network.
     await getFactionModelsIndex('MLA')
-    expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsAfterFirst)
+    await getFactionModelsIndex('MLA')
+    expect(requests.index).toBe(1)
 
-    // Model-only regen: NEW bundle filename/stamp, SAME faction-data timestamp.
-    const newEntry = {
-      ...oldEntry,
-      timestamp: 100,
-      models: {
-        filename: 'mla-1.0.0-pedia20260202000000-models.zip',
-        downloadUrl: '/faction-models/mla-1.0.0-pedia20260202000000-models.zip',
-        size: bundleBytes.byteLength,
-        unitCount: 1,
-      },
-    }
-    mockGetEntry.mockResolvedValue(newEntry)
-
+    mockGetEntry.mockResolvedValue(modelsEntry('20260202000000'))
     const refreshed = await getFactionModelsIndex('MLA')
     expect(refreshed).not.toBeNull()
-    // Cache MUST have been invalidated → a fresh range read happened.
-    expect(vi.mocked(global.fetch).mock.calls.length).toBeGreaterThan(callsAfterFirst)
+    expect(requests.index).toBe(2)
   })
 
-  it('getFactionModelsIndex never whole-bundle-downloads on page load when Range is unsupported', async () => {
-    // A CDN that ignores Range (200, no accept-ranges). The precheck must fail
-    // rather than download the entire bundle just to check.
-    mockGetEntry.mockResolvedValue(modelsEntry())
-    // CDN ignores Range: always 200 full body, no Accept-Ranges.
-    global.fetch = vi.fn(async () =>
-      new Response(bundleBytes.slice(0), { status: 200 })
-    ) as unknown as typeof fetch
+  it('reports "unavailable", not "no model", for a manifest that predates baked indexes', async () => {
+    // The bundle exists, so null would be false. Reading it would mean a Range
+    // read on page load, which is what the baked index exists to avoid.
+    mockGetEntry.mockResolvedValue(modelsEntry(undefined, null))
+    global.fetch = vi.fn() as unknown as typeof fetch
 
-    // The manifest says a bundle exists, so a failed read must NOT masquerade as
-    // "this faction has no models" — that would report absence for data that
-    // exists. It throws, and the UI turns that into "couldn't check".
     await expect(getFactionModelsIndex('MLA')).rejects.toBeInstanceOf(ModelIndexUnavailableError)
+    expect(global.fetch).not.toHaveBeenCalled()
+    // A rollout state, not a fault: nothing to report.
+    expect(reportError).not.toHaveBeenCalled()
+  })
 
-    // Critically: nothing was cached as a whole bundle — the precheck did not
-    // download the full bundle just to check availability.
-    const db = await openDB('pa-pedia-model-cache', 1)
-    const bundles = await db.getAll('bundles')
-    db.close()
-    expect(bundles.length).toBe(0)
+  it('reports the real error once per bundle, under one fingerprint, when the index is not baked', async () => {
+    // Pages answers a missing file with the SPA's index.html and a 200.
+    mockGetEntry.mockResolvedValue(modelsEntry('20260303000000'))
+    mockSite({ index: () => new Response('<!doctype html><html></html>', { status: 200 }) })
+
+    const error = await getFactionModelsIndex('MLA').catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ModelIndexUnavailableError)
+    // The original error travels as `cause`, not a generic stand-in.
+    expect((error as Error).cause).toBeInstanceOf(SyntaxError)
+
+    expect(reportError).toHaveBeenCalledTimes(1)
+    const [reported, options] = vi.mocked(reportError).mock.calls[0]
+    expect(reported).toBeInstanceOf(SyntaxError)
+    expect(options).toMatchObject({
+      perVisitor: true,
+      fingerprint: ['model-index-unavailable'],
+      context: { stage: 'loadModelIndex', indexUrl: INDEX_URL },
+    })
+
+    // Not cached, but not re-reported on the next unit page either.
+    await expect(getFactionModelsIndex('MLA')).rejects.toBeInstanceOf(ModelIndexUnavailableError)
+    expect(reportError).toHaveBeenCalledTimes(1)
+  })
+
+  it('carries the HTTP status of a failed index request', async () => {
+    mockGetEntry.mockResolvedValue(modelsEntry('20260404000000'))
+    mockSite({ index: () => new Response('', { status: 503 }) })
+
+    const error = await getFactionModelsIndex('MLA').catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ModelIndexUnavailableError)
+    expect(String(((error as Error).cause as Error).message)).toMatch(/HTTP 503/)
   })
 
   it('does not leak the underlying cause in the error message', async () => {
-    mockGetEntry.mockResolvedValue(modelsEntry())
+    mockGetEntry.mockResolvedValue(modelsEntry('20260505000000'))
     global.fetch = vi.fn(async () => {
-      throw new Error('connect ECONNREFUSED 10.0.0.1:443 while fetching /internal/path.zip')
+      throw new Error('connect ECONNREFUSED 10.0.0.1:443 while fetching /internal/path.json')
     }) as unknown as typeof fetch
 
     const error = await getFactionModelsIndex('MLA').catch((e: unknown) => e)
@@ -335,14 +349,16 @@ describe('modelLoader — production mode', () => {
     expect((error as Error).message).not.toMatch(/ECONNREFUSED|10\.0\.0\.1|internal/i)
   })
 
-  it('loads a unit model as blob URLs and caches per-unit', async () => {
+  it('loads a unit model as blob URLs via range reads and caches per-unit', async () => {
     mockGetVersion.mockResolvedValue(modelsEntry())
-    mockRangeFetch()
+    mockSite()
 
     const model = await loadUnitModel('MLA', 'radar', '1.0.0')
     expect(model).not.toBeNull()
     expect(model!.glbUrl).toMatch(/^blob:/)
     expect(model!.materialUrl).toMatch(/^blob:/)
+    expect(requests.ranged).toBeGreaterThan(0)
+    expect(requests.wholeBundle).toBe(0)
 
     const callsAfterFirst = vi.mocked(global.fetch).mock.calls.length
 
@@ -357,7 +373,7 @@ describe('modelLoader — production mode', () => {
 
   it('returns null for a unit absent from the bundle index', async () => {
     mockGetVersion.mockResolvedValue(modelsEntry())
-    mockRangeFetch()
+    mockSite()
 
     const model = await loadUnitModel('MLA', 'ghost', '1.0.0')
     expect(model).toBeNull()
@@ -365,7 +381,7 @@ describe('modelLoader — production mode', () => {
 
   it('loads a texture-less unit without requesting undefined bundle entries', async () => {
     mockGetVersion.mockResolvedValue(modelsEntry())
-    mockRangeFetch()
+    mockSite()
 
     // Regression: a unit with only a glb (no diffuse/mask/material) must not
     // throw "Entry not found in bundle: undefined" — it renders geometry-only.
@@ -375,6 +391,55 @@ describe('modelLoader — production mode', () => {
     expect(model!.diffuseUrl).toBeUndefined()
     expect(model!.maskUrl).toBeUndefined()
     expect(model!.materialUrl).toBeUndefined()
+    model!.release()
+  })
+
+  it('falls back on a transient range failure without disabling Range for the session', async () => {
+    mockGetVersion.mockResolvedValue(modelsEntry())
+    const networkError = new TypeError('Load failed')
+    mockSite({
+      ranged: () => {
+        throw networkError
+      },
+    })
+
+    const model = await loadUnitModel('MLA', 'radar', '1.0.0')
+    // The visitor asked for the model, so the fallback download is justified.
+    expect(model).not.toBeNull()
+    expect(requests.wholeBundle).toBe(1)
+    // A network error says nothing about Range support: try it again next time.
+    expect(getRangeSupport()).toBe('unknown')
+
+    // Reported with the ORIGINAL error, so Sentry shows the real cause.
+    expect(reportError).toHaveBeenCalledWith(
+      networkError,
+      expect.objectContaining({
+        fingerprint: ['model-bundle-range-read'],
+        context: { stage: 'loadUnitModel', rangeUnsupported: false },
+      })
+    )
+    model!.release()
+
+    // That download now serves every other unit in the bundle, with no network.
+    const callsBefore = vi.mocked(global.fetch).mock.calls.length
+    const other = await loadUnitModel('MLA', 'beacon', '1.0.0')
+    expect(other).not.toBeNull()
+    expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsBefore)
+    other!.release()
+  })
+
+  it('disables Range for the session only when the server ignores it', async () => {
+    mockGetVersion.mockResolvedValue(modelsEntry())
+    // 200 with the whole body in answer to a ranged request: proof, not a blip.
+    mockSite({ ranged: () => new Response(bundleBytes.slice(0), { status: 200 }) })
+
+    const model = await loadUnitModel('MLA', 'radar', '1.0.0')
+    expect(model).not.toBeNull()
+    expect(getRangeSupport()).toBe('no')
+    expect(reportError).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({ context: { stage: 'loadUnitModel', rangeUnsupported: true } })
+    )
     model!.release()
   })
 })

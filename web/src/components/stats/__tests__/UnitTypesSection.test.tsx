@@ -142,7 +142,7 @@ describe('UnitTypesSection', () => {
       )
 
       // Find the badge containing Air (the added type)
-      const airBadge = screen.getByText('Air').closest('span')
+      const airBadge = screen.getByText('Air').closest('span.rounded')
       expect(airBadge).toHaveClass('bg-green-100')
     })
 
@@ -156,7 +156,7 @@ describe('UnitTypesSection', () => {
       )
 
       // Find the badge containing Land (the removed type)
-      const landBadge = screen.getByText('Land').closest('span')
+      const landBadge = screen.getByText('Land').closest('span.rounded')
       expect(landBadge).toHaveClass('bg-red-100')
     })
   })

@@ -83,14 +83,14 @@ export const TargetPrioritiesSection: React.FC<TargetPrioritiesSectionProps> = (
               // Only this unit (comparison) has it - gained (green +)
               return (
                 <p key={idx} className="text-green-600 dark:text-green-400">
-                  <span className="font-medium">+</span> {target}
+                  <span className="font-medium">+</span> <span>{target}</span>
                 </p>
               );
             } else {
               // Only compare (primary) has it - lost (red -)
               return (
                 <p key={idx} className="text-red-600 dark:text-red-400">
-                  <span className="font-medium">−</span> {target}
+                  <span className="font-medium">−</span> <span>{target}</span>
                 </p>
               );
             }

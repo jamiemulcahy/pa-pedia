@@ -26,3 +26,21 @@ describe('main.tsx bootstrap order', () => {
     expect(instrumentAt).toBeLessThan(appAt)
   })
 })
+
+/**
+ * Pins the translation guard's wiring. Nothing else fails without it: the unit
+ * and page tests exercise the guard and the components separately, and neither
+ * loads main.tsx. See src/lib/translationGuard.ts.
+ */
+describe('main.tsx translation guard', () => {
+  it('installs the guard before the first render', () => {
+    const source = readFileSync(resolve(__dirname, '../main.tsx'), 'utf8')
+
+    const guardAt = source.indexOf('installTranslationGuard()')
+    const renderAt = source.indexOf('createRoot(')
+
+    expect(guardAt).toBeGreaterThanOrEqual(0)
+    expect(renderAt).toBeGreaterThanOrEqual(0)
+    expect(guardAt).toBeLessThan(renderAt)
+  })
+})
