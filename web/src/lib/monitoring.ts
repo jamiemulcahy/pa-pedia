@@ -157,9 +157,42 @@ export function filterEvent(
   return event
 }
 
-/** Whether monitoring is configured for this build. */
+/**
+ * Whether the bundle is running in a real visitor's browser, as opposed to a
+ * scraper, headless harness or non-browser JS runtime executing it.
+ *
+ * Those clients fail in ways no visitor ever will (PA-PEDIA-7 was a Deno
+ * runtime spoofing a Chrome UA, dying on `IDBRequest is not defined`), and each
+ * one would otherwise need its own message filter. Checking the environment
+ * once covers the whole class, including failures we have not seen yet.
+ *
+ * - `Deno`: a server-side runtime; no browser defines it.
+ * - `indexedDB`: every supported browser exposes the global, private mode
+ *   included (there it exists but refuses to open — see IGNORED_ERRORS).
+ *   Its absence means an emulated DOM, not a visitor with storage turned off.
+ * - `navigator.webdriver`: set by the WebDriver spec for automation-driven
+ *   browsers (Selenium, Puppeteer, Playwright). Never true for a person.
+ *
+ * `scope` is injected so the check is testable.
+ */
+export function isRealBrowser(scope: object = globalThis): boolean {
+  const g = scope as { navigator?: { webdriver?: unknown } }
+  // `in`, not a read: some browsers throw SecurityError from the indexedDB
+  // getter when storage is blocked, and this runs before the app renders.
+  if ('Deno' in g) return false
+  if (!('indexedDB' in g)) return false
+  if (g.navigator?.webdriver === true) return false
+  return true
+}
+
+/**
+ * Whether initMonitoring actually started Sentry. Derived from the client
+ * rather than re-checking its conditions, because main.tsx keys the React root
+ * error handlers off this and those swallow console output when registered
+ * without a client.
+ */
 export function isMonitoringEnabled(): boolean {
-  return Boolean(import.meta.env.VITE_SENTRY_DSN)
+  return Sentry.getClient() !== undefined
 }
 
 /**
@@ -181,7 +214,7 @@ export function parseSampleRate(raw: unknown, fallback: number): number {
  */
 export function initMonitoring(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN
-  if (!dsn) return
+  if (!dsn || !isRealBrowser()) return
 
   const tracesSampleRate = parseSampleRate(
     import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE,
@@ -241,7 +274,8 @@ export interface ReportOptions {
   /**
    * Groups every event from this call site into one Sentry issue. Without it,
    * Sentry groups by stack, so one failure seen from different frames or
-   * browsers is split across several issues.
+   * browsers is split across several issues. Also separates failures from
+   * one call site whose causes deserve different issues.
    */
   fingerprint?: string[]
 }

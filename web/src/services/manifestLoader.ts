@@ -10,6 +10,7 @@
  * - In-memory caching to avoid repeated fetches during session
  */
 
+import { reportError, type ReportOptions } from '@/lib/monitoring'
 import { getCachedManifestInfo, cacheManifestInfo } from './staticFactionCache'
 
 // Production site URL for dev-live mode
@@ -112,6 +113,81 @@ export interface ManifestEntry {
   models?: ModelBundleInfo
 }
 
+/**
+ * A non-OK response for the manifest, carrying the headers that tell an edge
+ * block apart from an origin failure.
+ *
+ * The manifest is a public static file on Cloudflare Pages, which has no auth
+ * and never answers 403 or 429 itself. Those statuses, or a `cf-mitigated`
+ * header (set when Cloudflare serves a challenge), mean a Cloudflare security
+ * feature — WAF, Bot Fight Mode, rate limiting — refused the request before it
+ * reached the site. That is a configuration question, not an app bug, and it
+ * mostly hits scrapers (PA-PEDIA-9), so it is reported separately from a
+ * genuine outage. `cf-ray` locates the request in Cloudflare's Security Events.
+ */
+export class ManifestHttpError extends Error {
+  readonly status: number
+  readonly cfMitigated: string | null
+  readonly cfRay: string | null
+  readonly contentType: string | null
+
+  constructor(response: Response) {
+    super(`Failed to load manifest: ${response.status} ${response.statusText}`)
+    this.name = 'ManifestHttpError'
+    this.status = response.status
+    this.cfMitigated = response.headers.get('cf-mitigated')
+    this.cfRay = response.headers.get('cf-ray')
+    this.contentType = response.headers.get('content-type')
+  }
+
+  get edgeBlocked(): boolean {
+    return this.cfMitigated !== null || this.status === 403 || this.status === 429
+  }
+
+  /** Response details for error reports. Headers only; nothing about the visitor. */
+  get diagnostics(): Record<string, unknown> {
+    return {
+      status: this.status,
+      cfMitigated: this.cfMitigated,
+      cfRay: this.cfRay,
+      contentType: this.contentType,
+      edgeBlocked: this.edgeBlocked,
+    }
+  }
+}
+
+/**
+ * Finds the ManifestHttpError behind a manifest failure: the error itself, or
+ * the `cause` of loadManifest's "no manifest available" wrapper.
+ */
+export function findManifestHttpError(error: unknown): ManifestHttpError | null {
+  if (error instanceof ManifestHttpError) return error
+  const cause = (error as { cause?: unknown } | null | undefined)?.cause
+  return cause instanceof ManifestHttpError ? cause : null
+}
+
+/**
+ * Report options for a failed manifest load.
+ *
+ * perVisitor: a missing or unreachable manifest breaks the site for everyone
+ * at once, producing one event per visitor for as long as it lasts. Sampled so
+ * an outage cannot drain the monthly quota.
+ *
+ * An edge block (see ManifestHttpError) gets its own issue at warning level,
+ * so scrapers Cloudflare turned away don't read as an outage. It is still
+ * reported: a rule that catches real visitors breaks the site for them.
+ */
+export function manifestFailureReport(error: unknown, stage: string): ReportOptions {
+  const httpError = findManifestHttpError(error)
+  return {
+    context: { stage, ...httpError?.diagnostics },
+    perVisitor: true,
+    ...(httpError?.edgeBlocked
+      ? { level: 'warning', fingerprint: ['manifest-edge-blocked'] }
+      : {}),
+  }
+}
+
 // In-memory cache for the current session
 let cachedManifest: FactionManifest | null = null
 let manifestLoadPromise: Promise<FactionManifest> | null = null
@@ -150,7 +226,7 @@ async function doLoadManifest(): Promise<FactionManifest> {
     const response = await fetch(url)
 
     if (!response.ok) {
-      throw new Error(`Failed to load manifest: ${response.status} ${response.statusText}`)
+      throw new ManifestHttpError(response)
     }
 
     const manifest: FactionManifest = await response.json()
@@ -169,6 +245,12 @@ async function doLoadManifest(): Promise<FactionManifest> {
     const cached = await getCachedManifestInfo()
     if (cached) {
       console.log('Using cached manifest info for offline mode')
+      // Being offline is expected and not reported. An HTTP error is not
+      // offline: the site answered and refused, and returning visitors only
+      // ever reach this branch — discoverFactions never sees the failure.
+      if (error instanceof ManifestHttpError) {
+        reportError(error, manifestFailureReport(error, 'loadManifest:cachedFallback'))
+      }
       // Return a minimal manifest from cache
       // Note: This won't have download URLs, so new factions can't be loaded
       const placeholderVersion: VersionEntry = {

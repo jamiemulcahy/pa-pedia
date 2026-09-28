@@ -366,7 +366,13 @@ no beacon token means the analytics script isn't injected. Dev, tests and CI sen
 never reach a global handler and Sentry cannot see them unless the catch block reports.
 `reportError()` is called at the sites where the visitor's experience is actually broken:
 - `factionLoader.ts` - manifest load failure (site shows no factions) and local-faction
-  load failure (IndexedDB unavailable, reported at `warning` level)
+  load failure (IndexedDB unavailable, reported at `warning` level). A manifest 403/429
+  or `cf-mitigated` response is a Cloudflare edge block, not an outage: it is reported
+  at `warning` under its own `manifest-edge-blocked` fingerprint, with `cf-ray` in the
+  context for looking it up in Cloudflare Security Events (see `manifestFailureReport`)
+- `manifestLoader.ts` - an HTTP error (not an offline failure) that falls back to the
+  cached manifest. Returning visitors only ever take that path, so without it a block
+  or outage would be invisible for most real traffic
 - `modelLoader.ts` - `getFactionModelsIndex` when the manifest promised a bundle whose index
   could not be read; `UnitModelSection` discards this error by design, so Sentry is the only
   place it surfaces. Also a failed Range read of a bundle (reported as a warning, once per
@@ -390,6 +396,11 @@ fall back to cache successfully.
 **Setup steps and free-tier rationale**: see the Monitoring section in [README.md](README.md).
 
 **Gotchas when touching this code**:
+- Sentry only initialises in a real browser (`isRealBrowser()`): no `Deno` global,
+  `indexedDB` present, `navigator.webdriver` not set. Scrapers and emulated DOMs fail in
+  ways no visitor can, so prefer extending that check over adding per-message filters
+  for their errors. `isMonitoringEnabled()` reads `Sentry.getClient()` so it always
+  agrees with whether init ran — don't turn it back into a copy of init's conditions.
 - Use the non-deprecated `reactRouterBrowserTracingIntegration` / `wrapReactRouterRouting`
   (Sentry v10 deprecated the `*V7*`-suffixed names).
 - Don't register `onCaughtError` on the React root — `ErrorBoundary` already reports those,
