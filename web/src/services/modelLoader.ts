@@ -29,15 +29,10 @@
  * no failed network request.
  */
 
-import {
-  openDB,
-  type DBSchema,
-  type IDBPDatabase,
-  type StoreNames,
-  type StoreValue,
-} from 'idb'
+import { type DBSchema, type IDBPDatabase, type StoreNames, type StoreValue } from 'idb'
 import { reportError } from '@/lib/monitoring'
 import { claimTransactionDone } from './idbTransaction'
+import { openWithoutWaiting } from './idbOpen'
 
 /**
  * Model indexes whose failure has already been reported this session, keyed by
@@ -184,41 +179,25 @@ let dbPromise: Promise<IDBPDatabase<ModelCacheDB>> | null = null
 
 function getDB(): Promise<IDBPDatabase<ModelCacheDB>> {
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
-      let gaveUp = false
-      openDB<ModelCacheDB>(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains('indexes')) {
-            db.createObjectStore('indexes', { keyPath: 'key' })
-          }
-          if (!db.objectStoreNames.contains('units')) {
-            db.createObjectStore('units', { keyPath: 'key' })
-          }
-          if (!db.objectStoreNames.contains('bundles')) {
-            db.createObjectStore('bundles', { keyPath: 'key' })
-          }
-        },
-        // Another tab holds an older version open and won't close it (tabs
-        // from before v2 have no `blocking` handler). Waiting would leave the
-        // 3D check pending until that tab closes, so run without the cache.
-        blocked() {
-          gaveUp = true
-          reject(new Error('model cache upgrade blocked by another open tab'))
-        },
-        // Our half of the same courtesy: let a newer version upgrade.
-        blocking(_current, _blocked, event) {
-          ;(event.target as IDBDatabase).close()
-          dbPromise = null
-        },
-      }).then(
-        (db) => {
-          // The upgrade finished after we stopped waiting; don't hold it open.
-          if (gaveUp) db.close()
-          else resolve(db)
-        },
-        reject
-      )
-    })
+    // Waiting on an old tab would leave the 3D check pending until it closes.
+    dbPromise = openWithoutWaiting<ModelCacheDB>(
+      DB_NAME,
+      DB_VERSION,
+      (db) => {
+        if (!db.objectStoreNames.contains('indexes')) {
+          db.createObjectStore('indexes', { keyPath: 'key' })
+        }
+        if (!db.objectStoreNames.contains('units')) {
+          db.createObjectStore('units', { keyPath: 'key' })
+        }
+        if (!db.objectStoreNames.contains('bundles')) {
+          db.createObjectStore('bundles', { keyPath: 'key' })
+        }
+      },
+      () => {
+        dbPromise = null
+      }
+    )
   }
   return dbPromise
 }

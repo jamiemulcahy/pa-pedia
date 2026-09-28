@@ -382,12 +382,26 @@ never reach a global handler and Sentry cannot see them unless the catch block r
   write is skipped (a whole bundle that can't be cached is kept in memory instead), and each
   kind of failure is reported once per session as a warning (`model-cache-unavailable`,
   fingerprinted by error name). Go through those helpers, not `db.get`/`db.put`, so a broken
-  store never hides the 3D viewer. `DB_VERSION` 2 exists only to re-run `upgrade()`, which
-  recreates stores missing from databases left at v1 without them. If an older tab blocks an
-  upgrade, `getDB` gives up and the session runs without the cache rather than waiting, and the
-  `blocking` handler closes our connection for future bumps: keep both when bumping again
+  store never hides the 3D viewer. The version bump and old-tab handling are shared with the
+  faction stores: see **IndexedDB repair** below
+- `staticFactionCache.ts` - same pattern, fingerprint `faction-cache-unavailable`. No export
+  throws: reads miss, writes are skipped, and a faction the cache refused is kept in memory
+  for the session so its icons and raw files still resolve. It must not throw because
+  `loadManifest` caches through it, so a broken store used to fail the manifest and with it
+  every page. `localFactionStorage.ts` holds visitors' own uploads, so it gets the repair
+  but keeps throwing (a miss would read as "your faction is gone")
 - `translationGuard.ts` - a DOM call the guard absorbed instead of crashing (once per method
   per page, `warning`, per-visitor sampled); names the component the lint rule missed
+
+**IndexedDB repair**: all three databases (`pa-pedia-model-cache`, `pa-pedia-static-factions`,
+`pa-pedia-local-factions`) are at `DB_VERSION` 2, which changes no schema. It exists only to
+re-run `upgrade()`, which creates any store that is missing, repairing databases left at v1
+with none (seen in Firefox after site data was cleared while the site was open). Open them
+through `openWithoutWaiting` (`web/src/services/idbOpen.ts`). If an older tab blocks an
+upgrade, it gives up at once and the session runs without the database, rather than leaving
+the page pending until that tab closes. Its `blocking` callback closes our connection so a
+future bump isn't blocked by us. Keep both when bumping again, and keep every `upgrade()`
+idempotent (create only what's missing).
 
 Deliberately *not* reported: `zipHandler.ts` parse failures (user-uploaded files, already
 shown in the UI), the dev-only runtime discovery probe, and offline manifest fetches that

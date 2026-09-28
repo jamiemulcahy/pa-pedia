@@ -61,11 +61,21 @@ async function leakedRejections(op: () => Promise<unknown>): Promise<string[]> {
   })
 }
 
+/**
+ * The static cache skips failed writes rather than throwing (see
+ * staticFactionCache.ts), so only the leak is asserted there.
+ */
+async function leakedWhileSkipped(op: () => Promise<unknown>): Promise<string[]> {
+  return collectUnhandledRejections(async () => {
+    await expect(op()).resolves.toBeUndefined()
+  })
+}
+
 describe('static faction cache transactions', () => {
   it('cacheStaticFaction does not leak tx.done on abort', async () => {
     const { cacheStaticFaction } = await import('../staticFactionCache')
 
-    const leaked = await leakedRejections(() =>
+    const leaked = await leakedWhileSkipped(() =>
       cacheStaticFaction(
         'mla',
         '1.0.0',
@@ -81,12 +91,12 @@ describe('static faction cache transactions', () => {
 
   it('deleteStaticFactionCache does not leak tx.done on abort', async () => {
     const { deleteStaticFactionCache } = await import('../staticFactionCache')
-    expect(await leakedRejections(() => deleteStaticFactionCache('mla'))).toEqual([])
+    expect(await leakedWhileSkipped(() => deleteStaticFactionCache('mla'))).toEqual([])
   })
 
   it('clearStaticFactionCache does not leak tx.done on abort', async () => {
     const { clearStaticFactionCache } = await import('../staticFactionCache')
-    expect(await leakedRejections(() => clearStaticFactionCache())).toEqual([])
+    expect(await leakedWhileSkipped(() => clearStaticFactionCache())).toEqual([])
   })
 })
 
