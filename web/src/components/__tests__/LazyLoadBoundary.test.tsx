@@ -1,14 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useState } from 'react'
 import { LazyLoadBoundary } from '../LazyLoadBoundary'
 import type { BuildStatus } from '@/lib/staleBuild'
 
-const { checkForNewBuild, reportError, retryImport } = vi.hoisted(() => ({
+const { checkForNewBuild, reportError } = vi.hoisted(() => ({
   checkForNewBuild: vi.fn<() => Promise<BuildStatus>>(),
   reportError: vi.fn(),
-  retryImport: vi.fn(),
 }))
 
 vi.mock('@/lib/staleBuild', () => ({ checkForNewBuild }))
@@ -21,28 +19,20 @@ const CHUNK_ERROR = new TypeError(
   'Failed to fetch dynamically imported module: https://pa-pedia.com/assets/UnitModelViewer-JcajY5qs.js',
 )
 
-function Child({ failing, error }: { failing: boolean; error: Error }) {
-  if (failing) throw error
+/** Throws while `state.throws` is set; flipping it simulates a fixed render. */
+const state = { throws: true, error: CHUNK_ERROR as Error }
+function Child() {
+  if (state.throws) throw state.error
   return <p>viewer loaded</p>
 }
 
-/**
- * Throws `error` until the first remount after a Try again, like a fresh import
- * that succeeds. `resetKey` is forwarded so tests can change it.
- */
-function Harness({ error, resetKey }: { error: Error; resetKey?: string }) {
-  const [failing, setFailing] = useState(true)
-  return (
-    <LazyLoadBoundary
-      feature="the 3D viewer"
-      retryImport={() => {
-        retryImport()
-        setFailing(false)
-      }}
-      resetKey={resetKey}
-    >
-      <Child failing={failing} error={error} />
-    </LazyLoadBoundary>
+function renderBoundary(error: Error, resetKey?: string) {
+  state.throws = true
+  state.error = error
+  return render(
+    <LazyLoadBoundary feature="the 3D viewer" resetKey={resetKey}>
+      <Child />
+    </LazyLoadBoundary>,
   )
 }
 
@@ -64,63 +54,36 @@ describe('LazyLoadBoundary', () => {
     vi.restoreAllMocks()
   })
 
-  it('offers a reload when a newer build is deployed, without reloading on its own', async () => {
-    checkForNewBuild.mockResolvedValue('stale')
-    render(<Harness error={CHUNK_ERROR} />)
+  it('shows a checking state while the build check is in flight', () => {
+    checkForNewBuild.mockReturnValue(new Promise(() => {}))
+    renderBoundary(CHUNK_ERROR)
+    expect(screen.getByRole('alert')).toHaveTextContent(/checking for a site update/i)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  // Reload is the only way out of a failed import: Chromium caches the failure
+  // for the document's lifetime, so there is deliberately no Try again. The
+  // reload-loop guarantee is that it only ever happens on a click.
+  it.each<[BuildStatus, RegExp]>([
+    ['stale', /updated since this page was opened/],
+    ['current', /reloading the page usually fixes this/i],
+    ['unknown', /check your connection, then reload/i],
+  ])('offers only Reload page when the build is %s, and reloads only on click', async (status, message) => {
+    checkForNewBuild.mockResolvedValue(status)
+    renderBoundary(CHUNK_ERROR)
 
     const button = await screen.findByRole('button', { name: 'Reload page' })
-    expect(screen.getByRole('alert')).toHaveTextContent(/updated since this page was opened/)
+    expect(screen.getByRole('alert')).toHaveTextContent(message)
+    expect(screen.getAllByRole('button')).toHaveLength(1)
     expect(reload).not.toHaveBeenCalled()
 
     await userEvent.click(button)
     expect(reload).toHaveBeenCalledTimes(1)
   })
 
-  // The reload-loop guard: nothing here reloads without a click, so however
-  // many times a chunk fails (after a reload the tab IS the deployed build, so
-  // the check says `current`), the page never reloads itself.
-  it.each<[BuildStatus, RegExp]>([
-    ['current', /reload the page if it keeps failing/i],
-    ['unknown', /check your connection/i],
-  ])('leads with Try again and never reloads by itself when the build is %s', async (status, message) => {
-    checkForNewBuild.mockResolvedValue(status)
-    render(<Harness error={CHUNK_ERROR} />)
-
-    await screen.findByRole('button', { name: 'Try again' })
-    expect(screen.getByRole('alert')).toHaveTextContent(message)
-    // Offered as the fallback for browsers that remember a failed import.
-    expect(screen.getByRole('button', { name: 'Reload page' })).toBeInTheDocument()
-    expect(reload).not.toHaveBeenCalled()
-  })
-
-  it('shows a checking state while the build check is in flight', () => {
-    checkForNewBuild.mockReturnValue(new Promise(() => {}))
-    render(<Harness error={CHUNK_ERROR} />)
-    expect(screen.getByRole('alert')).toHaveTextContent(/checking for a site update/i)
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
-  })
-
-  it('Try again re-attempts the import and remounts the children', async () => {
-    checkForNewBuild.mockResolvedValue('unknown')
-    render(<Harness error={CHUNK_ERROR} />)
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Try again' }))
-    expect(retryImport).toHaveBeenCalledTimes(1)
-    expect(screen.getByText('viewer loaded')).toBeInTheDocument()
-  })
-
-  it('clears a shown failure when the reset key changes', async () => {
-    checkForNewBuild.mockResolvedValue('unknown')
-    const { rerender } = render(<Harness error={CHUNK_ERROR} resetKey="exiles/jelly" />)
-    await screen.findByRole('button', { name: 'Try again' })
-
-    rerender(<Harness error={CHUNK_ERROR} resetKey="exiles/other" />)
-    expect(await screen.findByText('viewer loaded')).toBeInTheDocument()
-  })
-
   it('reports chunk-load failures tagged with the build status', async () => {
     checkForNewBuild.mockResolvedValue('stale')
-    render(<Harness error={CHUNK_ERROR} />)
+    renderBoundary(CHUNK_ERROR)
 
     await waitFor(() => expect(reportError).toHaveBeenCalledTimes(1))
     expect(reportError).toHaveBeenCalledWith(CHUNK_ERROR, {
@@ -129,32 +92,34 @@ describe('LazyLoadBoundary', () => {
     })
   })
 
-  it('contains other errors too, reporting them without a build check', async () => {
+  it('contains other errors too, reporting them without a build check', () => {
     const bug = new Error('three.js exploded')
-    render(<Harness error={bug} />)
+    renderBoundary(bug)
 
     expect(screen.getByRole('alert')).toHaveTextContent(/something went wrong displaying the 3D viewer/i)
     expect(checkForNewBuild).not.toHaveBeenCalled()
     expect(reportError).toHaveBeenCalledWith(bug, expect.objectContaining({ context: expect.any(Object) }))
   })
 
-  it('remounts without re-importing on Try again after a render error', async () => {
-    let throws = true
-    function Flaky() {
-      if (throws) throw new Error('three.js exploded')
-      return <p>recovered</p>
-    }
-    render(
-      <LazyLoadBoundary feature="the 3D viewer" retryImport={retryImport}>
-        <Flaky />
+  it('remounts on Try again after a render error', async () => {
+    renderBoundary(new Error('three.js exploded'))
+
+    state.throws = false
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    expect(screen.getByText('viewer loaded')).toBeInTheDocument()
+    expect(reload).not.toHaveBeenCalled()
+  })
+
+  it('clears a shown failure when the reset key changes', () => {
+    const { rerender } = renderBoundary(new Error('three.js exploded'), 'exiles/jelly')
+    expect(screen.getByRole('alert')).toBeInTheDocument()
+
+    state.throws = false
+    rerender(
+      <LazyLoadBoundary feature="the 3D viewer" resetKey="exiles/other">
+        <Child />
       </LazyLoadBoundary>,
     )
-
-    throws = false
-    await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
-    expect(screen.getByText('recovered')).toBeInTheDocument()
-    // Only a failed import needs a fresh lazy(); swapping it here would force
-    // a pointless Suspense round-trip.
-    expect(retryImport).not.toHaveBeenCalled()
+    expect(screen.getByText('viewer loaded')).toBeInTheDocument()
   })
 })

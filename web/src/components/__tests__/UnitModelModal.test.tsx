@@ -1,22 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { UnitModelModal } from '../UnitModelModal'
 
-const { viewer, checkForNewBuild } = vi.hoisted(() => ({
-  viewer: { failing: true },
-  checkForNewBuild: vi.fn(),
-}))
+const { checkForNewBuild } = vi.hoisted(() => ({ checkForNewBuild: vi.fn() }))
 
 // Vitest wraps errors thrown by a mock factory, hiding the browser's message,
-// so the chunk-load failure is raised on first render instead. The boundary
-// classifies by message either way; retryableLazy's re-import has its own test.
+// so the chunk-load failure is raised on render instead. The boundary
+// classifies by message either way.
 vi.mock('../UnitModelViewer', () => ({
-  default: ({ unitId }: { unitId: string }) => {
-    if (viewer.failing) {
-      throw new TypeError('Failed to fetch dynamically imported module: /assets/UnitModelViewer-old.js')
-    }
-    return <p>viewer for {unitId}</p>
+  default: () => {
+    throw new TypeError('Failed to fetch dynamically imported module: /assets/UnitModelViewer-old.js')
   },
 }))
 vi.mock('@/lib/staleBuild', () => ({ checkForNewBuild }))
@@ -34,17 +27,11 @@ describe('UnitModelModal', () => {
     vi.restoreAllMocks()
   })
 
-  // Single test by design: the viewer's retryableLazy is module state, so a
-  // second test would start from whatever lazy() this one's retry left behind.
-
-  it('keeps a failed viewer import inside the modal and recovers on Try again', async () => {
-    checkForNewBuild.mockResolvedValue('unknown')
+  it('keeps a failed viewer import inside the modal and offers a reload', async () => {
+    checkForNewBuild.mockResolvedValue('stale')
     render(<UnitModelModal factionId="exiles" unitId="jelly" title="Jelly" onClose={() => {}} />)
 
-    const tryAgain = await screen.findByRole('button', { name: 'Try again' })
-    viewer.failing = false
-    await userEvent.click(tryAgain)
-    expect(await screen.findByText('viewer for jelly')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Reload page' })).toBeInTheDocument()
     // The modal chrome survived the failure.
     expect(screen.getByRole('dialog', { name: '3D model: Jelly' })).toBeInTheDocument()
   })
