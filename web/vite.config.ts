@@ -374,9 +374,16 @@ export default defineConfig(({ mode }) => {
       //
       // Proxying here keeps the browser same-origin, exactly as in production, so
       // no CORS is involved and production needs no dev-only concessions.
+      //
+      // /model-index is the baked unit index each `models.indexUrl` points at.
+      // It is a plain GET, but production sends no CORS headers for it either.
       ...(devLive && {
         proxy: {
           '/faction-models': {
+            target: PRODUCTION_ORIGIN,
+            changeOrigin: true,
+          },
+          '/model-index': {
             target: PRODUCTION_ORIGIN,
             changeOrigin: true,
           },

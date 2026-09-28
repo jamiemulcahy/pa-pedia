@@ -22,9 +22,7 @@ export function ComparisonValue({
   // If no comparison, values aren't numbers, or diff is hidden, just show the value
   if (hideDiff || compareValue === undefined || typeof value !== 'number' || typeof compareValue !== 'number') {
     return (
-      <span>
-        {value}{suffix}
-      </span>
+      <span>{`${value}${suffix}`}</span>
     );
   }
 
@@ -33,9 +31,7 @@ export function ComparisonValue({
   // No difference
   if (diff === 0) {
     return (
-      <span>
-        {value}{suffix}
-      </span>
+      <span>{`${value}${suffix}`}</span>
     );
   }
 
@@ -60,10 +56,8 @@ export function ComparisonValue({
 
   return (
     <span className="inline-flex items-center gap-1">
-      <span>{value}{suffix}</span>
-      <span className={`text-sm ${colorClass}`}>
-        ({sign}{formattedDiff}{suffix})
-      </span>
+      <span>{`${value}${suffix}`}</span>
+      <span className={`text-sm ${colorClass}`}>{`(${sign}${formattedDiff}${suffix})`}</span>
     </span>
   );
 }

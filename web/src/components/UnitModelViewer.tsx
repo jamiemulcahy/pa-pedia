@@ -10,7 +10,7 @@
  * faction default.
  */
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
@@ -424,7 +424,9 @@ export function UnitModelViewer({
 
   // Optionally wrap content in the bordered "3D Model" card. Inside the modal
   // (showChrome=false) the modal supplies the header, so we render bare.
-  const withChrome = (children: ReactNode, heading = true) =>
+  // An element rather than ReactNode: beside the heading, bare text would be a
+  // separate text node, which browser page translation detaches from React.
+  const withChrome = (children: ReactElement, heading = true) =>
     showChrome ? (
       <div
         data-testid="model-viewer"

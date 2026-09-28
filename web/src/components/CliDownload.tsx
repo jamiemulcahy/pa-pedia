@@ -193,7 +193,7 @@ export function CliDownload({ onClose }: CliDownloadProps) {
           <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
             <li>Download the CLI for your platform</li>
             <li>
-              Run:{' '}
+              <span>Run:</span>{' '}
               <code className="bg-gray-800 px-1 rounded">
                 pa-pedia describe-faction --profile mla
               </code>

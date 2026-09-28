@@ -9,6 +9,12 @@ import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.tsx'
 import { isMonitoringEnabled } from '@/lib/monitoring'
+import { installTranslationGuard } from '@/lib/translationGuard'
+
+// Before the first render, so no DOM React creates is ever unguarded. Browser
+// page translation otherwise crashes the page on the next structural update;
+// see translationGuard.ts.
+installTranslationGuard()
 
 // React 19 root error hooks, registered ONLY when Sentry can receive the error.
 //

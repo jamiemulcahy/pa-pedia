@@ -66,7 +66,7 @@ function SortHeader({ column, columnDef, currentSort, direction, onSort }: SortH
         className="inline-flex items-center gap-1 hover:text-primary transition-colors"
         aria-label={`Sort by ${columnDef.label}${isActive ? (direction === 'asc' ? ', currently ascending' : ', currently descending') : ''}`}
       >
-        {columnDef.shortLabel ?? columnDef.label}
+        <span>{columnDef.shortLabel ?? columnDef.label}</span>
         <span className="inline-flex flex-col text-[10px] leading-none" aria-hidden="true">
           <svg
             className={`w-2 h-2 ${isActive && direction === 'asc' ? 'text-primary' : 'text-muted-foreground/40'}`}

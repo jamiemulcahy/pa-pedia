@@ -242,16 +242,23 @@ export interface ReportOptions {
    * PER_VISITOR_SAMPLE_RATE — so an outage cannot drain the monthly quota.
    */
   perVisitor?: boolean
+  /**
+   * Groups every event from this call site into one Sentry issue. Without it,
+   * Sentry groups by stack, so one failure seen from different frames or
+   * browsers is split across several issues.
+   */
+  fingerprint?: string[]
   /** Searchable tags. Values must be low-cardinality and never visitor data. */
   tags?: Record<string, string>
 }
 export function reportError(error: unknown, options: ReportOptions = {}): void {
-  const { context, level = 'error', perVisitor = false, tags } = options
+  const { context, level = 'error', perVisitor = false, fingerprint, tags } = options
   const allTags = { ...tags, ...(perVisitor ? { volume: PER_VISITOR_TAG } : {}) }
 
   Sentry.captureException(error, {
     level,
     ...(context ? { extra: context } : {}),
     ...(Object.keys(allTags).length > 0 ? { tags: allTags } : {}),
+    ...(fingerprint ? { fingerprint } : {}),
   })
 }

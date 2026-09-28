@@ -12,33 +12,47 @@
  *
  * - Production: each faction+version has a model bundle zip on the
  *   `faction-models` GitHub release, referenced by `VersionEntry.models`.
- *   `models.json` inside the bundle is the availability source of truth. We
- *   read only the entries we need using HTTP range requests (`@zip.js/zip.js`
- *   `HttpRangeReader`) so a single unit costs ~30-120 KB rather than the whole
- *   8-20 MB bundle. If the release CDN doesn't honour range requests we fall
- *   back to downloading the whole bundle once, caching it, and extracting from
- *   the cached copy. Extracted `models.json` and per-unit blobs are cached in
- *   IndexedDB, version-aware (invalidated on timestamp change).
+ *   The bundle's `models.json` is the availability source of truth, and a copy
+ *   of it (the bundle's sidecar) is baked into the site at
+ *   `models.indexUrl`. Unit-page load reads only that small JSON file, with a
+ *   plain same-origin GET: it never touches the bundle, the GitHub proxy or
+ *   HTTP Range. Only when the visitor opens the viewer do we read the unit's
+ *   entries out of the bundle with HTTP range requests (`@zip.js/zip.js`
+ *   `HttpRangeReader`), so a single unit costs ~30-120 KB rather than the
+ *   whole 20-80 MB bundle. If that range read fails we fall back to
+ *   downloading the whole bundle once, caching it, and extracting from the
+ *   cached copy. The index and per-unit blobs are cached in IndexedDB,
+ *   version-aware (invalidated on bundle stamp change).
  *
  * Absent bundle / absent unit → returns `null` (graceful no-viewer). The common
  * "faction/version has no models yet" case is detected from the manifest with
  * no failed network request.
  */
 
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import {
+  openDB,
+  type DBSchema,
+  type IDBPDatabase,
+  type StoreNames,
+  type StoreValue,
+} from 'idb'
 import { reportError } from '@/lib/monitoring'
 import { claimTransactionDone } from './idbTransaction'
 
 /**
- * Model bundles whose index failure has already been reported this session,
- * keyed by `${factionId}@${version}`. Prevents one broken bundle from emitting
- * an event on every unit page the visitor opens.
+ * Model indexes whose failure has already been reported this session, keyed by
+ * index URL (one per bundle). Prevents one broken bundle from emitting an event
+ * on every unit page the visitor opens.
  */
 const reportedModelIndexFailures = new Set<string>()
+
+/** Whether a failed range read of a bundle has been reported this session. */
+let reportedRangeReadFailure = false
 import {
   ZipReader,
+  ERR_HTTP_RANGE,
   HttpRangeReader,
-  BlobReader,
+  Uint8ArrayReader,
   Uint8ArrayWriter,
   configure,
   type Entry,
@@ -153,42 +167,140 @@ interface ModelCacheDB extends DBSchema {
     value: {
       key: string
       timestamp: number
-      blob: Blob
+      // Raw bytes, for the same reason as `units`. Entries written before this
+      // hold a `blob` instead and read as a cache miss.
+      bytes?: ArrayBuffer
     }
   }
 }
 
 const DB_NAME = 'pa-pedia-model-cache'
-const DB_VERSION = 1
+// v2 changes no schema. It exists so `upgrade()` runs once more for databases
+// left at v1 with none of their stores (seen in Firefox): it creates whatever
+// is missing, which repairs them in place.
+const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<ModelCacheDB>> | null = null
 
 function getDB(): Promise<IDBPDatabase<ModelCacheDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<ModelCacheDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('indexes')) {
-          db.createObjectStore('indexes', { keyPath: 'key' })
-        }
-        if (!db.objectStoreNames.contains('units')) {
-          db.createObjectStore('units', { keyPath: 'key' })
-        }
-        if (!db.objectStoreNames.contains('bundles')) {
-          db.createObjectStore('bundles', { keyPath: 'key' })
-        }
-      },
+    dbPromise = new Promise((resolve, reject) => {
+      let gaveUp = false
+      openDB<ModelCacheDB>(DB_NAME, DB_VERSION, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('indexes')) {
+            db.createObjectStore('indexes', { keyPath: 'key' })
+          }
+          if (!db.objectStoreNames.contains('units')) {
+            db.createObjectStore('units', { keyPath: 'key' })
+          }
+          if (!db.objectStoreNames.contains('bundles')) {
+            db.createObjectStore('bundles', { keyPath: 'key' })
+          }
+        },
+        // Another tab holds an older version open and won't close it (tabs
+        // from before v2 have no `blocking` handler). Waiting would leave the
+        // 3D check pending until that tab closes, so run without the cache.
+        blocked() {
+          gaveUp = true
+          reject(new Error('model cache upgrade blocked by another open tab'))
+        },
+        // Our half of the same courtesy: let a newer version upgrade.
+        blocking(_current, _blocked, event) {
+          ;(event.target as IDBDatabase).close()
+          dbPromise = null
+        },
+      }).then(
+        (db) => {
+          // The upgrade finished after we stopped waiting; don't hold it open.
+          if (gaveUp) db.close()
+          else resolve(db)
+        },
+        reject
+      )
     })
   }
   return dbPromise
 }
 
+/** Cache failures already reported this session, by error name. */
+const reportedCacheFailures = new Set<string>()
+
+/**
+ * The cache is only an optimisation, so a browser whose IndexedDB is unusable
+ * must still get its models from the network. Seen in the wild: a database
+ * left at version 1 with none of its stores (so every read threw NotFoundError),
+ * which disabled the 3D button on every unit page for that visitor.
+ *
+ * Reported once per error name per session, at warning level: it is one
+ * visitor's browser state, not an outage. Keyed by name so an expected
+ * QuotaExceededError on a large bundle write neither hides a later, real
+ * failure nor lands in the same Sentry issue.
+ */
+function reportCacheFailure(error: unknown, store: string, op: 'read' | 'write'): void {
+  const name = error instanceof Error || error instanceof DOMException ? error.name : 'unknown'
+  if (reportedCacheFailures.has(name)) return
+  reportedCacheFailures.add(name)
+  console.warn(`Model cache ${op} failed (${name}); continuing without it`, error)
+  reportError(error, {
+    level: 'warning',
+    context: { stage: 'modelCache', store, op },
+    fingerprint: ['model-cache-unavailable', name],
+  })
+}
+
+/** Read from the model cache. Any failure reads as a miss. */
+async function cacheGet<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  key: string
+): Promise<StoreValue<ModelCacheDB, S> | undefined> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction(store, 'readonly')
+    claimTransactionDone(tx)
+    return await tx.store.get(key)
+  } catch (error) {
+    reportCacheFailure(error, store, 'read')
+    return undefined
+  }
+}
+
+/**
+ * Write to the model cache. Returns whether it stuck; a failure is skipped,
+ * since the caller already has the data.
+ */
+async function cachePut<S extends StoreNames<ModelCacheDB>>(
+  store: S,
+  value: StoreValue<ModelCacheDB, S>
+): Promise<boolean> {
+  try {
+    const db = await getDB()
+    const tx = db.transaction(store, 'readwrite')
+    claimTransactionDone(tx)
+    await tx.store.put(value)
+    await tx.done
+    return true
+  } catch (error) {
+    reportCacheFailure(error, store, 'write')
+    return false
+  }
+}
+
+/**
+ * The last whole bundle downloaded, held in memory only when it could not be
+ * cached. Without it, a broken cache would re-download tens of MB for every
+ * unit the visitor opens.
+ */
+let uncachedBundle: { key: string; timestamp: number; bytes: ArrayBuffer } | null = null
+
 // ---------------------------------------------------------------------------
 // Range-request support detection + zip entry extraction (production)
 // ---------------------------------------------------------------------------
 
-// Whether the release CDN honours HTTP range requests. Detected lazily on the
-// first prod fetch; once a range read fails we stop attempting it this session
-// and use the whole-bundle fallback.
+// Whether the bundle proxy honours HTTP range requests. Detected lazily on the
+// first bundle read. It latches to 'no' for the session only on proof that
+// Range is being ignored (see isRangeUnsupported); any other failure falls back
+// for that one read and tries Range again next time.
 let rangeSupport: 'unknown' | 'yes' | 'no' = 'unknown'
 
 /** Exposed for diagnostics / tests. */
@@ -198,15 +310,27 @@ export function getRangeSupport(): 'unknown' | 'yes' | 'no' {
 
 /**
  * Signals that reading the zip's central directory via HTTP range requests
- * failed — i.e. the CDN doesn't honour Range. Distinguished from entry-level
- * errors so that only genuine range failures downgrade session range support.
+ * failed, for any reason. `cause` is the original error. Distinguished from
+ * entry-level errors (a missing or corrupt entry), which a whole-bundle
+ * download would not fix.
  */
-class RangeUnsupportedError extends Error {
+class RangeReadError extends Error {
   constructor(cause: unknown) {
-    super('model bundle range requests unsupported')
-    this.name = 'RangeUnsupportedError'
+    super('model bundle range read failed')
+    this.name = 'RangeReadError'
     this.cause = cause
   }
+}
+
+/**
+ * Whether a failed range read proves the server ignores Range: zip.js raises
+ * ERR_HTTP_RANGE for a non-206 answer to a ranged request, a missing or
+ * mismatched Content-Range, or a 416. A network error, a 403/429/5xx or an
+ * aborted request says nothing about Range support, so it must not latch the
+ * session onto whole-bundle downloads.
+ */
+function isRangeUnsupported(error: unknown): boolean {
+  return error instanceof Error && error.message === ERR_HTTP_RANGE
 }
 
 /** Read a named entry's bytes, narrowing away directory entries. */
@@ -235,14 +359,14 @@ async function extractViaRange(
     } as ConstructorParameters<typeof HttpRangeReader>[1])
   )
   let entries: Entry[]
-  // Reading the central directory is the range-dependent step; a failure here
-  // means Range is unsupported. Entry reads below are NOT treated as range
-  // failures (a missing/corrupt entry must not disable range for the session).
+  // Reading the central directory is the range-dependent step. Entry reads
+  // below are NOT range failures (a missing/corrupt entry must not trigger a
+  // whole-bundle download).
   try {
     entries = await reader.getEntries()
   } catch (error) {
     await reader.close()
-    throw new RangeUnsupportedError(error)
+    throw new RangeReadError(error)
   }
   try {
     const byName = new Map(entries.map((e) => [e.filename, e]))
@@ -256,33 +380,26 @@ async function extractViaRange(
   }
 }
 
-async function getWholeBundle(
+async function downloadWholeBundle(
   url: string,
   cacheKey: string,
   timestamp: number
-): Promise<Blob> {
-  const db = await getDB()
-  const cached = await db.get('bundles', cacheKey)
-  if (cached && cached.timestamp === timestamp) {
-    return cached.blob
-  }
+): Promise<ArrayBuffer> {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to download model bundle: ${response.status} ${response.statusText}`)
   }
-  const blob = await response.blob()
-  await db.put('bundles', { key: cacheKey, timestamp, blob })
-  return blob
+  const bytes = await response.arrayBuffer()
+  const cached = await cachePut('bundles', { key: cacheKey, timestamp, bytes })
+  uncachedBundle = cached ? null : { key: cacheKey, timestamp, bytes }
+  return bytes
 }
 
-async function extractViaWholeBundle(
-  url: string,
-  cacheKey: string,
-  timestamp: number,
+async function extractFromBytes(
+  bytes: ArrayBuffer,
   names: string[]
 ): Promise<Map<string, Uint8Array>> {
-  const blob = await getWholeBundle(url, cacheKey, timestamp)
-  const reader = new ZipReader(new BlobReader(blob))
+  const reader = new ZipReader(new Uint8ArrayReader(new Uint8Array(bytes)))
   try {
     const entries = await reader.getEntries()
     const byName = new Map(entries.map((e) => [e.filename, e]))
@@ -299,36 +416,73 @@ async function extractViaWholeBundle(
 /**
  * Extract the requested entries from a bundle, preferring range requests and
  * falling back to a whole-bundle download.
+ *
+ * Only called once the visitor has asked for a model, which is what justifies
+ * the fallback's multi-MB download.
  */
 async function extractEntries(
   url: string,
   cacheKey: string,
   timestamp: number,
-  names: string[],
-  allowWholeBundleFallback = true
+  names: string[]
 ): Promise<Map<string, Uint8Array>> {
+  // A bundle an earlier fallback already downloaded serves every unit in it
+  // with no network at all. Checked before Range because a transient Range
+  // failure no longer switches the session over to the fallback.
+  if (uncachedBundle?.key === cacheKey && uncachedBundle.timestamp === timestamp) {
+    return extractFromBytes(uncachedBundle.bytes, names)
+  }
+  const cached = await cacheGet('bundles', cacheKey)
+  if (cached?.bytes && cached.timestamp === timestamp) {
+    return extractFromBytes(cached.bytes, names)
+  }
+
   if (rangeSupport !== 'no') {
     try {
       const result = await extractViaRange(url, names)
       rangeSupport = 'yes'
       return result
     } catch (error) {
-      if (error instanceof RangeUnsupportedError) {
-        // CDN doesn't honour Range — remember for the rest of the session and
-        // fall back to a whole-bundle download (when the caller allows it).
-        rangeSupport = 'no'
-        console.warn('Model bundle range requests unsupported; using whole-bundle fallback', error)
-      } else {
-        // Entry-level/other error — do NOT poison range support for the session.
-        throw error
+      // Entry-level/other error — a whole-bundle download would not fix it.
+      if (!(error instanceof RangeReadError)) throw error
+
+      const unsupported = isRangeUnsupported(error.cause)
+      if (unsupported) rangeSupport = 'no'
+      console.warn('Model bundle range read failed; using whole-bundle fallback', error.cause)
+      // The fallback usually hides this from the visitor, so Sentry is the only
+      // place it shows. Report the ORIGINAL error: the wrapper's message is the
+      // same for every cause, which is what made earlier failures undiagnosable.
+      if (!reportedRangeReadFailure) {
+        reportedRangeReadFailure = true
+        reportError(error.cause, {
+          level: 'warning',
+          context: { stage: 'loadUnitModel', rangeUnsupported: unsupported },
+          perVisitor: true,
+          fingerprint: ['model-bundle-range-read'],
+        })
       }
     }
   }
-  if (!allowWholeBundleFallback) {
-    // The availability precheck must never pull the whole bundle on page load.
-    throw new RangeUnsupportedError('whole-bundle fallback disabled for this read')
+  return extractFromBytes(await downloadWholeBundle(url, cacheKey, timestamp), names)
+}
+
+/**
+ * Fetch a bundle's baked unit index. Any failure throws with the real reason
+ * (HTTP status, network error, parse error) so it reaches Sentry intact.
+ */
+async function fetchModelsIndex(url: string): Promise<ModelsIndex> {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`model index request failed: HTTP ${response.status}`)
   }
-  return extractViaWholeBundle(url, cacheKey, timestamp, names)
+  // A file missing from the deploy comes back as the SPA's index.html with a
+  // 200, so a JSON parse failure here usually means "not baked", not "corrupt".
+  const index = (await response.json()) as Partial<ModelsIndex> | null
+  const units: unknown = index?.units
+  if (typeof units !== 'object' || units === null || Array.isArray(units)) {
+    throw new Error('model index has no units')
+  }
+  return index as ModelsIndex
 }
 
 // ---------------------------------------------------------------------------
@@ -336,8 +490,8 @@ async function extractEntries(
 // ---------------------------------------------------------------------------
 
 /**
- * Raised when the model index could not be READ — network failure, unusable
- * Range support, or a bundle missing its own `models.json`.
+ * Raised when the model index could not be READ — a failed request, an index
+ * missing from the deploy, or a manifest that does not say where the index is.
  *
  * Kept strictly apart from a `null` return, which means the faction genuinely
  * HAS no bundle. Callers must not conflate them: absence is normal and permanent
@@ -400,57 +554,51 @@ export async function getFactionModelsIndex(
 
   // Cache freshness keys on the MODEL bundle stamp (not the faction-data
   // timestamp) so a model-only regen invalidates stale entries.
-  const db = await getDB()
-  const cached = await db.get('indexes', cacheKey)
+  const cached = await cacheGet('indexes', cacheKey)
   if (cached && cached.timestamp === bundleStamp) {
     return cached.index
   }
 
-  // Cache miss / stale — read models.json via a RANGE request only. This runs
-  // on unit-page load (to decide whether to show the "View 3D Model" button), so
-  // it must never download the whole multi-MB bundle. The whole-bundle fallback
-  // is therefore disabled here; if Range is unavailable we fail this read rather
-  // than pull megabytes just to answer "is there a model?".
-  // The actual model download (loadUnitModel) keeps the fallback, since that only
-  // runs after the user clicks.
-  const url = modelBundleUrl(manifestEntry.models)
-  let bytes: Uint8Array | undefined
+  // Cache miss / stale. This runs on unit-page load (to decide whether to show
+  // the "View 3D Model" button), so it reads only the baked index: never the
+  // bundle, never Range. See the module header.
+  //
+  // No indexUrl means a manifest from before indexes were baked. deploy.yml
+  // refuses to publish one, so this is only an older manifest the visitor has
+  // cached. The bundle is there, so answering "no model" would be false, and
+  // opening the bundle is what this path exists to avoid: "couldn't check" is
+  // the honest answer. Not reported: stale local state, not a fault.
+  const { indexUrl } = manifestEntry.models
+  if (!indexUrl) throw new ModelIndexUnavailableError('manifest has no model index URL')
+
+  let index: ModelsIndex
   try {
-    const extracted = await extractEntries(
-      url,
-      cacheKey,
-      bundleStamp,
-      ['models.json'],
-      false // no whole-bundle fallback on page load
-    )
-    bytes = extracted.get('models.json')
+    index = await fetchModelsIndex(indexUrl)
   } catch (error) {
     // The manifest told us a bundle exists, so this is a failure to read it —
     // never absence. Detail stays in the console for developers; callers show a
     // generic message so internals never reach the UI.
-    console.warn('Model index unavailable without a whole-bundle download', error)
+    console.warn('Model index unavailable', error)
     // The UI deliberately discards this error (see UnitModelSection), so Sentry
     // is the only place it can surface. The manifest promised a bundle, so this
     // is a broken 3D viewer for the visitor, not simply "no model".
     //
-    // Reported once per bundle per session: the failure is not cached (only the
-    // success path writes to IndexedDB) and `rangeSupport` latches to 'no' for
-    // the session, so without this guard a visitor behind a Range-stripping
-    // proxy would re-report on every unit page they open.
-    if (!reportedModelIndexFailures.has(cacheKey)) {
-      reportedModelIndexFailures.add(cacheKey)
+    // Reported once per bundle per session: failures are not cached (only the
+    // success path writes to IndexedDB), so without this guard one missing
+    // index would re-report on every unit page the visitor opens. The fixed
+    // fingerprint keeps it one Sentry issue whichever frame or browser threw.
+    if (!reportedModelIndexFailures.has(indexUrl)) {
+      reportedModelIndexFailures.add(indexUrl)
       reportError(error, {
-        context: { stage: 'loadModelIndex', factionId, version },
+        context: { stage: 'loadModelIndex', factionId, version, indexUrl },
         perVisitor: true,
+        fingerprint: ['model-index-unavailable'],
       })
     }
     throw new ModelIndexUnavailableError(error)
   }
-  // A bundle without its own index is corrupt, not empty.
-  if (!bytes) throw new ModelIndexUnavailableError('models.json missing from bundle')
 
-  const index = JSON.parse(new TextDecoder().decode(bytes)) as ModelsIndex
-  await db.put('indexes', {
+  await cachePut('indexes', {
     key: cacheKey,
     timestamp: bundleStamp,
     index,
@@ -521,7 +669,6 @@ export async function loadUnitModel(
   const bundleKey = `${factionId.toLowerCase()}@${resolvedVersion}`
   const unitKey = `${bundleKey}/${unitId}`
   const bundleStamp = modelBundleStamp(manifestEntry)
-  const db = await getDB()
 
   // Rebuild a Blob from stored bytes in the current context so it is always a
   // valid Blob for URL.createObjectURL (Blobs do not reliably survive an
@@ -534,7 +681,7 @@ export async function loadUnitModel(
   let mask: Blob | undefined
   let material: Blob | undefined
 
-  const cachedUnit = await db.get('units', unitKey)
+  const cachedUnit = await cacheGet('units', unitKey)
   if (cachedUnit && cachedUnit.timestamp === bundleStamp) {
     glb = bytesToBlob(cachedUnit.glb, entry.glb)
     diffuse =
@@ -568,7 +715,7 @@ export async function loadUnitModel(
     const maskBytes = entry.mask ? getBytes(entry.mask) : undefined
     const materialBytes = entry.material ? getBytes(entry.material) : undefined
 
-    await db.put('units', {
+    await cachePut('units', {
       key: unitKey,
       timestamp: bundleStamp,
       glb: glbBytes,
@@ -603,9 +750,13 @@ export async function loadUnitModel(
 }
 
 /** Clear all cached model data (indexes, per-unit blobs, whole bundles) and
- * reset the session's range-support detection. */
+ * reset the session's range-support detection and report-once guards. */
 export async function clearModelCache(): Promise<void> {
   rangeSupport = 'unknown'
+  reportedRangeReadFailure = false
+  reportedCacheFailures.clear()
+  uncachedBundle = null
+  reportedModelIndexFailures.clear()
   const db = await getDB()
   const tx = db.transaction(['indexes', 'units', 'bundles'], 'readwrite')
   claimTransactionDone(tx)

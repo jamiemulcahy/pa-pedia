@@ -492,7 +492,7 @@ export function UnitDetail() {
         {/* Top row: Back link + comparison controls */}
         <div className="flex items-center justify-between mb-4">
           <Link to={backLink} className="text-primary hover:underline">
-            &larr; {backText}
+            {`← ${backText}`}
           </Link>
 
           {isComparing && (
@@ -892,7 +892,7 @@ export function UnitDetail() {
                   </div>
 
                   {/* Group weapons - aligned rows */}
-                  {(primaryGroupStats?.weapons.length || comparisonGroupStatsArray.some(s => s?.weapons.length) || pendingComparisonGroupIndex >= comparisonGroups.length) && (
+                  {!!(primaryGroupStats?.weapons.length || comparisonGroupStatsArray.some(s => s?.weapons.length) || pendingComparisonGroupIndex >= comparisonGroups.length) && (
                     <div className="flex gap-6 items-stretch">
                       {/* Primary Group Weapons */}
                       <div className="flex-1 min-w-[85vw] sm:min-w-[calc(33.333%-1rem)] sticky left-4 z-10 bg-background pr-6 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_8px_-2px_rgba(0,0,0,0.3)]">
