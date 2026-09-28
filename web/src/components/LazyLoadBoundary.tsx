@@ -7,12 +7,18 @@
  *
  * The case it exists for is a tab left open across a deploy: the deploy deleted
  * the chunk this tab's build asks for, and only a reload can fetch the new
- * build. We never reload on the visitor's behalf. When a newer build is
- * confirmed ({@link checkForNewBuild}) we say so and offer a Reload button;
- * otherwise (offline, flaky connection, same build) Try again comes first, with
- * Reload as the fallback. With no automatic reload there is no loop to guard
- * against, and nothing the visitor was looking at disappears without them
- * choosing it.
+ * build. We never reload on the visitor's behalf: a chunk-load failure offers
+ * Reload page, worded by what {@link checkForNewBuild} found (a newer build,
+ * the same build, or no answer because the visitor is offline). With no
+ * automatic reload there is no loop to guard against, and nothing the visitor
+ * was looking at disappears without them choosing it.
+ *
+ * There is deliberately no Try again for a failed import. Chromium remembers a
+ * failed dynamic import for the rest of the document's life: re-importing the
+ * same URL rejects at once without touching the network (verified on Chromium
+ * 141 against the live site). Only a new document can load that chunk, so a
+ * Try again button would just fail again. Render errors are different: the
+ * code loaded, so remounting is a real retry, and they keep Try again.
  */
 
 import React, { useEffect, useState } from 'react'
@@ -23,11 +29,6 @@ interface Props {
   children: React.ReactNode
   /** What failed to load, for the message, e.g. "the 3D viewer". */
   feature: string
-  /**
-   * Called by Try again after a chunk-load failure, before the children remount.
-   * Must make the next mount re-attempt the import — see retryableLazy.
-   */
-  retryImport: () => void
   /** Changing this clears a shown failure, e.g. when the unit being viewed changes. */
   resetKey?: string
   /** Wraps the fallback so it can match the size of what it replaces. */
@@ -58,8 +59,6 @@ export class LazyLoadBoundary extends React.Component<Props, State> {
   }
 
   private retry = () => {
-    // A render error needs only a remount; a failed import also needs a fresh lazy().
-    if (this.state.error && isChunkLoadError(this.state.error.message)) this.props.retryImport()
     this.setState({ error: null })
   }
 
@@ -70,7 +69,7 @@ export class LazyLoadBoundary extends React.Component<Props, State> {
     return (
       <div className={this.props.className}>
         {isChunkLoadError(error.message) ? (
-          <ChunkLoadFailure error={error} feature={this.props.feature} onRetry={this.retry} />
+          <ChunkLoadFailure error={error} feature={this.props.feature} />
         ) : (
           <FailureMessage
             message={`Something went wrong displaying ${this.props.feature}.`}
@@ -82,15 +81,7 @@ export class LazyLoadBoundary extends React.Component<Props, State> {
   }
 }
 
-function ChunkLoadFailure({
-  error,
-  feature,
-  onRetry,
-}: {
-  error: Error
-  feature: string
-  onRetry: () => void
-}) {
+function ChunkLoadFailure({ error, feature }: { error: Error; feature: string }) {
   const [build, setBuild] = useState<BuildStatus | 'checking'>('checking')
 
   useEffect(() => {
@@ -111,29 +102,13 @@ function ChunkLoadFailure({
   }
 
   const reload = { label: 'Reload page', onClick: () => window.location.reload() }
-
-  if (build === 'stale') {
-    return (
-      <FailureMessage
-        message={`PA-Pedia has been updated since this page was opened. Reload the page to load ${feature}.`}
-        action={reload}
-      />
-    )
+  const messages: Record<BuildStatus, string> = {
+    stale: `PA-Pedia has been updated since this page was opened. Reload the page to load ${feature}.`,
+    current: `Couldn't load ${feature}. Reloading the page usually fixes this.`,
+    unknown: `Couldn't load ${feature}. Check your connection, then reload the page.`,
   }
 
-  // Reload stays on offer as the fallback: some browsers remember a failed
-  // module import, so Try again can keep failing where a new document won't.
-  return (
-    <FailureMessage
-      message={
-        build === 'unknown'
-          ? `Couldn't load ${feature}. Check your connection and try again.`
-          : `Couldn't load ${feature}. Try again, or reload the page if it keeps failing.`
-      }
-      action={{ label: 'Try again', onClick: onRetry }}
-      secondaryAction={reload}
-    />
-  )
+  return <FailureMessage message={messages[build]} action={reload} />
 }
 
 interface Action {
@@ -141,38 +116,19 @@ interface Action {
   onClick: () => void
 }
 
-function FailureMessage({
-  message,
-  action,
-  secondaryAction,
-}: {
-  message: string
-  action?: Action
-  secondaryAction?: Action
-}) {
+function FailureMessage({ message, action }: { message: string; action?: Action }) {
   return (
     <div role="alert" className="flex flex-col items-center justify-center gap-3 text-center p-4">
       <p className="text-sm text-gray-300">{message}</p>
-      <div className="flex gap-2">
-        {action && (
-          <button
-            type="button"
-            onClick={action.onClick}
-            className="rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 hover:bg-gray-700"
-          >
-            {action.label}
-          </button>
-        )}
-        {secondaryAction && (
-          <button
-            type="button"
-            onClick={secondaryAction.onClick}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 underline hover:text-gray-100"
-          >
-            {secondaryAction.label}
-          </button>
-        )}
-      </div>
+      {action && (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-100 hover:bg-gray-700"
+        >
+          {action.label}
+        </button>
+      )}
     </div>
   )
 }
