@@ -186,6 +186,17 @@ describe('filterEvent', () => {
     expect(result?.level).toBe('warning')
   })
 
+  it('splits chunk-load issues by build status, keeping the other tags', () => {
+    const event = errorEvent('TypeError', 'Failed to fetch dynamically imported module')
+    event.tags = { build_status: 'current' }
+    const result = filterEvent(event, undefined, () => 0.01)
+
+    // Same-build failures are the real problem; they must not share an issue
+    // with the stale-tab failures every deploy produces.
+    expect(result?.fingerprint).toEqual(['chunk-load-error', 'current'])
+    expect(result?.tags).toEqual({ build_status: 'current', error_class: 'chunk-load' })
+  })
+
   it('samples chunk-load errors at roughly the configured rate', () => {
     let kept = 0
     for (let i = 0; i < 1000; i++) {

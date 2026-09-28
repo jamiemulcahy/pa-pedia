@@ -139,8 +139,12 @@ export function filterEvent(
     if (random() >= CHUNK_LOAD_SAMPLE_RATE) return null
 
     // Collapse every variant (each references a different hashed filename)
-    // into one issue instead of one issue per deploy per chunk.
-    event.fingerprint = ['chunk-load-error']
+    // into one issue instead of one issue per deploy per chunk. Split by the
+    // build_status LazyLoadBoundary attaches: `stale` is expected after every
+    // deploy, while `current` means the deployed build itself can't load, and
+    // must not be buried under that noise.
+    const buildStatus = event.tags?.build_status
+    event.fingerprint = buildStatus ? ['chunk-load-error', String(buildStatus)] : ['chunk-load-error']
     event.tags = { ...event.tags, error_class: 'chunk-load' }
     event.level = 'warning'
     return event
@@ -278,14 +282,17 @@ export interface ReportOptions {
    * one call site whose causes deserve different issues.
    */
   fingerprint?: string[]
+  /** Searchable tags. Values must be low-cardinality and never visitor data. */
+  tags?: Record<string, string>
 }
 export function reportError(error: unknown, options: ReportOptions = {}): void {
-  const { context, level = 'error', perVisitor = false, fingerprint } = options
+  const { context, level = 'error', perVisitor = false, fingerprint, tags } = options
+  const allTags = { ...tags, ...(perVisitor ? { volume: PER_VISITOR_TAG } : {}) }
 
   Sentry.captureException(error, {
     level,
     ...(context ? { extra: context } : {}),
-    ...(perVisitor ? { tags: { volume: PER_VISITOR_TAG } } : {}),
+    ...(Object.keys(allTags).length > 0 ? { tags: allTags } : {}),
     ...(fingerprint ? { fingerprint } : {}),
   })
 }
