@@ -1,6 +1,7 @@
-import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import type { DBSchema, IDBPDatabase } from 'idb'
 import type { FactionMetadata, FactionIndex } from '@/types/faction'
 import { claimTransactionDone } from './idbTransaction'
+import { openWithoutWaiting } from './idbOpen'
 
 interface LocalFactionDB extends DBSchema {
   factions: {
@@ -19,14 +20,23 @@ interface LocalFactionDB extends DBSchema {
 }
 
 const DB_NAME = 'pa-pedia-local-factions'
-const DB_VERSION = 1
+// v2 changes no schema. It exists so `upgrade()` runs once more for databases
+// left at v1 with none of their stores (seen in Firefox): it creates whatever
+// is missing, which repairs them in place.
+//
+// Unlike the static cache, this store is the visitor's own uploads, so failures
+// still throw: a miss would read as "your faction is gone" and a skipped write
+// would lose the upload. Callers already show and report those errors.
+const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<LocalFactionDB>> | null = null
 
 function getDB(): Promise<IDBPDatabase<LocalFactionDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<LocalFactionDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+    dbPromise = openWithoutWaiting<LocalFactionDB>(
+      DB_NAME,
+      DB_VERSION,
+      (db) => {
         if (!db.objectStoreNames.contains('factions')) {
           db.createObjectStore('factions', { keyPath: 'id' })
         }
@@ -34,7 +44,10 @@ function getDB(): Promise<IDBPDatabase<LocalFactionDB>> {
           db.createObjectStore('assets')
         }
       },
-    })
+      () => {
+        dbPromise = null
+      }
+    )
   }
   return dbPromise
 }
