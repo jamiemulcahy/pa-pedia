@@ -136,6 +136,7 @@
             "spec_id": "/pa/units/commanders/exiles_blueberry/union_formidable_tool_weapon.json",
             "aim_bone": "bone_turret",
             "muzzle_bone": "socket_right",
+            "primary_weapon": true,
             "fire_event": "fired"
         },
         {
