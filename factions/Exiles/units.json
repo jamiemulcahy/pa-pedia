@@ -33,7 +33,7 @@
         "accessible": false,
         "specs": {
           "combat": {
-            "health": 30000,
+            "health": 60000,
             "dps": 30,
             "salvoDamage": 30,
             "weapons": [
@@ -73,7 +73,7 @@
                 "dps": 30,
                 "sustainedDps": 30,
                 "projectilesPerFire": 1,
-                "maxRange": 15,
+                "maxRange": 90,
                 "splashRadius": 90,
                 "fullDamageRadius": 90,
                 "burnRadius": 90,
@@ -99,7 +99,7 @@
             ]
           },
           "economy": {
-            "buildCost": 0.01,
+            "buildCost": 10000,
             "production": {},
             "consumption": {},
             "storage": {},
@@ -2061,8 +2061,8 @@
         "specs": {
           "combat": {
             "health": 20000,
-            "dps": 300,
-            "salvoDamage": 3000,
+            "dps": 600,
+            "salvoDamage": 6000,
             "weapons": [
               {
                 "resourceName": "/pa/units/land/cyclone/cyclone_tool_weapon.json",
@@ -2070,13 +2070,13 @@
                 "name": "cyclone_tool_weapon",
                 "count": 1,
                 "rateOfFire": 0.1,
-                "damage": 3000,
-                "dps": 300,
-                "sustainedDps": 300,
+                "damage": 6000,
+                "dps": 600,
+                "sustainedDps": 600,
                 "projectilesPerFire": 1,
                 "muzzleVelocity": 80,
                 "maxRange": 200,
-                "splashDamage": 3000,
+                "splashDamage": 6000,
                 "splashRadius": 25,
                 "fullDamageRadius": 5,
                 "burnDamage": 200,
@@ -2108,9 +2108,9 @@
                   "resourceName": "/pa/units/land/cyclone/cyclone_ammo.json",
                   "safeName": "cyclone_ammo",
                   "name": "cyclone_ammo",
-                  "damage": 3000,
+                  "damage": 6000,
                   "fullDamageRadius": 5,
-                  "splashDamage": 3000,
+                  "splashDamage": 6000,
                   "splashRadius": 25,
                   "muzzleVelocity": 80,
                   "maxVelocity": 80,
@@ -2123,7 +2123,7 @@
             ]
           },
           "economy": {
-            "buildCost": 20000,
+            "buildCost": 15000,
             "production": {},
             "consumption": {},
             "storage": {},
@@ -14008,7 +14008,7 @@
         "id": "t_chimera",
         "resourceName": "/pa/units/land/t_chimera/t_chimera.json",
         "displayName": "Chimera",
-        "description": "DemiTitan - long ramge anit-surface and anti-air lasers.",
+        "description": "Ship-Hunter Demi-Titan - long rane anit-surface and anti-air lasers. When underwater will fire torpedoes instead. Amphibious. Durable.",
         "image": "assets/pa/units/land/t_chimera/t_chimera_icon_buildbar.png",
         "tier": 3,
         "unitTypes": [
@@ -14025,26 +14025,26 @@
         "accessible": true,
         "specs": {
           "combat": {
-            "health": 25000,
-            "dps": 1000,
-            "salvoDamage": 1000,
+            "health": 20000,
+            "dps": 1900,
+            "salvoDamage": 2200,
             "weapons": [
               {
-                "resourceName": "/pa/units/land/t_chimera/t_chimera_weapon.json",
-                "safeName": "t_chimera_weapon",
-                "name": "t_chimera_weapon",
+                "resourceName": "/pa/units/land/t_chimera/chimera_tool_torp.json",
+                "safeName": "chimera_tool_torp",
+                "name": "chimera_tool_torp",
                 "count": 4,
                 "rateOfFire": 1,
                 "damage": 250,
                 "dps": 250,
                 "projectilesPerFire": 1,
-                "maxRange": 240,
+                "muzzleVelocity": 70,
+                "maxRange": 210,
                 "burnDps": 6,
                 "targetLayers": [
-                  "LandHorizontal",
                   "Seafloor",
                   "WaterSurface",
-                  "Air"
+                  "Underwater"
                 ],
                 "targetPriorities": [
                   "Mobile - Air",
@@ -14052,15 +14052,50 @@
                   "Structure - Wall",
                   "Wall"
                 ],
-                "yawRange": 180,
+                "yawRange": 135,
                 "yawRate": 60,
                 "pitchRange": 90,
                 "pitchRate": 60,
                 "ammoDetails": {
+                  "resourceName": "/pa/units/sea/torpedo_launcher_adv/torpedo_launcher_adv_ammo_water.json",
+                  "safeName": "torpedo_launcher_adv_ammo_water",
+                  "name": "torpedo_launcher_adv_ammo_water",
+                  "damage": 250,
+                  "muzzleVelocity": 70,
+                  "maxVelocity": 50,
+                  "lifetime": 5
+                }
+              },
+              {
+                "resourceName": "/pa/units/land/t_chimera/t_chimera_weapon.json",
+                "safeName": "t_chimera_weapon",
+                "name": "t_chimera_weapon",
+                "count": 4,
+                "rateOfFire": 0.75,
+                "damage": 300,
+                "dps": 225,
+                "projectilesPerFire": 1,
+                "maxRange": 210,
+                "burnDps": 6,
+                "targetLayers": [
+                  "LandHorizontal",
+                  "WaterSurface",
+                  "Air"
+                ],
+                "targetPriorities": [
+                  "Air \u0026 ( EnergyProduction | Transport | Bomber | Gunship | Titan )",
+                  "Mobile \u0026 Land",
+                  "Mobile \u0026 Air"
+                ],
+                "yawRange": 135,
+                "yawRate": 120,
+                "pitchRange": 90,
+                "pitchRate": 180,
+                "ammoDetails": {
                   "resourceName": "/pa/units/land/t_chimera/t_chimera_ammo.json",
                   "safeName": "t_chimera_ammo",
                   "name": "t_chimera_ammo",
-                  "damage": 250
+                  "damage": 300
                 }
               }
             ]
@@ -14084,7 +14119,9 @@
             "underwaterVisionRadius": 200
           },
           "storage": {},
-          "special": {}
+          "special": {
+            "amphibious": true
+          }
         },
         "buildRelationships": {
           "builtBy": [
