@@ -14008,7 +14008,7 @@
         "id": "t_chimera",
         "resourceName": "/pa/units/land/t_chimera/t_chimera.json",
         "displayName": "Chimera",
-        "description": "Ship-Hunter Demi-Titan - long rane anit-surface and anti-air lasers. When underwater will fire torpedoes instead. Amphibious. Durable.",
+        "description": "Support Demi-Titan: Armed with long-range anti-surface and anti-air lasers. It will fire torpedoes instead when underwater. Durable. Amphibious.",
         "image": "assets/pa/units/land/t_chimera/t_chimera_icon_buildbar.png",
         "tier": 3,
         "unitTypes": [
