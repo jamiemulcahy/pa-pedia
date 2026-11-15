@@ -5048,7 +5048,8 @@
         "Transport",
         "Basic",
         "FactoryBuild",
-        "Custom1"
+        "Custom1",
+        "Offense"
       ],
       "source": "pa",
       "files": [
@@ -5074,7 +5075,8 @@
           "Transport",
           "Basic",
           "FactoryBuild",
-          "Custom1"
+          "Custom1",
+          "Offense"
         ],
         "accessible": true,
         "specs": {
@@ -6279,7 +6281,8 @@
         "FabBuild",
         "CombatFabBuild",
         "Recon",
-        "Custom1"
+        "Custom1",
+        "Radar"
       ],
       "source": "pa",
       "files": [
@@ -6306,7 +6309,8 @@
           "FabBuild",
           "CombatFabBuild",
           "Recon",
-          "Custom1"
+          "Custom1",
+          "Radar"
         ],
         "accessible": true,
         "specs": {
@@ -8388,7 +8392,8 @@
         "Recon",
         "FactoryBuild",
         "Custom1",
-        "Interplanetary"
+        "Interplanetary",
+        "Radar"
       ],
       "source": "pa",
       "files": [
@@ -8415,12 +8420,13 @@
           "Recon",
           "FactoryBuild",
           "Custom1",
-          "Interplanetary"
+          "Interplanetary",
+          "Radar"
         ],
         "accessible": true,
         "specs": {
           "combat": {
-            "health": 1000
+            "health": 600
           },
           "economy": {
             "buildCost": 800,
@@ -13848,7 +13854,8 @@
         "Recon",
         "FactoryBuild",
         "Custom1",
-        "Interplanetary"
+        "Interplanetary",
+        "Radar"
       ],
       "source": "pa",
       "files": [
@@ -13875,7 +13882,8 @@
           "Recon",
           "FactoryBuild",
           "Custom1",
-          "Interplanetary"
+          "Interplanetary",
+          "Radar"
         ],
         "accessible": true,
         "specs": {
@@ -15144,7 +15152,8 @@
         "Advanced",
         "Recon",
         "FabAdvBuild",
-        "Custom1"
+        "Custom1",
+        "Radar"
       ],
       "source": "pa",
       "files": [
@@ -15170,7 +15179,8 @@
           "Advanced",
           "Recon",
           "FabAdvBuild",
-          "Custom1"
+          "Custom1",
+          "Radar"
         ],
         "accessible": true,
         "specs": {
