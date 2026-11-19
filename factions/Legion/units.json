@@ -3266,7 +3266,8 @@
         "Structure",
         "Basic",
         "Recon",
-        "Custom1"
+        "Custom1",
+        "Radar"
       ],
       "source": "pa",
       "files": [
@@ -3292,7 +3293,8 @@
           "Structure",
           "Basic",
           "Recon",
-          "Custom1"
+          "Custom1",
+          "Radar"
         ],
         "accessible": true,
         "specs": {
@@ -16424,7 +16426,7 @@
         "id": "l_orbital_dropper",
         "resourceName": "/pa/units/orbital/l_orbital_dropper/l_orbital_dropper.json",
         "displayName": "Starcannon",
-        "description": "Planetary Transport - Builds and launches up to 14 units at once to the planet below.",
+        "description": "Planetary Transport - Builds and launches up to 9 units at once to the planet below.",
         "image": "assets/pa/units/orbital/l_orbital_dropper/l_orbital_dropper_icon_buildbar.png",
         "tier": 2,
         "unitTypes": [
